@@ -5,6 +5,8 @@ class_name TipsControl
 var _slot:Control = null
 var _tips:Control = null
 
+## 进入tips中是否保留
+@export var is_save:bool=true
 ## 显示组件
 @export var slot:Control:
 	set(new_slot):
@@ -69,20 +71,20 @@ func _展示tip():
 		if _last_interaction_position.y + tips_size.y > screen_size.y:
 			_tips.global_position.y = _last_interaction_position.y - tips_size.y
 
+func _判断是否进入容器(point:Vector2):
+	if _slot.get_global_rect().has_point(point):
+		_last_interaction_position = point
+		return true
+	if is_save:
+		if _tips.visible and  _tips.get_global_rect().has_point(point):
+			return true
+	return false
+
 func _process(delta: float) -> void:
 	if _slot and _tips:
-		var is_interacting = false
-		var interaction_position = Vector2()
-		
-		# 检查鼠标输入
-		if _slot.get_global_rect().has_point(get_global_mouse_position()):
-			is_interacting = true
-			interaction_position = get_global_mouse_position()
-		
+		var is_interacting = _判断是否进入容器(get_global_mouse_position())
 		# 根据交互状态处理提示显示
 		if is_interacting:
-			# 保存当前交互位置
-			_last_interaction_position = interaction_position
 			# 如果提示未显示，则显示它
 			if not _tips.visible:
 				_展示tip()
