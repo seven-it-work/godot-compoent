@@ -1,0 +1,40 @@
+[gd_scene load_steps=2 format=3 uid="uid://2op3hqywssyv"]
+
+[ext_resource type="PackedScene" uid="uid://cvsdoj7qboxa5" path="res://提示组件/Tips.tscn" id="1_mrcxv"]
+
+[node name="Test1" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Tips" parent="HBoxContainer" node_paths=PackedStringArray("slot", "tips") instance=ExtResource("1_mrcxv")]
+layout_mode = 2
+size_flags_horizontal = 3
+slot = NodePath("PanelContainer")
+tips = NodePath("Label")
+
+[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/Tips"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="HBoxContainer/Tips/PanelContainer"]
+layout_mode = 2
+text = "ces"
+
+[node name="Label" type="Label" parent="HBoxContainer/Tips"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "tips"

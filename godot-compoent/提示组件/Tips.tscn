@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://cvsdoj7qboxa5"]
+
+[ext_resource type="Script" uid="uid://dwr4q78xr5n1b" path="res://提示组件/tips.gd" id="1_8d7yr"]
+
+[node name="Tips" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_8d7yr")
