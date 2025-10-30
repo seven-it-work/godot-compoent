@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=3 uid="uid://7q6wsy7v2nb1"]
+
+[ext_resource type="PackedScene" uid="uid://cs04jflun4vww" path="res://自动大小Label/自动大小Label.tscn" id="1_cnxx5"]
+
+[node name="Test" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="自动大小label" parent="." instance=ExtResource("1_cnxx5")]
+layout_mode = 0
+offset_right = 169.0
+offset_bottom = 130.0
+text = "测试问字"
+
+[node name="自动大小label2" parent="." instance=ExtResource("1_cnxx5")]
+layout_mode = 0
+offset_left = 158.0
+offset_top = -6.0
+offset_right = 222.0
+offset_bottom = 17.0
+text = "测试问字"

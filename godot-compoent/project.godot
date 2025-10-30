@@ -11,9 +11,14 @@ config_version=5
 [application]
 
 config/name="godot-compoent"
-run/main_scene="uid://2op3hqywssyv"
+run/main_scene="uid://ytv3qvu1qpdj"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
+
+[display]
+
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep_width"
 
 [input_devices]
 

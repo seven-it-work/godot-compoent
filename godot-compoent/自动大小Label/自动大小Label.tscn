@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cs04jflun4vww"]
+
+[ext_resource type="Script" uid="uid://cgcuv7unro37g" path="res://自动大小Label/自动大小label.gd" id="1_eyoja"]
+
+[node name="自动大小label" type="Label"]
+script = ExtResource("1_eyoja")
