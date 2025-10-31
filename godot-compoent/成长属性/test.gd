@@ -21,3 +21,12 @@ func _ready() -> void:
 		"max_value": 10.0
 	})
 	print(random_growth.value)
+	
+	$"成长属性组件".growth=random_growth
+
+
+func _on_timer_timeout() -> void:
+	print("开始清理")
+	#_test_temp.clear()
+	$"成长属性组件".queue_free()
+	pass # Replace with function body.

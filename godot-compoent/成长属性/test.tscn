@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://ddx1410njo6s7"]
+[gd_scene load_steps=3 format=3 uid="uid://ddx1410njo6s7"]
 
 [ext_resource type="Script" uid="uid://j13y77r1dtf2" path="res://成长属性/test.gd" id="1_uncyp"]
+[ext_resource type="PackedScene" uid="uid://bguw5q3770cx0" path="res://成长属性/成长属性组件.tscn" id="2_hdpux"]
 
 [node name="Test" type="Control"]
 layout_mode = 3
@@ -10,3 +11,13 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_uncyp")
+
+[node name="成长属性组件" parent="." instance=ExtResource("2_hdpux")]
+layout_mode = 0
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+autostart = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
