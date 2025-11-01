@@ -31,7 +31,8 @@ func get_custom_value_control():
 
 ## 重写渲染方法
 func render_growth_property():
+	var growth=get_growth_property()
 	# 如果有自定义控件，则调用其渲染方法
-	if custom_value_control:
-		custom_value_control.render(get_growth_property())
+	if custom_value_control and growth:
+		custom_value_control.render(growth)
 	pass

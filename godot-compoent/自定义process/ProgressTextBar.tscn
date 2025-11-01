@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://cyrpjyfe5d1nn"]
+
+[ext_resource type="Script" uid="uid://cwnabjbdkdxxa" path="res://自定义process/progress_text_bar.gd" id="1_bmuvq"]
+
+[node name="ProgressTextBar" type="ProgressBar"]
+offset_right = 131.0
+offset_bottom = 27.0
+show_percentage = false
+script = ExtResource("1_bmuvq")
