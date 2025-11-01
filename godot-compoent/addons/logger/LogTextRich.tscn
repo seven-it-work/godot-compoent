@@ -1,0 +1,65 @@
+[gd_scene load_steps=4 format=3 uid="uid://dcejh6mmj3kto"]
+
+[ext_resource type="Script" uid="uid://cutnhqdf7oaqq" path="res://addons/logger/log_text_rich.gd" id="1_h7vnk"]
+[ext_resource type="Texture2D" uid="uid://bdo0x4akf0qir" path="res://addons/logger/close.png" id="2_mnuwx"]
+[ext_resource type="Texture2D" uid="uid://bedx0ov40yjed" path="res://addons/logger/代码日志.png" id="3_08hbd"]
+
+[node name="LogTextRich" type="Control"]
+custom_minimum_size = Vector2(500, 100)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 200.0
+offset_bottom = 500.0
+script = ExtResource("1_h7vnk")
+
+[node name="Show" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Show"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+bbcode_enabled = true
+
+[node name="Close" type="Button" parent="Show"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1109.0
+offset_top = 1.0
+offset_right = 1317.0
+offset_bottom = 209.0
+scale = Vector2(0.2, 0.2)
+icon = ExtResource("2_mnuwx")
+
+[node name="悬浮窗口" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 42.0
+offset_bottom = 42.0
+texture = ExtResource("3_08hbd")
+expand_mode = 2
+
+[node name="Label" type="Label" parent="悬浮窗口"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "拖拽.."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="pressed" from="Show/Close" to="." method="_on_close_pressed"]
+[connection signal="gui_input" from="悬浮窗口" to="." method="_on_悬浮窗口_gui_input"]

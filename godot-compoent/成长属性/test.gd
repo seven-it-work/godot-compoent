@@ -3,6 +3,10 @@ extends Control
 var random_growth
 
 func _ready() -> void:
+	print(LogConfig.logTextRich)
+	add_child(LogConfig.logTextRich)
+	
+	
 	var base=BaseValue.GrowthValue.new({
 		"growth_factor": -1.0,
 		"value":100,
@@ -33,6 +37,12 @@ func _ready() -> void:
 	$"成长属性组件".set_growth_property(random_growth)
 	$"自定义成长属性组件".set_growth_property(random_growth)
 	$"自定义成长属性组件2".set_growth_property(random_growth)
+	
+	Log.info("测试info信息")
+	Log.debug("测试debug信息")
+	Log.warn("测试warn信息")
+	Log.err("测试error信息")
+	#print(LogConfig.logTextRich.log_text)
 
 
 func _on_timer_timeout() -> void:
