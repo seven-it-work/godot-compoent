@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://ddx1410njo6s7"]
 
 [ext_resource type="Script" uid="uid://j13y77r1dtf2" path="res://成长属性/test.gd" id="1_uncyp"]
-[ext_resource type="PackedScene" uid="uid://bguw5q3770cx0" path="res://成长属性/成长属性组件.tscn" id="2_hdpux"]
+[ext_resource type="PackedScene" uid="uid://demwadgunawnc" path="res://成长属性/成长属性组件.tscn" id="2_hdpux"]
 
 [node name="Test" type="Control"]
 layout_mode = 3

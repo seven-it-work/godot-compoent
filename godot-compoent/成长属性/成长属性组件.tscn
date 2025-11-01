@@ -1,15 +1,23 @@
-[gd_scene load_steps=2 format=3 uid="uid://bguw5q3770cx0"]
+[gd_scene load_steps=2 format=3 uid="uid://demwadgunawnc"]
 
-[ext_resource type="Script" uid="uid://dblyo40td2l67" path="res://成长属性/成长属性组件.gd" id="1_tuw20"]
+[ext_resource type="Script" path="res://成长属性/成长属性组件.gd" id="1_tuw20"]
 
 [node name="成长属性组件" type="HBoxContainer"]
+offset_right = 191.0
+offset_bottom = 46.0
 script = ExtResource("1_tuw20")
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 2
+text = "test"
+horizontal_alignment = 1
 
 [node name="ValueStr" type="Label" parent="."]
 layout_mode = 2
+size_flags_horizontal = 3
+vertical_alignment = 1
 
 [node name="ProgressBar" type="ProgressBar" parent="."]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4

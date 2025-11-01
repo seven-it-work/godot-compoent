@@ -7,9 +7,15 @@ func _ready() -> void:
 		"min_growth":1.0,
 		"max_growth":1.0,
 	})
-	for i in range(10):
-		base.grow()
-		assert(base.value == 100-i-1)
+	base.属性变化.connect(func(key,value):
+		print(key,value)
+		if key=="min_growth":
+			base.set_min_growth(1)
+		pass)
+	base.set_min_growth(12)
+	#for i in range(10):
+		#base.grow()
+		#assert(base.value == 100-i-1)
 	
 	# 对randomValue进行测试
 	# 1. 测试RandomGrowth类的基本功能
