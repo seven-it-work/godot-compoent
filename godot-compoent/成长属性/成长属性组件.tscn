@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://demwadgunawnc"]
 
-[ext_resource type="Script" path="res://成长属性/成长属性组件.gd" id="1_tuw20"]
+[ext_resource type="Script" uid="uid://dblyo40td2l67" path="res://成长属性/成长属性组件.gd" id="1_tuw20"]
 
 [node name="成长属性组件" type="HBoxContainer"]
 offset_right = 191.0

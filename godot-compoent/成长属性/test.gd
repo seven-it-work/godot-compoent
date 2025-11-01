@@ -1,5 +1,7 @@
 extends Control
 
+var random_growth
+
 func _ready() -> void:
 	var base=BaseValue.GrowthValue.new({
 		"growth_factor": -1.0,
@@ -7,7 +9,7 @@ func _ready() -> void:
 		"min_growth":1.0,
 		"max_growth":1.0,
 	})
-	base.属性变化.connect(func(key,value):
+	base.property_changed.connect(func(key,value):
 		print(key,value)
 		if key=="min_growth":
 			base.set_min_growth(1)
@@ -19,20 +21,24 @@ func _ready() -> void:
 	
 	# 对randomValue进行测试
 	# 1. 测试RandomGrowth类的基本功能
-	var random_growth = BaseValue.RandomGrowth.new({
+	random_growth = BaseValue.RandomGrowth.new({
 		"growth_factor": 1.0,
 		"min_growth": 1.0,
 		"max_growth": 1.0,
 		"min_value": 5.0,
 		"max_value": 10.0
 	})
-	print(random_growth.value)
+	print(random_growth.get_value())
 	
-	$"成长属性组件".growth=random_growth
+	$"成长属性组件".set_growth_property(random_growth)
+	$"自定义成长属性组件".set_growth_property(random_growth)
+	$"自定义成长属性组件2".set_growth_property(random_growth)
 
 
 func _on_timer_timeout() -> void:
-	print("开始清理")
+	print("开始改变数据")
 	#_test_temp.clear()
-	$"成长属性组件".queue_free()
+	#$"成长属性组件".queue_free()
+	random_growth.set_min_value(2)
+	random_growth.set_max_value(4)
 	pass # Replace with function body.

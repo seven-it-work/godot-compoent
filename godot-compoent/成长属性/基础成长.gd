@@ -11,44 +11,50 @@ class GrowthValue:
 	var _value: float: get = get_value, set = set_value
 
 	#region 通用方法-属性变化通知
-	signal 属性变化(key:String,new_value)
-	var _属性变化:bool=false
-	func _属性变化通知(key:String,new_value):
-		if _属性变化:
-			print("通知中")
+	## 属性变化信号
+	signal property_changed(key:String, new_value)
+	## 防止信号循环的标志
+	var _is_notifying:bool=false
+
+	## 发送属性变化通知
+	func notify_property_changed(key:String, new_value):
+		if _is_notifying:
 			return
 		else:
-			_属性变化=true
-			print("属性变化通知")
-			属性变化.emit(key,new_value)
-			print("属性变化通知 完成")
-			_属性变化=false
+			_is_notifying = true
+			property_changed.emit(key, new_value)
+			_is_notifying = false
 	#endregion
 
 	#region get/set方法
+	## 获取最小成长值
 	func get_min_growth() -> float:
 		return _min_growth
+	## 设置最小成长值
 	func set_min_growth(value: float):
 		_min_growth = value
-		_属性变化通知("min_growth",value)
-	## 每次成长的最大范围值
+		notify_property_changed("min_growth", value)
+	## 获取最大成长值
 	func get_max_growth() -> float:
 		return _max_growth
+	## 设置最大成长值
 	func set_max_growth(value: float):
 		_max_growth = value
-		_属性变化通知("max_growth",value)
-	## 成长因子
+		notify_property_changed("max_growth", value)
+	## 获取成长因子
 	func get_growth_factor() -> float:
 		return _growth_factor
+	## 设置成长因子
 	func set_growth_factor(value: float):
 		_growth_factor = value
-		_属性变化通知("growth_factor",value)
-	## 当前属性值
+		notify_property_changed("growth_factor", value)
+	## 获取当前属性值
 	func get_value() -> float:
 		return _value
+	## 设置当前属性值
 	func set_value(value: float):
 		_value = value
-		_属性变化通知("value",value)
+		notify_property_changed("value", value)
 	#endregion get/set方法
 
 	## 成长方法 - 向_value添加_min_growth到_max_growth之间的随机值
@@ -123,7 +129,7 @@ class RangeGrowth extends GrowthValue:
 	## 设置范围/随机最小值
 	func set_min_value(value: float):
 		_min_value = value
-		_属性变化通知("min_value", value)
+		notify_property_changed("min_value", value)
 	
 	## 获取范围/随机最大值
 	func get_max_value() -> float:
@@ -131,7 +137,7 @@ class RangeGrowth extends GrowthValue:
 	## 设置范围/随机最大值
 	func set_max_value(value: float):
 		_max_value = value
-		_属性变化通知("max_value", value)
+		notify_property_changed("max_value", value)
 	
 	## 获取是否同时成长value属性
 	func get_should_grow_value() -> bool:
@@ -139,7 +145,7 @@ class RangeGrowth extends GrowthValue:
 	## 设置是否同时成长value属性
 	func set_should_grow_value(value: bool):
 		_should_grow_value = value
-		_属性变化通知("should_grow_value", value)
+		notify_property_changed("should_grow_value", value)
 	
 	## 获取是否只成长max_value属性
 	func get_should_only_grow_max_value() -> bool:
@@ -147,7 +153,7 @@ class RangeGrowth extends GrowthValue:
 	## 设置是否只成长max_value属性
 	func set_should_only_grow_max_value(value: bool):
 		_should_only_grow_max_value = value
-		_属性变化通知("should_only_grow_max_value", value)
+		notify_property_changed("should_only_grow_max_value", value)
 	#endregion
 
 	## 初始化方法
