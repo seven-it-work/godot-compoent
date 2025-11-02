@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="godot-compoent"
-run/main_scene="uid://ddx1410njo6s7"
+run/main_scene="uid://snkw6mikkfyq"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -27,10 +27,6 @@ window/stretch/aspect="keep_width"
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/logger/plugin.cfg")
-
-[input_devices]
-
-pointing/emulate_touch_from_mouse=true
 
 [rendering]
 

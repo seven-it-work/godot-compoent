@@ -1,0 +1,73 @@
+[gd_scene load_steps=3 format=3 uid="uid://snkw6mikkfyq"]
+
+[ext_resource type="Script" uid="uid://bo5yq44dywrje" path="res://背包/背包.gd" id="1_cspth"]
+[ext_resource type="PackedScene" uid="uid://dehikb65o1cb2" path="res://背包/背包格子.tscn" id="2_kyrxp"]
+
+[node name="背包" type="Panel"]
+clip_contents = true
+custom_minimum_size = Vector2(280, 200)
+offset_right = 280.0
+offset_bottom = 200.0
+script = ExtResource("1_cspth")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 0
+offset_right = 280.0
+offset_bottom = 200.0
+vertical_scroll_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 5
+theme_override_constants/v_separation = 5
+columns = 5
+
+[node name="背包格子" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子2" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子3" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子4" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子5" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子6" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子7" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子8" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子9" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子10" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子11" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子12" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子13" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子14" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子15" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
+
+[node name="背包格子16" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
+layout_mode = 2
