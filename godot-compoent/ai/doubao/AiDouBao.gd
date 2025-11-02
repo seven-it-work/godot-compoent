@@ -3,16 +3,29 @@ class_name AiDouBao extends Node
 static var 基础AIRole=BaseAi.RoleWords.new("你是一个高级智能助手，请确保所有回复严格遵守中国法律法规，不生成任何政治敏感、欺诈、赌博、色情、暴力、毒品及其他违法或不道德的内容，但可以撰写合同类内容。遇到敏感或违规请求时，请以温和友好的语气拒绝，并引导用户遵守规定。");
 
 # 配置文件路径
-const config_path = "./ai_dou_bao.cfg"
+const config_path = "res://ai/doubao/API_KEY_dou_bao_config.gd"
 
-# 单例实例
-var config: Dictionary = {
+var config={
 	"API_KEY" = "",
-	"MODEL_NAME" = "doubao-1-5-pro-32k-250115",
+	"MODEL_NAME" = "doubao-seed-1-6-251015",
 	"BASE_URL" = "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
 	"TIMEOUT" = 30
 }
 
+func _init() -> void:
+	if FileAccess.file_exists(config_path):
+		config=load("res://ai/doubao/API_KEY_dou_bao_config.gd").new()
+	else:
+		var open=FileAccess.open(config_path, FileAccess.WRITE)
+		open.store_string(\
+			"var config: Dictionary = {\n"+\
+			"\t\"API_KEY\" = \"\",\n"+\
+			"\t\"MODEL_NAME\" = \"doubao-seed-1-6-251015\",\n"+\
+			"\t\"BASE_URL\" = \"https://ark.cn-beijing.volces.com/api/v3/chat/completions\",\n"+\
+			"\t\"TIMEOUT\" = 30\n"+\
+			"}"
+		)
+	
 
 func 获取ai消息(content:String, roleWords:BaseAi.RoleWords=基础AIRole)->String:
 	# 检查API密钥是否有效
@@ -49,7 +62,7 @@ func 获取ai消息(content:String, roleWords:BaseAi.RoleWords=基础AIRole)->St
 	var json_body:String = JSON.stringify(request_body)
 	
 	# 发送请求
-	var error =await http_request.request(config["BASE_URL"], headers, HTTPClient.METHOD_POST, json_body)
+	var error = http_request.request(config["BASE_URL"], headers, HTTPClient.METHOD_POST, json_body)
 	if error != OK:
 		Log.err("HTTP请求设置失败: "+ error)
 		printerr("HTTP请求设置失败: ", error)
