@@ -1,0 +1,279 @@
+From 1062469c909d9b74480ed8252b3339aa557c4bb8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?DESKTOP-T6EFGHK=5C=E6=AE=B5=E6=80=9D=E7=90=AA?=
+ <seven.it.work@gmail.com>
+Date: Sun, 2 Nov 2025 11:21:56 +0800
+Subject: [PATCH] =?UTF-8?q?feat(ProgressTextBar):=20=E5=AE=9E=E7=8E=B0?=
+ =?UTF-8?q?=E8=87=AA=E5=8A=A8=E8=B0=83=E6=95=B4=E5=AD=97=E4=BD=93=E5=A4=A7?=
+ =?UTF-8?q?=E5=B0=8F=E7=9A=84=E8=BF=9B=E5=BA=A6=E6=9D=A1=E6=A0=87=E7=AD=BE?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+添加自动大小Label组件作为ProgressTextBar的子节点，支持在编辑器中实时预览
+改进ProgressTextBar的_label初始化逻辑，增加垂直和水平居中设置
+添加编辑器保存时的字体大小调整通知处理
+---
+ ...212\250\345\244\247\345\260\217Label.tscn" |   4 +
+ ...5\244\247\345\260\217ProgressTextBar.tscn" |  11 ++
+ ...5\212\250\345\244\247\345\260\217label.gd" | 108 ++++++++----------
+ ...5\244\247\345\260\217progress_text_bar.gd" |  35 ++++++
+ ...4\247\345\260\217progress_text_bar.gd.uid" |   1 +
+ .../ProgressTextBar.tscn"                     |   3 +
+ .../progress_text_bar.gd"                     |  15 ++-
+ 7 files changed, 115 insertions(+), 62 deletions(-)
+ create mode 100644 "godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217ProgressTextBar.tscn"
+ create mode 100644 "godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217progress_text_bar.gd"
+ create mode 100644 "godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217progress_text_bar.gd.uid"
+
+diff --git "a/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217Label.tscn" "b/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217Label.tscn"
+index 8b5866a..13d6851 100644
+--- "a/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217Label.tscn"
++++ "b/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217Label.tscn"
+@@ -3,4 +3,8 @@
+ [ext_resource type="Script" uid="uid://cgcuv7unro37g" path="res://自动大小Label/自动大小label.gd" id="1_eyoja"]
+ 
+ [node name="自动大小label" type="Label"]
++offset_right = 105.0
++offset_bottom = 99.0
++theme_override_font_sizes/font_size = 32
++text = "12"
+ script = ExtResource("1_eyoja")
+diff --git "a/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217ProgressTextBar.tscn" "b/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217ProgressTextBar.tscn"
+new file mode 100644
+index 0000000..5860618
+--- /dev/null
++++ "b/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217ProgressTextBar.tscn"
+@@ -0,0 +1,11 @@
++[gd_scene load_steps=3 format=3 uid="uid://dho0mer3lviuj"]
++
++[ext_resource type="PackedScene" uid="uid://cyrpjyfe5d1nn" path="res://自定义process/ProgressTextBar.tscn" id="1_vk6wc"]
++[ext_resource type="Script" uid="uid://dy1igog8utdul" path="res://自动大小Label/自动大小progress_text_bar.gd" id="2_5otg7"]
++
++[node name="自动大小ProgressTextBar" instance=ExtResource("1_vk6wc")]
++offset_right = 67.0
++offset_bottom = 26.0
++script = ExtResource("2_5otg7")
++min_font_size = 8
++max_font_size = 32
+diff --git "a/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217label.gd" "b/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217label.gd"
+index d937030..4b712db 100644
+--- "a/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217label.gd"
++++ "b/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217label.gd"
+@@ -1,77 +1,65 @@
++@tool
+ extends Label
++class_name AutoSizeLabel
+ 
+-@export var min_size: int = 8
+-@export var max_size: int = 72
++@export var min_font_size: int = 8  # 最小字体大小
++@export var max_font_size: int = 32  # 最大字体大小
++@export var padding_percentage: float = 0.9  # 预留边距百分比，0.9表示使用90%的空间
++var _tempLabel
+ 
+-# 保存原始的文本对齐方式
+-var original_align: int
++func _notification(what: int) -> void:
++	if what == NOTIFICATION_EDITOR_POST_SAVE or what == NOTIFICATION_EDITOR_PRE_SAVE:
++		adjust_font_size()
+ 
+ func _ready() -> void:
+-	# 初始化默认值
+-	if min_size == 0:
+-		min_size = 8
+-	if max_size == 0:
+-		max_size = 72
+-	
+-	# 保存原始对齐方式
+-	original_align = horizontal_alignment
+-	
+-	# 初始调整字体大小
+ 	adjust_font_size()
+-	
+-	# 在Godot 4.0+中使用正确的信号
++	# 监听大小变化信号
+ 	resized.connect(adjust_font_size)
+ 
+ func adjust_font_size() -> void:
+-	# 如果没有文本或尺寸无效，直接返回
+-	if text.is_empty() or size.x <= 0 or size.y <= 0:
+-		return
+-	
+-	# 确保min_size <= max_size
+-	if min_size > max_size:
+-		var temp = min_size
+-		min_size = max_size
+-		max_size = temp
+-	
+-	# 使用二分法查找合适的字体大小
+-	var low := min_size
+-	var high := max_size
+-	var best_size := min_size
+-	
+-	# 获取当前使用的字体
+-	var font = get_theme_font("font")
+-	if font == null:
++	# 安全检查：确保size有效且不为零
++	if size.x <= 0 or size.y <= 0:
+ 		return
++
++	# 初始化临时标签
++	if _tempLabel == null:
++		_tempLabel = Label.new()
++		_tempLabel.text = text
++		_tempLabel.visible = false  # 隐藏临时标签
++		add_child(_tempLabel)
++	else:
++		_tempLabel.text = text  # 更新文本
+ 	
+-	# 临时设置为左对齐以便准确测量
+-	var current_alignment = horizontal_alignment
+-	horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
++	# 二分查找最佳字体大小
++	var low = min_font_size
++	var high = max_font_size
++	var best_size = low
++	var best_ratio = 0.0
++	var target_ratio = padding_percentage
+ 	
+-	# 二分查找过程
++	# 执行二分搜索
+ 	while low <= high:
+-		# 使用整除法确保mid是整数
+-		var mid := int((low + high) / 2)
+-		
+-		# 计算文本大小
+-		var text_size := font.get_string_size(text, mid)
+-		
+-		# 检查文本是否适合当前大小（留出一些边距）
+-		var margin := 4  # 边距
+-		if text_size.x <= size.x - margin * 2 and text_size.y <= size.y - margin * 2:
+-			# 文本适合，尝试更大的字体
++		var mid = int((low + high) / 2)
++		# 设置临时标签的字体大小
++		_tempLabel.add_theme_font_size_override("font_size", mid)
++		# 获取文本尺寸
++		var text_size = _tempLabel.get_minimum_size()
++		# 计算比例（取宽高比例中的较大值）
++		var width_ratio = text_size.x / size.x
++		var height_ratio = text_size.y / size.y
++		var current_ratio = max(width_ratio, height_ratio)
++		# 调试信息
++		# 如果当前比例小于等于目标比例，尝试更大的字体
++		if current_ratio <= target_ratio:
++			# 记录当前最佳值
+ 			best_size = mid
+-			low = mid + 1  # 关键步骤：移动左边界，继续查找更大的合适字体
++			best_ratio = current_ratio
++			low = mid + 1
+ 		else:
+-			# 文本太大，尝试更小的字体
++			# 字体太大，尝试更小的
+ 			high = mid - 1
+-	
+-	# 应用找到的最佳字体大小
++	# 确保最佳大小在有效范围内
++	best_size = clamp(best_size, min_font_size, max_font_size)
++	# 应用最佳字体大小
+ 	add_theme_font_size_override("font_size", best_size)
+-	
+-	# 恢复原始对齐方式
+-	horizontal_alignment = current_alignment
+-
+-# 重写Label类的_text_changed虚函数，当文本变化时会被引擎调用
+-func _text_changed() -> void:
+-	# 调整字体大小
+-	adjust_font_size()
++ 	
+diff --git "a/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217progress_text_bar.gd" "b/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217progress_text_bar.gd"
+new file mode 100644
+index 0000000..28d63a4
+--- /dev/null
++++ "b/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217progress_text_bar.gd"
+@@ -0,0 +1,35 @@
++@tool
++extends ProggressTextBar
++
++@export var min_font_size:int=8:set=set_min_font_size
++@export var max_font_size:int=32:set=set_max_font_size
++
++func set_min_font_size(new_value):
++	min_font_size=new_value
++	if _label:
++		_label.min_font_size=new_value
++		
++func set_max_font_size(new_value):
++	max_font_size=new_value
++	if _label:
++		_label.max_font_size=new_value
++
++func _ready() -> void:
++	_label=preload("res://自动大小Label/自动大小Label.tscn").instantiate()
++	_label.min_font_size=12
++	_label.max_font_size=72
++	_label.text="%s/%s"%[value,max_value]
++	_label.size=self.size
++	_label.vertical_alignment=VERTICAL_ALIGNMENT_CENTER
++	_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
++	add_child(_label)
++
++func _notification(what: int) -> void:
++	super._notification(what)
++	if what == NOTIFICATION_EDITOR_POST_SAVE or what == NOTIFICATION_EDITOR_PRE_SAVE:
++		if _label:
++			_label.min_font_size=8
++			_label.max_font_size=32
++			_label.padding_percentage=0.9
++			print("编辑器保存通知")
++			_label.adjust_font_size()
+diff --git "a/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217progress_text_bar.gd.uid" "b/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217progress_text_bar.gd.uid"
+new file mode 100644
+index 0000000..832613a
+--- /dev/null
++++ "b/godot-compoent/\350\207\252\345\212\250\345\244\247\345\260\217Label/\350\207\252\345\212\250\345\244\247\345\260\217progress_text_bar.gd.uid"
+@@ -0,0 +1 @@
++uid://dy1igog8utdul
+diff --git "a/godot-compoent/\350\207\252\345\256\232\344\271\211process/ProgressTextBar.tscn" "b/godot-compoent/\350\207\252\345\256\232\344\271\211process/ProgressTextBar.tscn"
+index 0a35ea1..7c01d40 100644
+--- "a/godot-compoent/\350\207\252\345\256\232\344\271\211process/ProgressTextBar.tscn"
++++ "b/godot-compoent/\350\207\252\345\256\232\344\271\211process/ProgressTextBar.tscn"
+@@ -5,5 +5,8 @@
+ [node name="ProgressTextBar" type="ProgressBar"]
+ offset_right = 131.0
+ offset_bottom = 27.0
++value = 20.0
+ show_percentage = false
+ script = ExtResource("1_bmuvq")
++
++[connection signal="changed" from="." to="." method="_on_changed"]
+diff --git "a/godot-compoent/\350\207\252\345\256\232\344\271\211process/progress_text_bar.gd" "b/godot-compoent/\350\207\252\345\256\232\344\271\211process/progress_text_bar.gd"
+index 6c9acc3..ef64dc1 100644
+--- "a/godot-compoent/\350\207\252\345\256\232\344\271\211process/progress_text_bar.gd"
++++ "b/godot-compoent/\350\207\252\345\256\232\344\271\211process/progress_text_bar.gd"
+@@ -3,10 +3,21 @@ extends ProgressBar
+ class_name ProggressTextBar
+ 
+ var _label:Label
++
+ func _ready() -> void:
+ 	_label=Label.new()
+-	_label.text="%s/%s"%[min_value,max_value]
+-	_label.global_position=self.global_position
++	_label.text="%s/%s"%[value,max_value]
+ 	_label.size=self.size
++	_label.vertical_alignment=VERTICAL_ALIGNMENT_CENTER
++	_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
+ 	add_child(_label)
+ 	pass
++	
++func _notification(what: int) -> void:
++	if what == NOTIFICATION_EDITOR_POST_SAVE or what == NOTIFICATION_EDITOR_PRE_SAVE:
++		_on_changed()
++
++func _on_changed() -> void:
++	if _label:
++		_label.size=self.size
++		_label.text="%s/%s"%[value,max_value]
+-- 
+2.47.1.windows.1
+

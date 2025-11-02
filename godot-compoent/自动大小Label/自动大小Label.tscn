@@ -3,4 +3,8 @@
 [ext_resource type="Script" uid="uid://cgcuv7unro37g" path="res://自动大小Label/自动大小label.gd" id="1_eyoja"]
 
 [node name="自动大小label" type="Label"]
+offset_right = 105.0
+offset_bottom = 99.0
+theme_override_font_sizes/font_size = 32
+text = "12"
 script = ExtResource("1_eyoja")

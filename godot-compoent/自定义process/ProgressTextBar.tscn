@@ -5,5 +5,8 @@
 [node name="ProgressTextBar" type="ProgressBar"]
 offset_right = 131.0
 offset_bottom = 27.0
+value = 20.0
 show_percentage = false
 script = ExtResource("1_bmuvq")
+
+[connection signal="changed" from="." to="." method="_on_changed"]

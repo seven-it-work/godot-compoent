@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://dho0mer3lviuj"]
+
+[ext_resource type="PackedScene" uid="uid://cyrpjyfe5d1nn" path="res://自定义process/ProgressTextBar.tscn" id="1_vk6wc"]
+[ext_resource type="Script" uid="uid://dy1igog8utdul" path="res://自动大小Label/自动大小progress_text_bar.gd" id="2_5otg7"]
+
+[node name="自动大小ProgressTextBar" instance=ExtResource("1_vk6wc")]
+offset_right = 67.0
+offset_bottom = 26.0
+script = ExtResource("2_5otg7")
+min_font_size = 8
+max_font_size = 32
