@@ -30,14 +30,27 @@ func _process(delta: float) -> void:
 			%Close.position = Vector2($Show.get_rect().size.x - %Close.get_rect().size.x, 0)
 	if 开始拖拽:
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-			self.position=get_global_mouse_position() + 拖拽偏移位置
+			# 计算新位置
+			var new_position = get_global_mouse_position() + 拖拽偏移位置
+			# 获取窗口大小
+			var original_width = ProjectSettings.get_setting("display/window/size/viewport_width")
+			var original_height = ProjectSettings.get_setting("display/window/size/viewport_height")
+			# 如果需要使用 Vector2 形式
+			var window_size = Vector2(original_width, original_height)
+			# 获取组件的实际大小（使用rect_size更准确）
+			var element_size = $"悬浮窗口".size
+			# 严格限制位置，确保组件完全在窗口内
+			new_position.x = clamp(new_position.x, 0, window_size.x -element_size.x)
+			new_position.y = clamp(new_position.y, 0, window_size.y - element_size.y)
+			# 应用限制后的位置
+			print(new_position)
+			self.global_position = new_position
 		else:
 			$"悬浮窗口/Label".hide()
 			开始拖拽=false
 
 
 func _on_close_pressed() -> void:
-	$"悬浮窗口".show()
 	$Show.hide()
 
 
@@ -61,7 +74,6 @@ func _on_悬浮窗口_gui_input(event: InputEvent) -> void:
 					_on_click_事件()
 
 func _on_click_事件():
-	$"悬浮窗口".hide()
 	$Show.show()
 	
 var 开始拖拽:bool=false

@@ -41,7 +41,7 @@ func _ready() -> void:
 	Log.info("测试info信息")
 	Log.debug("测试debug信息")
 	Log.warn("测试warn信息")
-	Log.err("测试error信息")
+	#Log.err("测试error信息")
 	#print(LogConfig.logTextRich.log_text)
 
 
