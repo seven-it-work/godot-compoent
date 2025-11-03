@@ -5,3 +5,4 @@
 .vscode
 *.apk
 API_KEY_*
+*.tmp

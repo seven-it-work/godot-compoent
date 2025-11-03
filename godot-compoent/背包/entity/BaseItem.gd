@@ -35,7 +35,17 @@ class BackpackItem:
 	func get_容器物品()->Array[BaseItem]:
 		return _容器物品
 	#endregion
+
 	#region 物品操作方法
+	func 替换物品(index:int,new_value:BaseItem)->void:
+		if index<0 or index>=_容器物品.size():
+			Log.warn("索引超出范围")
+			return
+		var old_item=_容器物品[index]
+		_容器物品[index]=new_value
+		添加物品.emit(new_value,index)
+		删除物品.emit(old_item,index)
+
 	func clear():
 		_容器物品.clear()
 		for i in _背包大小:
