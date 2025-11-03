@@ -2,7 +2,11 @@
 extends Panel
 class_name BackpackCompartment
 
+# 点击信号
+signal clicked(compartment, item)
+
 var _base_item:BaseItemScope.BaseItem:set=set_base_item,get=get_base_item
+var _current_style:String = "默认"
 
 #region get/set 方法
 func set_base_item(base_item:BaseItemScope.BaseItem)->void:
@@ -42,3 +46,38 @@ func _on_mouse_exited() -> void:
 	else:
 		%Tips.hide()
 	pass # Replace with function body.
+
+# 改变样式方法
+func change_style(style_type:String) -> void:
+	# 验证样式类型
+	if style_type != "默认" and style_type != "选中":
+		Log.warn("警告: 无效的样式类型，使用默认样式")
+		style_type = "默认"
+	
+	_current_style = style_type
+	
+	# 根据样式类型改变边框样式
+	match style_type:
+		"默认":
+			var style=self.get_theme_stylebox("panel") as StyleBoxFlat
+			style.border_color = Color(0.5, 0.5, 0.5, 1.0) # 灰色边框
+			style.border_width_left = 1
+			style.border_width_top = 1
+			style.border_width_right = 1
+			style.border_width_bottom = 1
+			self.add_theme_stylebox_override("panel",style)
+		"选中":
+			var style=self.get_theme_stylebox("panel") as StyleBoxFlat
+			style.border_color = Color(0, 0.7, 1.0, 1.0) # 蓝色高亮边框
+			style.border_width_left = 2
+			style.border_width_top = 2
+			style.border_width_right = 2
+			style.border_width_bottom = 2
+			self.add_theme_stylebox_override("panel",style)
+
+func _input(event: InputEvent) -> void:
+	# 处理点击事件
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		if get_global_rect().has_point(event.global_position):
+			# 发射点击信号，传递自身引用和基础物品
+			self.emit_signal("clicked", self, _base_item)

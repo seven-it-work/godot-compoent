@@ -1,10 +1,34 @@
-[gd_scene load_steps=5 format=3 uid="uid://chuyou880wdb4"]
+[gd_scene load_steps=13 format=3 uid="uid://chuyou880wdb4"]
 
 [ext_resource type="PackedScene" uid="uid://dehikb65o1cb2" path="res://背包/背包格子.tscn" id="1_mr4hg"]
 [ext_resource type="Script" uid="uid://33ih7gw0epcx" path="res://demo/装备信息.gd" id="1_pq40o"]
 [ext_resource type="PackedScene" uid="uid://snkw6mikkfyq" path="res://背包/背包.tscn" id="3_m02jb"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m02jb"]
+resource_local_to_scene = true
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mr4hg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qp5dh"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ymo56"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uj2u1"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ghs5b"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qaaql"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0venh"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mc1sg"]
+resource_local_to_scene = true
 
 [node name="装备信息" type="Control"]
 layout_mode = 3
@@ -14,6 +38,24 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_pq40o")
+
+[node name="选择装备信息" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 179.0
+offset_top = -1.0
+offset_right = 219.0
+offset_bottom = 39.0
+
+[node name="VBoxContainer" type="HBoxContainer" parent="选择装备信息"]
+layout_mode = 2
+
+[node name="装备" type="Button" parent="选择装备信息/VBoxContainer"]
+layout_mode = 2
+text = "装备"
+
+[node name="Label" type="Label" parent="选择装备信息/VBoxContainer"]
+layout_mode = 2
+text = "名称"
 
 [node name="MarginContainer" type="PanelContainer" parent="."]
 layout_mode = 0
@@ -28,6 +70,7 @@ layout_mode = 2
 
 [node name="背包格子" parent="MarginContainer/VBoxContainer/HBoxContainer" instance=ExtResource("1_mr4hg")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_m02jb")
 
 [node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
@@ -36,12 +79,14 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_mr4hg")
 
 [node name="背包格子2" parent="MarginContainer/VBoxContainer/HBoxContainer" instance=ExtResource("1_mr4hg")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_qp5dh")
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 
 [node name="背包格子" parent="MarginContainer/VBoxContainer/HBoxContainer2" instance=ExtResource("1_mr4hg")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ymo56")
 
 [node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
@@ -50,12 +95,14 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_mr4hg")
 
 [node name="背包格子2" parent="MarginContainer/VBoxContainer/HBoxContainer2" instance=ExtResource("1_mr4hg")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_uj2u1")
 
 [node name="HBoxContainer3" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 
 [node name="背包格子" parent="MarginContainer/VBoxContainer/HBoxContainer3" instance=ExtResource("1_mr4hg")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ghs5b")
 
 [node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer/HBoxContainer3"]
 layout_mode = 2
@@ -64,12 +111,14 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_mr4hg")
 
 [node name="背包格子2" parent="MarginContainer/VBoxContainer/HBoxContainer3" instance=ExtResource("1_mr4hg")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_qaaql")
 
 [node name="HBoxContainer4" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 
 [node name="背包格子" parent="MarginContainer/VBoxContainer/HBoxContainer4" instance=ExtResource("1_mr4hg")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_0venh")
 
 [node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer/HBoxContainer4"]
 layout_mode = 2
@@ -78,13 +127,14 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_mr4hg")
 
 [node name="背包格子2" parent="MarginContainer/VBoxContainer/HBoxContainer4" instance=ExtResource("1_mr4hg")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_mc1sg")
 
 [node name="背包" parent="." instance=ExtResource("3_m02jb")]
 layout_mode = 0
-offset_left = 177.0
-offset_top = 4.0
-offset_right = 457.0
-offset_bottom = 204.0
+offset_left = 180.0
+offset_top = 38.0
+offset_right = 460.0
+offset_bottom = 238.0
 
 [node name="随机生成装备" type="Button" parent="."]
 layout_mode = 0
@@ -93,3 +143,6 @@ offset_top = 4.0
 offset_right = 537.0
 offset_bottom = 35.0
 text = "随机生成装备"
+
+[connection signal="pressed" from="选择装备信息/VBoxContainer/装备" to="." method="_on_装备_pressed"]
+[connection signal="pressed" from="随机生成装备" to="." method="_on_随机生成装备_pressed"]

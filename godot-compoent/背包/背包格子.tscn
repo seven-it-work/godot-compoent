@@ -1,12 +1,16 @@
-[gd_scene load_steps=2 format=3 uid="uid://dehikb65o1cb2"]
+[gd_scene load_steps=3 format=3 uid="uid://dehikb65o1cb2"]
 
 [ext_resource type="Script" uid="uid://da1t82uebiqkk" path="res://背包/背包格子.gd" id="1_mhba0"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mhba0"]
+resource_local_to_scene = true
 
 [node name="背包格子" type="Panel"]
 clip_contents = true
 custom_minimum_size = Vector2(50, 50)
 offset_right = 50.0
 offset_bottom = 50.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_mhba0")
 script = ExtResource("1_mhba0")
 
 [node name="Node" type="Node" parent="."]
