@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://c806au8ckd2yp"]
 
-[ext_resource type="Script" uid="uid://d1fibuh6ojd3h" path="res://背包/test_背包格子.gd" id="1_1mpsj"]
+[ext_resource type="Script" uid="uid://d1fibuh6ojd3h" path="res://背包/例子/背包基础能力.gd" id="1_1mpsj"]
 [ext_resource type="PackedScene" uid="uid://snkw6mikkfyq" path="res://背包/背包.tscn" id="2_1mpsj"]
 
 [node name="Test背包格子" type="Control"]

@@ -74,5 +74,5 @@ class BackpackItem:
 		return _name_str
 	#endregion
 
-class EmptyItem extends  BaseItem:
+class DefaultItem extends  BaseItem:
 	pass

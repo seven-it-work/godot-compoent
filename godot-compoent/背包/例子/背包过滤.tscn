@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://cfe8blnudkdut"]
+
+[ext_resource type="PackedScene" uid="uid://snkw6mikkfyq" path="res://背包/背包.tscn" id="1_f6j1v"]
+[ext_resource type="Script" uid="uid://7ljrhqbrx2kp" path="res://背包/例子/背包过滤.gd" id="1_nxv5w"]
+
+[node name="背包过滤" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_nxv5w")
+
+[node name="TextEdit" type="LineEdit" parent="."]
+layout_mode = 0
+offset_right = 132.0
+offset_bottom = 31.0
+placeholder_text = "输入物品名称"
+
+[node name="背包" parent="." instance=ExtResource("1_f6j1v")]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 49.0
+offset_right = 281.0
+offset_bottom = 249.0
+
+[connection signal="text_changed" from="TextEdit" to="." method="_on_text_edit_text_changed"]

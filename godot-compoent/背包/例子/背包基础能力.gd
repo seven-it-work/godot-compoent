@@ -9,7 +9,7 @@ func _random_str()->String:
 	return "物品"+str(randi_range(1,200))
 
 func _on_添加物品_pressed() -> void:
-	var item =BaseItemScope.EmptyItem.new()
+	var item =BaseItemScope.DefaultItem.new()
 	item.set_name_str(_random_str())
 	$背包._backpck.addItem(item)
 	pass # Replace with function body.

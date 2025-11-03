@@ -6,6 +6,15 @@ var _backpck:BaseItemScope.BackpackItem:set=set_backpck,get=get_backpck
 func _ready() -> void:
 	pass
 
+#获取所有格子ui
+#return Array[BackpackCompartment]
+func get_all_items_ui()->Array[BackpackCompartment]:
+	var result:Array[BackpackCompartment]=[]
+	for child in %GridContainer.get_children():
+		if child is BackpackCompartment:
+			result.append(child)
+	return result
+
 #region get/set 方法
 func set_backpck(new_value:BaseItemScope.BackpackItem)->void:
 	_backpck=new_value
