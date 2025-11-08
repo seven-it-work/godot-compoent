@@ -24,7 +24,7 @@ layout_mode = 2
 
 [node name="Key" type="Label" parent="VBoxContainer/境界"]
 layout_mode = 2
-text = "名称："
+text = "境界："
 
 [node name="Value" type="Label" parent="VBoxContainer/境界"]
 layout_mode = 2

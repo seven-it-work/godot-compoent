@@ -2,15 +2,16 @@
 class_name Cultivator
 
 ## 修仙者队伍类
-class 修仙者队伍:
+class CultivatorTeam:
 	## 队伍成员 3*3 的数组
-	var _members:Array[Array]=[
-		[],
-		[],
-		[],
-	]:set=set_members,get=get_members
-	signal 队伍成员变化(行:int,列:int,修仙者:Cultivator)
-	
+	var _members:Array[Array]=[]:set=set_members,get=get_members
+	signal team_member_changed(row:int,col:int,cultivator:BaseCultivator)
+	func _init() -> void:
+		for i in 3:
+			_members.append([])
+			for j in 3:
+				_members[i].append(null)
+		
 	## 设置队伍成员数组
 	func set_members(new_members:Array[Array]) -> void:
 		_members = new_members
@@ -21,12 +22,12 @@ class 修仙者队伍:
 	
 	#region 外部方法
 	## 上阵
-	func 上阵(修仙者:Cultivator,行:int,列:int) -> void:
+	func 上阵(修仙者:BaseCultivator,行:int,列:int) -> void:
 		_members[行][列]=修仙者
-		队伍成员变化.emit(行,列,修仙者)
+		team_member_changed.emit(行,列,修仙者)
 	func 出队(行:int,列:int) -> void:
 		_members[行][列]=null
-		队伍成员变化.emit(行,列,null)
+		team_member_changed.emit(行,列,null)
 	#endregion
 
 # 基础修仙者对象类 - 修仙者角色属性的核心数据结构

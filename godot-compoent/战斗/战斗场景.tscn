@@ -52,6 +52,23 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 corner_detail = 6
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_log"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.0, 0.0, 0.0, 0.7)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+corner_detail = 8
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.3, 0.3, 1.0)
+
 [sub_resource type="DPITexture" id="DPITexture_qg6y6"]
 _source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"16\"><rect width=\"30\" height=\"14\" x=\"1\" y=\"1\" fill=\"#fff\" fill-opacity=\".75\" rx=\"7\"/><circle cx=\"24\" cy=\"8\" r=\"5\" fill=\"#1a1a1a\"/></svg>
 "
@@ -193,5 +210,28 @@ text = "自动战斗"
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="战斗日志" type="PanelContainer" parent="PanelContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_log")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/VBoxContainer/战斗日志"]
+layout_mode = 2
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="日志文本" type="RichTextLabel" parent="PanelContainer/VBoxContainer/战斗日志/ScrollContainer"]
+name = "日志文本"
+layout_mode = 2
+size_flags_horizontal = 2
+size_flags_vertical = 2
+theme_override_font_sizes/font_size = 18
+bbcode_enabled = true
+text = "[center]战斗日志[/center]\n"
+
 [connection signal="value_changed" from="PanelContainer/VBoxContainer/操作面板/HBoxContainer/操作/倍速/HSlider" to="." method="_on_h_slider_value_changed"]
 [connection signal="toggled" from="PanelContainer/VBoxContainer/操作面板/HBoxContainer/操作/自动战斗" to="." method="_on_自动战斗_toggled"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/操作面板/HBoxContainer/操作/逃跑" to="." method="_on_逃跑_pressed"]
