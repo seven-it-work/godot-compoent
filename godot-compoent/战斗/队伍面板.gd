@@ -22,15 +22,15 @@ func _update_all_panels() -> void:
 
 # 设置指定位置的面板修仙者
 func _set_panel_cultivator(index: int, cultivator: Cultivator.BaseCultivator) -> void:
-	if index >= 0 and index < $GridContainer.size():
+	if index >= 0 and index < $GridContainer.get_child_count():
 		var panel = $GridContainer.get_child(index)
 		if panel and panel.has_method("set_cultivator"):
 			panel.set_cultivator(cultivator)
 			# 绑定行动信号
-			if panel.修仙者行动.is_connected(_on_panel_cultivator_action):
+			if panel.冷却完成.is_connected(_on_panel_cultivator_action):
 				pass
 			else:
-				panel.修仙者行动.connect(_on_panel_cultivator_action)
+				panel.冷却完成.connect(_on_panel_cultivator_action.bind(cultivator))
 
 # 处理面板修仙者行动信号
 func _on_panel_cultivator_action(行动修仙者:Cultivator.BaseCultivator) -> void:
@@ -41,7 +41,10 @@ func set_team(team: Cultivator.CultivatorTeam) -> void:
 	_team = team
 	if _team:
 		_update_all_panels()
-		_team.队伍更新.connect(_update_all_panels)
+		if _team.team_member_changed.is_connected(_update_all_panels):
+			pass
+		else:
+			_team.team_member_changed.connect(_update_all_panels)
 
 # 获取队伍
 func get_team() -> Cultivator.CultivatorTeam:

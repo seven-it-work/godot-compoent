@@ -43,7 +43,7 @@ class CultivatorTeam:
 # 基础修仙者对象类 - 修仙者角色属性的核心数据结构
 class BaseCultivator:
 	# 修仙者姓名
-	var _name:String="基础修仙者":set=set_name,get=get_name
+	var _name_str:String="基础修仙者":set=set_name_str,get=get_name_str
 	# 修仙者等级（使用GrowthValue类型进行渐进式成长）
 	var _level:BaseValue.GrowthValue=BaseValue.GrowthValue.new({"value":1,"min_growth":1,"max_growth":1,"growth_factor":1}):set=set_level,get=get_level
 	# 修仙者生命值（使用RangeGrowth跟踪最小值/最大值范围）
@@ -91,14 +91,14 @@ class BaseCultivator:
 	#endregion
 	#region get/set方法
 	# 设置修仙者姓名
-	func set_name(new_value:String) -> void:
-		var old_value = _name
-		_name = new_value
-		属性变化信号.emit("_name", old_value, new_value)
+	func set_name_str(new_value:String) -> void:
+		var old_value = _name_str
+		_name_str = new_value
+		属性变化信号.emit("_name_str", old_value, new_value)
 
 	# 获取修仙者姓名
-	func get_name() -> String:
-		return _name
+	func get_name_str() -> String:
+		return _name_str
 
 	# 设置修仙者等级对象
 	func set_level(new_value:BaseValue.GrowthValue) -> void:

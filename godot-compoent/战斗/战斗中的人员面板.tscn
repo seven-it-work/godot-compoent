@@ -1,13 +1,17 @@
-[gd_scene load_steps=3 format=3 uid="uid://c4g5kna40eker"]
+[gd_scene load_steps=4 format=3 uid="uid://c4g5kna40eker"]
 
 [ext_resource type="PackedScene" uid="uid://demwadgunawnc" path="res://成长属性/成长属性组件.tscn" id="1_5lwf2"]
 [ext_resource type="Script" uid="uid://lelkxi50n8l6" path="res://战斗/战斗中的人员面板.gd" id="1_gxru8"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gxru8"]
+bg_color = Color(0, 0, 0, 0.8627451)
 
 [node name="战斗中的人员面板" type="PanelContainer"]
 custom_minimum_size = Vector2(210, 120)
 script = ExtResource("1_gxru8")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
+visible = false
 layout_mode = 2
 
 [node name="名称" type="HBoxContainer" parent="VBoxContainer"]
@@ -40,9 +44,7 @@ label = "生命值："
 layout_mode = 2
 label = "灵气值"
 
-[node name="Node" type="Node" parent="."]
-
-[node name="冷却" type="Panel" parent="Node"]
+[node name="冷却" type="Panel" parent="."]
 unique_name_in_owner = true
-offset_right = 210.0
-offset_bottom = 120.0
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_gxru8")

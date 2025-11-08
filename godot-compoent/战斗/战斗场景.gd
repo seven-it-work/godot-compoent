@@ -21,9 +21,9 @@ var _回合间隔 = 2.0
 func _ready() -> void:
 	# 初始化UI
 	var hSlider = %"倍速".get_node("HSlider") as HSlider
-	hSlider.max_value = 5.0  # 最大5倍速
-	hSlider.min_value = 0.5  # 最小0.5倍速
-	hSlider.value = 1.0
+	hSlider.max_value = 全局配置.全局倍速_MAX
+	hSlider.min_value = 全局配置.全局倍速_MIN
+	hSlider.value = 全局配置.get_全局倍速()
 	%"自动战斗".button_pressed = false
 
 
@@ -32,7 +32,7 @@ func _process(delta: float) -> void:
 	if _战斗状态 != BATTLE_STATE_FIGHTING:
 		%"自动战斗".disabled = true
 		return
-
+	%"自动战斗".disabled = false
 	# 应用倍速
 	var speed = %"倍速".get_node("HSlider").value
 	var adjusted_delta = delta * speed
@@ -46,11 +46,11 @@ func _process(delta: float) -> void:
 func 开始战斗(敌人队伍: Cultivator.CultivatorTeam, 玩家队伍: Cultivator.CultivatorTeam) -> void:
 	_敌人队伍 = 敌人队伍
 	# 更新UI显示
-	更新队伍UI显示($"PanelContainer/VBoxContainer/敌人队伍面板/GridContainer", 敌人队伍)
+	更新队伍UI显示($"PanelContainer/VBoxContainer/敌人队伍面板", 敌人队伍)
 	
 	_玩家队伍 = 玩家队伍
 	# 更新UI显示
-	更新队伍UI显示($"PanelContainer/VBoxContainer/玩家队伍面板/GridContainer", 玩家队伍)
+	更新队伍UI显示($"PanelContainer/VBoxContainer/玩家队伍面板", 玩家队伍)
 	
 	if _敌人队伍 and _玩家队伍:
 		_战斗状态 = BATTLE_STATE_FIGHTING
@@ -60,14 +60,21 @@ func 开始战斗(敌人队伍: Cultivator.CultivatorTeam, 玩家队伍: Cultiva
 		pass
 
 # 更新队伍UI显示
-func 更新队伍UI显示(container: GridContainer, team: Cultivator.CultivatorTeam) -> void:
+func 更新队伍UI显示(container: Control, team: Cultivator.CultivatorTeam) -> void:
 	if not container or not team:
 		return
 	if container.has_method("set_team"):
 		container.set_team(team)
+		container.修仙者行动.connect(_修仙者行动)
 	else:
 		Log.error("容器没有set_team方法")
 
+func _修仙者行动(baseCultivator: Cultivator.BaseCultivator) -> void:
+	if not baseCultivator:
+		return
+	全局配置.set_战斗暂停(true)
+	print("修仙者行动:", baseCultivator.get_name_str())
+	pass
 
 func 选择敌人目标() -> Cultivator:
 	var enemyMembers = _敌人队伍.get_members()

@@ -1,8 +1,8 @@
 extends PanelContainer
 
-var _cultivator:Cultivator.BaseCultivator = null
+var _cultivator:Cultivator.BaseCultivator = Cultivator.BaseCultivator.new()
 # 在_process中 每次-1 直到为0 则认为冷却完成了。%"冷却"的宽度就是冷却进度。如果宽度为0 也是冷却完成了。
-var _冷却时间:int = 1000:set=set_cool_down_time
+var _冷却时间:int = 1000
 var _最大冷却时间:int = 1000
 signal 冷却完成
 
@@ -10,7 +10,8 @@ signal 冷却完成
 func set_cultivator(cultivator:Cultivator.BaseCultivator) -> void:
 	# 如果已有修仙者，先断开信号连接
 	if _cultivator:
-		_cultivator.属性变化信号.disconnect(_on_cultivator_property_changed)
+		if _cultivator.属性变化信号.is_connected(_on_cultivator_property_changed):
+			_cultivator.属性变化信号.disconnect(_on_cultivator_property_changed)
 	
 	# 设置新的修仙者对象
 	_cultivator = cultivator
@@ -18,21 +19,21 @@ func set_cultivator(cultivator:Cultivator.BaseCultivator) -> void:
 	# 如果有修仙者，连接信号并更新UI
 	if _cultivator:
 		_cultivator.属性变化信号.connect(_on_cultivator_property_changed)
+		set_cool_down_time(_cultivator.get_agility().get_value()*100)
 		update_ui()
 
 # 更新UI显示
 func update_ui() -> void:
 	if not _cultivator:
+		$VBoxContainer.hide()
 		return
-	
-	# 初始化冷却时间为0
-	_冷却时间 = 0
+	$VBoxContainer.show()
 	update_cool_down_ui()
 	
 	# 更新名称
 	var nameValue = $"VBoxContainer/名称/Value"
 	if nameValue:
-		nameValue.text = _cultivator.get_name()
+		nameValue.text = _cultivator.get_name_str()
 	
 	# 更新境界
 	var levelValue = $"VBoxContainer/境界/Value"
@@ -59,29 +60,36 @@ func set_cool_down_time(seconds: int) -> void:
 
 # 更新冷却UI
 func update_cool_down_ui() -> void:
-	var 冷却面板 = $"%冷却"
+	var 冷却面板 = %"冷却"
 	if 冷却面板:
 		if _冷却时间 <= 0:
 			冷却面板.size.x = 0
 		else:
-			var 进度 = float(_冷却时间) / float(_最大冷却时间)
-			冷却面板.size.x = 210.0 * (1.0 - 进度)
+			var 进度 = float(_最大冷却时间-_冷却时间) / float(_最大冷却时间)
+			冷却面板.size.x = size.x * (1.0 - 进度)
 
 # _ready方法，初始化
 func _ready() -> void:
+	%"冷却".size=size
 	# 初始化冷却UI
 	update_cool_down_ui()
 
 # _process方法，处理冷却倒计时
 func _process(_delta: float) -> void:
+	if not _cultivator:
+		return
+	if 全局配置.get_战斗暂停():
+		return
+	if 全局配置.get_游戏暂停():
+		return
 	if _冷却时间 > 0:
 		# 获取全局倍速，默认1
 		var speed_multiplier = 全局配置.get_全局倍速() if 全局配置 else 1
 		# 根据全局倍速减少冷却时间
 		_冷却时间 -= speed_multiplier
 		# 确保冷却时间不会小于0
-		if _冷却时间 < 0:
-			_冷却时间 = 0
+		if _冷却时间 <= 0:
+			_冷却时间 = _cultivator.get_agility().get_value()*100
 			冷却完成.emit()
 		update_cool_down_ui()
 
