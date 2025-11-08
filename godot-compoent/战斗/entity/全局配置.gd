@@ -5,7 +5,7 @@ const 全局倍速_MAX:int=20
 const 全局倍速_MIN:int=1
 
 var _是否自动战斗:bool=true
-var _全局倍速:int=3
+var _全局倍速:int=10
 var _战斗暂停:bool=false:set=set_战斗暂停,get=get_战斗暂停
 var _游戏暂停:bool=false:set=set_游戏暂停,get=get_游戏暂停
 

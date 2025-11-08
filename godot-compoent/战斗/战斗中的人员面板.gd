@@ -6,6 +6,9 @@ var _冷却时间:int = 1000
 var _最大冷却时间:int = 1000
 signal 冷却完成
 
+# 获取当前绑定的修仙者对象
+func get_cultivator() -> Cultivator.BaseCultivator:
+	return _cultivator
 # 设置修仙者对象并绑定信号
 func set_cultivator(cultivator:Cultivator.BaseCultivator) -> void:
 	# 如果已有修仙者，先断开信号连接
@@ -65,7 +68,7 @@ func update_cool_down_ui() -> void:
 		if _冷却时间 <= 0:
 			冷却面板.size.x = 0
 		else:
-			var 进度 = float(_最大冷却时间-_冷却时间) / float(_最大冷却时间)
+			var 进度 = float(_冷却时间) / float(_最大冷却时间)
 			冷却面板.size.x = size.x * (1.0 - 进度)
 
 # _ready方法，初始化
@@ -81,6 +84,8 @@ func _process(_delta: float) -> void:
 	if 全局配置.get_战斗暂停():
 		return
 	if 全局配置.get_游戏暂停():
+		return
+	if not _cultivator.is_alive():
 		return
 	if _冷却时间 > 0:
 		# 获取全局倍速，默认1

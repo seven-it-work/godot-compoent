@@ -21,6 +21,15 @@ class CultivatorTeam:
 		return _members
 	
 	#region 外部方法
+	## 获取有效的队伍成员
+	func get_valid_members() -> Array[BaseCultivator]:
+		var valid_members:Array[BaseCultivator]=[]
+		for i in 3:
+			for j in 3:
+				if _members[i][j]!=null:
+					if _members[i][j].is_alive():
+						valid_members.append(_members[i][j])
+		return valid_members
 	## 获取所在位置的修仙者
 	func get_member(行:int,列:int) -> BaseCultivator:
 		return _members[行][列]
@@ -59,6 +68,9 @@ class BaseCultivator:
 	
 	signal 属性变化信号(属性名称:String,old_value:Variant,new_value:Variant)
 	#region 外部方法
+	## 是否存活
+	func is_alive() -> bool:
+		return _health.get_value() > _health.get_min_value()
 	## 是否能够升级
 	func can_level_up() -> bool:
 		return _mana.get_value() >= _mana.get_max_value()

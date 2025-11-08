@@ -173,6 +173,9 @@ theme_override_icons/grabber_highlight = SubResource("DPITexture_hhxrx")
 theme_override_icons/grabber_disabled = SubResource("DPITexture_3olb0")
 theme_override_icons/tick = SubResource("DPITexture_b0arq")
 theme_override_styles/slider = SubResource("StyleBoxFlat_3olb0")
+min_value = 1.0
+max_value = 20.0
+value = 10.0
 
 [node name="自动战斗" type="CheckButton" parent="PanelContainer/VBoxContainer/操作面板/HBoxContainer/操作"]
 unique_name_in_owner = true
