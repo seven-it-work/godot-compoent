@@ -1,8 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://elsusvywal3o"]
+[gd_scene load_steps=3 format=3 uid="uid://elsusvywal3o"]
 
+[ext_resource type="Script" uid="uid://fjxvsdxj84dx" path="res://战斗/队伍面板.gd" id="1_8c85g"]
 [ext_resource type="PackedScene" uid="uid://c4g5kna40eker" path="res://战斗/战斗中的人员面板.tscn" id="1_govag"]
 
 [node name="队伍面板" type="PanelContainer"]
+script = ExtResource("1_8c85g")
 
 [node name="GridContainer" type="GridContainer" parent="."]
 layout_mode = 2

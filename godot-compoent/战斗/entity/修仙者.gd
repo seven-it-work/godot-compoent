@@ -21,6 +21,16 @@ class CultivatorTeam:
 		return _members
 	
 	#region 外部方法
+	## 获取所在位置的修仙者
+	func get_member(行:int,列:int) -> BaseCultivator:
+		return _members[行][列]
+	## 获取修仙者所在位置
+	func get_position(修仙者:BaseCultivator) -> Vector2:
+		for i in 3:
+			for j in 3:
+				if _members[i][j]==修仙者:
+					return Vector2(i,j)
+		return Vector2(-1,-1)
 	## 上阵
 	func 上阵(修仙者:BaseCultivator,行:int,列:int) -> void:
 		_members[行][列]=修仙者
