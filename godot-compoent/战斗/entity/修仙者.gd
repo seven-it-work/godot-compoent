@@ -46,6 +46,8 @@ class BaseCultivator:
 	var _defense:BaseValue.RandomGrowth=BaseValue.RandomGrowth.new({"min_value":5,"max_value":10,"min_growth":1,"max_growth":2,"growth_factor":1.5}):set=set_defense,get=get_defense
 	# 修仙者敏捷值（使用RandomGrowth进行速度计算）
 	var _agility:BaseValue.RandomGrowth=BaseValue.RandomGrowth.new({"min_value":4,"max_value":6,"min_growth":1,"max_growth":2,"growth_factor":1.2}):set=set_agility,get=get_agility
+	
+	signal 属性变化信号(属性名称:String,old_value:Variant,new_value:Variant)
 	#region 外部方法
 	## 是否能够升级
 	func can_level_up() -> bool:
@@ -57,6 +59,12 @@ class BaseCultivator:
 		_attack.grow_growth_range()
 		_defense.grow_growth_range()
 		_agility.grow_growth_range()
+		# 突破后触发所有属性变化信号	
+		属性变化信号.emit("_health", _health, _health)
+		属性变化信号.emit("_mana", _mana, _mana)
+		属性变化信号.emit("_attack", _attack, _attack)
+		属性变化信号.emit("_defense", _defense, _defense)
+		属性变化信号.emit("_agility", _agility, _agility)
 	## 升级
 	func grow(是否强制升级:bool=false) -> void:
 		if 是否强制升级:
@@ -74,7 +82,9 @@ class BaseCultivator:
 	#region get/set方法
 	# 设置修仙者姓名
 	func set_name(new_value:String) -> void:
+		var old_value = _name
 		_name = new_value
+		属性变化信号.emit("_name", old_value, new_value)
 
 	# 获取修仙者姓名
 	func get_name() -> String:
@@ -82,7 +92,9 @@ class BaseCultivator:
 
 	# 设置修仙者等级对象
 	func set_level(new_value:BaseValue.GrowthValue) -> void:
+		var old_value = _level
 		_level = new_value
+		属性变化信号.emit("_level", old_value, new_value)
 
 	# 获取修仙者等级对象
 	func get_level() -> BaseValue.GrowthValue:
@@ -90,7 +102,9 @@ class BaseCultivator:
 
 	# 设置修仙者生命值对象
 	func set_health(new_value:BaseValue.RangeGrowth) -> void:
+		var old_value = _health
 		_health = new_value
+		属性变化信号.emit("_health", old_value, new_value)
 
 	# 获取修仙者生命值对象
 	func get_health() -> BaseValue.RangeGrowth:
@@ -98,7 +112,9 @@ class BaseCultivator:
 
 	# 设置修仙者灵气值对象
 	func set_mana(new_value:BaseValue.RangeGrowth) -> void:
+		var old_value = _mana
 		_mana = new_value
+		属性变化信号.emit("_mana", old_value, new_value)
 
 	# 获取修仙者灵气值对象
 	func get_mana() -> BaseValue.RangeGrowth:
@@ -106,7 +122,9 @@ class BaseCultivator:
 
 	# 设置修仙者攻击力对象
 	func set_attack(new_value:BaseValue.RandomGrowth) -> void:
+		var old_value = _attack
 		_attack = new_value
+		属性变化信号.emit("_attack", old_value, new_value)
 
 	# 获取修仙者攻击力对象
 	func get_attack() -> BaseValue.RandomGrowth:
@@ -114,7 +132,9 @@ class BaseCultivator:
 
 	# 设置修仙者防御力对象
 	func set_defense(new_value:BaseValue.RandomGrowth) -> void:
+		var old_value = _defense
 		_defense = new_value
+		属性变化信号.emit("_defense", old_value, new_value)
 
 	# 获取修仙者防御力对象
 	func get_defense() -> BaseValue.RandomGrowth:
@@ -122,7 +142,9 @@ class BaseCultivator:
 
 	# 设置修仙者敏捷值对象
 	func set_agility(new_value:BaseValue.RandomGrowth) -> void:
+		var old_value = _agility
 		_agility = new_value
+		属性变化信号.emit("_agility", old_value, new_value)
 
 	# 获取修仙者敏捷值对象
 	func get_agility() -> BaseValue.RandomGrowth:
