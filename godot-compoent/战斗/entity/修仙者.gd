@@ -41,9 +41,11 @@ class BaseCultivator:
 	# 修仙者灵气值（使用RangeGrowth跟踪最小值/最大值范围）
 	var _mana:BaseValue.RangeGrowth=BaseValue.RangeGrowth.new({"value":0,"max":100,"min":0,"min_growth":5,"max_growth":10,"growth_factor":8,"should_only_grow_max_value":true}):set=set_mana,get=get_mana
 	# 修仙者攻击力（使用RandomGrowth进行可变伤害计算）
-	var _attack:BaseValue.RandomGrowth=BaseValue.RandomGrowth.new({"min":8,"max":15,"min_growth":1,"max_growth":3,"growth_factor":2}):set=set_attack,get=get_attack
+	var _attack:BaseValue.RandomGrowth=BaseValue.RandomGrowth.new({"min_value":8,"max_value":15,"min_growth":1,"max_growth":3,"growth_factor":2}):set=set_attack,get=get_attack
 	# 修仙者防御力（使用RandomGrowth进行可变伤害减免）
-	var _defense:BaseValue.RandomGrowth=BaseValue.RandomGrowth.new({"min":5,"max":10,"min_growth":1,"max_growth":2,"growth_factor":1.5}):set=set_defense,get=get_defense
+	var _defense:BaseValue.RandomGrowth=BaseValue.RandomGrowth.new({"min_value":5,"max_value":10,"min_growth":1,"max_growth":2,"growth_factor":1.5}):set=set_defense,get=get_defense
+	# 修仙者敏捷值（使用RandomGrowth进行速度计算）
+	var _agility:BaseValue.RandomGrowth=BaseValue.RandomGrowth.new({"min_value":4,"max_value":6,"min_growth":1,"max_growth":2,"growth_factor":1.2}):set=set_agility,get=get_agility
 	#region 外部方法
 	## 是否能够升级
 	func can_level_up() -> bool:
@@ -54,6 +56,7 @@ class BaseCultivator:
 		_mana.grow_growth_range()
 		_attack.grow_growth_range()
 		_defense.grow_growth_range()
+		_agility.grow_growth_range()
 	## 升级
 	func grow(是否强制升级:bool=false) -> void:
 		if 是否强制升级:
@@ -64,6 +67,7 @@ class BaseCultivator:
 			_mana.grow()
 			_attack.grow()
 			_defense.grow()
+			_agility.grow()
 			# 经验设置为0
 			_mana.set_value(0)
 	#endregion
@@ -115,4 +119,12 @@ class BaseCultivator:
 	# 获取修仙者防御力对象
 	func get_defense() -> BaseValue.RandomGrowth:
 		return _defense
+
+	# 设置修仙者敏捷值对象
+	func set_agility(new_value:BaseValue.RandomGrowth) -> void:
+		_agility = new_value
+
+	# 获取修仙者敏捷值对象
+	func get_agility() -> BaseValue.RandomGrowth:
+		return _agility
 	#endregion
