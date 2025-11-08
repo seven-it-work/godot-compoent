@@ -74,6 +74,7 @@ func _修仙者行动(baseCultivator: Cultivator.BaseCultivator) -> void:
 		return
 	全局配置.set_战斗暂停(true)
 	print("修仙者行动:", baseCultivator.get_name_str())
+	// todo 完成行动的逻辑
 	pass
 
 func 选择敌人目标() -> Cultivator:
