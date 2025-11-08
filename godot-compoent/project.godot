@@ -11,22 +11,32 @@ config_version=5
 [application]
 
 config/name="godot-compoent"
-run/main_scene="uid://chuyou880wdb4"
+run/main_scene="uid://babb85qiptxon"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
 Log="*res://addons/logger/logger.gd"
+"全局配置"="*res://战斗/entity/全局配置.gd"
 
 [display]
 
-window/stretch/mode="canvas_items"
-window/stretch/aspect="keep_width"
+window/size/viewport_width=720
+window/size/viewport_height=1080
+window/stretch/mode="viewport"
+window/stretch/aspect="expand"
+window/per_pixel_transparency/allowed=true
+window/handheld/orientation=6
 
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/logger/plugin.cfg")
+
+[input_devices]
+
+pointing/android/enable_long_press_as_right_click=true
+pointing/android/enable_pan_and_scale_gestures=true
 
 [rendering]
 

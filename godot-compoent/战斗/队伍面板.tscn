@@ -1,0 +1,37 @@
+[gd_scene load_steps=2 format=3 uid="uid://elsusvywal3o"]
+
+[ext_resource type="PackedScene" uid="uid://c4g5kna40eker" path="res://战斗/战斗中的人员面板.tscn" id="1_govag"]
+
+[node name="队伍面板" type="PanelContainer"]
+
+[node name="GridContainer" type="GridContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+columns = 3
+
+[node name="战斗中的人员面板" parent="GridContainer" instance=ExtResource("1_govag")]
+layout_mode = 2
+
+[node name="战斗中的人员面板2" parent="GridContainer" instance=ExtResource("1_govag")]
+layout_mode = 2
+
+[node name="战斗中的人员面板3" parent="GridContainer" instance=ExtResource("1_govag")]
+layout_mode = 2
+
+[node name="战斗中的人员面板4" parent="GridContainer" instance=ExtResource("1_govag")]
+layout_mode = 2
+
+[node name="战斗中的人员面板5" parent="GridContainer" instance=ExtResource("1_govag")]
+layout_mode = 2
+
+[node name="战斗中的人员面板6" parent="GridContainer" instance=ExtResource("1_govag")]
+layout_mode = 2
+
+[node name="战斗中的人员面板7" parent="GridContainer" instance=ExtResource("1_govag")]
+layout_mode = 2
+
+[node name="战斗中的人员面板8" parent="GridContainer" instance=ExtResource("1_govag")]
+layout_mode = 2
+
+[node name="战斗中的人员面板9" parent="GridContainer" instance=ExtResource("1_govag")]
+layout_mode = 2

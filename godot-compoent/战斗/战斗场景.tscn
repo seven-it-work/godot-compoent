@@ -1,0 +1,197 @@
+[gd_scene load_steps=19 format=3 uid="uid://babb85qiptxon"]
+
+[ext_resource type="Script" uid="uid://63bxcj0e6b1t" path="res://战斗/战斗场景.gd" id="1_1q07t"]
+[ext_resource type="PackedScene" uid="uid://elsusvywal3o" path="res://战斗/队伍面板.tscn" id="1_37it1"]
+[ext_resource type="Texture2D" uid="uid://bqqr5tf1mrry2" path="res://战斗/绘制游戏相框.png" id="1_jso2u"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_37it1"]
+content_margin_left = 30.0
+content_margin_top = 30.0
+content_margin_right = 30.0
+content_margin_bottom = 30.0
+bg_color = Color(0.4, 0.7607843, 0.61960787, 0.3372549)
+draw_center = false
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0.1764706, 0.62352943, 0.52156866, 1)
+border_blend = true
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_jso2u"]
+
+[sub_resource type="DPITexture" id="DPITexture_1q07t"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><circle cx=\"8\" cy=\"8\" r=\"7\" fill=\"#fefefe\" fill-opacity=\".75\"/></svg>
+"
+base_scale = 1.8
+
+[sub_resource type="DPITexture" id="DPITexture_hhxrx"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><circle cx=\"8\" cy=\"8\" r=\"7\" fill=\"#fefefe\"/></svg>
+"
+base_scale = 1.8
+
+[sub_resource type="DPITexture" id="DPITexture_3olb0"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><circle cx=\"8\" cy=\"8\" r=\"7\" fill=\"#fefefe\" fill-opacity=\".37\"/></svg>
+"
+base_scale = 1.8
+
+[sub_resource type="DPITexture" id="DPITexture_b0arq"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"4\" height=\"8\"><path fill=\"#fff\" fill-opacity=\".25\" d=\"M1 0h2v16H1z\"/></svg>
+"
+base_scale = 1.8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3olb0"]
+content_margin_left = 4.0
+content_margin_top = 15.0
+content_margin_right = 15.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+corner_detail = 6
+
+[sub_resource type="DPITexture" id="DPITexture_qg6y6"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"16\"><rect width=\"30\" height=\"14\" x=\"1\" y=\"1\" fill=\"#fff\" fill-opacity=\".75\" rx=\"7\"/><circle cx=\"24\" cy=\"8\" r=\"5\" fill=\"#1a1a1a\"/></svg>
+"
+base_scale = 2.2
+
+[sub_resource type="DPITexture" id="DPITexture_ldiia"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"16\"><g fill-opacity=\".5\"><rect width=\"30\" height=\"14\" x=\"1\" y=\"1\" fill=\"#1a1a1a\" rx=\"7\"/><circle cx=\"8\" cy=\"8\" r=\"5\" fill=\"#fff\"/></g></svg>
+"
+base_scale = 2.2
+
+[sub_resource type="DPITexture" id="DPITexture_aurh4"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"16\"><rect width=\"30\" height=\"14\" x=\"1\" y=\"1\" fill=\"#fff\" fill-opacity=\".37\" rx=\"7\"/><circle cx=\"24\" cy=\"8\" r=\"5\" fill=\"#1a1a1a\" fill-opacity=\".5\"/></svg>
+"
+base_scale = 2.2
+
+[sub_resource type="DPITexture" id="DPITexture_tif70"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"16\"><g fill-opacity=\".25\"><rect width=\"30\" height=\"14\" x=\"1\" y=\"1\" fill=\"#1a1a1a\" rx=\"7\"/><circle cx=\"8\" cy=\"8\" r=\"5\" fill=\"#fff\"/></g></svg>
+"
+base_scale = 2.2
+
+[sub_resource type="DPITexture" id="DPITexture_lwvnd"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"16\"><rect width=\"30\" height=\"14\" x=\"1\" y=\"1\" fill=\"#fff\" fill-opacity=\".75\" rx=\"7\"/><circle cx=\"8\" cy=\"8\" r=\"5\" fill=\"#1a1a1a\"/></svg>
+"
+base_scale = 2.2
+
+[sub_resource type="DPITexture" id="DPITexture_uxso8"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"16\"><g fill-opacity=\".5\"><rect width=\"30\" height=\"14\" x=\"1\" y=\"1\" fill=\"#1a1a1a\" rx=\"7\"/><circle cx=\"24\" cy=\"8\" r=\"5\" fill=\"#fff\"/></g></svg>
+"
+base_scale = 2.2
+
+[sub_resource type="DPITexture" id="DPITexture_vxpre"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"16\"><rect width=\"30\" height=\"14\" x=\"1\" y=\"1\" fill=\"#fff\" fill-opacity=\".37\" rx=\"7\"/><circle cx=\"8\" cy=\"8\" r=\"5\" fill=\"#1a1a1a\" fill-opacity=\".5\"/></svg>
+"
+base_scale = 2.2
+
+[sub_resource type="DPITexture" id="DPITexture_t5wcy"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"32\" height=\"16\"><g fill-opacity=\".25\"><rect width=\"30\" height=\"14\" x=\"1\" y=\"1\" fill=\"#1a1a1a\" rx=\"7\"/><circle cx=\"24\" cy=\"8\" r=\"5\" fill=\"#fff\"/></g></svg>
+"
+base_scale = 2.2
+
+[node name="战斗场景" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_1q07t")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -80.0
+offset_top = -108.0
+offset_right = 74.0
+offset_bottom = 90.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_jso2u")
+expand_mode = 4
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_37it1")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="敌人队伍面板" parent="PanelContainer/VBoxContainer" instance=ExtResource("1_37it1")]
+layout_mode = 2
+
+[node name="HSeparator" type="PanelContainer" parent="PanelContainer/VBoxContainer"]
+custom_minimum_size = Vector2(15, 15)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_jso2u")
+
+[node name="玩家队伍面板" parent="PanelContainer/VBoxContainer" instance=ExtResource("1_37it1")]
+layout_mode = 2
+
+[node name="操作面板" type="PanelContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer/操作面板"]
+layout_mode = 2
+
+[node name="操作" type="VBoxContainer" parent="PanelContainer/VBoxContainer/操作面板/HBoxContainer"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+
+[node name="逃跑" type="Button" parent="PanelContainer/VBoxContainer/操作面板/HBoxContainer/操作"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "逃跑"
+
+[node name="倍速" type="HBoxContainer" parent="PanelContainer/VBoxContainer/操作面板/HBoxContainer/操作"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/操作面板/HBoxContainer/操作/倍速"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "1倍速"
+
+[node name="HSlider" type="HSlider" parent="PanelContainer/VBoxContainer/操作面板/HBoxContainer/操作/倍速"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_icons/grabber = SubResource("DPITexture_1q07t")
+theme_override_icons/grabber_highlight = SubResource("DPITexture_hhxrx")
+theme_override_icons/grabber_disabled = SubResource("DPITexture_3olb0")
+theme_override_icons/tick = SubResource("DPITexture_b0arq")
+theme_override_styles/slider = SubResource("StyleBoxFlat_3olb0")
+
+[node name="自动战斗" type="CheckButton" parent="PanelContainer/VBoxContainer/操作面板/HBoxContainer/操作"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+theme_override_icons/checked = SubResource("DPITexture_qg6y6")
+theme_override_icons/unchecked = SubResource("DPITexture_ldiia")
+theme_override_icons/checked_disabled = SubResource("DPITexture_aurh4")
+theme_override_icons/unchecked_disabled = SubResource("DPITexture_tif70")
+theme_override_icons/checked_mirrored = SubResource("DPITexture_lwvnd")
+theme_override_icons/unchecked_mirrored = SubResource("DPITexture_uxso8")
+theme_override_icons/checked_disabled_mirrored = SubResource("DPITexture_vxpre")
+theme_override_icons/unchecked_disabled_mirrored = SubResource("DPITexture_t5wcy")
+text = "自动战斗"
+
+[node name="技能" type="VBoxContainer" parent="PanelContainer/VBoxContainer/操作面板/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[connection signal="value_changed" from="PanelContainer/VBoxContainer/操作面板/HBoxContainer/操作/倍速/HSlider" to="." method="_on_h_slider_value_changed"]
+[connection signal="toggled" from="PanelContainer/VBoxContainer/操作面板/HBoxContainer/操作/自动战斗" to="." method="_on_自动战斗_toggled"]

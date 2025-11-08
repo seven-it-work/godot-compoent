@@ -1,0 +1,39 @@
+[gd_scene load_steps=2 format=3 uid="uid://c4g5kna40eker"]
+
+[ext_resource type="PackedScene" uid="uid://demwadgunawnc" path="res://成长属性/成长属性组件.tscn" id="1_5lwf2"]
+
+[node name="战斗中的人员面板" type="PanelContainer"]
+custom_minimum_size = Vector2(210, 140)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="名称" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="VBoxContainer/名称"]
+layout_mode = 2
+text = "名称："
+
+[node name="Value" type="Label" parent="VBoxContainer/名称"]
+layout_mode = 2
+text = "月花仙子"
+
+[node name="境界" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Key" type="Label" parent="VBoxContainer/境界"]
+layout_mode = 2
+text = "名称："
+
+[node name="Value" type="Label" parent="VBoxContainer/境界"]
+layout_mode = 2
+text = "练气期1层"
+
+[node name="生命值" parent="VBoxContainer" instance=ExtResource("1_5lwf2")]
+layout_mode = 2
+label = "生命值："
+
+[node name="灵气值" parent="VBoxContainer" instance=ExtResource("1_5lwf2")]
+layout_mode = 2
+label = "灵气值"

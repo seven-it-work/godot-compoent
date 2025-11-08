@@ -1,3 +1,4 @@
+@tool
 extends HBoxContainer
 class_name GrowthAttributeComponent
 
@@ -5,6 +6,10 @@ class_name GrowthAttributeComponent
 @export var label:String: get=get_label, set=set_label
 ## 成长属性对象
 var _growth_property:BaseValue.GrowthValue: get= get_growth_property, set = set_growth_property
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_EDITOR_POST_SAVE or what == NOTIFICATION_EDITOR_PRE_SAVE:
+		render_growth_property()
 
 #region get/set 方法
 ## 获取标签文本

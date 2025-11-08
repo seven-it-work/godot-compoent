@@ -9,10 +9,11 @@ script = ExtResource("1_tuw20")
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 2
-text = "test"
+text = "属性名称："
 horizontal_alignment = 1
 
 [node name="ValueStr" type="Label" parent="."]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 vertical_alignment = 1
