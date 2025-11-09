@@ -41,6 +41,8 @@ func _process(delta: float) -> void:
 			_战斗计时器 = 0
 
 func 开始战斗(敌人队伍: Cultivator.CultivatorTeam, 玩家队伍: Cultivator.CultivatorTeam) -> void:
+	# 对所以的队伍敏捷获取，然后计算敏捷所需要的时间。
+	
 	更新队伍UI显示($"PanelContainer/VBoxContainer/敌人队伍面板", 敌人队伍)
 	更新队伍UI显示($"PanelContainer/VBoxContainer/玩家队伍面板", 玩家队伍)
 	
@@ -114,12 +116,8 @@ func _获取对手队伍容器(team: Cultivator.CultivatorTeam) -> PanelContaine
 
 func _攻击敌人(attacker: BattleCultivatorPanelContainer, 敌人队伍面板: TeamPanelContainer) -> void:
 	# 默认的是随机一个敌人，如果有多个敌人，需要同时进行攻击
-	var 目标对象面板=敌人队伍面板.get_valid_battle_panel_container().pick_random() as BattleCultivatorPanelContainer
-	if not 目标对象面板:
-		Log.error("敌人队伍中没有有效对手")
-		return
-	var 目的敌人合计=[目标对象面板]
-	for i in 目的敌人合计:
+	var 目标对象面板=敌人队伍面板.get_valid_battle_panel_container()
+	for i in 目标对象面板:
 		_执行攻击(attacker, i)
 
 func _执行攻击(attacker: BattleCultivatorPanelContainer, target: BattleCultivatorPanelContainer):
