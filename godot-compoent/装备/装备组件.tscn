@@ -7,7 +7,7 @@ resource_local_to_scene = true
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mr4hg"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qp5dh"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mc1sg"]
 resource_local_to_scene = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ymo56"]
@@ -25,7 +25,7 @@ resource_local_to_scene = true
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0venh"]
 resource_local_to_scene = true
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mc1sg"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qp5dh"]
 resource_local_to_scene = true
 
 [node name="MarginContainer" type="PanelContainer"]
@@ -38,63 +38,77 @@ layout_mode = 2
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
-[node name="背包格子" parent="VBoxContainer/HBoxContainer" instance=ExtResource("1_pify5")]
+[node name="武器" parent="VBoxContainer/HBoxContainer" instance=ExtResource("1_pify5")]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_m02jb")
+default_label_str = "武器"
 
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_mr4hg")
 
-[node name="背包格子2" parent="VBoxContainer/HBoxContainer" instance=ExtResource("1_pify5")]
+[node name="护盾" parent="VBoxContainer/HBoxContainer" instance=ExtResource("1_pify5")]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_qp5dh")
+theme_override_styles/panel = SubResource("StyleBoxFlat_mc1sg")
+default_label_str = "护盾"
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
-[node name="背包格子" parent="VBoxContainer/HBoxContainer2" instance=ExtResource("1_pify5")]
+[node name="头盔" parent="VBoxContainer/HBoxContainer2" instance=ExtResource("1_pify5")]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ymo56")
+default_label_str = "头盔"
 
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_mr4hg")
 
-[node name="背包格子2" parent="VBoxContainer/HBoxContainer2" instance=ExtResource("1_pify5")]
+[node name="戒子" parent="VBoxContainer/HBoxContainer2" instance=ExtResource("1_pify5")]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_uj2u1")
+default_label_str = "戒子"
 
 [node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
-[node name="背包格子" parent="VBoxContainer/HBoxContainer3" instance=ExtResource("1_pify5")]
+[node name="衣服" parent="VBoxContainer/HBoxContainer3" instance=ExtResource("1_pify5")]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ghs5b")
+default_label_str = "衣服"
 
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer3"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_mr4hg")
 
-[node name="背包格子2" parent="VBoxContainer/HBoxContainer3" instance=ExtResource("1_pify5")]
+[node name="腰佩" parent="VBoxContainer/HBoxContainer3" instance=ExtResource("1_pify5")]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_qaaql")
+default_label_str = "腰佩"
 
 [node name="HBoxContainer4" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
-[node name="背包格子" parent="VBoxContainer/HBoxContainer4" instance=ExtResource("1_pify5")]
+[node name="鞋子" parent="VBoxContainer/HBoxContainer4" instance=ExtResource("1_pify5")]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_0venh")
+default_label_str = "鞋子"
 
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer4"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_mr4hg")
 
-[node name="背包格子2" parent="VBoxContainer/HBoxContainer4" instance=ExtResource("1_pify5")]
+[node name="项链" parent="VBoxContainer/HBoxContainer4" instance=ExtResource("1_pify5")]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_mc1sg")
+theme_override_styles/panel = SubResource("StyleBoxFlat_qp5dh")
+default_label_str = "项链"

@@ -1,6 +1,6 @@
 class_name BaseItemScope
 
-
+## 背包对象
 class BackpackItem:
 	signal 重置物品
 	signal 添加物品(new_value:BaseItem,index:int)
@@ -73,16 +73,75 @@ class BackpackItem:
 		return delItemByIndex(index)
 	#endregion
 	
-
+## 基础物品对象
 @abstract class BaseItem:
 	var _name_str:String="":set=set_name_str,get=get_name_str
 	
+	# 生命值
+	var _health:BaseValue.GrowthValue:set=set_health,get=get_health
+	# 防御力
+	var _defense:BaseValue.RandomGrowth:set=set_defense,get=get_defense
+	# 攻击力
+	var _attack:BaseValue.RandomGrowth:set=set_attack,get=get_attack
+	# 敏捷值
+	var _agility:BaseValue.RandomGrowth:set=set_agility,get=get_agility
+	
 	#region get/set 方法
+	func set_health(new_value:BaseValue.GrowthValue)->void:
+		_health=new_value
+	func get_health()->BaseValue.GrowthValue:
+		return _health
+	func set_defense(new_value:BaseValue.RandomGrowth)->void:
+		_defense=new_value
+	func get_defense()->BaseValue.RandomGrowth:
+		return _defense
+	func set_attack(new_value:BaseValue.RandomGrowth)->void:
+		_attack=new_value
+	func get_attack()->BaseValue.RandomGrowth:
+		return _attack
+	func set_agility(new_value:BaseValue.RandomGrowth)->void:
+		_agility=new_value
+	func get_agility()->BaseValue.RandomGrowth:
+		return _agility
+
 	func set_name_str(name:String)->void:
 		_name_str=name
 	func get_name_str()->String:
 		return _name_str
+
+	func _init(data:Dictionary={})->void:
+		if "name_str" in data:
+			_name_str=data["name_str"]
+		if "health" in data:
+			_health=data["health"]
+		if "defense" in data:
+			_defense=data["defense"]
+		if "attack" in data:
+			_attack=data["attack"]
+		if "agility" in data:
+			_agility=data["agility"]
 	#endregion
 
+## 默认物品（空物品）
 class DefaultItem extends  BaseItem:
+	pass
+
+class 武器 extends BaseItem:
+	pass
+class 护盾 extends BaseItem:
+	pass
+
+class 头盔 extends BaseItem:
+	pass
+class 戒子 extends BaseItem:
+	pass
+
+class 衣服 extends BaseItem:
+	pass
+class 腰佩 extends BaseItem:
+	pass
+
+class 鞋子 extends BaseItem:
+	pass
+class 项链 extends BaseItem:
 	pass

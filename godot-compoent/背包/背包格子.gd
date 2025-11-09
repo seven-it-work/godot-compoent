@@ -1,3 +1,4 @@
+@tool
 ## 背包格子
 extends Panel
 class_name BackpackCompartment
@@ -5,10 +6,16 @@ class_name BackpackCompartment
 # 点击信号
 signal clicked(compartment, item)
 
+@export var default_label_str:String="":set=set_default_label_str,get=get_default_label_str
 var _base_item:BaseItemScope.BaseItem:set=set_base_item,get=get_base_item
 var _current_style:String = "默认"
 
 #region get/set 方法
+func set_default_label_str(value:String)->void:
+	default_label_str=value
+	_渲染_base_item()
+func get_default_label_str()->String:
+	return default_label_str
 func set_base_item(base_item:BaseItemScope.BaseItem)->void:
 	_base_item=base_item
 	_渲染_base_item()
@@ -24,7 +31,7 @@ func _渲染_base_item()->void:
 		if _base_item:
 			$Label.text=_base_item._name_str
 		else:
-			$Label.text=""
+			$Label.text=default_label_str
 
 func _process(delta: float) -> void:
 	_process_tips_close()
@@ -34,9 +41,9 @@ func _process_tips_close():
 	if %Tips and %Tips.visible:
 		_on_mouse_exited()
 func _on_mouse_entered() -> void:
-	%Tips.show()
-	%Tips.global_position=get_global_mouse_position()
-	pass # Replace with function body.
+	if _base_item:
+		%Tips.show()
+		%Tips.global_position=get_global_mouse_position()
 
 
 func _on_mouse_exited() -> void:
@@ -81,3 +88,7 @@ func _input(event: InputEvent) -> void:
 		if get_global_rect().has_point(event.global_position):
 			# 发射点击信号，传递自身引用和基础物品
 			self.emit_signal("clicked", self, _base_item)
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_EDITOR_POST_SAVE or what == NOTIFICATION_EDITOR_PRE_SAVE:
+		_渲染_base_item()
