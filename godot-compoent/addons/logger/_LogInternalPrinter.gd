@@ -212,8 +212,8 @@ static func _log_mode_editor(entry:LogStream.LogEntry):
 	var message_format = message_format_strings[message_level]
 	var format_data = _get_format_data(entry)
 	var output = message_format.format(format_data)
-	if LogConfig and LogConfig.logTextRich and LogConfig.logTextRich.log_text:
-		LogConfig.logTextRich.log_text+=output+"\n"
+	if Log and Log.logTextRich and Log.logTextRich.log_text:
+		Log.logTextRich.log_text+=output+"\n"
 	print_rich(output)
 	var stack = entry.stack
 	var level = entry.message_level

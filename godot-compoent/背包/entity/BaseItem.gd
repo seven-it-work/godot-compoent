@@ -113,13 +113,37 @@ class BackpackItem:
 		if "name_str" in data:
 			_name_str=data["name_str"]
 		if "health" in data:
-			_health=data["health"]
+			if data["health"] is BaseValue.GrowthValue:
+				_health=data["health"]
+			elif data["health"] is Dictionary:
+				_health=BaseValue.GrowthValue.new(data["health"])
+			else:
+				Log.err("health必须是BaseValue.GrowthValue类型或Dictionary类型")
+				return
 		if "defense" in data:
-			_defense=data["defense"]
+			if data["defense"] is BaseValue.RandomGrowth:
+				_defense=data["defense"]
+			elif data["defense"] is Dictionary:
+				_defense=BaseValue.RandomGrowth.new(data["defense"])
+			else:
+				Log.err("defense必须是BaseValue.RandomGrowth类型或Dictionary类型")
+				return
 		if "attack" in data:
-			_attack=data["attack"]
+			if data["attack"] is BaseValue.RandomGrowth:
+				_attack=data["attack"]
+			elif data["attack"] is Dictionary:
+				_attack=BaseValue.RandomGrowth.new(data["attack"])
+			else:
+				Log.err("attack必须是BaseValue.RandomGrowth类型或Dictionary类型")
+				return
 		if "agility" in data:
-			_agility=data["agility"]
+			if data["agility"] is BaseValue.RandomGrowth:
+				_agility=data["agility"]
+			elif data["agility"] is Dictionary:
+				_agility=BaseValue.RandomGrowth.new(data["agility"])
+			else:
+				Log.err("agility必须是BaseValue.RandomGrowth类型或Dictionary类型")
+				return
 	#endregion
 
 ## 默认物品（空物品）

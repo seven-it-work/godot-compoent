@@ -4,7 +4,7 @@ extends Node
 ##Class for interacting with command line arguments and environement variables.
 class_name LogConfig
 
-static var logTextRich:LogTextRich=preload("res://addons/logger/LogTextRich.tscn").instantiate()
+
 
 static func get_arguments() -> Dictionary:
 	var arguments = {}
