@@ -23,7 +23,7 @@ func set_cultivator(cultivator:Cultivator.BaseCultivator) -> void:
 	# 如果有修仙者，连接信号并更新UI
 	if _cultivator:
 		_cultivator.属性变化信号.connect(_on_cultivator_property_changed)
-		set_cool_down_time(_cultivator.get_agility().get_value()*100)
+		update_cool_down_based_on_max_agility()
 		update_ui()
 
 # 更新UI显示
@@ -79,6 +79,26 @@ func _ready() -> void:
 	update_cool_down_ui()
 
 # _process方法，处理冷却倒计时
+# 根据最大敏捷值更新冷却时间
+# 最大敏捷对应的冷却时间为1秒，其他敏捷根据比例计算
+func update_cool_down_based_on_max_agility() -> void:
+	if not _cultivator or 全局配置.战斗场景.最大敏捷值 <= 0:
+		return
+	
+	# 计算冷却时间：最大敏捷值的冷却时间为1秒，其他按比例增加
+	# 公式：冷却时间(毫秒) = (最大敏捷值 / 当前敏捷值) * 1000
+	var current_agility = _cultivator.get_agility().get_value()
+	if current_agility <= 0:
+		current_agility = 1.0
+		
+	var cool_down_time = (全局配置.战斗场景.最大敏捷值 / current_agility) * 1000
+	
+	# 设置冷却时间
+	set_cool_down_time(cool_down_time)
+	
+	# 打印调试信息
+	print("修仙者", _cultivator.get_name_str(), " 敏捷:", current_agility, " 最大敏捷:", 全局配置.战斗场景.最大敏捷值, " 冷却时间:", cool_down_time, "ms")
+
 func _process(_delta: float) -> void:
 	if not _cultivator:
 		return
@@ -95,7 +115,7 @@ func _process(_delta: float) -> void:
 		_冷却时间 -= speed_multiplier
 		# 确保冷却时间不会小于0
 		if _冷却时间 <= 0:
-			_冷却时间 = _cultivator.get_agility().get_value()*100
+			update_cool_down_based_on_max_agility()
 			冷却完成.emit()
 		update_cool_down_ui()
 

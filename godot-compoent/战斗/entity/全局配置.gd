@@ -9,6 +9,9 @@ var _全局倍速:int=10
 var _战斗暂停:bool=false:set=set_战斗暂停,get=get_战斗暂停
 var _游戏暂停:bool=false:set=set_游戏暂停,get=get_游戏暂停
 
+# 场景
+var 战斗场景:BattleSceneControl=null
+
 #region get/set 方法
 # 战斗暂停
 func set_战斗暂停(new_value:bool) -> void:

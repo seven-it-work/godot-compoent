@@ -36,7 +36,7 @@ func _set_panel_cultivator(index: int, cultivator: Cultivator.BaseCultivator) ->
 # 处理面板修仙者行动信号
 func _on_panel_cultivator_action(行动修仙者:Cultivator.BaseCultivator) -> void:
 	修仙者行动.emit(行动修仙者, _team)
-
+	
 # 设置队伍
 func set_team(team: Cultivator.CultivatorTeam) -> void:
 	_team = team

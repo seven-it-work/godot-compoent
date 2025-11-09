@@ -1,4 +1,5 @@
 extends Control
+class_name BattleSceneControl
 
 var _战斗状态 = "准备"
 var _战斗回合 = 0
@@ -14,6 +15,7 @@ const BATTLE_STATE_ESCAPE = "逃跑"
 # 初始化计时器
 var _战斗计时器 = 0.0
 var _回合间隔 = 2.0
+var 最大敏捷值 = 1.0 # 用于计算冷却时间的基准敏捷值
 
 func _ready() -> void:
 	# 初始化UI
@@ -41,7 +43,9 @@ func _process(delta: float) -> void:
 			_战斗计时器 = 0
 
 func 开始战斗(敌人队伍: Cultivator.CultivatorTeam, 玩家队伍: Cultivator.CultivatorTeam) -> void:
-	# 对所以的队伍敏捷获取，然后计算敏捷所需要的时间。
+	全局配置.战斗场景 = self
+	# 计算所有队伍中的最大敏捷值，作为冷却时间计算基准
+	_计算最大敏捷值(敌人队伍, 玩家队伍)
 	
 	更新队伍UI显示($"PanelContainer/VBoxContainer/敌人队伍面板", 敌人队伍)
 	更新队伍UI显示($"PanelContainer/VBoxContainer/玩家队伍面板", 玩家队伍)
@@ -52,6 +56,29 @@ func 开始战斗(敌人队伍: Cultivator.CultivatorTeam, 玩家队伍: Cultiva
 	else:
 		# 进行结算
 		pass
+
+# 计算所有队伍中的最大敏捷值
+func _计算最大敏捷值(敌人队伍: Cultivator.CultivatorTeam, 玩家队伍: Cultivator.CultivatorTeam) -> void:
+	var maxAgility = 1.0 # 默认最小值
+	
+	# 检查敌人队伍中的敏捷值
+	if 敌人队伍:
+		for cultivator in 敌人队伍.get_valid_members():
+			if cultivator and cultivator.is_alive():
+				var agility = cultivator.get_agility().get_value()
+				if agility > maxAgility:
+					maxAgility = agility
+	
+	# 检查玩家队伍中的敏捷值
+	if 玩家队伍:
+		for cultivator in 玩家队伍.get_valid_members():
+			if cultivator and cultivator.is_alive():
+				var agility = cultivator.get_agility().get_value()
+				if agility > maxAgility:
+					maxAgility = agility
+	
+	最大敏捷值 = maxAgility
+	print("战斗中最大敏捷值为:", 最大敏捷值)
 
 # 更新队伍UI显示
 func 更新队伍UI显示(container: Control, team: Cultivator.CultivatorTeam) -> void:
@@ -233,3 +260,15 @@ func 添加战斗日志(text: String) -> void:
 		logLabel.append_text(text + "\n")
 		# 自动滚动到底部
 		logLabel.scroll_to_line(logLabel.get_line_count())
+		
+# 当队伍中的修仙者属性变化时（例如敏捷提升），可能需要重新计算最大敏捷值
+func _重新计算最大敏捷值() -> void:
+	var 敌人队伍 = $"PanelContainer/VBoxContainer/敌人队伍面板".get_team()
+	var 玩家队伍 = $"PanelContainer/VBoxContainer/玩家队伍面板".get_team()
+	_计算最大敏捷值(敌人队伍, 玩家队伍)
+	
+	# 更新所有面板的冷却时间
+	if $"PanelContainer/VBoxContainer/敌人队伍面板".has_method("update_all_cool_down_times"):
+		$"PanelContainer/VBoxContainer/敌人队伍面板".update_all_cool_down_times(最大敏捷值)
+	if $"PanelContainer/VBoxContainer/玩家队伍面板".has_method("update_all_cool_down_times"):
+		$"PanelContainer/VBoxContainer/玩家队伍面板".update_all_cool_down_times(最大敏捷值)
