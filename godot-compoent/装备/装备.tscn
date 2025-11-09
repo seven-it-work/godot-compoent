@@ -1,0 +1,75 @@
+[gd_scene load_steps=6 format=3 uid="uid://7y1bygtje7xb"]
+
+[ext_resource type="Script" uid="uid://bogy42c77a0gw" path="res://装备/装备.gd" id="1_p5to5"]
+[ext_resource type="PackedScene" uid="uid://c38g8o5r4dgs2" path="res://装备/装备组件.tscn" id="2_3gj5s"]
+[ext_resource type="Texture2D" uid="uid://dx3hmfumh643m" path="res://装备/绘制特定风格边框.png" id="2_ybo40"]
+[ext_resource type="PackedScene" uid="uid://snkw6mikkfyq" path="res://背包/背包.tscn" id="3_xolpg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ybo40"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+draw_center = false
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.58431375, 0.28627452, 0.09411765, 1)
+border_blend = true
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="装备" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_p5to5")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_ybo40")
+expand_mode = 1
+
+[node name="MarginContainer" parent="." instance=ExtResource("2_3gj5s")]
+layout_mode = 0
+offset_left = 79.0
+offset_top = 24.0
+offset_right = 303.4
+offset_bottom = 246.0
+scale = Vector2(2.5, 2.5)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_ybo40")
+
+[node name="背包" parent="." instance=ExtResource("3_xolpg")]
+layout_mode = 0
+offset_left = 77.0
+offset_top = 652.0
+offset_right = 357.0
+offset_bottom = 852.0
+scale = Vector2(2, 2)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 78.0
+offset_top = 585.0
+offset_right = 628.0
+offset_bottom = 647.0
+
+[node name="Button" type="Button" parent="HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "装备"

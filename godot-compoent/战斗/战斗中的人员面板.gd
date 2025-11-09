@@ -86,12 +86,12 @@ func update_cool_down_based_on_max_agility() -> void:
 		return
 	
 	# 计算冷却时间：最大敏捷值的冷却时间为1秒，其他按比例增加
-	# 公式：冷却时间(毫秒) = (最大敏捷值 / 当前敏捷值) * 1000
+	# 公式：冷却时间(毫秒) = (最大敏捷值 / 当前敏捷值) * 100
 	var current_agility = _cultivator.get_agility().get_value()
 	if current_agility <= 0:
 		current_agility = 1.0
 		
-	var cool_down_time = (全局配置.战斗场景.最大敏捷值 / current_agility) * 1000
+	var cool_down_time = (全局配置.战斗场景.最大敏捷值 / current_agility) * 100
 	
 	# 设置冷却时间
 	set_cool_down_time(cool_down_time)
