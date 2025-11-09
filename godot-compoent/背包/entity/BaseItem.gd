@@ -85,7 +85,11 @@ class BackpackItem:
 	var _attack:BaseValue.RandomGrowth:set=set_attack,get=get_attack
 	# 敏捷值
 	var _agility:BaseValue.RandomGrowth:set=set_agility,get=get_agility
-	
+	#region 属性功能，一般有子类去实现
+	## 是否能使用（一般是一写限制判断）
+	func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:
+		return 修仙者!=null
+	#endregion
 	#region get/set 方法
 	func set_health(new_value:BaseValue.GrowthValue)->void:
 		_health=new_value
@@ -148,24 +152,29 @@ class BackpackItem:
 
 ## 默认物品（空物品）
 class DefaultItem extends  BaseItem:
-	pass
 
-class 武器 extends BaseItem:
 	pass
-class 护盾 extends BaseItem:
+## 武器
+class WeaponItem extends BaseItem:          
 	pass
-
-class 头盔 extends BaseItem:
+## 护盾
+class ShieldItem extends BaseItem:          
 	pass
-class 戒子 extends BaseItem:
+## 头盔
+class HelmetItem extends BaseItem:          
 	pass
-
-class 衣服 extends BaseItem:
+## 戒指
+class RingItem extends BaseItem:            
 	pass
-class 腰佩 extends BaseItem:
+## 衣服
+class ArmorItem extends BaseItem:          
 	pass
-
-class 鞋子 extends BaseItem:
+## 腰佩
+class BeltItem extends BaseItem:            
 	pass
-class 项链 extends BaseItem:
+## 鞋子
+class BootsItem extends BaseItem:          
+	pass
+## 项链
+class NecklaceItem extends BaseItem:       
 	pass
