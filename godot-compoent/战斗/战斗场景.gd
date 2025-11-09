@@ -1,8 +1,5 @@
 extends Control
 
-# 导入必要的类
-var _敌人队伍: Cultivator.CultivatorTeam = null
-var _玩家队伍: Cultivator.CultivatorTeam = null
 var _战斗状态 = "准备"
 var _战斗回合 = 0
 var _战斗日志 = []
@@ -44,15 +41,10 @@ func _process(delta: float) -> void:
 			_战斗计时器 = 0
 
 func 开始战斗(敌人队伍: Cultivator.CultivatorTeam, 玩家队伍: Cultivator.CultivatorTeam) -> void:
-	_敌人队伍 = 敌人队伍
-	# 更新UI显示
 	更新队伍UI显示($"PanelContainer/VBoxContainer/敌人队伍面板", 敌人队伍)
-	
-	_玩家队伍 = 玩家队伍
-	# 更新UI显示
 	更新队伍UI显示($"PanelContainer/VBoxContainer/玩家队伍面板", 玩家队伍)
 	
-	if _敌人队伍 and _玩家队伍:
+	if 敌人队伍 and 玩家队伍:
 		_战斗状态 = BATTLE_STATE_FIGHTING
 		添加战斗日志("战斗开始！准备迎战敌人！")
 	else:
@@ -69,6 +61,8 @@ func 更新队伍UI显示(container: Control, team: Cultivator.CultivatorTeam) -
 	else:
 		Log.error("容器没有set_team方法")
 
+var _攻击者容器 = null
+
 func _修仙者行动(baseCultivator: Cultivator.BaseCultivator, team: Cultivator.CultivatorTeam) -> void:
 	if not baseCultivator:
 		return
@@ -84,23 +78,23 @@ func _修仙者行动(baseCultivator: Cultivator.BaseCultivator, team: Cultivato
 	if not 对手队伍容器:
 		Log.error("未找到对手队伍容器")
 		return
-	# 对手队伍中随机选择一个敌人
-	var 对手 = 对手队伍容器.get_team().get_valid_members().pick_random() as Cultivator.BaseCultivator
-	if not 对手:
-		Log.error("对手队伍中没有有效对手")
-		return
 	# 获取攻击者容器
 	var 攻击者容器 = 队伍容器.get_panel_container(baseCultivator)
 	if not 攻击者容器:
 		Log.error("未找到攻击者容器")
 		return
-	# 获取目标容器
-	var 对手容器 = 对手队伍容器.get_panel_container(对手)
-	if not 对手容器:
-		Log.error("未找到对手容器")
-		return
-	# 攻击敌人
-	_攻击敌人(攻击者容器, 对手容器)
+	# 如果是自动战斗，否则由玩家手动处理
+	if $"PanelContainer/VBoxContainer/玩家队伍面板"==队伍容器:
+		if %"自动战斗".button_pressed:
+			_攻击敌人(攻击者容器, 对手队伍容器)
+		else:
+			# 玩家手动攻击
+			_攻击者容器 = 攻击者容器
+			pass
+	else:
+		# 敌人自动攻击
+		_攻击敌人(攻击者容器, 对手队伍容器)
+
 
 func _获取队伍容器(team: Cultivator.CultivatorTeam) -> PanelContainer:
 	if team == $"PanelContainer/VBoxContainer/玩家队伍面板".get_team():
@@ -118,17 +112,25 @@ func _获取对手队伍容器(team: Cultivator.CultivatorTeam) -> PanelContaine
 	else:
 		return null
 
-func _攻击敌人(attacker: Control, target: Control) -> void:
+func _攻击敌人(attacker: BattleCultivatorPanelContainer, 敌人队伍面板: TeamPanelContainer) -> void:
+	# 默认的是随机一个敌人，如果有多个敌人，需要同时进行攻击
+	var 目标对象面板=敌人队伍面板.get_valid_battle_panel_container().pick_random() as BattleCultivatorPanelContainer
+	if not 目标对象面板:
+		Log.error("敌人队伍中没有有效对手")
+		return
+	var 目的敌人合计=[目标对象面板]
+	for i in 目的敌人合计:
+		_执行攻击(attacker, i)
+
+func _执行攻击(attacker: BattleCultivatorPanelContainer, target: BattleCultivatorPanelContainer):
 	var 攻击者对象=attacker.get_cultivator() as Cultivator.BaseCultivator
 	if not 攻击者对象:
 		Log.error("未找到攻击者对象")
 		return
 	var 目标对象=target.get_cultivator() as Cultivator.BaseCultivator
 	if not 目标对象:
-		Log.error("未找到目标对象")
+		Log.error("目标对象中没有有效对手")
 		return
-		
-	
 	# 计算伤害：攻击力减去防御力，至少造成1点伤害
 	var damage = max(1, roundf((攻击者对象.get_attack().get_value() - 目标对象.get_defense().get_value()) * 100) / 100)
 
@@ -210,6 +212,10 @@ func _攻击敌人(attacker: Control, target: Control) -> void:
 
 func _on_自动战斗_toggled(toggled_on: bool) -> void:
 	全局配置.set_是否自动战斗(toggled_on)
+	if toggled_on:
+		if 全局配置.get_战斗暂停():
+			if _攻击者容器:
+				_攻击敌人(_攻击者容器,$"PanelContainer/VBoxContainer/敌人队伍面板" )	
 
 func _on_h_slider_value_changed(value: float) -> void:
 	%"倍速".get_node("Label").text = "%s倍速" % value

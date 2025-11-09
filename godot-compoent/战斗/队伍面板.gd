@@ -1,4 +1,5 @@
 extends PanelContainer
+class_name TeamPanelContainer
 
 # 队伍数据
 var _team: Cultivator.CultivatorTeam = null: set = set_team
@@ -49,6 +50,18 @@ func set_team(team: Cultivator.CultivatorTeam) -> void:
 # 获取队伍
 func get_team() -> Cultivator.CultivatorTeam:
 	return _team
+
+## 获取有效的BattleCultivatorPanelContainer
+func get_valid_battle_panel_container() -> Array[BattleCultivatorPanelContainer]:
+	var result:Array[BattleCultivatorPanelContainer] = []
+	if not _team:
+		return result
+	for i in $GridContainer.get_children():
+		if i and i.has_method("get_cultivator"):
+			var cultivator = i.get_cultivator()
+			if cultivator and cultivator.is_alive():
+				result.append(i)
+	return result
 
 # 获取修仙者所在的容器
 func get_panel_container(cultivator: Cultivator.BaseCultivator) -> PanelContainer:
