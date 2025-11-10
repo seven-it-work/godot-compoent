@@ -1,0 +1,198 @@
+2025-11-10 10:52:50,995 - INFO - ©╙й╪вИж╞оНд©╫А╧╧...
+2025-11-10 10:52:50,996 - INFO - ╢╕юМт╢д©б╪: ЁиЁ╓йТпт
+2025-11-10 10:52:50,999 - INFO - рф╤╞нд╪Ч: ЁиЁ╓йТпт\test.gd -> components/ЁиЁ╓йТптвИ╪Ч\test.gd
+2025-11-10 10:52:51,000 - INFO - рф╤╞нд╪Ч: ЁиЁ╓йТпт\╩Ы╢║ЁиЁ╓.gd -> components/ЁиЁ╓йТптвИ╪Ч\╩Ы╢║ЁиЁ╓.gd
+2025-11-10 10:52:51,020 - INFO - рф╤╞нд╪Ч: ЁиЁ╓йТпт\ЁиЁ╓йТптвИ╪Ч.gd -> components/ЁиЁ╓йТптвИ╪Ч\ЁиЁ╓йТптвИ╪Ч.gd
+2025-11-10 10:52:51,023 - INFO - рф╤╞нд╪Ч: ЁиЁ╓йТпт\вт╤╗рЕЁиЁ╓йТптвИ╪Ч.gd -> components/ЁиЁ╓йТптвИ╪Ч\вт╤╗рЕЁиЁ╓йТптвИ╪Ч.gd
+2025-11-10 10:52:51,025 - INFO - рф╤╞нд╪Ч: ЁиЁ╓йТпт\test.tscn -> components/ЁиЁ╓йТптвИ╪Ч\test.tscn
+2025-11-10 10:52:51,026 - INFO - рф╤╞нд╪Ч: ЁиЁ╓йТпт\ЁиЁ╓йТптвИ╪Ч.tscn -> components/ЁиЁ╓йТптвИ╪Ч\ЁиЁ╓йТптвИ╪Ч.tscn
+2025-11-10 10:52:51,028 - INFO - рф╤╞нд╪Ч: ЁиЁ╓йТпт\вт╤╗рЕЁиЁ╓йТптвИ╪Ч.tscn -> components/ЁиЁ╓йТптвИ╪Ч\вт╤╗рЕЁиЁ╓йТптвИ╪Ч.tscn
+2025-11-10 10:52:51,031 - INFO - рф╤╞нд╪Ч: ЁиЁ╓йТпт\test.gd.uid -> components/ЁиЁ╓йТптвИ╪Ч\test.gd.uid
+2025-11-10 10:52:51,032 - INFO - рф╤╞нд╪Ч: ЁиЁ╓йТпт\╩Ы╢║ЁиЁ╓.gd.uid -> components/ЁиЁ╓йТптвИ╪Ч\╩Ы╢║ЁиЁ╓.gd.uid
+2025-11-10 10:52:51,033 - INFO - рф╤╞нд╪Ч: ЁиЁ╓йТпт\ЁиЁ╓йТптвИ╪Ч.gd.uid -> components/ЁиЁ╓йТптвИ╪Ч\ЁиЁ╓йТптвИ╪Ч.gd.uid
+2025-11-10 10:52:51,035 - INFO - рф╤╞нд╪Ч: ЁиЁ╓йТпт\вт╤╗рЕЁиЁ╓йТптвИ╪Ч.gd.uid -> components/ЁиЁ╓йТптвИ╪Ч\вт╤╗рЕЁиЁ╓йТптвИ╪Ч.gd.uid
+2025-11-10 10:52:51,035 - INFO - ╢╕юМт╢д©б╪: вт╤╞╢Сп║Label
+2025-11-10 10:52:51,038 - INFO - рф╤╞нд╪Ч: вт╤╞╢Сп║Label\вт╤╞╢Сп║label.gd -> components/вт╤╞╢Сп║Label\вт╤╞╢Сп║label.gd
+2025-11-10 10:52:51,039 - INFO - рф╤╞нд╪Ч: вт╤╞╢Сп║Label\вт╤╞╢Сп║progress_text_bar.gd -> components/вт╤╞╢Сп║Label\вт╤╞╢Сп║progress_text_bar.gd
+2025-11-10 10:52:51,040 - INFO - рф╤╞нд╪Ч: вт╤╞╢Сп║Label\test.tscn -> components/вт╤╞╢Сп║Label\test.tscn
+2025-11-10 10:52:51,042 - INFO - рф╤╞нд╪Ч: вт╤╞╢Сп║Label\вт╤╞╢Сп║Label.tscn -> components/вт╤╞╢Сп║Label\вт╤╞╢Сп║Label.tscn
+2025-11-10 10:52:51,044 - INFO - рф╤╞нд╪Ч: вт╤╞╢Сп║Label\вт╤╞╢Сп║ProgressTextBar.tscn -> components/вт╤╞╢Сп║Label\вт╤╞╢Сп║ProgressTextBar.tscn
+2025-11-10 10:52:51,045 - INFO - рф╤╞нд╪Ч: вт╤╞╢Сп║Label\вт╤╞╢Сп║label.gd.uid -> components/вт╤╞╢Сп║Label\вт╤╞╢Сп║label.gd.uid
+2025-11-10 10:52:51,047 - INFO - рф╤╞нд╪Ч: вт╤╞╢Сп║Label\вт╤╞╢Сп║progress_text_bar.gd.uid -> components/вт╤╞╢Сп║Label\вт╤╞╢Сп║progress_text_bar.gd.uid
+2025-11-10 10:52:51,049 - INFO - ╢╕юМт╢д©б╪: вт╤╗рЕProcess
+2025-11-10 10:52:51,052 - INFO - рф╤╞нд╪Ч: вт╤╗рЕProcess\progress_text_bar.gd -> components/вт╤╗рЕProcess\progress_text_bar.gd
+2025-11-10 10:52:51,054 - INFO - рф╤╞нд╪Ч: вт╤╗рЕProcess\ProgressTextBar.tscn -> components/вт╤╗рЕProcess\ProgressTextBar.tscn
+2025-11-10 10:52:51,056 - INFO - рф╤╞нд╪Ч: вт╤╗рЕProcess\progress_text_bar.gd.uid -> components/вт╤╗рЕProcess\progress_text_bar.gd.uid
+2025-11-10 10:52:51,056 - INFO - ╢╕юМт╢д©б╪: вт╤╗рЕprocess
+2025-11-10 10:52:51,057 - INFO - ╢╕юМт╢д©б╪: лАй╬вИ╪Ч
+2025-11-10 10:52:51,059 - INFO - рф╤╞нд╪Ч: лАй╬вИ╪Ч\tips.gd -> components/лАй╬вИ╪Ч\tips.gd
+2025-11-10 10:52:51,060 - INFO - рф╤╞нд╪Ч: лАй╬вИ╪Ч\Tips.tscn -> components/лАй╬вИ╪Ч\Tips.tscn
+2025-11-10 10:52:51,063 - INFO - рф╤╞нд╪Ч: лАй╬вИ╪Ч\tips.gd.uid -> components/лАй╬вИ╪Ч\tips.gd.uid
+2025-11-10 10:52:51,064 - INFO - ╢╕юМт╢д©б╪: ╠Ё╟Э
+2025-11-10 10:52:51,065 - INFO - ╢╢╫╗д©б╪: components/╠Ё╟ЭвИ╪Ч
+2025-11-10 10:52:51,066 - INFO - рф╤╞нд╪Ч: ╠Ё╟Э\╠Ё╟Э.gd -> components/╠Ё╟ЭвИ╪Ч\╠Ё╟Э.gd
+2025-11-10 10:52:51,067 - INFO - рф╤╞нд╪Ч: ╠Ё╟Э\╠Ё╟Э╦Явс.gd -> components/╠Ё╟ЭвИ╪Ч\╠Ё╟Э╦Явс.gd
+2025-11-10 10:52:51,068 - INFO - рф╤╞нд╪Ч: ╠Ё╟Э\╠Ё╟Э.tscn -> components/╠Ё╟ЭвИ╪Ч\╠Ё╟Э.tscn
+2025-11-10 10:52:51,070 - INFO - рф╤╞нд╪Ч: ╠Ё╟Э\╠Ё╟Э╦Явс.tscn -> components/╠Ё╟ЭвИ╪Ч\╠Ё╟Э╦Явс.tscn
+2025-11-10 10:52:51,072 - INFO - рф╤╞нд╪Ч: ╠Ё╟Э\╠Ё╟Э.gd.uid -> components/╠Ё╟ЭвИ╪Ч\╠Ё╟Э.gd.uid
+2025-11-10 10:52:51,073 - INFO - рф╤╞нд╪Ч: ╠Ё╟Э\╠Ё╟Э╦Явс.gd.uid -> components/╠Ё╟ЭвИ╪Ч\╠Ё╟Э╦Явс.gd.uid
+2025-11-10 10:52:51,074 - INFO - ╢╢╫╗д©б╪: components/╠Ё╟ЭвИ╪Ч/entity
+2025-11-10 10:52:51,077 - INFO - ╢╢╫╗д©б╪: components/╠Ё╟ЭвИ╪Ч/entity\entity
+2025-11-10 10:52:51,078 - INFO - рф╤╞нд╪Ч: ╠Ё╟Э\entity\BaseItem.gd -> components/╠Ё╟ЭвИ╪Ч/entity\entity\BaseItem.gd
+2025-11-10 10:52:51,080 - INFO - рф╤╞нд╪Ч: ╠Ё╟Э\entity\BaseItem.gd.uid -> components/╠Ё╟ЭвИ╪Ч/entity\entity\BaseItem.gd.uid
+2025-11-10 10:52:51,084 - INFO - ╢╢╫╗д©б╪: components/╠Ё╟ЭвИ╪Ч/demo
+2025-11-10 10:52:51,085 - INFO - ╢╢╫╗д©б╪: components/╠Ё╟ЭвИ╪Ч/demo\юЩвс
+2025-11-10 10:52:51,086 - INFO - рф╤╞нд╪Ч: ╠Ё╟Э\юЩвс\╠Ё╟Э╩Ы╢║дэа╕.gd -> components/╠Ё╟ЭвИ╪Ч/demo\юЩвс\╠Ё╟Э╩Ы╢║дэа╕.gd
+2025-11-10 10:52:51,088 - INFO - рф╤╞нд╪Ч: ╠Ё╟Э\юЩвс\╠Ё╟Э╧Щбк.gd -> components/╠Ё╟ЭвИ╪Ч/demo\юЩвс\╠Ё╟Э╧Щбк.gd
+2025-11-10 10:52:51,089 - INFO - рф╤╞нд╪Ч: ╠Ё╟Э\юЩвс\╠Ё╟Э╩Ы╢║дэа╕.tscn -> components/╠Ё╟ЭвИ╪Ч/demo\юЩвс\╠Ё╟Э╩Ы╢║дэа╕.tscn
+2025-11-10 10:52:51,091 - INFO - рф╤╞нд╪Ч: ╠Ё╟Э\юЩвс\╠Ё╟Э╧Щбк.tscn -> components/╠Ё╟ЭвИ╪Ч/demo\юЩвс\╠Ё╟Э╧Щбк.tscn
+2025-11-10 10:52:51,094 - INFO - рф╤╞нд╪Ч: ╠Ё╟Э\юЩвс\╠Ё╟Э╩Ы╢║дэа╕.gd.uid -> components/╠Ё╟ЭвИ╪Ч/demo\юЩвс\╠Ё╟Э╩Ы╢║дэа╕.gd.uid
+2025-11-10 10:52:51,095 - INFO - рф╤╞нд╪Ч: ╠Ё╟Э\юЩвс\╠Ё╟Э╧Щбк.gd.uid -> components/╠Ё╟ЭвИ╪Ч/demo\юЩвс\╠Ё╟Э╧Щбк.gd.uid
+2025-11-10 10:52:51,095 - INFO - ╢╕юМт╢д©б╪: в╟╠╦
+2025-11-10 10:52:51,097 - INFO - ╢╢╫╗д©б╪: components/в╟╠╦вИ╪Ч
+2025-11-10 10:52:51,099 - INFO - рф╤╞нд╪Ч: в╟╠╦\в╟╠╦.gd -> components/в╟╠╦вИ╪Ч\в╟╠╦.gd
+2025-11-10 10:52:51,101 - INFO - рф╤╞нд╪Ч: в╟╠╦\в╟╠╦.tscn -> components/в╟╠╦вИ╪Ч\в╟╠╦.tscn
+2025-11-10 10:52:51,102 - INFO - рф╤╞нд╪Ч: в╟╠╦\в╟╠╦вИ╪Ч.tscn -> components/в╟╠╦вИ╪Ч\в╟╠╦вИ╪Ч.tscn
+2025-11-10 10:52:51,103 - INFO - рф╤╞нд╪Ч: в╟╠╦\в╟╠╦.gd.uid -> components/в╟╠╦вИ╪Ч\в╟╠╦.gd.uid
+2025-11-10 10:52:51,104 - INFO - рф╤╞нд╪Ч: в╟╠╦\╩Фжфль╤╗╥Г╦Я╠ъ©Р.png -> components/в╟╠╦вИ╪Ч\╩Фжфль╤╗╥Г╦Я╠ъ©Р.png
+2025-11-10 10:52:51,108 - INFO - рф╤╞нд╪Ч: в╟╠╦\╩Фжфль╤╗╥Г╦Я╠ъ©Р.png.import -> components/в╟╠╦вИ╪Ч\╩Фжфль╤╗╥Г╦Я╠ъ©Р.png.import
+2025-11-10 10:52:51,108 - INFO - ╢╕юМт╢д©б╪: у╫╤╥
+2025-11-10 10:52:51,110 - INFO - ╢╢╫╗д©б╪: components/у╫╤╥вИ╪Ч
+2025-11-10 10:52:51,112 - INFO - рф╤╞нд╪Ч: у╫╤╥\у╫╤╥жп╣дхкт╠цФ╟Е.gd -> components/у╫╤╥вИ╪Ч\у╫╤╥жп╣дхкт╠цФ╟Е.gd
+2025-11-10 10:52:51,114 - INFO - рф╤╞нд╪Ч: у╫╤╥\у╫╤╥Ё║╬╟.gd -> components/у╫╤╥вИ╪Ч\у╫╤╥Ё║╬╟.gd
+2025-11-10 10:52:51,115 - INFO - рф╤╞нд╪Ч: у╫╤╥\╤снИцФ╟Е.gd -> components/у╫╤╥вИ╪Ч\╤снИцФ╟Е.gd
+2025-11-10 10:52:51,116 - INFO - рф╤╞нд╪Ч: у╫╤╥\у╫╤╥жп╣дхкт╠цФ╟Е.tscn -> components/у╫╤╥вИ╪Ч\у╫╤╥жп╣дхкт╠цФ╟Е.tscn
+2025-11-10 10:52:51,119 - INFO - рф╤╞нд╪Ч: у╫╤╥\у╫╤╥Ё║╬╟.tscn -> components/у╫╤╥вИ╪Ч\у╫╤╥Ё║╬╟.tscn
+2025-11-10 10:52:51,120 - INFO - рф╤╞нд╪Ч: у╫╤╥\╤снИцФ╟Е.tscn -> components/у╫╤╥вИ╪Ч\╤снИцФ╟Е.tscn
+2025-11-10 10:52:51,122 - INFO - рф╤╞нд╪Ч: у╫╤╥\у╫╤╥жп╣дхкт╠цФ╟Е.gd.uid -> components/у╫╤╥вИ╪Ч\у╫╤╥жп╣дхкт╠цФ╟Е.gd.uid
+2025-11-10 10:52:51,124 - INFO - рф╤╞нд╪Ч: у╫╤╥\у╫╤╥Ё║╬╟.gd.uid -> components/у╫╤╥вИ╪Ч\у╫╤╥Ё║╬╟.gd.uid
+2025-11-10 10:52:51,125 - INFO - рф╤╞нд╪Ч: у╫╤╥\╤снИцФ╟Е.gd.uid -> components/у╫╤╥вИ╪Ч\╤снИцФ╟Е.gd.uid
+2025-11-10 10:52:51,127 - INFO - рф╤╞нд╪Ч: у╫╤╥\╩Фжфсно╥оЮ©Р.png -> components/у╫╤╥вИ╪Ч\╩Фжфсно╥оЮ©Р.png
+2025-11-10 10:52:51,127 - INFO - рф╤╞нд╪Ч: у╫╤╥\╩Фжфсно╥оЮ©Р.png.import -> components/у╫╤╥вИ╪Ч\╩Фжфсно╥оЮ©Р.png.import
+2025-11-10 10:52:51,129 - INFO - ╢╢╫╗д©б╪: components/у╫╤╥вИ╪Ч/entity
+2025-11-10 10:52:51,131 - INFO - ╢╢╫╗д©б╪: components/у╫╤╥вИ╪Ч/entity\entity
+2025-11-10 10:52:51,131 - INFO - рф╤╞нд╪Ч: у╫╤╥\entity\пчоиуъ.gd -> components/у╫╤╥вИ╪Ч/entity\entity\пчоиуъ.gd
+2025-11-10 10:52:51,132 - INFO - рф╤╞нд╪Ч: у╫╤╥\entity\х╚╬жеДжц.gd -> components/у╫╤╥вИ╪Ч/entity\entity\х╚╬жеДжц.gd
+2025-11-10 10:52:51,135 - INFO - рф╤╞нд╪Ч: у╫╤╥\entity\пчоиуъ.gd.uid -> components/у╫╤╥вИ╪Ч/entity\entity\пчоиуъ.gd.uid
+2025-11-10 10:52:51,136 - INFO - рф╤╞нд╪Ч: у╫╤╥\entity\х╚╬жеДжц.gd.uid -> components/у╫╤╥вИ╪Ч/entity\entity\х╚╬жеДжц.gd.uid
+2025-11-10 10:52:51,138 - INFO - рф╤╞demoдзхщ: demo\entity -> demos\entity
+2025-11-10 10:52:51,140 - INFO - рф╤╞demoдзхщ: demo\weapon_with_dynamic_method.json -> demos\weapon_with_dynamic_method.json
+2025-11-10 10:52:51,141 - INFO - и╬ЁЩря╢Фтз╣дд©╠Й: demos\╤╞л╛╫е╠╬
+2025-11-10 10:52:51,142 - INFO - рф╤╞demoдзхщ: demo\╤╞л╛╫е╠╬ -> demos\╤╞л╛╫е╠╬
+2025-11-10 10:52:51,143 - INFO - рф╤╞demoдзхщ: demo\у╫╤╥demo.gd -> demos\у╫╤╥demo.gd
+2025-11-10 10:52:51,146 - INFO - рф╤╞demoдзхщ: demo\у╫╤╥demo.gd.uid -> demos\у╫╤╥demo.gd.uid
+2025-11-10 10:52:51,148 - INFO - рф╤╞demoдзхщ: demo\у╫╤╥demo.tscn -> demos\у╫╤╥demo.tscn
+2025-11-10 10:52:51,150 - INFO - рф╤╞demoдзхщ: demo\╡БйтнДфВ╤╞л╛╫е╠╬.gd -> demos\╡БйтнДфВ╤╞л╛╫е╠╬.gd
+2025-11-10 10:52:51,151 - INFO - рф╤╞demoдзхщ: demo\╡БйтнДфВ╤╞л╛╫е╠╬.gd.uid -> demos\╡БйтнДфВ╤╞л╛╫е╠╬.gd.uid
+2025-11-10 10:52:51,153 - INFO - рф╤╞demoдзхщ: demo\╡БйтнДфВ╤╞л╛╫е╠╬.tscn -> demos\╡БйтнДфВ╤╞л╛╫е╠╬.tscn
+2025-11-10 10:52:51,154 - INFO - рф╤╞demoдзхщ: demo\в╟╠╦пео╒.gd -> demos\в╟╠╦пео╒.gd
+2025-11-10 10:52:51,155 - INFO - рф╤╞demoдзхщ: demo\в╟╠╦пео╒.gd.uid -> demos\в╟╠╦пео╒.gd.uid
+2025-11-10 10:52:51,155 - INFO - рф╤╞demoдзхщ: demo\в╟╠╦пео╒.tscn -> demos\в╟╠╦пео╒.tscn
+2025-11-10 10:52:51,160 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2AccumulatePassShaderRD\04c43a42d0dec2c54cb90a97e26d888c88995df139142948afde178db865de21
+2025-11-10 10:52:51,162 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2AccumulatePassShaderRD\acf7ce56f0f217fbe6fc54b42313d025af58be39a197ea6e6a9c10b1c03de903
+2025-11-10 10:52:51,162 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2AutogenReactivePassShaderRD\0a9f1598fa0d6c0de6765298b1aaf83f89bf24038af5fbe5b43f5bd0b40c7dec
+2025-11-10 10:52:51,163 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2AutogenReactivePassShaderRD\ea81f3d2612452e92eebad3230c8885356cf352779194322ac0b390d949e0a9f
+2025-11-10 10:52:51,164 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2ComputeLuminancePyramidPassShaderRD\246789de2d6807e12325bb146b5b960cbec70a2119fe15f67d12c0a1d55213dd
+2025-11-10 10:52:51,164 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2ComputeLuminancePyramidPassShaderRD\3cc2b3058c0b29853f1a8d064772a1e4d0034ad64c1942b3c234b93c7f3ee2f0
+2025-11-10 10:52:51,165 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2DepthClipPassShaderRD\177eee0f6a6558b704bf1ec91e7d362d05e1aad1730efb6e2ff11f871410cfc0
+2025-11-10 10:52:51,166 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2DepthClipPassShaderRD\4130c931008b9d81bce5757c91876fb1c64a992525002d1a9d24c756cdaeb55f
+2025-11-10 10:52:51,168 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2LockPassShaderRD\46bf218ed72ab39571bc371c527146035b9c1f01dbcc9a80f2ea1ffbd936d9f2
+2025-11-10 10:52:51,168 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2LockPassShaderRD\50c95f98dbda1ad902b8fac4668d32cbfc11a3e86b890460da50600750d6d636
+2025-11-10 10:52:51,168 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2RcasPassShaderRD\3f4d394a0080ce37da6dc5f05c36e082efc8f3a0a333428f23697d21a1e665cd
+2025-11-10 10:52:51,169 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2RcasPassShaderRD\cc94b511e66750be6b0c6b31869945465124f655d1927913d7e2903c129d8e79
+2025-11-10 10:52:51,170 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2ReconstructPreviousDepthPassShaderRD\358f0f50e45bf02ca4a4d7caad0f817dc7af0da242469fec10a5158bebfa77db
+2025-11-10 10:52:51,170 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2ReconstructPreviousDepthPassShaderRD\7ef7cdf239edd510c42b9e6ef2ca760f08ac92b57c6b2e5562cf430770b69d49
+2025-11-10 10:52:51,171 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2TcrAutogenPassShaderRD\c6b965d8d141ea41ff88aa0df571ed29f4b8b5c974713f24b7fa44f23e3db020
+2025-11-10 10:52:51,172 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2TcrAutogenPassShaderRD\fa1597e2764e7eb1358f350f529c11e57718acb629000cbc3d958a845a6514a4
+2025-11-10 10:52:51,172 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\GiShaderRD\69ca96412569cbef4a05e515b55b5744ab10048a32a6d2fef2a7c2ad984c9155
+2025-11-10 10:52:51,173 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\GiShaderRD\6df91197bce0a55add8f8cf655ee71ac97f5c7510e3d8fe9649405dab2882f24
+2025-11-10 10:52:51,180 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\SceneForwardClusteredShaderRD\210d14d006d21a3471e63300f334a93a8076f61ad1c3147dbd14466d95970249
+2025-11-10 10:52:51,181 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\SceneForwardClusteredShaderRD\4da236f9f8be4c1abe317e02dbe04a98f95da7b5823887f3bf2035c1a3e522ba
+2025-11-10 10:52:51,182 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\SceneForwardClusteredShaderRD\58e2a9ab076df3f99437c6c5bd89507685a58c88c86a09d60a3e15ffc1bf61d7
+2025-11-10 10:52:51,184 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\SceneForwardClusteredShaderRD\6a184745fdc168cf1854f82e467b075c7754389099dd4260c7cfd820f974abb7
+2025-11-10 10:52:51,185 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\SceneForwardClusteredShaderRD\c9da4e6ecce5df0f99ff3165b31b702270e7ef9466c08d8af1b5ea0323e2db09
+2025-11-10 10:52:51,185 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\SceneForwardClusteredShaderRD\e54e15eb9546bd2ff28fdb8fc19e33bec138fb364a5418eb6d90e784252ee190
+2025-11-10 10:52:51,193 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\VolumetricFogProcessShaderRD\14fbd4a37cc30a2991dbfa525da8e6182def041c1eeaa20638fb2597e98f3c52
+2025-11-10 10:52:51,194 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\VolumetricFogProcessShaderRD\2749f17fe5049db6df987d401e0fb5a52692635224ca129e06c3d6e15dd2dc29
+2025-11-10 10:52:51,195 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\VolumetricFogProcessShaderRD\3fc7a608ebbf31f778a34a2a6443de396524f5cb561f3ef01681f431dcce034a
+2025-11-10 10:52:51,195 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\VolumetricFogProcessShaderRD\57488d4c00ca662455ceb9402d56e1bf6644bfe7726ad8d2a0f7233550b90c7e
+2025-11-10 10:52:51,196 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\VolumetricFogProcessShaderRD\64a25515655aff4c57c164f43f769c6eb63eeacd1542982e5882dac1aeff1c28
+2025-11-10 10:52:51,197 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\VolumetricFogProcessShaderRD\8333ba62fcdf5c0ffe915641fe9faa88286844b2bb245d94b41eb48eca8e881d
+2025-11-10 10:52:51,198 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\VolumetricFogShaderRD\5929600387c20b3c1eead45ba7f6c87fde922e0e4f78f80366f58cdfb10e63f7
+2025-11-10 10:52:51,199 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\VolumetricFogShaderRD\6120947dc0a3cd4bff5b217e63490686b128f0319aabd6f96d597268f68d60e3
+2025-11-10 10:52:51,199 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\VolumetricFogShaderRD\b4dd1d878a773bfd3670e580d7655c262e7c3070a5667de022bb881ba6f64364
+2025-11-10 10:52:51,201 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\VolumetricFogShaderRD\edf7cfdc03734aac137e008bab9652e5aeda353e952ba62dfcb5d9190ba21da1
+2025-11-10 10:52:51,202 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\VolumetricFogShaderRD\f44655a2103d6cb3b1d0a206e66c4427aca3de3b5de59f72bf7e08db5144f83c
+2025-11-10 10:52:51,202 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\VolumetricFogShaderRD\fe352ea61d45a1becd37b6cde528377232cf0b234eab02c91b64cf8e6f06f3a0
+2025-11-10 10:52:51,205 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2AccumulatePassShaderRD
+2025-11-10 10:52:51,206 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2AutogenReactivePassShaderRD
+2025-11-10 10:52:51,207 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2ComputeLuminancePyramidPassShaderRD
+2025-11-10 10:52:51,209 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2DepthClipPassShaderRD
+2025-11-10 10:52:51,211 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2LockPassShaderRD
+2025-11-10 10:52:51,212 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2RcasPassShaderRD
+2025-11-10 10:52:51,212 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2ReconstructPreviousDepthPassShaderRD
+2025-11-10 10:52:51,214 - INFO - и╬ЁЩ©уд©б╪: .\.godot\shader_cache\Fsr2TcrAutogenPassShaderRD
+2025-11-10 10:52:51,218 - INFO - и╬ЁЩ©уд©б╪: .\assets\fonts
+2025-11-10 10:52:51,218 - INFO - и╬ЁЩ©уд©б╪: .\assets\textures
+2025-11-10 10:52:51,219 - INFO - и╬ЁЩ©уд©б╪: .\assets\themes
+2025-11-10 10:52:51,219 - INFO - и╬ЁЩ©уд©б╪: .\components\ЁиЁ╓йТптвИ╪Ч\demo
+2025-11-10 10:52:51,220 - INFO - и╬ЁЩ©уд©б╪: .\components\лАй╬вИ╪Ч\demo
+2025-11-10 10:52:51,220 - INFO - и╬ЁЩ©уд©б╪: .\components\вт╤╞╢Сп║Label\demo
+2025-11-10 10:52:51,222 - INFO - и╬ЁЩ©уд©б╪: .\components\вт╤╗рЕProcess\demo
+2025-11-10 10:52:51,222 - INFO - и╬ЁЩ©уд©б╪: .\components\Ф▐░Г╓╨Г╩└Д╩╤\demo
+2025-11-10 10:52:51,235 - INFO - и╬ЁЩ©уд©б╪: .\components\Ф▐░Г╓╨Г╩└Д╩╤
+2025-11-10 10:52:51,239 - INFO - и╬ЁЩ©уд©б╪: .\core\ai\doubao
+2025-11-10 10:52:51,239 - INFO - и╬ЁЩ©уд©б╪: .\core\ai
+2025-11-10 10:52:51,239 - INFO - и╬ЁЩ©уд©б╪: .\core\config
+2025-11-10 10:52:51,241 - INFO - и╬ЁЩ©уд©б╪: .\core\entity
+2025-11-10 10:52:51,241 - INFO - и╬ЁЩ©уд©б╪: .\demos\entity
+2025-11-10 10:52:51,242 - INFO - и╬ЁЩ©уд©б╪: .\demos\у╫╤╥demo
+2025-11-10 10:52:51,244 - INFO - и╬ЁЩ©уд©б╪: .\demos\╡БйтнДфВ╤╞л╛╫е╠╬
+2025-11-10 10:52:51,245 - INFO - и╬ЁЩ©уд©б╪: .\demos\в╟╠╦пео╒
+2025-11-10 10:52:51,246 - INFO - и╬ЁЩ©уд©б╪: .\ui\у╫╤╥UI
+2025-11-10 10:52:51,248 - INFO - и╬ЁЩ©уд©б╪: .\ui\╠Ё╟ЭUI
+2025-11-10 10:52:51,248 - INFO - и╬ЁЩ©уд©б╪: .\ui\в╟╠╦UI
+2025-11-10 10:52:51,249 - INFO - и╬ЁЩ©уд©б╪: .\ui\Ф┬≤Ф√≈UI
+2025-11-10 10:52:51,249 - INFO - и╬ЁЩ©уд©б╪: .\ui\Х┐▄Е▄┘UI
+2025-11-10 10:52:51,250 - INFO - и╬ЁЩ©уд©б╪: .\у╫╤╥\entity
+2025-11-10 10:52:51,251 - INFO - и╬ЁЩ©уд©б╪: .\╠Ё╟Э\entity
+2025-11-10 10:52:51,252 - INFO - и╬ЁЩ©уд©б╪: .\╠Ё╟Э\юЩвс
+2025-11-10 10:52:51,254 - INFO - и╬ЁЩ©уд©б╪: .\assets
+2025-11-10 10:52:51,255 - INFO - и╬ЁЩ©уд©б╪: .\core
+2025-11-10 10:52:51,255 - INFO - и╬ЁЩ©уд©б╪: .\demo
+2025-11-10 10:52:51,256 - INFO - и╬ЁЩ©уд©б╪: .\ui
+2025-11-10 10:52:51,257 - INFO - и╬ЁЩ©уд©б╪: .\ЁиЁ╓йТпт
+2025-11-10 10:52:51,258 - INFO - и╬ЁЩ©уд©б╪: .\у╫╤╥
+2025-11-10 10:52:51,259 - INFO - и╬ЁЩ©уд©б╪: .\╠Ё╟Э
+2025-11-10 10:52:51,260 - INFO - и╬ЁЩ©уд©б╪: .\вт╤╞╢Сп║Label
+2025-11-10 10:52:51,262 - INFO - и╬ЁЩ©уд©б╪: .\вт╤╗рЕprocess
+2025-11-10 10:52:51,263 - INFO - и╬ЁЩ©уд©б╪: .\в╟╠╦
+2025-11-10 10:52:51,263 - INFO - оНд©╫А╧╧вИж╞мЙЁиё║
+2025-11-10 10:54:02,428 - INFO - Е╪─Е╖▀Г╩└Г╩┤И║╧Г⌡╝Г╩⌠Ф·└...
+2025-11-10 10:54:02,428 - INFO - Е╓└Г░├Ф╨░Г⌡╝Е╫∙: Ф┬░И∙©Е╠·Ф─╖
+2025-11-10 10:54:02,428 - WARNING - Ф╨░Г⌡╝Е╫∙Д╦█Е╜≤Е°╗: Ф┬░И∙©Е╠·Ф─╖
+2025-11-10 10:54:02,428 - WARNING - Ф╨░Г⌡╝Е╫∙Д╦█Е╜≤Е°╗: Ф┬░И∙©Е╠·Ф─╖
+2025-11-10 10:54:02,429 - INFO - Е╓└Г░├Ф╨░Г⌡╝Е╫∙: Х┤╙Е┼╗Е╓╖Е╟▐Label
+2025-11-10 10:54:02,429 - WARNING - Ф╨░Г⌡╝Е╫∙Д╦█Е╜≤Е°╗: Х┤╙Е┼╗Е╓╖Е╟▐Label
+2025-11-10 10:54:02,429 - WARNING - Ф╨░Г⌡╝Е╫∙Д╦█Е╜≤Е°╗: Х┤╙Е┼╗Е╓╖Е╟▐Label
+2025-11-10 10:54:02,431 - INFO - Е╓└Г░├Ф╨░Г⌡╝Е╫∙: Х┤╙Е╝ Д╧┴Process
+2025-11-10 10:54:02,431 - WARNING - Ф╨░Г⌡╝Е╫∙Д╦█Е╜≤Е°╗: Х┤╙Е╝ Д╧┴Process
+2025-11-10 10:54:02,431 - INFO - Е╓└Г░├Ф╨░Г⌡╝Е╫∙: Х┤╙Е╝ Д╧┴process
+2025-11-10 10:54:02,432 - WARNING - Ф╨░Г⌡╝Е╫∙Д╦█Е╜≤Е°╗: Х┤╙Е╝ Д╧┴process
+2025-11-10 10:54:02,432 - INFO - Е╓└Г░├Ф╨░Г⌡╝Е╫∙: Ф▐░Г╓╨Г╩└Д╩╤
+2025-11-10 10:54:02,434 - INFO - Е┬⌡Е╩╨Г⌡╝Е╫∙: components/Ф▐░Г╓╨Г╩└Д╩╤/demo
+2025-11-10 10:54:02,435 - INFO - Е┬⌡Е╩╨Г⌡╝Е╫∙: components/Ф▐░Г╓╨Г╩└Д╩╤/demo\test
+2025-11-10 10:54:02,436 - INFO - Г╖╩Е┼╗Ф√┤Д╩╤: Ф▐░Г╓╨Г╩└Д╩╤\test\test1.tscn -> components/Ф▐░Г╓╨Г╩└Д╩╤/demo\test\test1.tscn
+2025-11-10 10:54:02,437 - INFO - Е╓└Г░├Ф╨░Г⌡╝Е╫∙: Х┐▄Е▄┘
+2025-11-10 10:54:02,438 - WARNING - Ф╨░Г⌡╝Е╫∙Д╦█Е╜≤Е°╗: Х┐▄Е▄┘
+2025-11-10 10:54:02,438 - WARNING - Ф╨░Г⌡╝Е╫∙Д╦█Е╜≤Е°╗: Х┐▄Е▄┘
+2025-11-10 10:54:02,438 - WARNING - Ф╨░Г⌡╝Е╫∙Д╦█Е╜≤Е°╗: Х┐▄Е▄┘
+2025-11-10 10:54:02,439 - INFO - Е╓└Г░├Ф╨░Г⌡╝Е╫∙: Хё┘Е╓┤
+2025-11-10 10:54:02,439 - WARNING - Ф╨░Г⌡╝Е╫∙Д╦█Е╜≤Е°╗: Хё┘Е╓┤
+2025-11-10 10:54:02,439 - INFO - Е╓└Г░├Ф╨░Г⌡╝Е╫∙: Ф┬≤Ф√≈
+2025-11-10 10:54:02,439 - WARNING - Ф╨░Г⌡╝Е╫∙Д╦█Е╜≤Е°╗: Ф┬≤Ф√≈
+2025-11-10 10:54:02,439 - WARNING - Ф╨░Г⌡╝Е╫∙Д╦█Е╜≤Е°╗: Ф┬≤Ф√≈
+2025-11-10 10:54:02,440 - WARNING - Ф╨░demoГ⌡╝Е╫∙Д╦█Е╜≤Е°╗: demo
+2025-11-10 10:54:02,454 - INFO - Е┬═И≥╓Г╘╨Г⌡╝Е╫∙: .\Ф▐░Г╓╨Г╩└Д╩╤\test
+2025-11-10 10:54:02,455 - INFO - Е┬═И≥╓Г╘╨Г⌡╝Е╫∙: .\Ф▐░Г╓╨Г╩└Д╩╤
+2025-11-10 10:54:02,455 - INFO - И║╧Г⌡╝Г╩⌠Ф·└Г╩└Г╩┤Е╝▄Ф┬░О╪│
