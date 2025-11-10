@@ -48,7 +48,16 @@ func create_weapon_item(json_data: Dictionary) -> BaseItemScope.WeaponItem:
 	
 	# 构建脚本源代码
 	var can_use_func = json_data.get_or_add("是否能使用", "")
-	var script_code = "\nconst BaseItemScope = preload(\"uid://4cukvnp1qadn\")\nconst Cultivator = preload(\"uid://biryomw8u6qck\")\nconst BaseValue = preload(\"uid://2ye25vjxabed\")\nextends BaseItemScope.WeaponItem\n" + can_use_func
+	# var script_code = "extends BaseItemScope.WeaponItem\n\nconst BaseItemScope = preload(\"uid://4cukvnp1qadn\")\nconst Cultivator = preload(\"uid://biryomw8u6qck\")\nconst BaseValue = preload(\"uid://2ye25vjxabed\")\n" + can_use_func
+	# 字符串必须定格，不如脚本会有问题
+	var script_code =\
+"""
+extends BaseItemScope.WeaponItem
+const BaseItemScope = preload(\"uid://4cukvnp1qadn\")
+const Cultivator = preload(\"uid://biryomw8u6qck\")
+const BaseValue = preload(\"uid://2ye25vjxabed\")
+
+""" + can_use_func
 	
 	weapon_script.source_code = script_code
 	
