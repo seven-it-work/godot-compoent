@@ -7,7 +7,7 @@ const BaseItemScope = preload("uid://4cukvnp1qadn")
 
 func _ready():
 	# 从文件读取JSON数据
-	var file = FileAccess.open("res://demo/weapon_with_dynamic_method.json", FileAccess.READ)
+	var file = FileAccess.open("res://components/装备组件/demo/动态生成武器/weapon_with_dynamic_method.json", FileAccess.READ)
 	if file == null:
 		print("无法打开JSON文件")
 		return
@@ -48,7 +48,7 @@ func create_weapon_item(json_data: Dictionary) -> BaseItemScope.WeaponItem:
 	
 	# 构建脚本源代码
 	var can_use_func = json_data.get_or_add("是否能使用", "")
-	var script_code = "extends BaseItemScope.WeaponItem\n" + can_use_func
+	var script_code = "\nconst BaseItemScope = preload(\"uid://4cukvnp1qadn\")\nconst Cultivator = preload(\"uid://biryomw8u6qck\")\nconst BaseValue = preload(\"uid://2ye25vjxabed\")\nextends BaseItemScope.WeaponItem\n" + can_use_func
 	
 	weapon_script.source_code = script_code
 	

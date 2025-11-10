@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bkoxef6jimoq6"]
 
-[ext_resource type="Script" uid="uid://c46cfecisv3q6" path="res://demo/测试武器动态脚本.gd" id="1_5p3op"]
+[ext_resource type="Script" uid="uid://c46cfecisv3q6" path="res://components/装备组件/demo/动态生成武器/测试武器动态脚本.gd" id="1_5p3op"]
 
 [node name="测试武器动态脚本" type="Control"]
 layout_mode = 3
