@@ -1,6 +1,8 @@
 extends Panel
 class_name Backpack
 
+const BackpackCompartment = preload("res://背包/背包格子.gd")
+
 const BaseItemScope=preload("res://背包/entity/BaseItem.gd")
 
 var _backpck:BaseItemScope.BackpackItem:set=set_backpck,get=get_backpck
