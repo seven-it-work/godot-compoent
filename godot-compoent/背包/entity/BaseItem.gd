@@ -1,5 +1,3 @@
-class_name BaseItemScope
-
 ## 背包对象
 class BackpackItem:
 	signal 重置物品

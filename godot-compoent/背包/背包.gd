@@ -1,6 +1,8 @@
 extends Panel
 class_name Backpack
 
+const BaseItemScope=preload("res://背包/entity/BaseItem.gd")
+
 var _backpck:BaseItemScope.BackpackItem:set=set_backpck,get=get_backpck
 # 跟踪当前选中的背包格子
 var _selected_compartment:BackpackCompartment = null:get=get_selected_compartment

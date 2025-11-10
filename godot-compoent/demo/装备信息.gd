@@ -1,5 +1,5 @@
 extends Control
-
+const BaseItemScope = preload("res://背包/entity/BaseItem.gd")
 func _ready() -> void:
 	pass
 

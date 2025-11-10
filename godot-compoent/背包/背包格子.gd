@@ -2,7 +2,7 @@
 ## 背包格子
 extends Panel
 class_name BackpackCompartment
-
+const BaseItemScope = preload("res://背包/entity/BaseItem.gd")
 # 点击信号
 signal clicked(compartment, item)
 
