@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dx3hmfumh643m"
-path="res://.godot/imported/绘制特定风格边框.png-d8848314f487d9487d39069be243c516.ctex"
+path="res://.godot/imported/绘制特定风格边框.png-64bd4b95facd6762183c102df1ac73a3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://装备/绘制特定风格边框.png"
-dest_files=["res://.godot/imported/绘制特定风格边框.png-d8848314f487d9487d39069be243c516.ctex"]
+source_file="res://components/装备组件/绘制特定风格边框.png"
+dest_files=["res://.godot/imported/绘制特定风格边框.png-64bd4b95facd6762183c102df1ac73a3.ctex"]
 
 [params]
 

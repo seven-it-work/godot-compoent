@@ -18,8 +18,8 @@ config/icon="res://icon.svg"
 [autoload]
 
 Log="*res://addons/logger/logger.gd"
-"全局配置"="*res://战斗/entity/全局配置.gd"
-OrphanNodeTool="*res://utils/孤立节点工具.gd"
+"全局配置"="*res://全局配置.gd"
+"孤立节点工具"="*res://utils/孤立节点工具.gd"
 
 [display]
 

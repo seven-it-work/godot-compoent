@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bqqr5tf1mrry2"
-path="res://.godot/imported/绘制游戏相框.png-642454a42be549c8947e82477c16cab2.ctex"
+path="res://.godot/imported/绘制游戏相框.png-58f81f1ddf75a93103a3e646b7f871fa.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://战斗/绘制游戏相框.png"
-dest_files=["res://.godot/imported/绘制游戏相框.png-642454a42be549c8947e82477c16cab2.ctex"]
+source_file="res://components/战斗组件/绘制游戏相框.png"
+dest_files=["res://.godot/imported/绘制游戏相框.png-58f81f1ddf75a93103a3e646b7f871fa.ctex"]
 
 [params]
 
