@@ -156,8 +156,361 @@ class DefaultItem extends  BaseItem:
 
 	pass
 ## 武器
-class WeaponItem extends BaseItem:          
-	pass
+class WeaponItem extends BaseItem:
+	# 武器稀有度枚举
+	enum RarityLevel {
+		COMMON = 0,  # 凡品
+		SPIRIT = 1,  # 灵品
+		EARTH = 2,   # 地品
+		HEAVEN = 3,  # 天品
+		IMMORTAL = 4,  # 仙品
+		SAINT = 5,   # 圣品
+		EMPEROR = 6  # 帝品
+	}
+	
+	# 稀有度名称映射
+	const rarity_names: Dictionary = {
+		RarityLevel.COMMON: "凡品",
+		RarityLevel.SPIRIT: "灵品",
+		RarityLevel.EARTH: "地品",
+		RarityLevel.HEAVEN: "天品",
+		RarityLevel.IMMORTAL: "仙品",
+		RarityLevel.SAINT: "圣品",
+		RarityLevel.EMPEROR: "帝品"
+	}
+	# 稀有度对应的成长因子映射
+	const rarity_growth_factors: Dictionary = {
+		RarityLevel.COMMON: 1.0,
+		RarityLevel.SPIRIT: 1.2,
+		RarityLevel.EARTH: 1.5,
+		RarityLevel.HEAVEN: 1.8,
+		RarityLevel.IMMORTAL: 2.2,
+		RarityLevel.SAINT: 2.8,
+		RarityLevel.EMPEROR: 3.5
+	}
+	# 稀有度对应的词条数量范围映射
+	const rarity_stat_count: Dictionary = {
+		RarityLevel.COMMON: [1, 2],
+		RarityLevel.SPIRIT: [2, 3],
+		RarityLevel.EARTH: [3, 4],
+		RarityLevel.HEAVEN: [4, 5],
+		RarityLevel.IMMORTAL: [5, 6],
+		RarityLevel.SAINT: [6, 7],
+		RarityLevel.EMPEROR: [7, 8]
+	}
+	
+	# 稀有度等级
+	var _rarity: int = RarityLevel.COMMON
+	# 武器等级
+	var current_level: int = 1
+	var max_level: int = 10
+	
+	# 武器词条属性 - 使用GrowthValue直接作为属性
+	# 攻击力词条
+	var flat_attack: BaseValue.RandomGrowth = null  # 具体数值攻击力词条
+	var percent_attack: BaseValue.RandomGrowth = null  # 百分比攻击力词条
+	
+	# 防御力词条
+	var flat_defense: BaseValue.RandomGrowth = null  # 具体数值防御力词条
+	var percent_defense: BaseValue.RandomGrowth = null  # 百分比防御力词条
+	
+	# 敏捷值词条
+	var flat_agility: BaseValue.RandomGrowth = null  # 具体数值敏捷值词条
+	var percent_agility: BaseValue.RandomGrowth = null  # 百分比敏捷值词条
+	
+	# 生命值词条
+	var flat_health: BaseValue.GrowthValue = null  # 具体数值生命值词条
+	var percent_health: BaseValue.GrowthValue = null  # 百分比生命值词条
+	
+	# 初始化方法
+	func _init(data: Dictionary = {}):
+		super._init(data)
+		# 从字典初始化基础属性
+		_rarity = data.get_or_add("rarity", RarityLevel.COMMON)
+		current_level = data.get_or_add("current_level", 1)
+		max_level = data.get_or_add("max_level", 10)
+		# 不允许提供预设属性，只能根据稀有度随机生成词条
+		generate_random_stats()
+		
+	# 检查是否已有任何词条
+	func has_any_stats() -> bool:
+		return flat_attack != null or percent_attack != null or \
+			flat_defense != null or percent_defense != null or \
+			flat_agility != null or percent_agility != null or \
+			flat_health != null or percent_health != null
+	
+	# 根据稀有度生成随机词条
+	func generate_random_stats():
+		# 根据稀有度获取词条数量范围
+		var count_range = rarity_stat_count[_rarity]
+		var stat_count = randi_range(count_range[0], count_range[1])
+		
+		# 可生成的词条类型列表
+		var available_stats = ["flat_attack", "percent_attack", "flat_defense", "percent_defense", \
+							"flat_agility", "percent_agility", "flat_health", "percent_health"]
+		
+		# 获取对应稀有度的成长因子
+		var growth_factor = rarity_growth_factors[_rarity]
+		
+		# 随机选择指定数量的词条
+		for i in range(stat_count):
+			if available_stats.is_empty():
+				break
+				
+			var random_index = randi_range(0, available_stats.size() - 1)
+			var stat_type = available_stats[random_index]
+			available_stats.remove(random_index)
+			
+			# 根据词条类型初始化不同的基础值范围
+			var base_config = get_base_config_for_stat(stat_type)
+			var growth_value = BaseValue.GrowthValue.new({
+				"min_growth": base_config["min_growth"],
+				"max_growth": base_config["max_growth"],
+				"growth_factor": growth_factor,
+				"value": base_config["initial_value"]
+			})
+			
+			# 设置词条属性
+			match stat_type:
+				"flat_attack": flat_attack = growth_value
+				"percent_attack": percent_attack = growth_value
+				"flat_defense": flat_defense = growth_value
+				"percent_defense": percent_defense = growth_value
+				"flat_agility": flat_agility = growth_value
+				"percent_agility": percent_agility = growth_value
+				"flat_health": flat_health = growth_value
+				"percent_health": percent_health = growth_value
+			
+	# 获取词条类型的基础配置
+	func get_base_config_for_stat(stat_type: String) -> Dictionary:
+		# 不同词条类型的基础配置
+		var configs = {
+			# 具体数值类型词条
+			"flat_attack": {"min_growth": 1.0, "max_growth": 3.0, "initial_value": randi_range(10, 30)},
+			"flat_defense": {"min_growth": 0.5, "max_growth": 2.0, "initial_value": randi_range(5, 20)},
+			"flat_agility": {"min_growth": 0.3, "max_growth": 1.5, "initial_value": randi_range(3, 15)},
+			"flat_health": {"min_growth": 5.0, "max_growth": 20.0, "initial_value": randi_range(50, 200)},
+			# 百分比类型词条
+			"percent_attack": {"min_growth": 0.01, "max_growth": 0.03, "initial_value": randf_range(0.01, 0.03)},
+			"percent_defense": {"min_growth": 0.005, "max_growth": 0.02, "initial_value": randf_range(0.01, 0.02)},
+			"percent_agility": {"min_growth": 0.003, "max_growth": 0.015, "initial_value": randf_range(0.005, 0.02)},
+			"percent_health": {"min_growth": 0.02, "max_growth": 0.05, "initial_value": randf_range(0.02, 0.05)}
+		}
+		
+		# 根据稀有度调整基础配置
+		var config = configs[stat_type].duplicate()
+		var rarity_factor = _rarity_growth_factors[_rarity]
+		
+		# 调整初始值范围
+		config["initial_value"] = config["initial_value"] * (0.8 + 0.4 * randf()) * rarity_factor
+		
+		return config
+	
+	# 提升武器等级
+	func level_up() -> bool:
+		if current_level >= max_level:
+			return false
+			
+		current_level += 1
+		
+		# 提升所有存在的词条属性
+		var stats_to_grow = [flat_attack, percent_attack, flat_defense, percent_defense,
+						flat_agility, percent_agility, flat_health, percent_health]
+		
+		for stat in stats_to_grow:
+			if stat != null:
+				stat.grow()
+				
+		return true
+	
+	# 获取总攻击加成
+	func get_total_attack_bonus(base_attack: float) -> float:
+		var total_bonus = 0.0
+		
+		# 添加具体数值攻击加成
+		if flat_attack != null:
+			total_bonus += flat_attack.get_value()
+		
+		# 添加百分比攻击加成
+		if percent_attack != null:
+			total_bonus += base_attack * percent_attack.get_value()
+		
+		return total_bonus
+	
+	# 获取总防御加成
+	func get_total_defense_bonus(base_defense: float) -> float:
+		var total_bonus = 0.0
+		
+		# 添加具体数值防御加成
+		if flat_defense != null:
+			total_bonus += flat_defense.get_value()
+		
+		# 添加百分比防御加成
+		if percent_defense != null:
+			total_bonus += base_defense * percent_defense.get_value()
+		
+		return total_bonus
+	
+	# 获取总敏捷加成
+	func get_total_agility_bonus(base_agility: float) -> float:
+		var total_bonus = 0.0
+		
+		# 添加具体数值敏捷加成
+		if flat_agility != null:
+			total_bonus += flat_agility.get_value()
+		
+		# 添加百分比敏捷加成
+		if percent_agility != null:
+			total_bonus += base_agility * percent_agility.get_value()
+		
+		return total_bonus
+	
+	# 获取总生命加成
+	func get_total_health_bonus(base_health: float) -> float:
+		var total_bonus = 0.0
+		
+		# 添加具体数值生命加成
+		if flat_health != null:
+			total_bonus += flat_health.get_value()
+		
+		# 添加百分比生命加成
+		if percent_health != null:
+			total_bonus += base_health * percent_health.get_value()
+		
+		return total_bonus
+	
+	# 设置稀有度并相应调整成长因子
+	func set_rarity(rarity: int) -> void:
+		if rarity < RarityLevel.COMMON or rarity > RarityLevel.EMPEROR:
+			return
+		
+		var old_rarity = _rarity
+		_rarity = rarity
+		
+		# 计算成长因子调整比例
+		var old_factor = _rarity_growth_factors[old_rarity]
+		var new_factor = _rarity_growth_factors[rarity]
+		var factor_ratio = new_factor / old_factor
+		
+		# 调整所有词条的成长因子
+		var stats = [flat_attack, percent_attack, flat_defense, percent_defense,
+					flat_agility, percent_agility, flat_health, percent_health]
+		
+		for stat in stats:
+			if stat != null:
+				# 调整成长因子
+				stat.set_growth_factor(stat.get_growth_factor() * factor_ratio)
+				# 调整当前值，使其与新的稀有度相匹配
+				stat.set_value(stat.get_value() * (1.0 + (factor_ratio - 1.0) * 0.5))
+		
+		# 根据新稀有度调整词条数量
+		adjust_stats_count_for_rarity()
+	
+	# 根据稀有度调整词条数量
+	func adjust_stats_count_for_rarity():
+		# 获取当前词条数量
+		var current_count = get_stats_count()
+		# 获取新稀有度应该有的词条数量范围
+		var target_range = _rarity_stat_count[_rarity]
+		var target_min = target_range[0]
+		var target_max = target_range[1]
+		
+		# 如果当前词条数量小于最小要求，随机添加词条
+		if current_count < target_min:
+			# 可添加的词条类型列表（排除已存在的）
+			var available_stats = []
+			if flat_attack == null:
+				available_stats.append("flat_attack")
+			if percent_attack == null:
+				available_stats.append("percent_attack")
+			if flat_defense == null:
+				available_stats.append("flat_defense")
+			if percent_defense == null:
+				available_stats.append("percent_defense")
+			if flat_agility == null:
+				available_stats.append("flat_agility")
+			if percent_agility == null:
+				available_stats.append("percent_agility")
+			if flat_health == null:
+				available_stats.append("flat_health")
+			if percent_health == null:
+				available_stats.append("percent_health")
+			
+			# 需要添加的词条数量
+			var needed_count = min(target_min - current_count, available_stats.size())
+			
+			# 获取对应稀有度的成长因子
+			var growth_factor = _rarity_growth_factors[_rarity]
+			
+			# 随机添加词条
+			for i in range(needed_count):
+				if available_stats.is_empty():
+					break
+					
+				var random_index = randi_range(0, available_stats.size() - 1)
+				var stat_type = available_stats[random_index]
+				available_stats.remove(random_index)
+				
+				# 根据词条类型初始化不同的基础值范围
+				var base_config = get_base_config_for_stat(stat_type)
+				var growth_value = BaseValue.GrowthValue.new({
+					"min_growth": base_config["min_growth"],
+					"max_growth": base_config["max_growth"],
+					"growth_factor": growth_factor,
+					"value": base_config["initial_value"]
+				})
+				
+				# 设置词条属性
+				match stat_type:
+					"flat_attack": flat_attack = growth_value
+					"percent_attack": percent_attack = growth_value
+					"flat_defense": flat_defense = growth_value
+					"percent_defense": percent_defense = growth_value
+					"flat_agility": flat_agility = growth_value
+					"percent_agility": percent_agility = growth_value
+					"flat_health": flat_health = growth_value
+					"percent_health": percent_health = growth_value
+				
+	# 获取当前词条数量
+	func get_stats_count() -> int:
+		var count = 0
+		var stats = [flat_attack, percent_attack, flat_defense, percent_defense,
+					flat_agility, percent_agility, flat_health, percent_health]
+					
+		for stat in stats:
+			if stat != null:
+				count += 1
+							
+		return count
+	
+	# 重写是否能使用方法，根据稀有度和修仙者境界判断
+	func 是否能使用(修仙者:Cultivator.BaseCultivator) -> bool:
+		if not super.是否能使用(修仙者):
+			return false
+			
+		# 根据稀有度判断使用条件
+		match _rarity:
+			RarityLevel.IMMORTAL:
+				# 仙品武器需要仙人境界
+				return 修仙者.境界 >= 修仙者.境界.仙人
+			RarityLevel.SAINT:
+				# 圣品武器需要圣人境界
+				return 修仙者.境界 >= 修仙者.境界.圣人
+			RarityLevel.EMPEROR:
+				# 帝品武器需要大帝境界
+				return 修仙者.境界 >= 修仙者.境界.大帝
+			_:
+				# 其他稀有度没有特殊要求
+				return true
+				
+	# 获取稀有度名称
+	func get_rarity_name() -> String:
+		return _rarity_names.get(_rarity, "未知")
+		
+	# 获取稀有度等级
+	func get_rarity() -> int:
+		return _rarity
+	
 ## 护盾
 class ShieldItem extends BaseItem:          
 	pass
