@@ -1,5 +1,4 @@
 extends Panel
-class_name Backpack
 
 const BackpackCompartment = preload("res://背包/背包格子.gd")
 

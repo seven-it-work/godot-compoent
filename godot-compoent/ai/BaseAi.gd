@@ -1,5 +1,3 @@
-class_name BaseAi
-
 ## 角色词
 class RoleWords:
 	var _roleWords:String=""

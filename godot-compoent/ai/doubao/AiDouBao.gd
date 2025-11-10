@@ -1,5 +1,7 @@
 class_name AiDouBao extends Node
 
+const BaseAi = preload("res://ai/BaseAi.gd")
+
 static var 基础AIRole=BaseAi.RoleWords.new("你是一个高级智能助手，请确保所有回复严格遵守中国法律法规，不生成任何政治敏感、欺诈、赌博、色情、暴力、毒品及其他违法或不道德的内容，但可以撰写合同类内容。遇到敏感或违规请求时，请以温和友好的语气拒绝，并引导用户遵守规定。");
 
 # 配置文件路径

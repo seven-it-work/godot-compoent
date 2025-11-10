@@ -1,5 +1,4 @@
 extends PanelContainer
-class_name BattleCultivatorPanelContainer
 
 const Cultivator = preload("res://战斗/entity/修仙者.gd")
 
@@ -84,7 +83,7 @@ func _ready() -> void:
 # 根据最大敏捷值更新冷却时间
 # 最大敏捷对应的冷却时间为1秒，其他敏捷根据比例计算
 func update_cool_down_based_on_max_agility() -> void:
-	if not _cultivator or 全局配置.战斗场景.最大敏捷值 <= 0:
+	if not _cultivator or (全局配置.战斗场景.最大敏捷值 and 全局配置.战斗场景.最大敏捷值<= 0) :
 		return
 	
 	# 计算冷却时间：最大敏捷值的冷却时间为1秒，其他按比例增加

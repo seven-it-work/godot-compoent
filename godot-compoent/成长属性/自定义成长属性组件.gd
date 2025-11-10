@@ -1,3 +1,6 @@
+const GrowthAttributeComponent = preload("res://成长属性/成长属性组件.gd")
+const BaseValue = preload("res://成长属性/基础成长.gd")
+
 extends GrowthAttributeComponent
 class_name CustomGrowthAttributeComponent
 

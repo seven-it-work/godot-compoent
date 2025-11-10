@@ -2,6 +2,7 @@ extends Control
 const BaseItemScope = preload("res://背包/entity/BaseItem.gd")
 
 const BackpackCompartment = preload("res://背包/背包格子.gd")
+const Backpack = preload("res://背包/背包.gd")
 
 func _ready() -> void:
 	pass

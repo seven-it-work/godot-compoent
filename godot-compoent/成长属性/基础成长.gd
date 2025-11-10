@@ -1,5 +1,3 @@
-class_name BaseValue
-
 class GrowthValue:
 	## 每次成长的最小范围值
 	var _min_growth: float: get = get_min_growth, set = set_min_growth

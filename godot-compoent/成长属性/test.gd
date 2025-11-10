@@ -1,12 +1,10 @@
 extends Control
 
+const BaseValue = preload("res://成长属性/基础成长.gd")
+
 var random_growth
 
 func _ready() -> void:
-	print(LogConfig.logTextRich)
-	add_child(LogConfig.logTextRich)
-	
-	
 	var base=BaseValue.GrowthValue.new({
 		"growth_factor": -1.0,
 		"value":100,

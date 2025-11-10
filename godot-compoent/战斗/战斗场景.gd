@@ -1,7 +1,8 @@
 extends Control
-class_name BattleSceneControl
 
 const Cultivator = preload("res://战斗/entity/修仙者.gd")
+const BattleCultivatorPanelContainer = preload("res://战斗/战斗中的人员面板.gd")
+const TeamPanelContainer = preload("res://战斗/队伍面板.gd")
 
 var _战斗状态 = "准备"
 var _战斗回合 = 0

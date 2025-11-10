@@ -1,7 +1,7 @@
 extends PanelContainer
-class_name TeamPanelContainer
 
 const Cultivator = preload("res://战斗/entity/修仙者.gd")
+const BattleCultivatorPanelContainer = preload("res://战斗/战斗中的人员面板.gd")
 
 # 队伍数据
 var _team: Cultivator.CultivatorTeam = null: set = set_team
