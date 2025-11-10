@@ -185,6 +185,29 @@ class RangeGrowth extends GrowthValue:
 			set_max_value(result.max)
 
 class RandomGrowth extends RangeGrowth:
+	## 重写get_value方法，返回min_value和max_value之间的随机值
 	func get_value() -> float:
 		return randf_range(get_min_value(), get_max_value())
-	pass
+	
+	## 重写初始化方法，专注于min_value和max_value的初始化
+	func _init(dic: Dictionary={}):
+		# 调用父类初始化，但会忽略value参数
+		var temp_dic = dic.duplicate()
+		# 确保我们不处理value属性，完全依赖min_value和max_value
+		super._init(temp_dic)
+	
+	## 重写grow方法，确保只影响min_value和max_value
+	func grow():
+		# 计算成长量
+		var growth_amount = randf_range(get_min_growth(), get_max_growth()) * get_growth_factor()
+		
+		# 处理不同的成长策略
+		if get_should_only_grow_max_value():
+			# 只成长最大值
+			set_max_value(get_max_value() + growth_amount)
+		else:
+			# 使用基类方法处理范围成长
+			var result = GrowthValue.process_range_growth(growth_amount, get_min_value(), get_max_value())
+			# 更新_min_value和_max_value
+			set_min_value(result.min)
+			set_max_value(result.max)
