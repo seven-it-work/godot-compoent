@@ -6,7 +6,7 @@ extends Node
 class_name LogStream
 
 # Preload once so log level resolution works even if LogConfig is not yet in the cache; mirrors the `_settings` naming style.
-const _log_config := preload("res://addons/logger/LogConfig.gd")
+const _log_config := preload("uid://dck6jp0yyvdvp")
 
 enum LogLevel {
 	DEBUG = 0,

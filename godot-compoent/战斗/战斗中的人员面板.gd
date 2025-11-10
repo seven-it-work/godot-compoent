@@ -1,6 +1,6 @@
 extends PanelContainer
 
-const Cultivator = preload("res://战斗/entity/修仙者.gd")
+const Cultivator = preload("uid://biryomw8u6qck")
 
 var _cultivator:Cultivator.BaseCultivator = Cultivator.BaseCultivator.new()
 # 在_process中 每次-1 直到为0 则认为冷却完成了。%"冷却"的宽度就是冷却进度。如果宽度为0 也是冷却完成了。
@@ -121,7 +121,7 @@ func _process(_delta: float) -> void:
 		update_cool_down_ui()
 
 # 属性变化信号处理函数
-func _on_cultivator_property_changed(property_name: String, old_value: Variant, new_value: Variant) -> void:
+func _on_cultivator_property_changed(property_name: String, _old_value: Variant, new_value: Variant) -> void:
 	# 根据属性名称更新对应的UI
 	match property_name:
 		"_name":

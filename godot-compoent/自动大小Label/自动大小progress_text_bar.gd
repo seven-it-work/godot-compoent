@@ -15,7 +15,7 @@ func set_max_font_size(new_value):
 		_label.max_font_size=new_value
 
 func _ready() -> void:
-	_label=preload("res://自动大小Label/自动大小Label.tscn").instantiate()
+	_label=preload("uid://cs04jflun4vww").instantiate()
 	_label.min_font_size=12
 	_label.max_font_size=72
 	_label.text="%s/%s"%[value,max_value]

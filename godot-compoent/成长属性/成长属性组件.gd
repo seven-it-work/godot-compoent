@@ -1,7 +1,8 @@
 @tool
 extends HBoxContainer
+class_name GrowthAttributeComponent
 
-const BaseValue = preload("res://成长属性/基础成长.gd")
+const BaseValue = preload("uid://2ye25vjxabed")
 
 ## 显示的标签文本
 @export var label:String: get=get_label, set=set_label

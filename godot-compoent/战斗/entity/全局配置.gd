@@ -1,7 +1,7 @@
 class_name GlobalConfig 
 extends Node
 
-const BattleSceneControl = preload("res://战斗/战斗场景.gd")
+const BattleSceneControl = preload("uid://63bxcj0e6b1t")
 
 const 全局倍速_MAX:int=20
 const 全局倍速_MIN:int=1

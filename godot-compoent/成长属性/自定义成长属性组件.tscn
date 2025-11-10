@@ -6,8 +6,5 @@
 [node name="自定义成长属性组件" instance=ExtResource("1_8rigc")]
 script = ExtResource("2_l1lts")
 
-[node name="ValueStr" parent="." index="1"]
-visible = false
-
 [node name="ProgressBar" parent="." index="2"]
 visible = false

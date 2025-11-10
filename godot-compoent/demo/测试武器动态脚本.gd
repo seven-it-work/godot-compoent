@@ -1,9 +1,9 @@
 extends Node
 
-const Cultivator = preload("res://战斗/entity/修仙者.gd")
+const Cultivator = preload("uid://biryomw8u6qck")
 
 # 导入BaseItemScope类
-const BaseItemScope = preload("res://背包/entity/BaseItem.gd")
+const BaseItemScope = preload("uid://4cukvnp1qadn")
 
 func _ready():
 	# 从文件读取JSON数据

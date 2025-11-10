@@ -1,5 +1,5 @@
-const Cultivator = preload("res://战斗/entity/修仙者.gd")
-const BaseValue = preload("res://成长属性/基础成长.gd")
+const Cultivator = preload("uid://biryomw8u6qck")
+const BaseValue = preload("uid://2ye25vjxabed")
 
 ## 背包对象
 class BackpackItem:

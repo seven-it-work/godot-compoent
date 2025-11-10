@@ -1,6 +1,6 @@
 # 修仙者类 - 游戏中的修仙者角色表示
 
-const BaseValue = preload("res://成长属性/基础成长.gd")
+const BaseValue = preload("uid://2ye25vjxabed")
 
 ## 修仙者队伍类
 class CultivatorTeam:

@@ -1,8 +1,8 @@
 extends Panel
 
-const BackpackCompartment = preload("res://背包/背包格子.gd")
+const BackpackCompartment = preload("uid://da1t82uebiqkk")
 
-const BaseItemScope=preload("res://背包/entity/BaseItem.gd")
+const BaseItemScope=preload("uid://4cukvnp1qadn")
 
 var _backpck:BaseItemScope.BackpackItem:set=set_backpck,get=get_backpck
 # 跟踪当前选中的背包格子

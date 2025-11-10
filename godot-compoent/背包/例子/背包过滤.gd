@@ -1,6 +1,6 @@
 extends Control
 
-const BackpackCompartment = preload("res://背包/背包格子.gd")
+const BackpackCompartment = preload("uid://da1t82uebiqkk")
 
 func _on_text_edit_text_changed(new_text:String) -> void:
 	if new_text=="":

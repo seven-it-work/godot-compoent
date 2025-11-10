@@ -1,11 +1,10 @@
 extends Control
 
-const Cultivator = preload("res://战斗/entity/修仙者.gd")
-const BattleCultivatorPanelContainer = preload("res://战斗/战斗中的人员面板.gd")
-const TeamPanelContainer = preload("res://战斗/队伍面板.gd")
+const Cultivator = preload("uid://biryomw8u6qck")
+const BattleCultivatorPanelContainer = preload("uid://lelkxi50n8l6")
+const TeamPanelContainer = preload("uid://fjxvsdxj84dx")
 
 var _战斗状态 = "准备"
-var _战斗回合 = 0
 var _战斗日志 = []
 
 # 战斗状态枚举

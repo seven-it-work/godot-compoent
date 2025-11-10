@@ -1,8 +1,8 @@
 extends Control
-const BaseItemScope = preload("res://背包/entity/BaseItem.gd")
+const BaseItemScope = preload("uid://4cukvnp1qadn")
 
-const BackpackCompartment = preload("res://背包/背包格子.gd")
-const Backpack = preload("res://背包/背包.gd")
+const BackpackCompartment = preload("uid://da1t82uebiqkk")
+const Backpack = preload("uid://bo5yq44dywrje")
 
 func _ready() -> void:
 	pass

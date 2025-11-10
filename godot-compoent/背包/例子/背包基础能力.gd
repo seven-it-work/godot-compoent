@@ -1,6 +1,6 @@
 extends Control
 
-const BaseItemScope = preload("res://背包/entity/BaseItem.gd")
+const BaseItemScope = preload("uid://4cukvnp1qadn")
 
 
 func _ready() -> void:

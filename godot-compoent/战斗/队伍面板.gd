@@ -1,7 +1,7 @@
 extends PanelContainer
 
-const Cultivator = preload("res://战斗/entity/修仙者.gd")
-const BattleCultivatorPanelContainer = preload("res://战斗/战斗中的人员面板.gd")
+const Cultivator = preload("uid://biryomw8u6qck")
+const BattleCultivatorPanelContainer = preload("uid://lelkxi50n8l6")
 
 # 队伍数据
 var _team: Cultivator.CultivatorTeam = null: set = set_team
@@ -18,7 +18,7 @@ func _update_all_panels() -> void:
 		return
 	
 	for i in range(9):
-		var row: int = i / 3
+		var row: int = (i / 3) as int
 		var col: int = i % 3
 		var cultivator = _team.get_member(row, col)
 		_set_panel_cultivator(i, cultivator)

@@ -1,6 +1,6 @@
 extends Control
 
-const BaseValue = preload("res://成长属性/基础成长.gd")
+const BaseValue = preload("uid://2ye25vjxabed")
 
 var random_growth
 
