@@ -1,5 +1,7 @@
 extends Control
 
+const Cultivator = preload("res://战斗/entity/修仙者.gd")
+
 func _ready() -> void:
 	# 连接按钮信号
 	初始化战斗()

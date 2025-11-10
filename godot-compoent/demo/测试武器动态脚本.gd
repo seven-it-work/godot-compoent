@@ -1,5 +1,7 @@
 extends Node
 
+const Cultivator = preload("res://战斗/entity/修仙者.gd")
+
 # 导入BaseItemScope类
 const BaseItemScope = preload("res://背包/entity/BaseItem.gd")
 

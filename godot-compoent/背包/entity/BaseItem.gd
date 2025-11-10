@@ -1,3 +1,5 @@
+const Cultivator = preload("res://战斗/entity/修仙者.gd")
+
 ## 背包对象
 class BackpackItem:
 	signal 重置物品

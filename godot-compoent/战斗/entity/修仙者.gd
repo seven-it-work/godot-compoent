@@ -1,5 +1,4 @@
 # 修仙者类 - 游戏中的修仙者角色表示
-class_name Cultivator
 
 ## 修仙者队伍类
 class CultivatorTeam:

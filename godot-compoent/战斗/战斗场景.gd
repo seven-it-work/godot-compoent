@@ -1,6 +1,8 @@
 extends Control
 class_name BattleSceneControl
 
+const Cultivator = preload("res://战斗/entity/修仙者.gd")
+
 var _战斗状态 = "准备"
 var _战斗回合 = 0
 var _战斗日志 = []

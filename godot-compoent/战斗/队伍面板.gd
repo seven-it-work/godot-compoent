@@ -1,6 +1,8 @@
 extends PanelContainer
 class_name TeamPanelContainer
 
+const Cultivator = preload("res://战斗/entity/修仙者.gd")
+
 # 队伍数据
 var _team: Cultivator.CultivatorTeam = null: set = set_team
 signal 修仙者行动(行动修仙者:Cultivator.BaseCultivator,所在队伍:Cultivator.CultivatorTeam)

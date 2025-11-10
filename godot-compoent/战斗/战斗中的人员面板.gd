@@ -1,6 +1,8 @@
 extends PanelContainer
 class_name BattleCultivatorPanelContainer
 
+const Cultivator = preload("res://战斗/entity/修仙者.gd")
+
 var _cultivator:Cultivator.BaseCultivator = Cultivator.BaseCultivator.new()
 # 在_process中 每次-1 直到为0 则认为冷却完成了。%"冷却"的宽度就是冷却进度。如果宽度为0 也是冷却完成了。
 var _冷却时间:int = 1000
