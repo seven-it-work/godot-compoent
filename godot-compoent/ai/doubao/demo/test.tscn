@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d2vqimlce380s"]
 
-[ext_resource type="Script" uid="uid://cdhx3e1luca1r" path="res://ai/doubao/test.gd" id="1_ubv37"]
+[ext_resource type="Script" uid="uid://cdhx3e1luca1r" path="res://ai/doubao/demo/test.gd" id="1_ubv37"]
 
 [node name="Test" type="Control"]
 layout_mode = 3
