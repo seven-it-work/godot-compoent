@@ -3,6 +3,7 @@ extends Control
 const BaseAi = preload("uid://jjci32wufr4g")
 
 func _ready() -> void:
+	AiDouBao.new()
 	var ai_dou_bao=AiDouBao.new()
 	add_child(ai_dou_bao)
 	var msg=await ai_dou_bao.获取ai消息("你好", BaseAi.RoleWords.new("""
