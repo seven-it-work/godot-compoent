@@ -12,7 +12,7 @@ static var 基础ai_role = BaseAi.RoleWords.new(
 )
 
 # 配置文件路径
-const CONFIG_PATH = "./config/API_KEY_dou_bao_config.gd"
+const CONFIG_PATH = "res://config/API_KEY_dou_bao_config.gd"
 
 var config = {
 	"API_KEY" ="",
@@ -24,7 +24,7 @@ var config = {
 
 func _init() -> void:
 	if FileAccess.file_exists(CONFIG_PATH):
-		config = load("res://ai/doubao/API_KEY_dou_bao_config.gd").new()
+		config = load(CONFIG_PATH).new().config
 	else:
 		var open = FileAccess.open(CONFIG_PATH, FileAccess.WRITE)
 		open.store_string(
