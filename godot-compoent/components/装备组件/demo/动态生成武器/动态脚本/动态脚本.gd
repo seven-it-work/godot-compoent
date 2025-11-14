@@ -4,10 +4,10 @@ func _ready():
 	# 步骤1: 读取 JSON（这里假设从字符串或文件）
 	var json_str = """
     {
-        "func_name": "my_function",
-        "func_code": "func my_function(arg):\\n    print(\\"Dynamic call with arg:\\", arg)\\n    return arg * 2"
+		"func_name": "my_function",
+		"func_code": "func my_function(arg):\\n    print(\\"Dynamic call with arg:\\", arg)\\n    return arg * 2"
     }
-    """
+	"""
 	# 或者从文件读取：var file = FileAccess.open("res://dynamic_script.json", FileAccess.READ)
 	# var json_str = file.get_as_text()
 	

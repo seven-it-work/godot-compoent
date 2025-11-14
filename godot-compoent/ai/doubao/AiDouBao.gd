@@ -1,35 +1,43 @@
-class_name AiDouBao extends Node
+class_name AiDouBao
+extends Node
 
 const BaseAi = preload("uid://jjci32wufr4g")
 
-static var 基础AIRole=BaseAi.RoleWords.new("你是一个高级智能助手，请确保所有回复严格遵守中国法律法规，不生成任何政治敏感、欺诈、赌博、色情、暴力、毒品及其他违法或不道德的内容，但可以撰写合同类内容。遇到敏感或违规请求时，请以温和友好的语气拒绝，并引导用户遵守规定。");
+static var 基础ai_role = BaseAi.RoleWords.new(
+	"""
+	你是一个高级智能助手，请确保所有回复严格遵守中国法律法规。
+	不生成任何政治敏感、欺诈、赌博、色情、暴力、毒品或其他违法或不道德的内容，但可以撰写合同类内容。
+	遇到敏感或违规请求时，请以温和友好的语气拒绝，并引导用户遵守规定。
+	""",
+)
 
 # 配置文件路径
-const config_path = "res://ai/doubao/API_KEY_dou_bao_config.gd"
+const CONFIG_PATH = "res://config/API_KEY_dou_bao_config.gd"
 
-var config={
-	"API_KEY" = "",
-	"MODEL_NAME" = "doubao-seed-1-6-251015",
-	"BASE_URL" = "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
-	"TIMEOUT" = 30
+var config = {
+	"API_KEY" ="",
+	"MODEL_NAME" ="doubao-seed-1-6-251015",
+	"BASE_URL" ="https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+	"TIMEOUT"= 30
 }
 
+
 func _init() -> void:
-	if FileAccess.file_exists(config_path):
-		config=load("res://ai/doubao/API_KEY_dou_bao_config.gd").new()
+	if FileAccess.file_exists(CONFIG_PATH):
+		config = load(CONFIG_PATH).new().config
 	else:
-		var open=FileAccess.open(config_path, FileAccess.WRITE)
-		open.store_string(\
-			"var config: Dictionary = {\n"+\
-			"\t\"API_KEY\" = \"\",\n"+\
-			"\t\"MODEL_NAME\" = \"doubao-seed-1-6-251015\",\n"+\
-			"\t\"BASE_URL\" = \"https://ark.cn-beijing.volces.com/api/v3/chat/completions\",\n"+\
-			"\t\"TIMEOUT\" = 30\n"+\
-			"}"
+		var open = FileAccess.open(CONFIG_PATH, FileAccess.WRITE)
+		open.store_string(
+			"var config: Dictionary = {\n" +
+			"\t\"API_KEY\" = \"\",\n" +
+			"\t\"MODEL_NAME\" = \"doubao-seed-1-6-251015\",\n" +
+			"\t\"BASE_URL\" = \"https://ark.cn-beijing.volces.com/api/v3/chat/completions\",\n" +
+			"\t\"TIMEOUT\" = 30\n" +
+			"}",
 		)
 	
 
-func 获取ai消息(content:String, roleWords:BaseAi.RoleWords=基础AIRole)->String:
+func 获取ai消息(content:String, role_words:BaseAi.RoleWords=基础ai_role)->String:
 	# 检查API密钥是否有效
 	if !config["API_KEY"]:
 		Log.warn("API密钥未配置，请在设置有效的API密钥")
@@ -49,7 +57,7 @@ func 获取ai消息(content:String, roleWords:BaseAi.RoleWords=基础AIRole)->St
 	
 	# 构建请求体
 	var messages = [
-		{"role": "system", "content": roleWords._roleWords},
+		{"role": "system", "content": role_words.get_role_words()},
 		{"role": "user", "content": content}
 	]
 	
@@ -72,10 +80,10 @@ func 获取ai消息(content:String, roleWords:BaseAi.RoleWords=基础AIRole)->St
 		return "请求设置失败，请检查网络连接"
 	var result=await http_request.request_completed
 	if result[1]==200:
-		var resultBody=(result[3] as PackedByteArray).get_string_from_utf8()
+		var result_body = (result[3] as PackedByteArray).get_string_from_utf8()
 		# 解析JSON响应
 		var json = JSON.new()
-		var parse_result = json.parse(resultBody)
+		var parse_result = json.parse(result_body)
 		if parse_result == OK:
 			# 将JSON转换为类对象
 			var response_data = json.get_data()
@@ -88,9 +96,8 @@ func 获取ai消息(content:String, roleWords:BaseAi.RoleWords=基础AIRole)->St
 			Log.err("JSON解析失败: ", json.get_error_message())
 		http_request.queue_free()
 		return "响应解析失败"
-	else:
-		http_request.queue_free()
-		return "API调用失败，错误代码: " + str(result[1])
+	http_request.queue_free()
+	return "API调用失败，错误代码: " + str(result[1])
 
 
 #region 豆包API响应类结构
