@@ -32,7 +32,7 @@ func _init() -> void:
 			"\t\"API_KEY\" = \"\",\n" +
 			"\t\"MODEL_NAME\" = \"doubao-seed-1-6-251015\",\n" +
 			"\t\"BASE_URL\" = \"https://ark.cn-beijing.volces.com/api/v3/chat/completions\",\n" +
-			"\t\"TIMEOUT\" = 30\n" +
+			"\t\"TIMEOUT\" = 600\n" +
 			"}",
 		)
 	
@@ -64,9 +64,8 @@ func 获取ai消息(content:String, role_words:BaseAi.RoleWords=基础ai_role)->
 	var request_body = {
 		"model": config["MODEL_NAME"],  # 模型名称
 		"messages": messages,
-		"temperature": 0.7,
-		"top_p": 0.95,
-		"max_tokens": 2000
+		"reasoning_effort": "medium",
+		"max_completion_tokens": 65535
 	}
 	
 	var json_body:String = JSON.stringify(request_body)
@@ -97,7 +96,7 @@ func 获取ai消息(content:String, role_words:BaseAi.RoleWords=基础ai_role)->
 		http_request.queue_free()
 		return "响应解析失败"
 	http_request.queue_free()
-	return "API调用失败，错误代码: " + str(result[1])
+	return "API调用失败，错误代码: " + str(result)
 
 
 #region 豆包API响应类结构

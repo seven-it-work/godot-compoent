@@ -6,7 +6,7 @@ func _ready() -> void:
 	AiDouBao.new()
 	var ai_dou_bao=AiDouBao.new()
 	add_child(ai_dou_bao)
-	var msg=await ai_dou_bao.获取ai消息("你好", BaseAi.RoleWords.new("""
+	var msg=await ai_dou_bao.获取ai消息("生成10个武器", BaseAi.RoleWords.new("""
 请严格按照以下要求生成修仙题材武器数据，输出为 JSON 对象，所有格式细节必须 100% 符合要求，否则生成结果无效：
 固定字段强制规范：
 "class_type"：固定值为 "BaseItemScope.WeaponItem"（无任何多余字符）。

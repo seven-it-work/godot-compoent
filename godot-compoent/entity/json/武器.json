@@ -1,0 +1,72 @@
+[
+  {
+    "class_type": "BaseItemScope.WeaponItem",
+    "name_str": "铁骨剑",
+    "desc_str": "凡铁锻造的基础长剑，剑身坚韧不易折断，适合初入修仙之路者使用。",
+    "rarity": 0,
+    "是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\nreturn 修仙者.get_level().get_value()>=5"
+  },
+  {
+    "class_type": "BaseItemScope.WeaponItem",
+    "name_str": "青风环",
+    "desc_str": "注入灵韵的青色玉环，挥动时带缕缕清风，能提升持有者的身法速度。",
+    "rarity": 1,
+    "是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\nreturn 修仙者.get_level().get_value()>=10"
+  },
+  {
+    "class_type": "BaseItemScope.WeaponItem",
+    "name_str": "炎狱刀",
+    "desc_str": "地底炎岩淬炼的长刀，刀身缠绕暗红火焰，挥砍时附带灼烧伤害。",
+    "rarity": 2,
+    "是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\nreturn 修仙者.get_level().get_value()>=20"
+  },
+  {
+    "class_type": "BaseItemScope.WeaponItem",
+    "name_str": "寒冰枪",
+    "desc_str": "极北冰原深处的玄冰所铸长枪，枪尖散发刺骨寒气，能冻结敌人经脉。",
+    "rarity": 3,
+    "是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\nreturn 修仙者.get_level().get_value()>=30"
+  },
+  {
+    "class_type": "BaseItemScope.WeaponItem",
+    "name_str": "紫电弓",
+    "desc_str": "由仙域雷木制成的长弓，射出的箭矢附带紫色雷电，可穿透多数防御。",
+    "rarity": 4,
+    "是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\nreturn 修仙者.get_level().get_value()>=50"
+  },
+  {
+    "class_type": "BaseItemScope.WeaponItem",
+    "name_str": "星辰杖",
+    "desc_str": "镶嵌星辰碎片的法杖，能引动星辰之力，释放大范围的AOE法术。",
+    "rarity": 5,
+    "是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\nreturn 修仙者.get_level().get_value()>=70"
+  },
+  {
+    "class_type": "BaseItemScope.WeaponItem",
+    "name_str": "鸿蒙斧",
+    "desc_str": "开天辟地遗留的帝器，斧刃蕴含鸿蒙之气，可破碎空间壁垒。",
+    "rarity": 6,
+    "是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\nreturn 修仙者.get_level().get_value()>=100"
+  },
+  {
+    "class_type": "BaseItemScope.WeaponItem",
+    "name_str": "木灵棍",
+    "desc_str": "百年古木雕刻而成的短棍，蕴含微弱木灵气，能辅助凝聚灵力。",
+    "rarity": 0,
+    "是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\nreturn 修仙者.get_level().get_value()>=5"
+  },
+  {
+    "class_type": "BaseItemScope.WeaponItem",
+    "name_str": "碧水剑",
+    "desc_str": "灵溪之水浸泡千年的长剑，剑刃泛着碧光，攻击时附带水属性伤害。",
+    "rarity": 1,
+    "是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\nreturn 修仙者.get_level().get_value()>=10"
+  },
+  {
+    "class_type": "BaseItemScope.WeaponItem",
+    "name_str": "赤砂锤",
+    "desc_str": "沙漠赤砂凝练的重锤，锤身沉重无比，砸击地面可引发沙暴。",
+    "rarity": 2,
+    "是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\nreturn 修仙者.get_level().get_value()>=20"
+  }
+]
