@@ -28,8 +28,8 @@ func _ready():
 		return
 	
 	print("武器创建成功: ", weapon.get_name_str())
-	print("攻击力: ", weapon.get_attack().get_value())
-	print("敏捷值: ", weapon.get_agility().get_value())
+	for i in weapon.get_valid_stats():
+		print("属性: ", i["name_str"], "值: ", i["value"].get_value(), "类型: ", i["type"])
 	print("动态方法已应用到武器对象")
 	var c=Cultivator.BaseCultivator.new()
 	print("是否能使用",weapon.是否能使用(c))

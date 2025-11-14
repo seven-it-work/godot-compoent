@@ -77,6 +77,7 @@ class BackpackItem:
 ## 基础物品对象
 @abstract class BaseItem:
 	var _name_str:String="":set=set_name_str,get=get_name_str
+	var _desc_str:String="":set=set_desc_str,get=get_desc_str
 	
 	# 生命值
 	var _health:BaseValue.GrowthValue:set=set_health,get=get_health
@@ -92,6 +93,10 @@ class BackpackItem:
 		return 修仙者!=null
 	#endregion
 	#region get/set 方法
+	func set_desc_str(new_value:String)->void:
+		_desc_str=new_value
+	func get_desc_str()->String:
+		return _desc_str
 	func set_health(new_value:BaseValue.GrowthValue)->void:
 		_health=new_value
 	func get_health()->BaseValue.GrowthValue:
@@ -167,7 +172,6 @@ class WeaponItem extends BaseItem:
 		SAINT = 5,   # 圣品
 		EMPEROR = 6  # 帝品
 	}
-	
 	# 稀有度名称映射
 	const rarity_names: Dictionary = {
 		RarityLevel.COMMON: "凡品",
@@ -198,6 +202,16 @@ class WeaponItem extends BaseItem:
 		RarityLevel.SAINT: [6, 7],
 		RarityLevel.EMPEROR: [7, 8]
 	}
+	# 稀有度对应的成长等级
+	const rarity_stat_lv: Dictionary = {
+		RarityLevel.COMMON: [1, 10],
+		RarityLevel.SPIRIT: [5, 20],
+		RarityLevel.EARTH: [10, 50],
+		RarityLevel.HEAVEN: [20, 100],
+		RarityLevel.IMMORTAL: [50, 500],
+		RarityLevel.SAINT: [100, 1000],
+		RarityLevel.EMPEROR: [500, 5000]
+	}
 	
 	# 稀有度等级
 	var _rarity: int = RarityLevel.COMMON
@@ -227,10 +241,12 @@ class WeaponItem extends BaseItem:
 		super._init(data)
 		# 从字典初始化基础属性
 		_rarity = data.get("rarity", RarityLevel.COMMON)
-		current_level = data.get("current_level", 1)
-		max_level = data.get("max_level", 10)
 		# 不允许提供预设属性，只能根据稀有度随机生成词条
 		generate_random_stats()
+		# 进行升级
+		var lv= data.get("current_level", 1)
+		for i in range(1,lv):
+			self.level_up()
 		
 	# 检查是否已有任何词条
 	func has_any_stats() -> bool:
@@ -238,9 +254,31 @@ class WeaponItem extends BaseItem:
 			flat_defense != null or percent_defense != null or \
 			flat_agility != null or percent_agility != null or \
 			flat_health != null or percent_health != null
+	## 获取有效的词条，返回结果：[{name_str:"中文名",value:对象,type:"flat_attack"或"percent_attack"等}]
+	func get_valid_stats() -> Array:
+		var stats=[]
+		if flat_attack != null:
+			stats.append({"name_str":"攻击力", "value":flat_attack, "type":"flat_attack"})
+		if percent_attack != null:
+			stats.append({"name_str":"攻击力", "value":percent_attack, "type":"percent_attack"})
+		if flat_defense != null:
+			stats.append({"name_str":"防御力", "value":flat_defense, "type":"flat_defense"})
+		if percent_defense != null:
+			stats.append({"name_str":"防御力", "value":percent_defense, "type":"percent_defense"})
+		if flat_agility != null:
+			stats.append({"name_str":"敏捷值", "value":flat_agility, "type":"flat_agility"})
+		if percent_agility != null:
+			stats.append({"name_str":"敏捷值", "value":percent_agility, "type":"percent_agility"})
+		if flat_health != null:
+			stats.append({"name_str":"生命值", "value":flat_health, "type":"flat_health"})
+		if percent_health != null:
+			stats.append({"name_str":"生命值", "value":percent_health, "type":"percent_health"})
+		return stats
 	
 	# 根据稀有度生成随机词条
 	func generate_random_stats():
+		# 通过稀有度获取最大成长等级
+		max_level=randi_range(rarity_stat_lv[_rarity][0],rarity_stat_lv[_rarity][1])
 		# 根据稀有度获取词条数量范围
 		var count_range = rarity_stat_count[_rarity]
 		var stat_count = randi_range(count_range[0], count_range[1])
@@ -259,7 +297,7 @@ class WeaponItem extends BaseItem:
 				
 			var random_index = randi_range(0, available_stats.size() - 1)
 			var stat_type = available_stats[random_index]
-			available_stats.remove(random_index)
+			available_stats.erase(random_index)
 			
 			# 根据词条类型初始化不同的基础值范围
 			var base_config = get_base_config_for_stat(stat_type)
@@ -310,7 +348,25 @@ class WeaponItem extends BaseItem:
 			"percent_agility": {"min_growth": 0.003, "max_growth": 0.015, "base_value": randf_range(0.005, 0.02)},
 			"percent_health": {"min_growth": 0.02, "max_growth": 0.05, "base_value": randf_range(0.02, 0.05)}
 		}
-		return configs[stat_type]
+		
+		# 获取基础配置的副本
+		var config = configs[stat_type].duplicate()
+		
+		# 根据词条类型设置不同的属性
+		if stat_type.begins_with("flat_health") or stat_type.begins_with("percent_health"):
+			# 生命值相关词条使用GrowthValue，设置initial_value
+			config["initial_value"] = config["base_value"]
+		else:
+			# 其他词条使用RandomGrowth，设置min_value和max_value
+			# 为RandomGrowth创建一个合理的范围
+			var base_val = config["base_value"]
+			var variation = base_val * 0.2  # 20%的变化范围
+			config["min_value"] = max(0.01, base_val - variation)
+			config["max_value"] = base_val + variation
+			# 移除不需要的base_value
+			config.erase("base_value")
+		
+		return config
 	
 	# 提升武器等级
 	func level_up() -> bool:

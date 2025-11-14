@@ -1,35 +1,7 @@
 {
   "class_type": "BaseItemScope.WeaponItem",
-	"name_str": "闪电剑",
-	"health": {
-	  "min_growth": 1,
-	  "max_growth": 3,
-	  "growth_factor": 0.5,
-	  "value": 10
-	},
-	"defense": {
-	  "min_value": 5,
-	  "max_value": 10,
-	  "min_growth": 0.5,
-	  "max_growth": 1.5,
-	  "growth_factor": 0.3,
-	  "value": 7
-	},
-	"attack": {
-	  "min_value": 20,
-	  "max_value": 30,
-	  "min_growth": 2,
-	  "max_growth": 4,
-	  "growth_factor": 0.8,
-	  "value": 25
-	},
-	"agility": {
-	  "min_value": 15,
-	  "max_value": 25,
-	  "min_growth": 1,
-	  "max_growth": 2,
-	  "growth_factor": 0.6,
-	  "value": 20
-	},
-  "是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\n\treturn 修仙者.get_level().get_value()>=10"
+  "name_str": "暗纹魂玉剑",
+  "desc_str": "由冥界边缘产出的魂玉雕琢剑身，剑脊刻有吞噬暗影纹，斩杀生灵后可吸收微量魂魄之力滋养自身，剑招暗含蚀灵效果，是暗影修士偏爱的利器",
+  "rarity": 3,
+  "是否能使用": "func 是否能使用(修仙者: Cultivator.BaseCultivator)->bool:\n\treturn 修仙者.get_level().get_value()>=50"
 }
