@@ -162,6 +162,50 @@ class DefaultItem extends  BaseItem:
 	pass
 ## 武器
 class WeaponItem extends BaseItem:
+	## 随机创建武器
+	static func random_weapon()->WeaponItem:
+		# 通过 res://entity/json/武器.json 来获取一批武器json
+		# 从文件读取JSON数据
+		var file = FileAccess.open("res://entity/json/武器.json", FileAccess.READ)
+		if file == null:
+			print("无法打开JSON文件")
+			return
+		# 然后pick_random一个 作为 json_data
+		var json_data = JSON.parse_string(file.get_as_text()).pick_random()
+		# 检查是否有class_type
+		if json_data.get("class_type", "") != "BaseItemScope.WeaponItem":
+			print("无效的物品类型")
+			return null
+		# 创建一个继承自WeaponItem的动态脚本
+		var weapon_script = GDScript.new()
+		# 构建脚本源代码
+		var can_use_func = json_data.get_or_add("是否能使用", "")
+		# var script_code = "extends BaseItemScope.WeaponItem\n\nconst BaseItemScope = preload(\"uid://4cukvnp1qadn\")\nconst Cultivator = preload(\"uid://biryomw8u6qck\")\nconst BaseValue = preload(\"uid://2ye25vjxabed\")\n" + can_use_func
+		# 字符串必须定格，不如脚本会有问题
+		var script_code =\
+"""
+extends BaseItemScope.WeaponItem
+const BaseItemScope = preload(\"uid://4cukvnp1qadn\")
+const Cultivator = preload(\"uid://biryomw8u6qck\")
+const BaseValue = preload(\"uid://2ye25vjxabed\")
+""" + can_use_func
+		
+		weapon_script.source_code = script_code
+		
+		# 编译脚本
+		var reload_error = weapon_script.reload()
+		if reload_error != OK:
+			print("武器脚本编译失败: ", error_string(reload_error))
+			return null
+		
+		# 创建武器实例
+		var weapon = weapon_script.new()
+		
+		# 应用属性
+		weapon._init(json_data)
+		return weapon
+
+
 	# 武器稀有度枚举
 	enum RarityLevel {
 		COMMON = 0,  # 凡品

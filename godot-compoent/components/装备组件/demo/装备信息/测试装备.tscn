@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://tbtknopptwkb"]
+
+[ext_resource type="PackedScene" uid="uid://7y1bygtje7xb" path="res://components/装备组件/装备.tscn" id="1_8qj1h"]
+[ext_resource type="Script" uid="uid://pf6xp5mahfjt" path="res://components/装备组件/demo/装备信息/测试装备.gd" id="1_us7a8"]
+
+[node name="测试装备" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_us7a8")
+
+[node name="装备" parent="." instance=ExtResource("1_8qj1h")]
+layout_mode = 1
+
+[node name="随机添加" type="Button" parent="."]
+layout_mode = 0
+offset_left = 556.0
+offset_top = 585.0
+offset_right = 698.0
+offset_bottom = 648.0
+text = "随机添加"
+
+[connection signal="pressed" from="随机添加" to="." method="_on_随机添加_pressed"]
