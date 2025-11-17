@@ -30,6 +30,8 @@ func _渲染_base_item()->void:
 	if is_node_ready():
 		if _base_item:
 			$Label.text=_base_item._name_str
+			if _base_item is BaseItemScope.WeaponItem:
+				print("武器")
 		else:
 			$Label.text=default_label_str
 

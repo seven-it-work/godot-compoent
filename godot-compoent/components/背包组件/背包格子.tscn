@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dehikb65o1cb2"]
 
-[ext_resource type="Script" uid="uid://da1t82uebiqkk" path="res://背包/背包格子.gd" id="1_mhba0"]
+[ext_resource type="Script" uid="uid://da1t82uebiqkk" path="res://components/背包组件/背包格子.gd" id="1_mhba0"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mhba0"]
 resource_local_to_scene = true
@@ -17,14 +17,17 @@ script = ExtResource("1_mhba0")
 
 [node name="Tips" type="PanelContainer" parent="Node"]
 unique_name_in_owner = true
-visible = false
-offset_right = 219.0
+offset_left = 52.0
+offset_right = 271.0
 offset_bottom = 93.0
 
 [node name="RichTextLabel" type="RichTextLabel" parent="Node/Tips"]
 layout_mode = 2
 text = "
-123123123123123123"
+测试"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Node/Tips"]
+layout_mode = 2
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 0
