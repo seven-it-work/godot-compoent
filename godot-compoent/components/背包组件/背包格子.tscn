@@ -22,7 +22,6 @@ offset_right = 271.0
 offset_bottom = 93.0
 
 [node name="RichTextLabel" type="RichTextLabel" parent="Node/Tips"]
-visible = false
 layout_mode = 2
 text = "
 测试"

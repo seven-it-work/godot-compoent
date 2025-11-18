@@ -3,6 +3,8 @@
 extends Panel
 
 const BaseItemScope = preload("uid://4cukvnp1qadn")
+const LabelAndValue = preload("res://components/成长属性组件/label_and_value.gd")
+const BaseValue = preload("uid://2ye25vjxabed")
 # 点击信号
 signal clicked(compartment, item)
 
@@ -32,11 +34,63 @@ func _渲染_base_item()->void:
 			$Label.text=_base_item._name_str
 			if _base_item is BaseItemScope.WeaponItem:
 				if %Tips:
+					# 隐藏所有子节点
 					for i in %Tips.get_children():
 						i.hide()
+					# 显示WeaponItem容器
 					%WeaponItem.show()
-					
-				print("武器")
+					# 清除WeaponItem中的现有子节点
+					for child in %WeaponItem.get_children():
+						child.queue_free()
+					# 创建武器名称标签
+					var weapon_name = Label.new()
+					weapon_name.text = _base_item._name_str
+					%WeaponItem.add_child(weapon_name)
+					# 添加稀有度信息
+					var rarity_label = LabelAndValue.new()
+					rarity_label.label = "稀有度:"
+					rarity_label.value = _base_item.get_rarity_name()
+					%WeaponItem.add_child(rarity_label)
+					# 添加等级信息
+					var level_label = LabelAndValue.new()
+					level_label.label = "等级:"
+					level_label.value = str(_base_item.current_level) + "/" + str(_base_item.max_level)
+					%WeaponItem.add_child(level_label)
+					# 添加分隔线
+					var separator = HSeparator.new()
+					separator.custom_minimum_size.x = 200
+					%WeaponItem.add_child(separator)
+					# 显示武器属性
+					var stats = _base_item.get_valid_stats()
+					for stat in stats:
+						var stat_label = LabelAndValue.new()
+						var stat_name = stat["name_str"]
+						var stat_value = stat["value"]
+						var stat_type = stat["type"]
+						
+						# 根据属性类型设置显示文本
+						if stat_type.begins_with("percent_"):
+							# 百分比属性
+							stat_label.label = stat_name + "(%):"
+							if stat_value is BaseValue.RandomGrowth:
+								stat_label.value = str(int(stat_value.get_value() * 100)) + "%"
+							elif stat_value is BaseValue.GrowthValue:
+								stat_label.value = str(int(stat_value.get_value() * 100)) + "%"
+						else:
+							# 具体数值属性
+							stat_label.label = stat_name + ":"
+							if stat_value is BaseValue.RandomGrowth:
+								stat_label.value = str(int(stat_value.get_value()))
+							elif stat_value is BaseValue.GrowthValue:
+								stat_label.value = str(int(stat_value.get_value()))
+						
+						%WeaponItem.add_child(stat_label)
+			else:
+				if %Tips:
+					for i in %Tips.get_children():
+						i.hide()
+					%Tips.get_child(0).show()
+					%Tips.get_child(0).text = _base_item._name_str + "\n" + _base_item._desc_str
 		else:
 			$Label.text=default_label_str
 

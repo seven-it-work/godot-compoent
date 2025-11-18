@@ -22,6 +22,8 @@ func set_value(new_v:String) -> void:
 #endregion
 
 func 渲染() -> void:
+	if not is_node_ready():
+		return
 	if $Label:
 		$Label.text=label
 	if $Value:

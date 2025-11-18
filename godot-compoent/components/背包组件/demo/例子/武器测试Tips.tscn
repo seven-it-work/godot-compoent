@@ -1,0 +1,43 @@
+[gd_scene load_steps=4 format=3 uid="uid://d2y4qg1qgdlko"]
+
+[ext_resource type="PackedScene" uid="uid://dehikb65o1cb2" path="res://components/背包组件/背包格子.tscn" id="2_40uhq"]
+[ext_resource type="Script" uid="uid://bqed7m540k6vy" path="res://components/背包组件/demo/例子/武器测试Tips.gd" id="2_d3w0o"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7fs0p"]
+resource_local_to_scene = true
+
+[node name="武器测试Tips" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("2_d3w0o")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "武器Tips测试示例"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 2
+text = "将鼠标悬停在下面的背包格子上查看武器详细属性："
+vertical_alignment = 1
+
+[node name="背包格子" parent="VBoxContainer/HBoxContainer" instance=ExtResource("2_40uhq")]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_7fs0p")
+
+[node name="Button" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "生成新武器"
+
+[connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_button_pressed"]
