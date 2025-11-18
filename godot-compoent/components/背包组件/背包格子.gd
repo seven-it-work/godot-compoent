@@ -1,4 +1,4 @@
-@tool
+#@tool
 ## 背包格子
 extends Panel
 

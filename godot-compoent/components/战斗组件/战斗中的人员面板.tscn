@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://c4g5kna40eker"]
+[gd_scene load_steps=5 format=3 uid="uid://c4g5kna40eker"]
 
-[ext_resource type="PackedScene" uid="uid://demwadgunawnc" path="res://成长属性/成长属性组件.tscn" id="1_5lwf2"]
-[ext_resource type="Script" uid="uid://lelkxi50n8l6" path="res://战斗/战斗中的人员面板.gd" id="1_gxru8"]
+[ext_resource type="Script" uid="uid://lelkxi50n8l6" path="res://components/战斗组件/战斗中的人员面板.gd" id="1_gxru8"]
+[ext_resource type="PackedScene" uid="uid://cuf3174toq15m" path="res://components/成长属性组件/LabelAndValue.tscn" id="2_f5bmu"]
+[ext_resource type="PackedScene" uid="uid://174dioqcn4h0" path="res://components/成长属性组件/GrowthAttributeComponent.tscn" id="4_nut17"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gxru8"]
 bg_color = Color(0, 0, 0, 0.8627451)
@@ -14,37 +15,52 @@ script = ExtResource("1_gxru8")
 visible = false
 layout_mode = 2
 
-[node name="名称" type="HBoxContainer" parent="VBoxContainer"]
+[node name="名称" parent="VBoxContainer" instance=ExtResource("2_f5bmu")]
 layout_mode = 2
+label = "名称"
 
-[node name="Key" type="Label" parent="VBoxContainer/名称"]
+[node name="Label" parent="VBoxContainer/名称" index="0"]
+text = "名称"
+
+[node name="境界" parent="VBoxContainer" instance=ExtResource("2_f5bmu")]
 layout_mode = 2
-text = "名称："
+label = "境界"
 
-[node name="Value" type="Label" parent="VBoxContainer/名称"]
+[node name="Label" parent="VBoxContainer/境界" index="0"]
+text = "境界"
+
+[node name="生命值" parent="VBoxContainer" instance=ExtResource("4_nut17")]
 layout_mode = 2
-text = "月花仙子"
+label = "生命值"
 
-[node name="境界" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
+[node name="Label" parent="VBoxContainer/生命值" index="0"]
+text = "生命值"
 
-[node name="Key" type="Label" parent="VBoxContainer/境界"]
-layout_mode = 2
-text = "境界："
+[node name="Value" parent="VBoxContainer/生命值" index="1"]
+visible = false
 
-[node name="Value" type="Label" parent="VBoxContainer/境界"]
-layout_mode = 2
-text = "练气期1层"
+[node name="ProgressBar" parent="VBoxContainer/生命值" index="2"]
+visible = false
 
-[node name="生命值" parent="VBoxContainer" instance=ExtResource("1_5lwf2")]
-layout_mode = 2
-label = "生命值："
-
-[node name="灵气值" parent="VBoxContainer" instance=ExtResource("1_5lwf2")]
+[node name="灵气值" parent="VBoxContainer" instance=ExtResource("4_nut17")]
 layout_mode = 2
 label = "灵气值"
+
+[node name="Label" parent="VBoxContainer/灵气值" index="0"]
+text = "灵气值"
+
+[node name="Value" parent="VBoxContainer/灵气值" index="1"]
+visible = false
+
+[node name="ProgressBar" parent="VBoxContainer/灵气值" index="2"]
+visible = false
 
 [node name="冷却" type="Panel" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_gxru8")
+
+[editable path="VBoxContainer/名称"]
+[editable path="VBoxContainer/境界"]
+[editable path="VBoxContainer/生命值"]
+[editable path="VBoxContainer/灵气值"]

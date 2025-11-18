@@ -21,3 +21,9 @@ func _on_changed() -> void:
 	if _label:
 		_label.size=self.size
 		_label.text="%s/%s"%[value,max_value]
+
+
+func _on_value_changed(newValue: float) -> void:
+	if _label:
+		_label.size=self.size
+		_label.text="%s/%s"%[newValue,max_value]

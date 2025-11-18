@@ -36,14 +36,14 @@ func update_ui() -> void:
 	update_cool_down_ui()
 	
 	# 更新名称
-	var nameValue = $"VBoxContainer/名称/Value"
+	var nameValue = $"VBoxContainer/名称"
 	if nameValue:
-		nameValue.text = _cultivator.get_name_str()
+		nameValue.set_value(_cultivator.get_name_str())
 	
 	# 更新境界
-	var levelValue = $"VBoxContainer/境界/Value"
+	var levelValue = $"VBoxContainer/境界"
 	if levelValue:
-		levelValue.text = "练气期" + str(_cultivator.get_level().get_value()) + "层"
+		levelValue.set_value("练气期" + str(_cultivator.get_level().get_value()) + "层")
 	
 	# 更新生命值
 	var healthNode = $"VBoxContainer/生命值"

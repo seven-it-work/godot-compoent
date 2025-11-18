@@ -31,5 +31,4 @@ func _notification(what: int) -> void:
 			_label.min_font_size=8
 			_label.max_font_size=32
 			_label.padding_percentage=0.9
-			print("编辑器保存通知")
 			_label.adjust_font_size()

@@ -1,0 +1,80 @@
+[gd_scene load_steps=5 format=3 uid="uid://4qb27ylyyabi"]
+
+[ext_resource type="Script" uid="uid://knyxdurlorp7" path="res://components/成长属性组件/demo/test_成长属性组件.gd" id="1_bvoqu"]
+[ext_resource type="PackedScene" uid="uid://174dioqcn4h0" path="res://components/成长属性组件/GrowthAttributeComponent.tscn" id="2_3umqb"]
+[ext_resource type="PackedScene" uid="uid://dho0mer3lviuj" path="res://components/自动大小Label/自动大小ProgressTextBar.tscn" id="3_gqei5"]
+
+[sub_resource type="GDScript" id="GDScript_3umqb"]
+script/source = "extends GrowthAttributeComponent
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+
+
+## 渲染成长属性的显示内容
+func 渲染() -> void:
+	if not is_node_ready():
+		return
+	if $Label:
+		$Label.text=label
+	if $自动大小ProgressTextBar:
+		var growth=get_growth_property()
+		$自动大小ProgressTextBar.min_value=growth.get_min_value()
+		$自动大小ProgressTextBar.max_value=growth.get_max_value()
+		$自动大小ProgressTextBar.value=growth.get_value()
+"
+
+[node name="Test成长属性组件" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_bvoqu")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GrowthAttributeComponent" parent="VBoxContainer" instance=ExtResource("2_3umqb")]
+layout_mode = 2
+label = "测试属性1"
+
+[node name="GrowthAttributeComponent2" parent="VBoxContainer" instance=ExtResource("2_3umqb")]
+layout_mode = 2
+label = "测试进度条"
+
+[node name="GrowthAttributeComponent3" parent="VBoxContainer" instance=ExtResource("2_3umqb")]
+layout_mode = 2
+label = "测试随机数"
+
+[node name="GrowthAttributeComponent4" parent="VBoxContainer" instance=ExtResource("2_3umqb")]
+layout_mode = 2
+script = SubResource("GDScript_3umqb")
+label = "测试自定义组件"
+
+[node name="Label" parent="VBoxContainer/GrowthAttributeComponent4" index="0"]
+text = "测试自定义组件"
+
+[node name="Value" parent="VBoxContainer/GrowthAttributeComponent4" index="1"]
+visible = false
+
+[node name="ProgressBar" parent="VBoxContainer/GrowthAttributeComponent4" index="2"]
+visible = false
+
+[node name="自动大小ProgressTextBar" parent="VBoxContainer/GrowthAttributeComponent4" instance=ExtResource("3_gqei5")]
+layout_mode = 2
+
+[editable path="VBoxContainer/GrowthAttributeComponent4"]

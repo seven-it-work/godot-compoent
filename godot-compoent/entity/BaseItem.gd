@@ -164,6 +164,11 @@ class DefaultItem extends  BaseItem:
 class WeaponItem extends BaseItem:
 	## 随机创建武器
 	static func random_weapon()->WeaponItem:
+		# 加载script_code
+		var script_code = FileAccess.open("res://entity/script_code/WeaponItem.text", FileAccess.READ).get_as_text()
+		if script_code == null:
+			print("无法打开WeaponItem脚本文件")
+			return
 		# 通过 res://entity/json/武器.json 来获取一批武器json
 		# 从文件读取JSON数据
 		var file = FileAccess.open("res://entity/json/武器.json", FileAccess.READ)
@@ -180,17 +185,7 @@ class WeaponItem extends BaseItem:
 		var weapon_script = GDScript.new()
 		# 构建脚本源代码
 		var can_use_func = json_data.get_or_add("是否能使用", "")
-		# var script_code = "extends BaseItemScope.WeaponItem\n\nconst BaseItemScope = preload(\"uid://4cukvnp1qadn\")\nconst Cultivator = preload(\"uid://biryomw8u6qck\")\nconst BaseValue = preload(\"uid://2ye25vjxabed\")\n" + can_use_func
-		# 字符串必须定格，不如脚本会有问题
-		var script_code =\
-"""
-extends BaseItemScope.WeaponItem
-const BaseItemScope = preload(\"uid://4cukvnp1qadn\")
-const Cultivator = preload(\"uid://biryomw8u6qck\")
-const BaseValue = preload(\"uid://2ye25vjxabed\")
-""" + can_use_func
-		
-		weapon_script.source_code = script_code
+		weapon_script.source_code = script_code+"\n"+can_use_func
 		
 		# 编译脚本
 		var reload_error = weapon_script.reload()
@@ -199,12 +194,8 @@ const BaseValue = preload(\"uid://2ye25vjxabed\")
 			return null
 		
 		# 创建武器实例
-		var weapon = weapon_script.new()
-		
-		# 应用属性
-		weapon._init(json_data)
+		var weapon = weapon_script.new(json_data)
 		return weapon
-
 
 	# 武器稀有度枚举
 	enum RarityLevel {
