@@ -31,6 +31,11 @@ func _渲染_base_item()->void:
 		if _base_item:
 			$Label.text=_base_item._name_str
 			if _base_item is BaseItemScope.WeaponItem:
+				if %Tips:
+					for i in %Tips.get_children():
+						i.hide()
+					%WeaponItem.show()
+					
 				print("武器")
 		else:
 			$Label.text=default_label_str

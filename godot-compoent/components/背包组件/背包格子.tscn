@@ -28,6 +28,7 @@ text = "
 测试"
 
 [node name="WeaponItem" type="VBoxContainer" parent="Node/Tips"]
+unique_name_in_owner = true
 layout_mode = 2
 
 [node name="Label" type="Label" parent="."]
