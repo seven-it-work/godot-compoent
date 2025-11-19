@@ -2,9 +2,9 @@
 ## 背包格子
 extends Panel
 
-const BaseItemScope = preload("uid://4cukvnp1qadn")
+const BaseItemScope = preload("res://entity/BaseItem.gd")
 const LabelAndValue = preload("res://components/成长属性组件/label_and_value.gd")
-const BaseValue = preload("uid://2ye25vjxabed")
+const BaseValue = preload("res://components/成长属性组件/基础成长.gd")
 # 点击信号
 signal clicked(compartment, item)
 
@@ -39,52 +39,56 @@ func _渲染_base_item()->void:
 						i.hide()
 					# 显示WeaponItem容器
 					%WeaponItem.show()
-					# 清除WeaponItem中的现有子节点
-					for child in %WeaponItem.get_children():
-						child.queue_free()
-					# 创建武器名称标签
-					var weapon_name = Label.new()
-					weapon_name.text = _base_item._name_str
-					%WeaponItem.add_child(weapon_name)
-					# 添加稀有度信息
-					var rarity_label = LabelAndValue.new()
-					rarity_label.label = "稀有度:"
-					rarity_label.value = _base_item.get_rarity_name()
-					%WeaponItem.add_child(rarity_label)
-					# 添加等级信息
-					var level_label = LabelAndValue.new()
-					level_label.label = "等级:"
-					level_label.value = str(_base_item.current_level) + "/" + str(_base_item.max_level)
-					%WeaponItem.add_child(level_label)
-					# 添加分隔线
-					var separator = HSeparator.new()
-					separator.custom_minimum_size.x = 200
-					%WeaponItem.add_child(separator)
-					# 显示武器属性
-					var stats = _base_item.get_valid_stats()
-					for stat in stats:
-						var stat_label = LabelAndValue.new()
-						var stat_name = stat["name_str"]
-						var stat_value = stat["value"]
-						var stat_type = stat["type"]
-						
-						# 根据属性类型设置显示文本
-						if stat_type.begins_with("percent_"):
-							# 百分比属性
-							stat_label.label = stat_name + "(%):"
-							if stat_value is BaseValue.RandomGrowth:
-								stat_label.value = str(int(stat_value.get_value() * 100)) + "%"
-							elif stat_value is BaseValue.GrowthValue:
-								stat_label.value = str(int(stat_value.get_value() * 100)) + "%"
-						else:
-							# 具体数值属性
-							stat_label.label = stat_name + ":"
-							if stat_value is BaseValue.RandomGrowth:
-								stat_label.value = str(int(stat_value.get_value()))
-							elif stat_value is BaseValue.GrowthValue:
-								stat_label.value = str(int(stat_value.get_value()))
-						
-						%WeaponItem.add_child(stat_label)
+					# 设置武器名称
+					%WeaponItem.get_node("名称").set_value(_base_item.get_name_str())
+					# 设置武器稀有度
+					%WeaponItem.get_node("稀有度").set_value(BaseItemScope.WeaponItem.rarity_names.get(_base_item._rarity))
+					# 设置武器等级
+					%WeaponItem.get_node("等级").set_value(str(_base_item.current_level))
+					# 设置武器攻击属性
+					if _base_item.flat_attack:
+						%WeaponItem.get_node("flat_attack").show()
+						%WeaponItem.get_node("flat_attack").set_value("%.1f~%.1f" % [_base_item.flat_attack.get_min_value(), _base_item.flat_attack.get_max_value()])
+					else:
+						%WeaponItem.get_node("flat_attack").hide()
+					if _base_item.percent_attack:
+						%WeaponItem.get_node("percent_attack").show()
+						%WeaponItem.get_node("percent_attack").set_value("%.1f%%~%.1f%%" % [_base_item.percent_attack.get_min_value()*100, _base_item.percent_attack.get_max_value()*100])
+					else:
+						%WeaponItem.get_node("percent_attack").hide()
+					# 设置武器防御属性
+					if _base_item.flat_defense:
+						%WeaponItem.get_node("flat_defense").show()
+						%WeaponItem.get_node("flat_defense").set_value("%.1f~%.1f" % [_base_item.flat_defense.get_min_value(), _base_item.flat_defense.get_max_value()])
+					else:
+						%WeaponItem.get_node("flat_defense").hide()
+					if _base_item.percent_defense:
+						%WeaponItem.get_node("percent_defense").show()
+						%WeaponItem.get_node("percent_defense").set_value("%.1f%%~%.1f%%" % [_base_item.percent_defense.get_min_value()*100, _base_item.percent_defense.get_max_value()*100])
+					else:
+						%WeaponItem.get_node("percent_defense").hide()
+					# 设置武器敏捷属性
+					if _base_item.flat_agility:
+						%WeaponItem.get_node("flat_agility").show()
+						%WeaponItem.get_node("flat_agility").set_value("%.1f~%.1f" % [_base_item.flat_agility.get_min_value(), _base_item.flat_agility.get_max_value()])
+					else:
+						%WeaponItem.get_node("flat_agility").hide()
+					if _base_item.percent_agility:
+						%WeaponItem.get_node("percent_agility").show()
+						%WeaponItem.get_node("percent_agility").set_value("%.1f%%~%.1f%%" % [_base_item.percent_agility.get_min_value()*100, _base_item.percent_agility.get_max_value()*100])
+					else:
+						%WeaponItem.get_node("percent_agility").hide()
+					# 设置武器生命值属性
+					if _base_item.flat_health:
+						%WeaponItem.get_node("flat_health").show()
+						%WeaponItem.get_node("flat_health").set_value("%.1f"%_base_item.flat_health.get_value())
+					else:
+						%WeaponItem.get_node("flat_health").hide()
+					if _base_item.percent_health:
+						%WeaponItem.get_node("percent_health").show()
+						%WeaponItem.get_node("percent_health").set_value("%.1f%%" % [_base_item.percent_health.get_value()*100])
+					else:
+						%WeaponItem.get_node("percent_health").hide()
 			else:
 				if %Tips:
 					for i in %Tips.get_children():
@@ -93,6 +97,12 @@ func _渲染_base_item()->void:
 					%Tips.get_child(0).text = _base_item._name_str + "\n" + _base_item._desc_str
 		else:
 			$Label.text=default_label_str
+		# 将Tips的高度，设置为最小的高度
+		for i in %Tips.get_children():
+			if i.visible:
+				%Tips.size=i.size
+
+		
 
 func _process(delta: float) -> void:
 	_process_tips_close()

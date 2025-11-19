@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://ukcu6dvw42bf"]
+
+[ext_resource type="Script" uid="uid://d37ablb74h8it" path="res://components/成长属性组件/demo/test_label_and_value.gd" id="1_fug5k"]
+[ext_resource type="PackedScene" uid="uid://bj6bbpnuwn81w" path="res://components/成长属性组件/LabelAndValue.tscn" id="2_pstuc"]
+
+[node name="TestLabelAndValue" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_fug5k")
+
+[node name="LabelAndValue" parent="." instance=ExtResource("2_pstuc")]
+layout_mode = 0
+label = "攻击力："
+value = "1~10"

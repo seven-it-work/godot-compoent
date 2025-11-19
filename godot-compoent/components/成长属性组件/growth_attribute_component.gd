@@ -2,7 +2,7 @@
 extends LabelAndValue
 class_name GrowthAttributeComponent
 
-const BaseValue = preload("uid://2ye25vjxabed")
+const BaseValue = preload("res://components/成长属性组件/基础成长.gd")
 
 ## 成长属性对象
 var _growth_property:BaseValue.GrowthValue: get= get_growth_property, set = set_growth_property

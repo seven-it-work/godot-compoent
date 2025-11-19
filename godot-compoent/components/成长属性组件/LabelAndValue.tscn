@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://cuf3174toq15m"]
+[gd_scene load_steps=2 format=3 uid="uid://bj6bbpnuwn81w"]
 
 [ext_resource type="Script" uid="uid://c3jli8n6fvinh" path="res://components/成长属性组件/label_and_value.gd" id="1_b3yda"]
 

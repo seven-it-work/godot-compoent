@@ -197,6 +197,7 @@ class WeaponItem extends BaseItem:
 		var weapon = weapon_script.new(json_data)
 		return weapon
 
+	#region 常量
 	# 武器稀有度枚举
 	enum RarityLevel {
 		COMMON = 0,  # 凡品
@@ -247,6 +248,7 @@ class WeaponItem extends BaseItem:
 		RarityLevel.SAINT: [100, 1000],
 		RarityLevel.EMPEROR: [500, 5000]
 	}
+	#endregion
 	
 	# 稀有度等级
 	var _rarity: int = RarityLevel.COMMON

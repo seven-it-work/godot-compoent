@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://deb638csxu41b"]
+
+[ext_resource type="Script" uid="uid://duvpcoqxiru3m" path="res://components/成长属性组件/demo/test_growth_attribute.gd" id="1_testscript"]
+[ext_resource type="PackedScene" uid="uid://clwa60uhum0wv" path="res://components/成长属性组件/GrowthAttributeComponent.tscn" id="2_growthcomponent"]
+
+[node name="TestGrowthAttribute" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_testscript")
+
+[node name="GrowthAttributeComponent" parent="." instance=ExtResource("2_growthcomponent")]
+layout_mode = 0
+offset_right = 145.0
+offset_bottom = 23.0
+label = "攻击力："
+
+[node name="GrowthAttributeComponent2" parent="." instance=ExtResource("2_growthcomponent")]
+layout_mode = 0
+offset_top = 30.0
+offset_right = 152.0
+offset_bottom = 53.0
+label = "攻击力："

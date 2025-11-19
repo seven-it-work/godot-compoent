@@ -5,6 +5,8 @@ class_name LabelAndValue
 @export var label:String="":get=get_label,set=set_label
 @export var value:String="":get=get_value,set=set_value
 
+@onready var label_ui:Label=$Label
+
 func _ready() -> void:
 	渲染()
 
@@ -24,7 +26,7 @@ func set_value(new_v:String) -> void:
 func 渲染() -> void:
 	if not is_node_ready():
 		return
-	if $Label:
-		$Label.text=label
+	if label_ui:
+		label_ui.text=label
 	if $Value:
 		$Value.text=value

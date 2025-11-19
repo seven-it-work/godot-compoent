@@ -1,12 +1,16 @@
-[gd_scene load_steps=3 format=3 uid="uid://174dioqcn4h0"]
+[gd_scene load_steps=3 format=3 uid="uid://clwa60uhum0wv"]
 
-[ext_resource type="PackedScene" uid="uid://cuf3174toq15m" path="res://components/成长属性组件/LabelAndValue.tscn" id="1_vq85x"]
+[ext_resource type="PackedScene" uid="uid://bj6bbpnuwn81w" path="res://components/成长属性组件/LabelAndValue.tscn" id="1_vq85x"]
 [ext_resource type="Script" uid="uid://b7cm887p72lmp" path="res://components/成长属性组件/growth_attribute_component.gd" id="2_gudw5"]
 
 [node name="GrowthAttributeComponent" instance=ExtResource("1_vq85x")]
 script = ExtResource("2_gudw5")
 
+[node name="Value" parent="." index="1"]
+visible = false
+
 [node name="ProgressBar" type="ProgressBar" parent="." index="2"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
