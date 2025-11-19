@@ -1,9 +1,8 @@
-#@tool
+@tool
 ## 背包格子
 extends Panel
 
 const BaseItemScope = preload("res://entity/BaseItem.gd")
-const LabelAndValue = preload("res://components/成长属性组件/label_and_value.gd")
 const BaseValue = preload("res://components/成长属性组件/基础成长.gd")
 # 点击信号
 signal clicked(compartment, item)
@@ -116,7 +115,38 @@ func _process_tips_close():
 func _on_mouse_entered() -> void:
 	if _base_item:
 		%Tips.show()
-		%Tips.global_position=get_global_mouse_position()
+		# 更新Tips尺寸确保准确计算
+		_update_tips_size()
+		var mouse_pos = get_global_mouse_position()
+		var tips_size = %Tips.size
+		var viewport_end = get_viewport().get_visible_rect().size
+		
+		var target_pos: Vector2
+		
+		# 智能定位逻辑：优先右侧展示，右侧空间不足则左侧展示
+		var has_space_right = mouse_pos.x + tips_size.x <= viewport_end.x
+		if has_space_right:
+			# 右侧展示，优先下方，下方不足则上方
+			if mouse_pos.y + tips_size.y <= viewport_end.y:
+				# 右侧下方
+				target_pos = Vector2(mouse_pos.x , mouse_pos.y )
+			else:
+				# 右侧上方
+				target_pos = Vector2(mouse_pos.x, mouse_pos.y - tips_size.y )
+		else:
+			# 左侧展示，优先下方，下方不足则上方
+			if mouse_pos.y  + tips_size.y <= viewport_end.y:
+				# 左侧下方
+				target_pos = Vector2(mouse_pos.x - tips_size.x , mouse_pos.y )
+			else:
+				# 左侧上方
+				target_pos = Vector2(mouse_pos.x - tips_size.x , mouse_pos.y - tips_size.y )
+		
+		# 确保Tooltip始终在视口内
+		target_pos.x = clamp(target_pos.x, 0, viewport_end.x - tips_size.x)
+		target_pos.y = clamp(target_pos.y, 0, viewport_end.y - tips_size.y)
+		
+		%Tips.global_position = target_pos
 
 
 func _on_mouse_exited() -> void:
