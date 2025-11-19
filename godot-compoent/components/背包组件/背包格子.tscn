@@ -1,10 +1,17 @@
-[gd_scene load_steps=4 format=3 uid="uid://dehikb65o1cb2"]
+[gd_scene load_steps=5 format=3 uid="uid://dehikb65o1cb2"]
 
 [ext_resource type="Script" uid="uid://da1t82uebiqkk" path="res://components/背包组件/背包格子.gd" id="1_mhba0"]
 [ext_resource type="PackedScene" uid="uid://bj6bbpnuwn81w" path="res://components/成长属性组件/LabelAndValue.tscn" id="2_2ry35"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mhba0"]
 resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2ry35"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.422371, 0.422371, 0.422371, 1)
 
 [node name="背包格子" type="Panel"]
 clip_contents = true
@@ -21,6 +28,7 @@ unique_name_in_owner = true
 offset_left = 52.0
 offset_right = 52.0
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_2ry35")
 
 [node name="ShieldItem" type="VBoxContainer" parent="Node/Tips"]
 visible = false
@@ -32,7 +40,6 @@ label = "名称："
 
 [node name="WeaponItem" type="VBoxContainer" parent="Node/Tips"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 
 [node name="名称" parent="Node/Tips/WeaponItem" instance=ExtResource("2_2ry35")]
@@ -40,42 +47,52 @@ layout_mode = 2
 label = "名称："
 
 [node name="稀有度" parent="Node/Tips/WeaponItem" instance=ExtResource("2_2ry35")]
+visible = false
 layout_mode = 2
 label = "稀有度："
 
 [node name="等级" parent="Node/Tips/WeaponItem" instance=ExtResource("2_2ry35")]
+visible = false
 layout_mode = 2
 label = "等级："
 
 [node name="flat_attack" parent="Node/Tips/WeaponItem" instance=ExtResource("2_2ry35")]
+visible = false
 layout_mode = 2
 label = "基础攻击力："
 
 [node name="percent_attack" parent="Node/Tips/WeaponItem" instance=ExtResource("2_2ry35")]
+visible = false
 layout_mode = 2
 label = "攻击力加成："
 
 [node name="flat_defense" parent="Node/Tips/WeaponItem" instance=ExtResource("2_2ry35")]
+visible = false
 layout_mode = 2
 label = "基础防御力："
 
 [node name="percent_defense" parent="Node/Tips/WeaponItem" instance=ExtResource("2_2ry35")]
+visible = false
 layout_mode = 2
 label = "防御力加成："
 
 [node name="flat_agility" parent="Node/Tips/WeaponItem" instance=ExtResource("2_2ry35")]
+visible = false
 layout_mode = 2
 label = "基础敏捷性："
 
 [node name="percent_agility" parent="Node/Tips/WeaponItem" instance=ExtResource("2_2ry35")]
+visible = false
 layout_mode = 2
 label = "敏捷性加成："
 
 [node name="flat_health" parent="Node/Tips/WeaponItem" instance=ExtResource("2_2ry35")]
+visible = false
 layout_mode = 2
 label = "基础生命值："
 
 [node name="percent_health" parent="Node/Tips/WeaponItem" instance=ExtResource("2_2ry35")]
+visible = false
 layout_mode = 2
 label = "生命值加成："
 

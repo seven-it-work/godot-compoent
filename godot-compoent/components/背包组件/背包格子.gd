@@ -97,16 +97,18 @@ func _渲染_base_item()->void:
 					%Tips.get_child(0).text = _base_item._name_str + "\n" + _base_item._desc_str
 		else:
 			$Label.text=default_label_str
-		# 将Tips的高度，设置为最小的高度
-		for i in %Tips.get_children():
-			if i.visible:
-				%Tips.size=i.size
-
+		# 延迟更新Tips大小以确保容器已调整
+		_update_tips_size()
 		
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	_process_tips_close()
 	pass
+
+func _update_tips_size():
+	for i in %Tips.get_children():
+		if i.visible:
+			%Tips.size = i.get_minimum_size()
 
 func _process_tips_close():
 	if %Tips and %Tips.visible:

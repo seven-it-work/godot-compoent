@@ -11,7 +11,7 @@ func generate_random_weapon() -> void:
 	# 生成随机武器并设置到背包格子中
 	var weapon = BaseItemScope.WeaponItem.random_weapon()
 	if weapon:
-		$VBoxContainer/HBoxContainer/背包格子.set_base_item(weapon)
+		%背包格子.set_base_item(weapon)
 	else:
 		print("无法生成随机武器")
 
