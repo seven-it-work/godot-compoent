@@ -110,4 +110,6 @@ popup/item_9/id = 9
 popup/item_10/text = "其他"
 popup/item_10/id = 10
 
+[connection signal="选择装备栏信号" from="MarginContainer" to="." method="_on_margin_container_选择装备栏信号"]
 [connection signal="pressed" from="HBoxContainer/装备" to="." method="_on_装备_pressed"]
+[connection signal="item_selected" from="HBoxContainer/筛选" to="." method="_on_筛选_item_selected"]
