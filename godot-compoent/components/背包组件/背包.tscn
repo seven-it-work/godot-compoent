@@ -1,7 +1,55 @@
-[gd_scene load_steps=3 format=3 uid="uid://snkw6mikkfyq"]
+[gd_scene load_steps=19 format=3 uid="uid://snkw6mikkfyq"]
 
-[ext_resource type="Script" uid="uid://bo5yq44dywrje" path="res://背包/背包.gd" id="1_cspth"]
-[ext_resource type="PackedScene" uid="uid://dehikb65o1cb2" path="res://背包/背包格子.tscn" id="2_kyrxp"]
+[ext_resource type="Script" uid="uid://bo5yq44dywrje" path="res://components/背包组件/背包.gd" id="1_cspth"]
+[ext_resource type="PackedScene" uid="uid://dehikb65o1cb2" path="res://components/背包组件/背包格子.tscn" id="2_kyrxp"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dg2gu"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nbwkq"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bp558"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_aamam"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tqj8y"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1xtb7"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1r16u"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ykpr4"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dn6ka"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rkyrn"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hwsgo"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bwps6"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_83ql1"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_abit8"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w5lrl"]
+resource_local_to_scene = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kvyl2"]
+resource_local_to_scene = true
 
 [node name="背包" type="Panel"]
 clip_contents = true
@@ -26,48 +74,64 @@ columns = 5
 
 [node name="背包格子" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dg2gu")
 
 [node name="背包格子2" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_nbwkq")
 
 [node name="背包格子3" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bp558")
 
 [node name="背包格子4" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_aamam")
 
 [node name="背包格子5" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_tqj8y")
 
 [node name="背包格子6" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_1xtb7")
 
 [node name="背包格子7" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_1r16u")
 
 [node name="背包格子8" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ykpr4")
 
 [node name="背包格子9" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dn6ka")
 
 [node name="背包格子10" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_rkyrn")
 
 [node name="背包格子11" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hwsgo")
 
 [node name="背包格子12" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bwps6")
 
 [node name="背包格子13" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_83ql1")
 
 [node name="背包格子14" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_abit8")
 
 [node name="背包格子15" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_w5lrl")
 
 [node name="背包格子16" parent="ScrollContainer/GridContainer" instance=ExtResource("2_kyrxp")]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_kvyl2")

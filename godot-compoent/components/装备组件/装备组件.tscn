@@ -1,6 +1,7 @@
-[gd_scene load_steps=11 format=3 uid="uid://c38g8o5r4dgs2"]
+[gd_scene load_steps=12 format=3 uid="uid://c38g8o5r4dgs2"]
 
-[ext_resource type="PackedScene" uid="uid://dehikb65o1cb2" path="res://背包/背包格子.tscn" id="1_pify5"]
+[ext_resource type="Script" uid="uid://dilkpj6unyf2h" path="res://components/装备组件/装备组件.gd" id="1_7a03d"]
+[ext_resource type="PackedScene" uid="uid://dehikb65o1cb2" path="res://components/背包组件/背包格子.tscn" id="1_pify5"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m02jb"]
 resource_local_to_scene = true
@@ -31,6 +32,7 @@ resource_local_to_scene = true
 [node name="MarginContainer" type="PanelContainer"]
 offset_right = 154.0
 offset_bottom = 212.0
+script = ExtResource("1_7a03d")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
@@ -112,3 +114,12 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_qp5dh")
 default_label_str = "项链"
+
+[connection signal="clicked" from="VBoxContainer/HBoxContainer/武器" to="." method="_on_武器_clicked"]
+[connection signal="clicked" from="VBoxContainer/HBoxContainer/护盾" to="." method="_on_护盾_clicked"]
+[connection signal="clicked" from="VBoxContainer/HBoxContainer2/头盔" to="." method="_on_头盔_clicked"]
+[connection signal="clicked" from="VBoxContainer/HBoxContainer2/戒子" to="." method="_on_戒子_clicked"]
+[connection signal="clicked" from="VBoxContainer/HBoxContainer3/衣服" to="." method="_on_衣服_clicked"]
+[connection signal="clicked" from="VBoxContainer/HBoxContainer3/腰佩" to="." method="_on_腰佩_clicked"]
+[connection signal="clicked" from="VBoxContainer/HBoxContainer4/鞋子" to="." method="_on_鞋子_clicked"]
+[connection signal="clicked" from="VBoxContainer/HBoxContainer4/项链" to="." method="_on_项链_clicked"]

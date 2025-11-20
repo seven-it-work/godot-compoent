@@ -1,11 +1,11 @@
 @tool
 ## 背包格子
 extends Panel
-
+const ItemScopeUI=preload("uid://da1t82uebiqkk")
 const BaseItemScope = preload("res://entity/BaseItem.gd")
 const BaseValue = preload("res://components/成长属性组件/基础成长.gd")
 # 点击信号
-signal clicked(compartment, item)
+signal clicked(compartment:ItemScopeUI, item:BaseItemScope.BaseItem)
 
 @export var default_label_str:String="":set=set_default_label_str,get=get_default_label_str
 var _base_item:BaseItemScope.BaseItem:set=set_base_item,get=get_base_item
@@ -190,7 +190,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		if get_global_rect().has_point(event.global_position):
 			# 发射点击信号，传递自身引用和基础物品
-			self.emit_signal("clicked", self, _base_item)
+			clicked.emit(self, _base_item)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_EDITOR_POST_SAVE or what == NOTIFICATION_EDITOR_PRE_SAVE:

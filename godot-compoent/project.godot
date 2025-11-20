@@ -34,6 +34,10 @@ window/handheld/orientation=6
 
 enabled=PackedStringArray("res://addons/logger/plugin.cfg")
 
+[gui]
+
+theme/custom="uid://dqkiltd7opl43"
+
 [input_devices]
 
 pointing/android/enable_long_press_as_right_click=true

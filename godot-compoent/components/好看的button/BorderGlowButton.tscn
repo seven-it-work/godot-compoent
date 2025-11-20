@@ -8,15 +8,15 @@ shader = ExtResource("2")
 shader_parameter/border_width = 0.015
 shader_parameter/dash_length = 0.3
 shader_parameter/dash_speed = 2.0
-shader_parameter/dash_count = 8
-shader_parameter/clockwise = false
+shader_parameter/dash_count = 12
+shader_parameter/clockwise = true
 shader_parameter/color1 = Color(1, 0, 0, 1)
 shader_parameter/color2 = Color(0, 1, 0, 1)
 shader_parameter/color3 = Color(0, 0, 1, 1)
 shader_parameter/color4 = Color(1, 1, 0, 1)
 shader_parameter/color5 = Color(1, 0, 1, 1)
 shader_parameter/color6 = Color(0, 1, 1, 1)
-shader_parameter/color_count = 6
+shader_parameter/color_count = 4
 shader_parameter/color_change_speed = 1.0
 
 [node name="BorderGlowButton" type="Button"]

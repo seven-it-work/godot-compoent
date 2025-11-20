@@ -9,9 +9,10 @@ var _backpck:BaseItemScope.BackpackItem:set=set_backpck,get=get_backpck
 var _selected_compartment:BackpackCompartment = null:get=get_selected_compartment
 
 func _init() -> void:
-	_backpck=BaseItemScope.BackpackItem.new()
+	pass
 
 func _ready() -> void:
+	_backpck=BaseItemScope.BackpackItem.new()
 	# 为现有格子绑定点击信号
 	_bind_compartment_signals()
 
