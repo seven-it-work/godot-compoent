@@ -17,10 +17,10 @@ layout_mode = 1
 
 [node name="随机添加" type="Button" parent="."]
 layout_mode = 0
-offset_left = 556.0
-offset_top = 585.0
-offset_right = 698.0
-offset_bottom = 648.0
+offset_left = 300.0
+offset_top = -9.0
+offset_right = 442.0
+offset_bottom = 54.0
 text = "随机添加"
 
 [connection signal="pressed" from="随机添加" to="." method="_on_随机添加_pressed"]

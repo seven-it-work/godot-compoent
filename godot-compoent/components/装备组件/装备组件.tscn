@@ -70,11 +70,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_mr4hg")
 
-[node name="戒子" parent="VBoxContainer/HBoxContainer2" instance=ExtResource("1_pify5")]
+[node name="戒指" parent="VBoxContainer/HBoxContainer2" instance=ExtResource("1_pify5")]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_uj2u1")
-default_label_str = "戒子"
+default_label_str = "戒指"
 
 [node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -118,7 +118,7 @@ default_label_str = "项链"
 [connection signal="clicked" from="VBoxContainer/HBoxContainer/武器" to="." method="_on_武器_clicked"]
 [connection signal="clicked" from="VBoxContainer/HBoxContainer/护盾" to="." method="_on_护盾_clicked"]
 [connection signal="clicked" from="VBoxContainer/HBoxContainer2/头盔" to="." method="_on_头盔_clicked"]
-[connection signal="clicked" from="VBoxContainer/HBoxContainer2/戒子" to="." method="_on_戒子_clicked"]
+[connection signal="clicked" from="VBoxContainer/HBoxContainer2/戒指" to="." method="_on_戒指_clicked"]
 [connection signal="clicked" from="VBoxContainer/HBoxContainer3/衣服" to="." method="_on_衣服_clicked"]
 [connection signal="clicked" from="VBoxContainer/HBoxContainer3/腰佩" to="." method="_on_腰佩_clicked"]
 [connection signal="clicked" from="VBoxContainer/HBoxContainer4/鞋子" to="." method="_on_鞋子_clicked"]

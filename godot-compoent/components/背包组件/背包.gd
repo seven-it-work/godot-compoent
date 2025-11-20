@@ -8,6 +8,9 @@ var _backpck:BaseItemScope.BackpackItem:set=set_backpck,get=get_backpck
 # 跟踪当前选中的背包格子
 var _selected_compartment:BackpackCompartment = null:get=get_selected_compartment
 
+# 筛选相关变量
+var _current_filter:String = "全部"
+
 func _init() -> void:
 	pass
 
@@ -78,6 +81,65 @@ func _on_重置物品()->void:
 		var item = preload("uid://dehikb65o1cb2").instantiate() as BackpackCompartment
 		item.set_base_item(i)
 		%GridContainer.add_child(item)
+	# 重新绑定信号
+	_bind_compartment_signals()
+
+#endregion
+
+#region 筛选方法
+
+# 设置筛选条件并重新渲染
+func set_filter(filter_type:String)->void:
+	_current_filter = filter_type
+	_refresh_visible_items()
+
+# 获取当前筛选条件
+func get_current_filter()->String:
+	return _current_filter
+
+# 刷新可见物品
+func _refresh_visible_items()->void:
+	if _selected_compartment:
+		_selected_compartment.change_style("默认")
+	# 重置选中状态
+	_selected_compartment = null
+	
+	# 筛选需要显示的物品
+	var filtered_items:Array[BaseItemScope.BaseItem] = []
+
+	for item in _backpck.get_容器物品():
+		# 只有在筛选条件不是"全部"时才检查物品是否符合条件
+		if _current_filter ==null || _current_filter == "全部":
+			filtered_items.append(item)
+		else:
+			if item:
+				if _current_filter==item.get_类型():
+					filtered_items.append(item)
+			else:
+				filtered_items.append(item)
+
+	# 获取所有现有的背包格子
+	var compartments:Array[BackpackCompartment] = []
+	for child in %GridContainer.get_children():
+		if child is BackpackCompartment:
+			compartments.append(child)
+
+	# 更新现有的背包格子
+	for i in range(max(compartments.size(), filtered_items.size())):
+		var compartment = null
+		# 如果格子不足，创建新的
+		if i < compartments.size():
+			compartment = compartments[i]
+		else:
+			# 实例化新的背包格子场景
+			compartment = preload("uid://dehikb65o1cb2").instantiate() as BackpackCompartment
+			%GridContainer.add_child(compartment)
+		# 设置物品（如果索引超出过滤列表则设为null）
+		if i < filtered_items.size():
+			compartment.set_base_item(filtered_items[i])
+		else:
+			compartment.set_base_item(null)
+
 	# 重新绑定信号
 	_bind_compartment_signals()
 

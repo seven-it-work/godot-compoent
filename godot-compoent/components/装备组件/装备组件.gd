@@ -12,38 +12,38 @@ func get_选中的ui()->ItemScopeUI:
 	return _选中的ui
 
 func _on_护盾_clicked(compartment:ItemScopeUI, item:BaseItemScope.BaseItem) -> void:
-	_on_item_click(compartment,item)
+	_on_item_click(compartment,item,"护盾")
 
 
 func _on_头盔_clicked(compartment:ItemScopeUI, item:BaseItemScope.BaseItem) -> void:
-	_on_item_click(compartment,item)
+	_on_item_click(compartment,item,"头盔")
 
 
-func _on_戒子_clicked(compartment:ItemScopeUI, item:BaseItemScope.BaseItem) -> void:
-	_on_item_click(compartment,item)
+func _on_戒指_clicked(compartment:ItemScopeUI, item:BaseItemScope.BaseItem) -> void:
+	_on_item_click(compartment,item,"戒指")
 
 
 func _on_衣服_clicked(compartment:ItemScopeUI, item:BaseItemScope.BaseItem) -> void:
-	_on_item_click(compartment,item)
+	_on_item_click(compartment,item,"衣服")
 
 
 func _on_腰佩_clicked(compartment:ItemScopeUI, item:BaseItemScope.BaseItem) -> void:
-	_on_item_click(compartment,item)
+	_on_item_click(compartment,item,"腰佩")
 
 
 func _on_鞋子_clicked(compartment:ItemScopeUI, item:BaseItemScope.BaseItem) -> void:
-	_on_item_click(compartment,item)
+	_on_item_click(compartment,item,"鞋子")
 
 
 func _on_项链_clicked(compartment:ItemScopeUI, item:BaseItemScope.BaseItem) -> void:
-	_on_item_click(compartment,item)
+	_on_item_click(compartment,item,"项链")
 
 
 func _on_武器_clicked(compartment:ItemScopeUI, item:BaseItemScope.BaseItem) -> void:
-	_on_item_click(compartment,item)
+	_on_item_click(compartment,item,"武器")
 
 
-func _on_item_click(compartment:ItemScopeUI, item:BaseItemScope.BaseItem):
+func _on_item_click(compartment:ItemScopeUI, item:BaseItemScope.BaseItem,key:String):
 	if compartment==_选中的ui:
 		_选中的ui.change_style("默认")
 		_选中的ui=null
@@ -53,7 +53,7 @@ func _on_item_click(compartment:ItemScopeUI, item:BaseItemScope.BaseItem):
 		_选中的ui.change_style("默认")
 	_选中的ui=compartment
 	_选中的ui.change_style("选中")
-	# todo 这里需要做的是：信号通知，选择 xx物品。比如 item 是 BaseItemScope.WeaponItem 类型 说明 选择了武器
-	if item is BaseItemScope.WeaponItem:
-		选择装备栏信号.emit("武器")
-	pass
+	if item:
+		选择装备栏信号.emit(item.get_类型())
+	else:
+		选择装备栏信号.emit(key)

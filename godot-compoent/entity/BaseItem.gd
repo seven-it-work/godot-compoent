@@ -87,12 +87,20 @@ class BackpackItem:
 	var _attack:BaseValue.RandomGrowth:set=set_attack,get=get_attack
 	# 敏捷值
 	var _agility:BaseValue.RandomGrowth:set=set_agility,get=get_agility
+	# 类型
+	var _类型:String="":set=set_类型,get=get_类型
+
 	#region 属性功能，一般有子类去实现
 	## 是否能使用（一般是一写限制判断）
 	func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:
 		return 修仙者!=null
 	#endregion
 	#region get/set 方法
+	func set_类型(new_value:String)->void:
+		_类型=new_value
+	func get_类型()->String:
+		return _类型
+		
 	func set_desc_str(new_value:String)->void:
 		_desc_str=new_value
 	func get_desc_str()->String:
@@ -449,25 +457,49 @@ class WeaponItem extends BaseItem:
 	# 获取稀有度等级
 	func get_rarity() -> int:
 		return _rarity
+
+	func get_类型()->String:
+		return "武器"
 	
 ## 护盾
-class ShieldItem extends BaseItem:          
+class ShieldItem extends BaseItem:  
+	
+	func get_类型()->String:
+		return "护盾"        
 	pass
 ## 头盔
-class HelmetItem extends BaseItem:          
+class HelmetItem extends BaseItem:  
+	
+	func get_类型()->String:
+		return "头盔"        
 	pass
 ## 戒指
-class RingItem extends BaseItem:            
+class RingItem extends BaseItem:  
+	
+	func get_类型()->String:
+		return "戒指"        
 	pass
 ## 衣服
-class ArmorItem extends BaseItem:          
+class ArmorItem extends BaseItem:  
+	
+	func get_类型()->String:
+		return "衣服"        
 	pass
 ## 腰佩
-class BeltItem extends BaseItem:            
+class BeltItem extends BaseItem:  
+	
+	func get_类型()->String:
+		return "腰佩"        
 	pass
 ## 鞋子
-class BootsItem extends BaseItem:          
+class BootsItem extends BaseItem:  
+	
+	func get_类型()->String:
+		return "鞋子"        
 	pass
 ## 项链
-class NecklaceItem extends BaseItem:       
+class NecklaceItem extends BaseItem:  
+	
+	func get_类型()->String:
+		return "项链"        
 	pass
