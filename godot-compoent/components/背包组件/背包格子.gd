@@ -29,6 +29,7 @@ func _ready() -> void:
 
 func _渲染_base_item()->void:
 	if is_node_ready():
+		# todo 对护盾进行渲染
 		if _base_item:
 			$Label.text=_base_item._name_str
 			if _base_item is BaseItemScope.WeaponItem:
