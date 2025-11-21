@@ -52,6 +52,7 @@ size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_mr4hg")
 
 [node name="护盾" parent="VBoxContainer/HBoxContainer" instance=ExtResource("1_pify5")]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_mc1sg")
 default_label_str = "护盾"
@@ -100,6 +101,7 @@ default_label_str = "腰佩"
 layout_mode = 2
 
 [node name="鞋子" parent="VBoxContainer/HBoxContainer4" instance=ExtResource("1_pify5")]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_0venh")
 default_label_str = "鞋子"

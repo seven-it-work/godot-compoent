@@ -1,6 +1,8 @@
 extends Control
 
 const 背包UI = preload("uid://bo5yq44dywrje")
+const 装备UI = preload("uid://dilkpj6unyf2h")
+const CultivatorEquipmentClass = preload("res://entity/修仙者的装备.gd")
 
 @onready var 背包:背包UI = $背包
 @onready var 筛选 = $HBoxContainer/筛选
@@ -8,7 +10,8 @@ const 背包UI = preload("uid://bo5yq44dywrje")
 
 func _on_装备_pressed() -> void:
 	if 背包.get_selected_compartment():
-		pass
+		var cultivator_equipment= %"装备".get_cultivator_equipment() as CultivatorEquipmentClass.CultivatorEquipment
+		cultivator_equipment.装备装备(背包.get_selected_compartment().get_base_item())
 	pass # Replace with function body.
 
 
