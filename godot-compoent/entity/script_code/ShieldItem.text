@@ -1,0 +1,4 @@
+extends BaseItemScope.ShieldItem
+const BaseItemScope = preload("uid://4cukvnp1qadn")
+const Cultivator = preload("uid://biryomw8u6qck")
+const BaseValue = preload("uid://2ye25vjxabed")

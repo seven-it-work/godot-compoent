@@ -1,0 +1,72 @@
+[
+  {
+	"class_type": "BaseItemScope.ShieldItem",
+	"name_str": "铁盾",
+	"desc_str": "坚固的铁制盾牌，能抵挡基础攻击，是初入修仙界的必备防御装备。",
+	"rarity": 0,
+	"是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\n\treturn 修仙者.get_level().get_value()>=5"
+  },
+  {
+	"class_type": "BaseItemScope.ShieldItem",
+	"name_str": "青灵盾",
+	"desc_str": "注入灵韵的青色盾牌，表面流转着淡淡的灵光，能吸收部分灵气攻击。",
+	"rarity": 1,
+	"是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\n\treturn 修仙者.get_level().get_value()>=10"
+  },
+  {
+	"class_type": "BaseItemScope.ShieldItem",
+	"name_str": "地岩盾",
+	"desc_str": "地脉深处的玄岩打造，坚硬如铁，能反弹部分物理伤害。",
+	"rarity": 2,
+	"是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\n\treturn 修仙者.get_level().get_value()>=20"
+  },
+  {
+	"class_type": "BaseItemScope.ShieldItem",
+	"name_str": "天翼盾",
+	"desc_str": "天蚕丝绸混合精金编织而成，轻如羽毛却坚如磐石，能增幅使用者速度。",
+	"rarity": 3,
+	"是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\n\treturn 修仙者.get_level().get_value()>=30"
+  },
+  {
+	"class_type": "BaseItemScope.ShieldItem",
+	"name_str": "仙光盾",
+	"desc_str": "仙域水晶打磨而成，能自动吸收仙力补充护盾值，防御时散发圣洁光芒。",
+	"rarity": 4,
+	"是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\n\treturn 修仙者.get_level().get_value()>=50"
+  },
+  {
+	"class_type": "BaseItemScope.ShieldItem",
+	"name_str": "圣心盾",
+	"desc_str": "圣人遗物，盾牌中心镶嵌着圣心石，能自动修复持有者的伤势。",
+	"rarity": 5,
+	"是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\n\treturn 修仙者.get_level().get_value()>=70"
+  },
+  {
+	"class_type": "BaseItemScope.ShieldItem",
+	"name_str": "帝皇盾",
+	"desc_str": "远古大帝的随身护盾，蕴含帝道法则，可抵挡天道级别的攻击。",
+	"rarity": 6,
+	"是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\n\treturn 修仙者.get_level().get_value()>=100"
+  },
+  {
+	"class_type": "BaseItemScope.ShieldItem",
+	"name_str": "藤木盾",
+	"desc_str": "千年古藤编织而成，韧性极强，能弯曲卸力，减轻冲击力。",
+	"rarity": 0,
+	"是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\n\treturn 修仙者.get_level().get_value()>=5"
+  },
+  {
+	"class_type": "BaseItemScope.ShieldItem",
+	"name_str": "水纹盾",
+	"desc_str": "深海珊瑚礁提炼的材料制成，表面流动如水波，能化解元素攻击。",
+	"rarity": 1,
+	"是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\n\treturn 修仙者.get_level().get_value()>=10"
+  },
+  {
+	"class_type": "BaseItemScope.ShieldItem",
+	"name_str": "风沙盾",
+	"desc_str": "沙漠风暴精华凝聚而成，盾牌周围环绕着沙暴，能干扰敌人视线。",
+	"rarity": 2,
+	"是否能使用": "func 是否能使用(修仙者:Cultivator.BaseCultivator)->bool:\n\treturn 修仙者.get_level().get_value()>=20"
+  }
+]

@@ -41,7 +41,7 @@ func _渲染_base_item()->void:
 					# 设置武器名称
 					%WeaponItem.get_node("名称").set_value(_base_item.get_name_str())
 					# 设置武器稀有度
-					%WeaponItem.get_node("稀有度").set_value(BaseItemScope.WeaponItem.rarity_names.get(_base_item._rarity))
+					%WeaponItem.get_node("稀有度").set_value(BaseItemScope.rarity_names.get(_base_item._rarity))
 					# 设置武器等级
 					%WeaponItem.get_node("等级").set_value(str(_base_item.current_level))
 					# 设置武器攻击属性

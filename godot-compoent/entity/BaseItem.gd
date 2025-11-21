@@ -73,6 +73,28 @@ class BackpackItem:
 		var index=_容器物品.find(item)
 		return delItemByIndex(index)
 	#endregion
+
+# 稀有度枚举
+enum RarityLevel {
+	COMMON = 0,  # 凡品
+	SPIRIT = 1,  # 灵品
+	EARTH = 2,   # 地品
+	HEAVEN = 3,  # 天品
+	IMMORTAL = 4,  # 仙品
+	SAINT = 5,   # 圣品
+	EMPEROR = 6  # 帝品
+}
+
+# 稀有度名称映射
+const rarity_names: Dictionary = {
+	RarityLevel.COMMON: "凡品",
+	RarityLevel.SPIRIT: "灵品",
+	RarityLevel.EARTH: "地品",
+	RarityLevel.HEAVEN: "天品",
+	RarityLevel.IMMORTAL: "仙品",
+	RarityLevel.SAINT: "圣品",
+	RarityLevel.EMPEROR: "帝品"
+}
 	
 ## 基础物品对象
 @abstract class BaseItem:
@@ -206,26 +228,6 @@ class WeaponItem extends BaseItem:
 		return weapon
 
 	#region 常量
-	# 武器稀有度枚举
-	enum RarityLevel {
-		COMMON = 0,  # 凡品
-		SPIRIT = 1,  # 灵品
-		EARTH = 2,   # 地品
-		HEAVEN = 3,  # 天品
-		IMMORTAL = 4,  # 仙品
-		SAINT = 5,   # 圣品
-		EMPEROR = 6  # 帝品
-	}
-	# 稀有度名称映射
-	const rarity_names: Dictionary = {
-		RarityLevel.COMMON: "凡品",
-		RarityLevel.SPIRIT: "灵品",
-		RarityLevel.EARTH: "地品",
-		RarityLevel.HEAVEN: "天品",
-		RarityLevel.IMMORTAL: "仙品",
-		RarityLevel.SAINT: "圣品",
-		RarityLevel.EMPEROR: "帝品"
-	}
 	# 稀有度对应的成长因子映射
 	const rarity_growth_factors: Dictionary = {
 		RarityLevel.COMMON: 1.0,
@@ -462,11 +464,278 @@ class WeaponItem extends BaseItem:
 		return "武器"
 	
 ## 护盾
-class ShieldItem extends BaseItem:  
+class ShieldItem extends BaseItem:
+	# 稀有度词条数量映射
+	const rarity_stat_count: Dictionary = {
+		RarityLevel.COMMON: [1, 2],
+		RarityLevel.SPIRIT: [2, 3],
+		RarityLevel.EARTH: [3, 4],
+		RarityLevel.HEAVEN: [4, 5],
+		RarityLevel.IMMORTAL: [5, 6],
+		RarityLevel.SAINT: [6, 7],
+		RarityLevel.EMPEROR: [7, 8]
+	}
 	
+	# 稀有度成长因子映射
+	const rarity_growth_factors: Dictionary = {
+		RarityLevel.COMMON: 1.0,
+		RarityLevel.SPIRIT: 1.2,
+		RarityLevel.EARTH: 1.5,
+		RarityLevel.HEAVEN: 2.0,
+		RarityLevel.IMMORTAL: 3.0,
+		RarityLevel.SAINT: 5.0,
+		RarityLevel.EMPEROR: 10.0
+	}
+	
+	# 稀有度最大等级范围映射
+	const rarity_stat_lv: Dictionary = {
+		RarityLevel.COMMON: [1, 10],
+		RarityLevel.SPIRIT: [5, 20],
+		RarityLevel.EARTH: [10, 50],
+		RarityLevel.HEAVEN: [20, 100],
+		RarityLevel.IMMORTAL: [50, 500],
+		RarityLevel.SAINT: [100, 1000],
+		RarityLevel.EMPEROR: [500, 5000]
+	}
+	
+	# 稀有度等级
+	var _rarity: int = RarityLevel.COMMON
+	# 护盾等级
+	var current_level: int = 1
+	var max_level: int = 10
+	
+	# 护盾词条属性
+	# 攻击力词条
+	var flat_attack: BaseValue.RandomGrowth = null  # 具体数值攻击力词条
+	var percent_attack: BaseValue.RandomGrowth = null  # 百分比攻击力词条
+	
+	# 防御力词条
+	var flat_defense: BaseValue.RandomGrowth = null  # 具体数值防御力词条
+	var percent_defense: BaseValue.RandomGrowth = null  # 百分比防御力词条
+	
+	# 敏捷值词条
+	var flat_agility: BaseValue.RandomGrowth = null  # 具体数值敏捷值词条
+	var percent_agility: BaseValue.RandomGrowth = null  # 百分比敏捷值词条
+	
+	# 生命值词条
+	var flat_health: BaseValue.GrowthValue = null  # 具体数值生命值词条
+	var percent_health: BaseValue.GrowthValue = null  # 百分比生命值词条
+	
+	# 初始化方法
+	func _init(data: Dictionary = {}):
+		super._init(data)
+		# 从字典初始化基础属性
+		_rarity = data.get("rarity", RarityLevel.COMMON)
+		# 不允许提供预设属性，只能根据稀有度随机生成词条
+		generate_random_stats()
+		# 进行升级
+		var lv= data.get("current_level", 1)
+		for i in range(1,lv):
+			self.level_up()
+	
+	# 检查是否已有任何词条
+	func has_any_stats() -> bool:
+		return flat_attack != null or percent_attack != null or \
+			flat_defense != null or percent_defense != null or \
+			flat_agility != null or percent_agility != null or \
+			flat_health != null or percent_health != null
+	
+	## 获取有效的词条，返回结果：[{name_str:"中文名",value:对象,type:"flat_attack"或"percent_attack"等}]
+	func get_valid_stats() -> Array:
+		var stats=[]
+		if flat_attack != null:
+			stats.append({"name_str":"攻击力", "value":flat_attack, "type":"flat_attack"})
+		if percent_attack != null:
+			stats.append({"name_str":"攻击力", "value":percent_attack, "type":"percent_attack"})
+		if flat_defense != null:
+			stats.append({"name_str":"防御力", "value":flat_defense, "type":"flat_defense"})
+		if percent_defense != null:
+			stats.append({"name_str":"防御力", "value":percent_defense, "type":"percent_defense"})
+		if flat_agility != null:
+			stats.append({"name_str":"敏捷值", "value":flat_agility, "type":"flat_agility"})
+		if percent_agility != null:
+			stats.append({"name_str":"敏捷值", "value":percent_agility, "type":"percent_agility"})
+		if flat_health != null:
+			stats.append({"name_str":"生命值", "value":flat_health, "type":"flat_health"})
+		if percent_health != null:
+			stats.append({"name_str":"生命值", "value":percent_health, "type":"percent_health"})
+		return stats
+	
+	# 根据稀有度生成随机词条
+	func generate_random_stats():
+		# 通过稀有度获取最大成长等级
+		max_level=randi_range(rarity_stat_lv[_rarity][0],rarity_stat_lv[_rarity][1])
+		# 根据稀有度获取词条数量范围
+		var count_range = rarity_stat_count[_rarity]
+		var stat_count = randi_range(count_range[0], count_range[1])
+		
+		# 可生成的词条类型列表
+		var available_stats = ["flat_attack", "percent_attack", "flat_defense", "percent_defense", \
+					"flat_agility", "percent_agility", "flat_health", "percent_health"]
+		
+		# 获取对应稀有度的成长因子
+		var growth_factor = rarity_growth_factors[_rarity]
+		
+		# 随机选择指定数量的词条
+		for i in range(stat_count):
+			if available_stats.is_empty():
+				break
+				
+			var random_index = randi_range(0, available_stats.size() - 1)
+			var stat_type = available_stats[random_index]
+			available_stats.erase(random_index)
+			
+			# 根据词条类型初始化不同的基础值范围
+			var base_config = get_base_config_for_stat(stat_type)
+			var stat_value
+			
+			# 根据词条类型选择对应的类
+			if stat_type.begins_with("flat_health") or stat_type.begins_with("percent_health"):
+				# 生命值相关词条使用GrowthValue
+				stat_value = BaseValue.GrowthValue.new({
+					"min_growth": base_config["min_growth"],
+					"max_growth": base_config["max_growth"],
+					"growth_factor": growth_factor,
+					"value": base_config["initial_value"]
+				})
+			else:
+				# 其他词条使用RandomGrowth，使用min_value和max_value参数
+				stat_value = BaseValue.RandomGrowth.new({
+					"min_growth": base_config["min_growth"],
+					"max_growth": base_config["max_growth"],
+					"growth_factor": growth_factor,
+					"min_value": base_config["min_value"],
+					"max_value": base_config["max_value"]
+				})
+			
+			# 设置词条属性
+			match stat_type:
+				"flat_attack": flat_attack = stat_value
+				"percent_attack": percent_attack = stat_value
+				"flat_defense": flat_defense = stat_value
+				"percent_defense": percent_defense = stat_value
+				"flat_agility": flat_agility = stat_value
+				"percent_agility": percent_agility = stat_value
+				"flat_health": flat_health = stat_value
+				"percent_health": percent_health = stat_value
+	
+	# 获取词条类型的基础配置
+	func get_base_config_for_stat(stat_type: String) -> Dictionary:
+		# 不同词条类型的基础配置
+		var configs = {
+			# 具体数值类型词条
+			"flat_attack": {"min_growth": 1.0, "max_growth": 3.0, "base_value": randi_range(5, 20)},
+			"flat_defense": {"min_growth": 1.0, "max_growth": 4.0, "base_value": randi_range(10, 30)},
+			"flat_agility": {"min_growth": 0.3, "max_growth": 1.5, "base_value": randi_range(3, 15)},
+			"flat_health": {"min_growth": 5.0, "max_growth": 20.0, "base_value": randi_range(50, 200)},
+			# 百分比类型词条
+			"percent_attack": {"min_growth": 0.01, "max_growth": 0.03, "base_value": randf_range(0.01, 0.03)},
+			"percent_defense": {"min_growth": 0.01, "max_growth": 0.04, "base_value": randf_range(0.02, 0.04)},
+			"percent_agility": {"min_growth": 0.003, "max_growth": 0.015, "base_value": randf_range(0.005, 0.02)},
+			"percent_health": {"min_growth": 0.02, "max_growth": 0.05, "base_value": randf_range(0.02, 0.05)}
+		}
+		
+		# 获取基础配置的副本
+		var config = configs[stat_type].duplicate()
+		
+		# 根据词条类型设置不同的属性
+		if stat_type.begins_with("flat_health") or stat_type.begins_with("percent_health"):
+			# 生命值相关词条使用GrowthValue，设置initial_value
+			config["initial_value"] = config["base_value"]
+		else:
+			# 其他词条使用RandomGrowth，设置min_value和max_value
+			# 为RandomGrowth创建一个合理的范围
+			var base_val = config["base_value"]
+			var variation = base_val * 0.2  # 20%的变化范围
+			config["min_value"] = max(0.01, base_val - variation)
+			config["max_value"] = base_val + variation
+			# 移除不需要的base_value
+			config.erase("base_value")
+		
+		return config
+	
+	# 提升护盾等级
+	func level_up() -> bool:
+		if current_level >= max_level:
+			return false
+			
+		current_level += 1
+		
+		# 提升所有存在的词条属性
+		var stats_to_grow = [flat_attack, percent_attack, flat_defense, percent_defense,
+				flat_agility, percent_agility, flat_health, percent_health]
+		
+		for stat in stats_to_grow:
+			if stat != null:
+				stat.grow()
+				
+		return true
+	
+	# 重写是否能使用方法，根据稀有度和修仙者境界判断
+	func 是否能使用(修仙者:Cultivator.BaseCultivator) -> bool:
+		if not super.是否能使用(修仙者):
+			return false
+			
+		# 根据稀有度判断使用条件
+		match _rarity:
+			RarityLevel.IMMORTAL:
+				# 仙品护盾需要仙人境界
+				return 修仙者.境界 >= 修仙者.境界.仙人
+			RarityLevel.SAINT:
+				# 圣品护盾需要圣人境界
+				return 修仙者.境界 >= 修仙者.境界.圣人
+			RarityLevel.EMPEROR:
+				# 帝品护盾需要大帝境界
+				return 修仙者.境界 >= 修仙者.境界.大帝
+			_:
+				# 其他稀有度没有特殊要求
+				return true
+			
+	# 获取稀有度名称
+	func get_rarity_name() -> String:
+		return rarity_names.get(_rarity, "未知")
+		
+	# 获取稀有度等级
+	func get_rarity() -> int:
+		return _rarity
+
 	func get_类型()->String:
-		return "护盾"        
-	pass
+		return "护盾"
+	
+	## 随机创建护盾
+	static func random_shield()->ShieldItem:
+		# 加载script_code
+		var script_code = FileAccess.open("res://entity/script_code/ShieldItem.text", FileAccess.READ).get_as_text()
+		if script_code == null:
+			print("无法打开ShieldItem脚本文件")
+			return
+		# 通过 res://entity/json/护盾.json 来获取一批护盾json
+		# 从文件读取JSON数据
+		var file = FileAccess.open("res://entity/json/护盾.json", FileAccess.READ)
+		if file == null:
+			print("无法打开JSON文件")
+			return
+		# 然后pick_random一个 作为 json_data
+		var json_data = JSON.parse_string(file.get_as_text()).pick_random()
+		# 检查是否有class_type
+		if json_data.get("class_type", "") != "BaseItemScope.ShieldItem":
+			print("无效的物品类型")
+			return null
+		# 创建一个继承自ShieldItem的动态脚本
+		var shield_script = GDScript.new()
+		# 构建脚本源代码
+		var can_use_func = json_data.get_or_add("是否能使用", "")
+		shield_script.source_code = script_code+"\n"+can_use_func
+		
+		# 编译脚本
+		var reload_error = shield_script.reload()
+		if reload_error != OK:
+			print("护盾脚本编译失败: ", error_string(reload_error))
+			return null
+		
+		# 创建护盾实例
+		var shield = shield_script.new(json_data)
+		return shield
 ## 头盔
 class HelmetItem extends BaseItem:  
 	
