@@ -1,0 +1,3 @@
+[gd_scene format=3 uid="uid://da1ooe0st88p0"]
+
+[node name="闪电1" type="GPUParticles2D"]

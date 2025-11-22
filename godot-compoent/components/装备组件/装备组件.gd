@@ -102,6 +102,8 @@ func _on_武器_clicked(compartment:ItemScopeUI, item:BaseItemScope.BaseItem) ->
 
 
 func _on_item_click(compartment:ItemScopeUI, item:BaseItemScope.BaseItem,key:String):
+	if not 是否可以点击:
+		return
 	if compartment==_选中的ui:
 		_选中的ui.change_style("默认")
 		_选中的ui=null

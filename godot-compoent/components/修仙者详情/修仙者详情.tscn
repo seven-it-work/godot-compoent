@@ -1,0 +1,80 @@
+[gd_scene load_steps=8 format=3 uid="uid://bhsptqxobhxen"]
+
+[ext_resource type="PackedScene" uid="uid://c38g8o5r4dgs2" path="res://components/装备组件/装备组件.tscn" id="2_6ypw5"]
+[ext_resource type="Texture2D" uid="uid://by0p2w1odgkqr" path="res://components/修仙者详情/头像.png" id="2_f4fxo"]
+[ext_resource type="Texture2D" uid="uid://dx3hmfumh643m" path="res://components/装备组件/绘制特定风格边框.png" id="2_x3x12"]
+[ext_resource type="PackedScene" uid="uid://bj6bbpnuwn81w" path="res://components/成长属性组件/LabelAndValue.tscn" id="4_x3x12"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6ypw5"]
+content_margin_left = 20.0
+content_margin_top = 20.0
+content_margin_right = 20.0
+content_margin_bottom = 20.0
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_6ypw5"]
+texture = ExtResource("2_x3x12")
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6ypw5"]
+
+[node name="修仙者详情" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_6ypw5")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="LabelAndValue" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/LabelAndValue"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+
+[node name="头像" type="TextureRect" parent="PanelContainer/VBoxContainer/LabelAndValue/VBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_f4fxo")
+expand_mode = 5
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="PanelContainer/VBoxContainer/LabelAndValue"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+
+[node name="名称" type="Label" parent="PanelContainer/VBoxContainer/LabelAndValue/VBoxContainer2"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_styles/normal = SubResource("StyleBoxTexture_6ypw5")
+text = "东方不败"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Empty" type="PanelContainer" parent="PanelContainer/VBoxContainer/LabelAndValue/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_6ypw5")
+
+[node name="MarginContainer" parent="PanelContainer/VBoxContainer/LabelAndValue/VBoxContainer2" instance=ExtResource("2_6ypw5")]
+layout_mode = 2
+"是否可以点击" = false
+
+[node name="属性" type="VBoxContainer" parent="PanelContainer/VBoxContainer/LabelAndValue"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LabelAndValue" parent="PanelContainer/VBoxContainer/LabelAndValue/属性" instance=ExtResource("4_x3x12")]
+layout_mode = 2
+label = "等级："
