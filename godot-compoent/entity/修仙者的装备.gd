@@ -10,7 +10,9 @@ class CultivatorEquipment:
 	var _项链:BaseItemClass.NecklaceItem:get=get_项链,set=set_项链;
 	signal 装备变更(装备类型:String,old_装备:BaseItemClass,new_装备:BaseItemClass)
 
-	func 装备装备(装备:BaseItemClass.BaseItem,装备类型:String=''):
+	func 装备装备(装备:BaseItemClass.BaseItem,背包:BaseItemClass.BackpackItem, 装备类型:String=''):
+		var new_装备=装备
+		var old_装备
 		if 装备类型=="" || 装备类型==null:
 			# 通过 装备 的类来判断
 			if 装备 is BaseItemClass.WeaponItem:
@@ -30,22 +32,33 @@ class CultivatorEquipment:
 			elif 装备 is BaseItemClass.NecklaceItem:
 				装备类型="项链"
 		if 装备类型=="武器":
+			old_装备=_武器
 			_武器=装备
 		elif 装备类型=="护盾":
+			old_装备=_护盾
 			_护盾=装备
 		elif 装备类型=="头盔":
+			old_装备=_头盔
 			_头盔=装备
 		elif 装备类型=="戒指":
+			old_装备=_戒指
 			_戒指=装备
 		elif 装备类型=="衣服":
+			old_装备=_衣服
 			_衣服=装备
 		elif 装备类型=="腰佩":
+			old_装备=_腰佩
 			_腰佩=装备
 		elif 装备类型=="鞋子":
+			old_装备=_鞋子
 			_鞋子=装备
 		elif 装备类型=="项链":
+			old_装备=_项链
 			_项链=装备
-		pass
+		if new_装备:
+			背包.delItemByValue(new_装备)
+		if old_装备:
+			背包.addItem(old_装备)
 	#region get/set
 	func get_武器()->BaseItemClass.WeaponItem:
 		return _武器

@@ -10,8 +10,10 @@ const CultivatorEquipmentClass = preload("res://entity/修仙者的装备.gd")
 
 func _on_装备_pressed() -> void:
 	if 背包.get_selected_compartment():
+		# 从背包中移除
 		var cultivator_equipment= %"装备".get_cultivator_equipment() as CultivatorEquipmentClass.CultivatorEquipment
-		cultivator_equipment.装备装备(背包.get_selected_compartment().get_base_item())
+		var item =背包.get_selected_compartment().get_base_item()
+		cultivator_equipment.装备装备(item,背包.get_backpck())
 	pass # Replace with function body.
 
 
