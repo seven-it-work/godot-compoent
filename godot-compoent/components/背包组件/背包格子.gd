@@ -29,7 +29,6 @@ func _ready() -> void:
 
 func _渲染_base_item()->void:
 	if is_node_ready():
-		# todo 对护盾进行渲染
 		if _base_item:
 			$Label.text=_base_item._name_str
 			if _base_item is BaseItemScope.WeaponItem:
@@ -42,7 +41,7 @@ func _渲染_base_item()->void:
 					# 设置武器名称
 					%WeaponItem.get_node("名称").set_value(_base_item.get_name_str())
 					# 设置武器稀有度
-					%WeaponItem.get_node("稀有度").set_value(BaseItemScope.rarity_names.get(_base_item._rarity))
+					%WeaponItem.get_node("稀有度").set_value(BaseItemScope.rarity_names.get(_base_item.get_rarity()))
 					# 设置武器等级
 					%WeaponItem.get_node("等级").set_value(str(_base_item.current_level))
 					# 设置武器攻击属性
@@ -89,6 +88,65 @@ func _渲染_base_item()->void:
 						%WeaponItem.get_node("percent_health").set_value("%.1f%%" % [_base_item.percent_health.get_value()*100])
 					else:
 						%WeaponItem.get_node("percent_health").hide()
+			elif _base_item is BaseItemScope.ShieldItem:
+				if %Tips:
+					# 隐藏所有子节点
+					for i in %Tips.get_children():
+						i.hide()
+					# 显示ShieldItem容器
+					%Tips.get_node("ShieldItem").show()
+					# 设置护盾名称
+					%Tips.get_node("ShieldItem/名称").set_value(_base_item.get_name_str())
+					# 设置护盾稀有度
+					%Tips.get_node("ShieldItem/稀有度").show()
+					%Tips.get_node("ShieldItem/稀有度").set_value(BaseItemScope.rarity_names.get(_base_item.get_rarity()))
+					# 设置护盾等级
+					%Tips.get_node("ShieldItem/等级").show()
+					%Tips.get_node("ShieldItem/等级").set_value(str(_base_item.current_level))
+					# 设置护盾攻击属性
+					if _base_item.flat_attack:
+						%Tips.get_node("ShieldItem/flat_attack").show()
+						%Tips.get_node("ShieldItem/flat_attack").set_value("%.1f~%.1f" % [_base_item.flat_attack.get_min_value(), _base_item.flat_attack.get_max_value()])
+					else:
+						%Tips.get_node("ShieldItem/flat_attack").hide()
+					if _base_item.percent_attack:
+						%Tips.get_node("ShieldItem/percent_attack").show()
+						%Tips.get_node("ShieldItem/percent_attack").set_value("%.1f%%~%.1f%%" % [_base_item.percent_attack.get_min_value()*100, _base_item.percent_attack.get_max_value()*100])
+					else:
+						%Tips.get_node("ShieldItem/percent_attack").hide()
+					# 设置护盾防御属性
+					if _base_item.flat_defense:
+						%Tips.get_node("ShieldItem/flat_defense").show()
+						%Tips.get_node("ShieldItem/flat_defense").set_value("%.1f~%.1f" % [_base_item.flat_defense.get_min_value(), _base_item.flat_defense.get_max_value()])
+					else:
+						%Tips.get_node("ShieldItem/flat_defense").hide()
+					if _base_item.percent_defense:
+						%Tips.get_node("ShieldItem/percent_defense").show()
+						%Tips.get_node("ShieldItem/percent_defense").set_value("%.1f%%~%.1f%%" % [_base_item.percent_defense.get_min_value()*100, _base_item.percent_defense.get_max_value()*100])
+					else:
+						%Tips.get_node("ShieldItem/percent_defense").hide()
+					# 设置护盾敏捷属性
+					if _base_item.flat_agility:
+						%Tips.get_node("ShieldItem/flat_agility").show()
+						%Tips.get_node("ShieldItem/flat_agility").set_value("%.1f~%.1f" % [_base_item.flat_agility.get_min_value(), _base_item.flat_agility.get_max_value()])
+					else:
+						%Tips.get_node("ShieldItem/flat_agility").hide()
+					if _base_item.percent_agility:
+						%Tips.get_node("ShieldItem/percent_agility").show()
+						%Tips.get_node("ShieldItem/percent_agility").set_value("%.1f%%~%.1f%%" % [_base_item.percent_agility.get_min_value()*100, _base_item.percent_agility.get_max_value()*100])
+					else:
+						%Tips.get_node("ShieldItem/percent_agility").hide()
+					# 设置护盾生命值属性
+					if _base_item.flat_health:
+						%Tips.get_node("ShieldItem/flat_health").show()
+						%Tips.get_node("ShieldItem/flat_health").set_value("%.1f"%_base_item.flat_health.get_value())
+					else:
+						%Tips.get_node("ShieldItem/flat_health").hide()
+					if _base_item.percent_health:
+						%Tips.get_node("ShieldItem/percent_health").show()
+						%Tips.get_node("ShieldItem/percent_health").set_value("%.1f%%" % [_base_item.percent_health.get_value()*100])
+					else:
+						%Tips.get_node("ShieldItem/percent_health").hide()
 			else:
 				if %Tips:
 					for i in %Tips.get_children():

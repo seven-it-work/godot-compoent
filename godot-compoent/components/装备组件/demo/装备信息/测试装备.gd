@@ -14,6 +14,7 @@ func _on_随机添加_pressed() -> void:
 	else:
 		# 添加护盾
 		item = BaseItem.ShieldItem.random_shield()
+		print("添加了护盾，稀有度: " + item.get_rarity_name())
 	
 	# 获取背包并添加物品
 	var backpck = ($"装备".背包 as 背包UI).get_backpck()
