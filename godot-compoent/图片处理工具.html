@@ -100,6 +100,90 @@
             transition: background-color 0.3s;
         }
         
+        .merge-btn {
+            background-color: #9b59b6;
+            color: white;
+        }
+        
+        .merge-btn:hover {
+            background-color: #7e22ce;
+        }
+        
+        .sort-btn {
+            background-color: #0ea5e9;
+        }
+        
+        .sort-btn:hover {
+            background-color: #0284c7;
+        }
+        
+        .select-btn {
+            background-color: #22c55e;
+        }
+        
+        .select-btn:hover {
+            background-color: #16a34a;
+        }
+        
+        .frame-name {
+            cursor: pointer;
+            border-bottom: 1px dashed #9ca3af;
+        }
+        
+        .frame-name:hover {
+            border-bottom: 1px solid #0ea5e9;
+            color: #0ea5e9;
+        }
+        
+        .rename-input {
+            width: 100%;
+            padding: 4px 8px;
+            border: 1px solid #3b82f6;
+            border-radius: 4px;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+        
+        /* 宫格合并预览区域 */
+        .grid-preview-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .grid-preview-container {
+            background-color: #000;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .grid-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .grid-inputs label {
+            font-weight: bold;
+        }
+        
+        .grid-inputs input {
+            width: 60px;
+            padding: 5px;
+            text-align: center;
+        }
+        
         .align-btn {
             background-color: #2ecc71;
             color: white;
@@ -452,8 +536,31 @@
             </div>
             
             <div class="control-group">
+                <div class="grid-inputs">
+                    <label>宫格合并：</label>
+                    <input type="number" id="grid-rows" min="1" max="10" value="2" placeholder="行数">
+                    <label>×</label>
+                    <input type="number" id="grid-cols" min="1" max="10" value="2" placeholder="列数">
+                    <button class="action-btn merge-btn" onclick="previewGridMerge()">预览宫格</button>
+                    <button class="action-btn merge-btn" onclick="downloadGridImage()">导出宫格</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
                 <button class="action-btn align-btn" onclick="alignImagesByCenter()">按中心点对齐</button>
                 <button class="action-btn download-btn" onclick="downloadAllImages()">下载所有图片</button>
+                <button class="action-btn sort-btn" onclick="sortImagesByName()">按名称排序</button>
+                <button class="action-btn select-btn" onclick="selectAllImages()">全选</button>
+                <button class="action-btn select-btn" onclick="invertImageSelection()">反选</button>
+            </div>
+        </div>
+        
+        <!-- 宫格合并预览区域 -->
+        <div class="grid-preview-section" id="grid-preview-section">
+            <h3>宫格合并预览</h3>
+            <div class="grid-preview-container" id="grid-preview-container">
+                <div id="grid-placeholder">请点击预览按钮查看宫格效果</div>
+                <img id="grid-preview-img" style="display: none; max-width: 100%; max-height: 300px;">
             </div>
         </div>
         
@@ -607,7 +714,7 @@
                 reader.onload = (e) => {
                     const img = new Image();
                     img.onload = () => {
-                        // 创建图片数据对象，默认中心点为图片中心
+                        // 创建图片数据对象，默认中心点为图片中心，默认选中
             const imageData = {
                 id: index,
                 name: file.name,
@@ -617,7 +724,8 @@
                 centerX: img.width / 2, // 默认设置为图片中心
                 centerY: img.height / 2,
                 originalWidth: img.width,
-                originalHeight: img.height
+                originalHeight: img.height,
+                selected: true // 添加选中状态，默认为true
             };
                         
                         imagesData.push(imageData);
@@ -638,6 +746,12 @@
             frameItem.className = 'frame-item';
             frameItem.dataset.id = imageData.id;
             
+            // 添加选中状态样式
+            if (!imageData.selected) {
+                frameItem.style.opacity = '0.6';
+                frameItem.style.filter = 'grayscale(50%)';
+            }
+            
             const framePreview = document.createElement('div');
             framePreview.className = 'frame-preview';
             framePreview.onclick = (e) => openEditModal(imageData.id);
@@ -650,17 +764,83 @@
             centerPoint.style.left = `${(imageData.centerX / imageData.width) * 100}%`;
             centerPoint.style.top = `${(imageData.centerY / imageData.height) * 100}%`;
             
+            framePreview.appendChild(img);
+            framePreview.appendChild(centerPoint);
+            frameItem.appendChild(framePreview);
+            
+            // 添加勾选开关（移到图片下方）
+            const checkboxContainer = document.createElement('div');
+            checkboxContainer.className = 'checkbox-container';
+            checkboxContainer.style.display = 'flex';
+            checkboxContainer.style.justifyContent = 'center';
+            checkboxContainer.style.marginTop = '5px';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = imageData.selected;
+            checkbox.style.width = '20px';
+            checkbox.style.height = '20px';
+            checkbox.style.cursor = 'pointer';
+            checkbox.onchange = (e) => {
+                e.stopPropagation(); // 阻止事件冒泡，避免触发编辑模态框
+                imageData.selected = checkbox.checked;
+                
+                // 更新样式
+                if (imageData.selected) {
+                    frameItem.style.opacity = '1';
+                    frameItem.style.filter = 'grayscale(0%)';
+                } else {
+                    frameItem.style.opacity = '0.6';
+                    frameItem.style.filter = 'grayscale(50%)';
+                }
+                
+                // 更新预览
+                updatePreviewImages();
+            };
+            
+            checkboxContainer.appendChild(checkbox);
+            frameItem.appendChild(checkboxContainer);
+            
             const frameName = document.createElement('div');
             frameName.className = 'frame-name';
             frameName.textContent = imageData.name;
+            
+            // 添加点击事件进入编辑模式
+            frameName.addEventListener('click', function() {
+                const currentText = frameName.textContent;
+                
+                // 创建输入框
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'rename-input';
+                input.value = currentText;
+                
+                // 替换文本为输入框
+                frameName.parentNode.replaceChild(input, frameName);
+                
+                // 自动聚焦并选择所有文本
+                input.focus();
+                input.select();
+                
+                // 处理失去焦点
+                input.addEventListener('blur', function() {
+                    handleRename(imageData.id, input.value.trim() || currentText);
+                });
+                
+                // 处理回车键
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        input.blur();
+                    } else if (e.key === 'Escape') {
+                        input.parentNode.replaceChild(frameName, input);
+                    }
+                });
+            });
             
             const frameInfo = document.createElement('div');
             frameInfo.className = 'frame-info';
             frameInfo.textContent = `${imageData.width} × ${imageData.height}px`;
             
-            framePreview.appendChild(img);
-            framePreview.appendChild(centerPoint);
-            frameItem.appendChild(framePreview);
             frameItem.appendChild(frameName);
             frameItem.appendChild(frameInfo);
             
@@ -900,6 +1080,92 @@
             setTimeout(() => {
                 document.body.removeChild(notification);
             }, 2000);
+        }
+        
+        // 处理图片重命名
+        function handleRename(imageId, newName) {
+            // 查找对应的图片数据
+            const imageIndex = imagesData.findIndex(img => img.id === imageId);
+            if (imageIndex === -1) return;
+            
+            const oldName = imagesData[imageIndex].name;
+            
+            // 验证名称是否为空或重复
+            if (!newName.trim()) {
+                showNotification('名称不能为空');
+                return;
+            }
+            
+            // 检查是否与其他图片重名
+            if (imagesData.some((img, index) => index !== imageIndex && img.name === newName.trim())) {
+                showNotification('名称已存在');
+                return;
+            }
+            
+            // 更新图片数据
+            imagesData[imageIndex].name = newName.trim();
+            
+            // 更新选中的图片（如果当前选中的是这张图片）
+            if (selectedImageData && selectedImageData.id === imageId) {
+                selectedImageData.name = newName.trim();
+            }
+            
+            // 更新UI显示
+            updateFrameItems();
+            
+            // 显示成功通知
+            if (oldName !== newName) {
+                showNotification('图片重命名成功');
+            }
+        }
+        
+        // 按名称排序图片
+        function sortImagesByName() {
+            // 按照图片名称的字母顺序排序（不区分大小写）
+            imagesData.sort((a, b) => {
+                const nameA = a.name.toLowerCase();
+                const nameB = b.name.toLowerCase();
+                
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
+                return 0;
+            });
+            
+            // 更新UI显示
+            updateFrameItems();
+            
+            // 显示成功通知
+            showNotification('图片已按名称排序');
+        }
+        
+        // 全选功能
+        function selectAllImages() {
+            // 将所有图片标记为选中
+            imagesData.forEach(img => {
+                img.selected = true;
+            });
+            
+            // 更新UI显示
+            updateFrameItems();
+            updatePreviewImages();
+            
+            // 显示操作成功的通知
+            showNotification('已全选所有图片');
+        }
+        
+        // 反选功能
+        function invertImageSelection() {
+            // 切换所有图片的选中状态
+            imagesData.forEach(img => {
+                img.selected = !img.selected;
+            });
+            
+            // 更新UI显示
+            updateFrameItems();
+            updatePreviewImages();
+            
+            // 显示操作成功的通知
+            showNotification('已反选所有图片');
         }
         
         // 重置中心点到图片中心
@@ -1267,6 +1533,19 @@
             const previewContainer = document.getElementById('animation-preview');
             previewContainer.innerHTML = '';
             
+            // 获取选中的图片
+            let selectedImages = imagesData.filter(img => img.selected);
+            
+            // 按照图片名称排序选中的图片（与sortImagesByName保持一致的排序逻辑）
+            selectedImages.sort((a, b) => {
+                const nameA = a.name.toLowerCase();
+                const nameB = b.name.toLowerCase();
+                
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
+                return 0;
+            });
+            
             if (imagesData.length === 0) {
                 const placeholder = document.createElement('div');
                 placeholder.id = 'preview-placeholder';
@@ -1275,8 +1554,16 @@
                 return;
             }
             
+            if (selectedImages.length === 0) {
+                const placeholder = document.createElement('div');
+                placeholder.id = 'preview-placeholder';
+                placeholder.textContent = '请至少选择一张图片以预览动画';
+                previewContainer.appendChild(placeholder);
+                return;
+            }
+            
             // 创建预览图片
-            imagesData.forEach((imageData, index) => {
+            selectedImages.forEach((imageData, index) => {
                 const img = document.createElement('img');
                 img.src = imageData.src;
                 img.alt = `帧 ${index + 1}`;
@@ -1289,8 +1576,16 @@
         
         // 开始动画预览
         function startAnimation() {
+            // 获取选中的图片
+            const selectedImages = imagesData.filter(img => img.selected);
+            
             if (imagesData.length === 0) {
                 alert('请先上传图片');
+                return;
+            }
+            
+            if (selectedImages.length === 0) {
+                alert('请至少选择一张图片以播放动画');
                 return;
             }
             
@@ -1310,8 +1605,8 @@
                 // 显示当前帧
                 images[currentFrameIndex].classList.add('active');
                 
-                // 更新索引
-                currentFrameIndex = (currentFrameIndex + 1) % imagesData.length;
+                // 更新索引 - 使用选中图片的数量
+                currentFrameIndex = (currentFrameIndex + 1) % selectedImages.length;
             }, intervalTime);
         }
         
@@ -1332,26 +1627,33 @@
             }
         }
         
-        // 下载所有图片
+        // 下载选中的图片
         function downloadAllImages() {
             if (imagesData.length === 0) {
                 alert('请先上传图片');
                 return;
             }
             
-            // 如果只有一张图片，直接下载
-            if (imagesData.length === 1) {
-                downloadImage(imagesData[0]);
+            // 获取选中的图片
+            const selectedImages = imagesData.filter(img => img.selected);
+            
+            if (selectedImages.length === 0) {
+                alert('请至少选择一张图片进行下载');
                 return;
             }
             
-            // 多张图片，创建ZIP（简化版，实际项目中可以使用JSZip库）
-            // 这里我们逐个下载
-            imagesData.forEach((imageData, index) => {
+            // 如果只有一张选中的图片，直接下载
+            if (selectedImages.length === 1) {
+                downloadImage(selectedImages[0]);
+                return;
+            }
+            
+            // 多张选中的图片，逐个下载
+            selectedImages.forEach((imageData, index) => {
                 setTimeout(() => downloadImage(imageData), index * 100);
             });
             
-            alert(`开始下载 ${imagesData.length} 张图片`);
+            alert(`开始下载 ${selectedImages.length} 张选中的图片`);
         }
         
         // 下载单张图片
@@ -1362,6 +1664,136 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+        
+        // 合并图片为宫格布局
+        function mergeImagesToGrid(rows, cols) {
+            // 获取选中的图片
+            const selectedImages = imagesData.filter(img => img.selected);
+            if (selectedImages.length === 0) {
+                alert('请先选择要合并的图片');
+                return null;
+            }
+            
+            // 验证宫格尺寸
+            if (rows < 1 || cols < 1 || rows > 10 || cols > 10) {
+                alert('行数和列数必须在1-10之间');
+                return null;
+            }
+            
+            // 计算需要的最小图片数量
+            const totalCells = rows * cols;
+            if (selectedImages.length > totalCells) {
+                alert(`选中的图片数量(${selectedImages.length})超过了宫格容量(${totalCells})，将只使用前${totalCells}张图片`);
+            }
+            
+            // 等待所有图片加载完成
+            return new Promise((resolve, reject) => {
+                // 计算每张图片的尺寸（找到最大的图片作为基准）
+                let maxWidth = 0;
+                let maxHeight = 0;
+                const imageObjects = [];
+                
+                // 加载所有需要的图片
+                let loadedCount = 0;
+                const neededImages = selectedImages.slice(0, totalCells);
+                
+                if (neededImages.length === 0) {
+                    reject('没有可用的图片');
+                    return;
+                }
+                
+                neededImages.forEach((imgData, index) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        // 更新最大尺寸
+                        if (img.width > maxWidth) maxWidth = img.width;
+                        if (img.height > maxHeight) maxHeight = img.height;
+                        
+                        imageObjects[index] = img;
+                        loadedCount++;
+                        
+                        // 所有图片加载完成
+                        if (loadedCount === neededImages.length) {
+                            // 创建画布
+                            const canvas = document.createElement('canvas');
+                            canvas.width = maxWidth * cols;
+                            canvas.height = maxHeight * rows;
+                            const ctx = canvas.getContext('2d');
+                            
+                            // 设置白色背景
+                            ctx.fillStyle = 'white';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            
+                            // 绘制图片到宫格中
+                            neededImages.forEach((imgData, idx) => {
+                                const row = Math.floor(idx / cols);
+                                const col = idx % cols;
+                                const x = col * maxWidth;
+                                const y = row * maxHeight;
+                                
+                                const img = imageObjects[idx];
+                                // 计算图片居中位置
+                                const drawX = x + (maxWidth - img.width) / 2;
+                                const drawY = y + (maxHeight - img.height) / 2;
+                                
+                                ctx.drawImage(img, drawX, drawY, img.width, img.height);
+                            });
+                            
+                            resolve(canvas.toDataURL('image/png'));
+                        }
+                    };
+                    img.onerror = () => reject('图片加载失败');
+                    img.src = imgData.src;
+                });
+            });
+        }
+        
+        // 预览宫格合并效果
+        async function previewGridMerge() {
+            const rows = parseInt(document.getElementById('grid-rows').value) || 2;
+            const cols = parseInt(document.getElementById('grid-cols').value) || 2;
+            
+            try {
+                const mergedDataUrl = await mergeImagesToGrid(rows, cols);
+                if (mergedDataUrl) {
+                    // 显示预览区域
+                    const previewSection = document.getElementById('grid-preview-section');
+                    previewSection.style.display = 'block';
+                    
+                    // 更新预览图片
+                    const previewImg = document.getElementById('grid-preview-img');
+                    previewImg.src = mergedDataUrl;
+                    previewImg.style.display = 'block';
+                    
+                    // 隐藏占位符
+                    const placeholder = document.getElementById('grid-placeholder');
+                    placeholder.style.display = 'none';
+                }
+            } catch (error) {
+                alert('生成宫格预览失败: ' + error);
+            }
+        }
+        
+        // 下载宫格合并图片
+        async function downloadGridImage() {
+            const rows = parseInt(document.getElementById('grid-rows').value) || 2;
+            const cols = parseInt(document.getElementById('grid-cols').value) || 2;
+            
+            try {
+                const mergedDataUrl = await mergeImagesToGrid(rows, cols);
+                if (mergedDataUrl) {
+                    const link = document.createElement('a');
+                    link.href = mergedDataUrl;
+                    link.download = `宫格合并_${rows}x${cols}_${new Date().getTime()}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    alert('宫格图片已下载');
+                }
+            } catch (error) {
+                alert('导出宫格图片失败: ' + error);
+            }
         }
     </script>
 </body>
