@@ -1,6 +1,14 @@
 import os
-import argparse
-from PIL import Image  # 仅保留这一行核心导入
+from PIL import Image  # 仅保留核心导入，兼容所有Pillow版本
+
+# ====================== 可手动调整的参数（修改这里即可） ======================
+DIR="E:/dev_soft/Godot_v4.3-stable_win64.exe/godot-compoent/godot-compoent/动画/特效/闪电特效/"
+INPUT_DIR = DIR       # 输入文件夹路径（存放要处理的图片）
+OUTPUT_DIR = DIR+"resized_images"       # 输出文件夹路径（处理后图片保存位置）
+TARGET_WIDTH = 540                    # 目标宽度（像素）
+TARGET_HEIGHT = 2364                   # 目标高度（像素）
+KEEP_ASPECT_RATIO = False             # 是否保持宽高比例（True=保持，False=强制拉伸）
+# =============================================================================
 
 def resize_single_image(input_path, output_path, target_width, target_height, keep_aspect_ratio=False):
     """
@@ -26,7 +34,7 @@ def resize_single_image(input_path, output_path, target_width, target_height, ke
                 new_width = target_width
                 new_height = target_height
 
-            # 调整尺寸（兼容Pillow 9.x以下版本：Image.LANCZOS 替代 Image.Resampling.LANCZOS）
+            # 调整尺寸（兼容Pillow 9.x以下版本）
             try:
                 resized_img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
             except AttributeError:
@@ -37,7 +45,7 @@ def resize_single_image(input_path, output_path, target_width, target_height, ke
             print(f"✅ 处理成功: {os.path.basename(input_path)} -> 尺寸: {new_width}x{new_height}")
             return True
 
-    # 兼容所有Pillow版本的异常捕获（关键修复）
+    # 兼容所有Pillow版本的异常捕获
     except Image.UnidentifiedImageError:
         print(f"❌ 跳过: {os.path.basename(input_path)} - 不是有效图片文件")
         return False
@@ -95,22 +103,11 @@ def batch_resize_images(input_dir, output_dir, target_width, target_height, keep
     print(f"   输出路径: {os.path.abspath(output_dir)}")
 
 if __name__ == "__main__":
-    # 命令行参数解析
-    parser = argparse.ArgumentParser(description="批量修改图片尺寸脚本")
-    parser.add_argument("--input", "-i", required=True, help="输入图片文件夹路径（必填）")
-    parser.add_argument("--output", "-o", required=True, help="输出图片文件夹路径（必填）")
-    parser.add_argument("--width", "-w", type=int, required=True, help="目标宽度（像素，必填）")
-    parser.add_argument("--height", "-h", type=int, required=True, help="目标高度（像素，必填）")
-    parser.add_argument("--keep-aspect", "-k", action="store_true", help="可选：保持图片宽高比例（默认强制拉伸）")
-
-    # 解析参数
-    args = parser.parse_args()
-
-    # 执行批量处理
+    # 直接调用批量处理函数，使用手动定义的参数
     batch_resize_images(
-        input_dir=args.input,
-        output_dir=args.output,
-        target_width=args.width,
-        target_height=args.height,
-        keep_aspect_ratio=args.keep_aspect
+        input_dir=INPUT_DIR,
+        output_dir=OUTPUT_DIR,
+        target_width=TARGET_WIDTH,
+        target_height=TARGET_HEIGHT,
+        keep_aspect_ratio=KEEP_ASPECT_RATIO
     )
