@@ -1,0 +1,55 @@
+[gd_scene load_steps=12 format=3 uid="uid://cwh7i6hjfmj7k"]
+
+[ext_resource type="Shader" uid="uid://w6kdp1h5jvuj" path="res://动画/特效/闪电特效/demo01.gdshader" id="1_uh5ss"]
+[ext_resource type="Texture2D" uid="uid://peyo187yf8xu" path="res://动画/特效/闪电特效/1.png" id="2_7yxt4"]
+[ext_resource type="Texture2D" uid="uid://c334ro5k6iwdq" path="res://动画/特效/闪电特效/2.png" id="3_1u267"]
+[ext_resource type="Texture2D" uid="uid://c8p2bssrhr8g3" path="res://动画/特效/闪电特效/3.png" id="4_72klu"]
+[ext_resource type="Texture2D" uid="uid://cvu4yw6v1bj5k" path="res://动画/特效/闪电特效/4.png" id="5_2uf2r"]
+[ext_resource type="Texture2D" uid="uid://bqqew5w6bkla7" path="res://动画/特效/闪电特效/图层 0.png" id="6_vs3u4"]
+[ext_resource type="Texture2D" uid="uid://cyeb74hkn2tpo" path="res://动画/特效/闪电特效/图层 1.png" id="7_mgns6"]
+[ext_resource type="Texture2D" uid="uid://do5l50rtwa7w4" path="res://动画/特效/闪电特效/图层 2.png" id="8_e06xg"]
+[ext_resource type="Texture2D" uid="uid://cu7iq7biu3lhh" path="res://动画/特效/闪电特效/图层 3.png" id="9_2nygh"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dd3gg"]
+shader = ExtResource("1_uh5ss")
+shader_parameter/black_threshold = 0.05
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_0wvbr"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_7yxt4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_1u267")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_72klu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_2uf2r")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_vs3u4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_mgns6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_e06xg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_2nygh")
+}],
+"loop": true,
+"name": &"default",
+"speed": 15.0
+}]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+material = SubResource("ShaderMaterial_dd3gg")
+sprite_frames = SubResource("SpriteFrames_0wvbr")
+frame = 4
+frame_progress = 0.5625534
