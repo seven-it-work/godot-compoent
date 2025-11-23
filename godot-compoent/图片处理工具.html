@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片处理工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        
+        .upload-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .upload-section input[type="file"] {
+            display: none;
+        }
+        
+        .upload-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .upload-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .controls {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .control-group input {
+            padding: 8px;
+            width: 100px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .align-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .resize-btn {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .download-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .align-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .resize-btn:hover {
+            background-color: #e67e22;
+        }
+        
+        .download-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .frame-info {
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+            margin-top: 2px;
+        }
+        
+        .preview-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-height: 200px;
+        }
+        
+        .animation-preview {
+            background-color: #000;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .animation-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            display: none;
+        }
+        
+        .animation-preview img.active {
+            display: block;
+        }
+        
+        .animation-controls {
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .frames-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .frame-item {
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .frame-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .frame-preview {
+            width: 100%;
+            height: 120px;
+            background-color: #f0f0f0;
+            border: 1px dashed #ccc;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .frame-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .center-point {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: red;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            display: block; /* 默认显示中心点 */
+        }
+        
+        .frame-item.selected .frame-preview {
+            border-color: #3498db;
+            border-width: 2px;
+        }
+        
+        .frame-item.selected .center-point {
+            display: block;
+        }
+        
+        .frame-name {
+            font-size: 12px;
+            margin-top: 5px;
+            text-align: center;
+            word-break: break-all;
+        }
+        
+        .fps-control {
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .frames-container {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
+            }
+        }
+        /* 编辑模态框样式 - 全屏显示 */
+        .edit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .edit-modal-content {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            color: white;
+        }
+        
+        .edit-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-bottom: 1px solid #555;
+        }
+        
+        .edit-modal-header h3 {
+            margin: 0;
+            color: white;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            color: white;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-btn:hover {
+            color: #ff6b6b;
+        }
+        
+        /* 缩放控制 */
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .zoom-btn {
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 12px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .zoom-btn:hover {
+            background-color: #555;
+        }
+        
+        .zoom-level {
+            color: white;
+            font-size: 14px;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .edit-modal-body {
+            flex: 1;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: auto;
+            background-color: #000;
+        }
+        
+        .edit-canvas-container {
+            position: relative;
+            background-color: #000;
+            border: none;
+            cursor: grab;
+            overflow: visible;
+        }
+        
+        .edit-canvas-container:active {
+            cursor: grabbing;
+        }
+        
+        #edit-canvas {
+            display: block;
+            cursor: crosshair;
+        }
+        
+        .edit-info {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            border-radius: 20px;
+            pointer-events: none;
+        }
+        
+        /* 操作提示 */
+        .operation-hints {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            max-width: 200px;
+        }
+        
+        .edit-modal-footer {
+            padding: 15px 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-top: 1px solid #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .center-controls {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .center-controls input[type="number"] {
+            padding: 5px 8px;
+            border: 1px solid #555;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 4px;
+        }
+        
+        .center-controls input[type="number"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .center-controls span {
+             color: white;
+             font-size: 14px;
+         }
+        </style>
+</head>
+<body>
+    <div class="container">
+        <h1>图片处理工具</h1>
+        
+        <div class="upload-section">
+            <label for="file-upload" class="upload-btn">
+                选择图片文件 (支持多选)
+            </label>
+            <input type="file" id="file-upload" accept="image/*" multiple>
+            <p id="file-info" style="margin-top: 10px;"></p>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>批量裁剪图片：</label>
+                <input type="number" id="width-input" placeholder="宽度">
+                <input type="number" id="height-input" placeholder="高度">
+                <button class="action-btn resize-btn" onclick="cropImages()">裁剪图片</button>
+            </div>
+            
+            <div class="control-group">
+                <button class="action-btn align-btn" onclick="alignImagesByCenter()">按中心点对齐</button>
+                <button class="action-btn download-btn" onclick="downloadAllImages()">下载所有图片</button>
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <h3>动画预览</h3>
+            <div class="animation-preview" id="animation-preview">
+                <div id="preview-placeholder">请上传图片以预览动画</div>
+                <!-- 图片将在这里动态加载 -->
+            </div>
+            <div class="animation-controls">
+                <label>帧速率 (FPS): </label>
+                <input type="number" id="fps-input" value="10" min="1" max="60">
+                <button class="action-btn" onclick="startAnimation()">播放</button>
+                <button class="action-btn" onclick="stopAnimation()">停止</button>
+            </div>
+        </div>
+        
+        <h3>图片列表</h3>
+        <p>点击图片设置中心点，红色圆点表示当前设置的中心点</p>
+        <div class="frames-container" id="frames-container">
+            <!-- 图片帧将在这里动态加载 -->
+        </div>
+    </div>
+    
+    <!-- 大图编辑模态框 - 全屏模式 -->
+    <div class="edit-modal" id="edit-modal">
+        <div class="edit-modal-content">
+            <div class="edit-modal-header">
+                <h3>编辑图片中心点</h3>
+                <div class="zoom-controls">
+                    <button class="zoom-btn" onclick="zoomOut()">−</button>
+                    <span class="zoom-level" id="zoom-level">100%</span>
+                    <button class="zoom-btn" onclick="zoomIn()">+</button>
+                </div>
+                <button class="close-btn" onclick="closeEditModal()">×</button>
+            </div>
+            <div class="edit-modal-body">
+                <div class="operation-hints">
+                    <div>操作提示：</div>
+                    <div>• 点击图片设置中心点</div>
+                    <div>• 滚轮缩放图片</div>
+                    <div>• 拖拽移动图片</div>
+                    <div>• 双击恢复原始大小</div>
+                </div>
+                <div class="edit-canvas-container" id="edit-canvas-container">
+                    <canvas id="edit-canvas"></canvas>
+                </div>
+                <div class="edit-info">
+                    <p>点击图片设置中心点，图片显示九宫格网格</p>
+                    <p id="edit-image-info"></p>
+                </div>
+            </div>
+            <div class="edit-modal-footer">
+                <div class="center-controls">
+                    <span>中心点坐标: </span>
+                    <input type="number" id="center-x-input" placeholder="X" min="0" style="width: 60px;">
+                    <input type="number" id="center-y-input" placeholder="Y" min="0" style="width: 60px;">
+                    <button class="action-btn" onclick="setCenterByInput()">设置</button>
+                    <button class="action-btn" onclick="resetCenterPoint()">重置中心点</button>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span>当前坐标: </span>
+                        <span id="current-center-coords" style="background: rgba(255,255,255,0.1); padding: 2px 8px; cursor: pointer; border-radius: 3px;" onclick="copyCenterCoords()">-- , --</span>
+                        <span id="copy-notice" style="display: none; color: #2ecc71; font-size: 12px;">已复制!</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="action-btn align-btn" onclick="resetZoom()">重置视图</button>
+                    <button class="action-btn align-btn" onclick="saveCenterPoint()">保存</button>
+                    <button class="action-btn align-btn" onclick="applyCenterToAllImages()" style="background-color: #e74c3c;">应用到所有图片</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 存储图片数据
+        let imagesData = [];
+        let animationInterval = null;
+        let currentFrameIndex = 0;
+        // 大图编辑相关变量
+        let selectedImageData = null;
+        let editCanvas = null;
+        let editCtx = null;
+        let editModal = null;
+        let editCanvasContainer = null;
+        let currentImage = null;
+        let currentScale = 1;
+        let scaleStep = 0.1;
+        let minScale = 0.1;
+        let maxScale = 5;
+        let isDragging = false;
+        let lastX = 0;
+        let lastY = 0;
+        let offsetX = 0;
+        let offsetY = 0;
+        
+        // 文件上传处理
+        document.getElementById('file-upload').addEventListener('change', handleFileUpload);
+        
+        // 初始化大图编辑相关
+        function initEditMode() {
+            editModal = document.getElementById('edit-modal');
+            editCanvas = document.getElementById('edit-canvas');
+            editCtx = editCanvas.getContext('2d');
+            editCanvasContainer = document.getElementById('edit-canvas-container');
+            
+            // 初始化坐标输入框的粘贴功能
+            initCoordsInputPaste();
+            
+            // 点击画布设置中心点
+            editCanvas.addEventListener('click', handleCanvasClick);
+            
+            // 滚轮缩放
+            editCanvas.addEventListener('wheel', handleWheelZoom);
+            
+            // 拖拽移动
+            editCanvas.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
+            
+            // 双击重置缩放
+            editCanvas.addEventListener('dblclick', resetZoom);
+            
+            // 点击模态框外部关闭
+            editModal.addEventListener('click', (e) => {
+                if (e.target === editModal) {
+                    closeEditModal();
+                }
+            });
+        }
+        
+        // 初始化函数
+        window.onload = function() {
+            initEditMode();
+        };
+        
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            if (files.length === 0) return;
+            
+            document.getElementById('file-info').textContent = `已选择 ${files.length} 个文件`;
+            
+            // 清空现有数据
+            imagesData = [];
+            const framesContainer = document.getElementById('frames-container');
+            framesContainer.innerHTML = '';
+            
+            // 处理每个文件
+            Array.from(files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        // 创建图片数据对象，默认中心点为图片中心
+            const imageData = {
+                id: index,
+                name: file.name,
+                src: e.target.result,
+                width: img.width,
+                height: img.height,
+                centerX: img.width / 2, // 默认设置为图片中心
+                centerY: img.height / 2,
+                originalWidth: img.width,
+                originalHeight: img.height
+            };
+                        
+                        imagesData.push(imageData);
+                        createFrameItem(imageData);
+                        updatePreviewImages();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // 创建图片帧项
+        function createFrameItem(imageData) {
+            const framesContainer = document.getElementById('frames-container');
+            
+            const frameItem = document.createElement('div');
+            frameItem.className = 'frame-item';
+            frameItem.dataset.id = imageData.id;
+            
+            const framePreview = document.createElement('div');
+            framePreview.className = 'frame-preview';
+            framePreview.onclick = (e) => openEditModal(imageData.id);
+            
+            const img = document.createElement('img');
+            img.src = imageData.src;
+            
+            const centerPoint = document.createElement('div');
+            centerPoint.className = 'center-point';
+            centerPoint.style.left = `${(imageData.centerX / imageData.width) * 100}%`;
+            centerPoint.style.top = `${(imageData.centerY / imageData.height) * 100}%`;
+            
+            const frameName = document.createElement('div');
+            frameName.className = 'frame-name';
+            frameName.textContent = imageData.name;
+            
+            const frameInfo = document.createElement('div');
+            frameInfo.className = 'frame-info';
+            frameInfo.textContent = `${imageData.width} × ${imageData.height}px`;
+            
+            framePreview.appendChild(img);
+            framePreview.appendChild(centerPoint);
+            frameItem.appendChild(framePreview);
+            frameItem.appendChild(frameName);
+            frameItem.appendChild(frameInfo);
+            
+            framesContainer.appendChild(frameItem);
+        }
+        
+        // 打开大图编辑模态框
+        function openEditModal(imageId) {
+            // 查找对应的图片数据
+            selectedImageData = imagesData.find(img => img.id === imageId);
+            if (!selectedImageData) return;
+            
+            // 重置视图状态
+            currentScale = 1;
+            offsetX = 0;
+            offsetY = 0;
+            
+            // 更新图片信息
+            document.getElementById('edit-image-info').textContent = 
+                `文件名: ${selectedImageData.name} | 尺寸: ${selectedImageData.width} × ${selectedImageData.height}px`;
+            document.getElementById('zoom-level').textContent = '100%';
+            
+            // 更新中心点坐标显示
+            updateCenterPointDisplay();
+            
+            // 更新输入框的值
+            document.getElementById('center-x-input').value = Math.round(selectedImageData.centerX);
+            document.getElementById('center-y-input').value = Math.round(selectedImageData.centerY);
+            
+            // 加载并显示图片
+            currentImage = new Image();
+            currentImage.onload = function() {
+                // 设置画布尺寸为图片原始尺寸
+                editCanvas.width = currentImage.width;
+                editCanvas.height = currentImage.height;
+                
+                // 初始居中显示
+                centerCanvas();
+                
+                // 绘制图片和网格
+                drawImageWithGrid(currentImage, selectedImageData.centerX, selectedImageData.centerY);
+            };
+            currentImage.src = selectedImageData.src;
+            
+            // 显示模态框
+            editModal.style.display = 'flex';
+        }
+        
+        // 关闭大图编辑模态框
+        function closeEditModal() {
+            editModal.style.display = 'none';
+            selectedImageData = null;
+            currentImage = null;
+        }
+        
+        // 居中显示画布
+        function centerCanvas() {
+            const container = editCanvasContainer;
+            const containerRect = container.getBoundingClientRect();
+            
+            // 计算居中偏移量 - 考虑缩放后的尺寸
+            // 注意：由于transform现在是先缩放后平移，平移值需要除以缩放比例
+            offsetX = (containerRect.width - editCanvas.width * currentScale) / 2;
+            offsetY = (containerRect.height - editCanvas.height * currentScale) / 2;
+            
+            // 应用偏移
+            updateCanvasTransform();
+        }
+        
+        // 更新画布变换
+        function updateCanvasTransform() {
+            // 使用左上角作为变换原点(0, 0)，这与我们的坐标计算逻辑保持一致
+            editCanvas.style.transformOrigin = '0 0';
+            // 先应用缩放，再应用平移，这是CSS transform的正确顺序
+            editCanvas.style.transform = `scale(${currentScale}) translate(${offsetX / currentScale}px, ${offsetY / currentScale}px)`;
+            document.getElementById('zoom-level').textContent = `${Math.round(currentScale * 100)}%`;
+        }
+        
+        // 放大
+        function zoomIn() {
+            if (currentScale < maxScale) {
+                currentScale = Math.min(currentScale + scaleStep, maxScale);
+                updateCanvasTransform();
+                if (currentImage) {
+                    drawImageWithGrid(currentImage, selectedImageData.centerX, selectedImageData.centerY);
+                }
+            }
+        }
+        
+        // 缩小
+        function zoomOut() {
+            if (currentScale > minScale) {
+                currentScale = Math.max(currentScale - scaleStep, minScale);
+                updateCanvasTransform();
+                if (currentImage) {
+                    drawImageWithGrid(currentImage, selectedImageData.centerX, selectedImageData.centerY);
+                }
+            }
+        }
+        
+        // 重置缩放
+        function resetZoom() {
+            currentScale = 1;
+            centerCanvas();
+            if (currentImage) {
+                drawImageWithGrid(currentImage, selectedImageData.centerX, selectedImageData.centerY);
+            }
+        }
+        
+        // 处理滚轮缩放
+        function handleWheelZoom(e) {
+            e.preventDefault();
+            
+            // 获取鼠标在容器中的位置
+            const container = editCanvasContainer;
+            const containerRect = container.getBoundingClientRect();
+            const mouseX = e.clientX - containerRect.left;
+            const mouseY = e.clientY - containerRect.top;
+            
+            // 记录缩放前的鼠标位置（相对于原始图片坐标系）
+            const oldImageX = (mouseX - offsetX) / currentScale;
+            const oldImageY = (mouseY - offsetY) / currentScale;
+            
+            // 保存当前缩放比例用于计算
+            const oldScale = currentScale;
+            
+            // 根据滚轮方向缩放
+            if (e.deltaY < 0) {
+                if (currentScale < maxScale) {
+                    currentScale = Math.min(currentScale + scaleStep, maxScale);
+                }
+            } else {
+                if (currentScale > minScale) {
+                    currentScale = Math.max(currentScale - scaleStep, minScale);
+                }
+            }
+            
+            // 更新画布变换
+            updateCanvasTransform();
+            
+            // 调整偏移量，使缩放围绕鼠标位置进行
+            // 计算鼠标在新缩放比例下应该对应的容器位置
+            const newOffsetX = mouseX - (oldImageX * currentScale);
+            const newOffsetY = mouseY - (oldImageY * currentScale);
+            
+            offsetX = newOffsetX;
+            offsetY = newOffsetY;
+            
+            updateCanvasTransform();
+            
+            // 重新绘制图片和网格
+            if (currentImage && selectedImageData) {
+                drawImageWithGrid(currentImage, selectedImageData.centerX, selectedImageData.centerY);
+            }
+        }
+        
+        // 开始拖拽
+        function startDrag(e) {
+            isDragging = true;
+            lastX = e.clientX;
+            lastY = e.clientY;
+        }
+        
+        // 拖拽移动
+        function drag(e) {
+            if (!isDragging) return;
+            
+            // 计算鼠标移动的距离
+            const dx = e.clientX - lastX;
+            const dy = e.clientY - lastY;
+            
+            // 更新偏移量 - 直接加上鼠标移动的距离
+            // 注意：由于我们现在先缩放后平移，平移值不需要再考虑缩放因子
+            offsetX += dx;
+            offsetY += dy;
+            
+            // 更新画布变换
+            updateCanvasTransform();
+            
+            // 更新鼠标位置
+            lastX = e.clientX;
+            lastY = e.clientY;
+        }
+        
+        // 结束拖拽
+        function endDrag() {
+            isDragging = false;
+        }
+        
+        // 保存中心点设置
+        function saveCenterPoint() {
+            // 更新小图中的中心点显示
+            updateFrameItems();
+            updatePreviewImages();
+            closeEditModal();
+        }
+        
+        // 将当前中心点应用到所有图片
+        function applyCenterToAllImages() {
+            if (selectedImageData !== null && currentImage) {
+                // 获取当前编辑图片的中心点坐标
+                const currentCenterX = selectedImageData.centerX;
+                const currentCenterY = selectedImageData.centerY;
+                
+                // 将中心点应用到所有图片
+                for (let i = 0; i < imagesData.length; i++) {
+                    imagesData[i].centerX = currentCenterX;
+                    imagesData[i].centerY = currentCenterY;
+                }
+            }
+            
+            // 更新帧项显示
+            updateFrameItems();
+            
+            // 显示操作成功提示
+            showNotification('中心点已应用到所有图片');
+        }
+        
+        // 显示通知提示
+        function showNotification(message) {
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.top = '50%';
+            notification.style.left = '50%';
+            notification.style.transform = 'translate(-50%, -50%)';
+            notification.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            notification.style.color = 'white';
+            notification.style.padding = '10px 20px';
+            notification.style.borderRadius = '5px';
+            notification.style.zIndex = '10000';
+            notification.style.fontSize = '16px';
+            document.body.appendChild(notification);
+            
+            // 2秒后移除通知
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 2000);
+        }
+        
+        // 重置中心点到图片中心
+        function resetCenterPoint() {
+            if (!selectedImageData || !currentImage) return;
+            
+            // 重置中心点到图片中心
+            selectedImageData.centerX = currentImage.width / 2;
+            selectedImageData.centerY = currentImage.height / 2;
+            
+            // 更新显示和输入框
+            updateCenterPointDisplay();
+            document.getElementById('center-x-input').value = Math.round(selectedImageData.centerX);
+            document.getElementById('center-y-input').value = Math.round(selectedImageData.centerY);
+            
+            // 重新绘制
+            drawImageWithGrid(currentImage, selectedImageData.centerX, selectedImageData.centerY);
+        }
+        
+        // 通过输入框设置中心点
+        function setCenterByInput() {
+            if (!selectedImageData || !currentImage) return;
+            
+            const xInput = document.getElementById('center-x-input');
+            const yInput = document.getElementById('center-y-input');
+            
+            let newX = parseFloat(xInput.value);
+            let newY = parseFloat(yInput.value);
+            
+            // 验证输入
+            if (isNaN(newX) || isNaN(newY)) {
+                alert('请输入有效的坐标值');
+                return;
+            }
+            
+            // 确保坐标在有效范围内
+            const validX = Math.max(0, Math.min(newX, currentImage.width));
+            const validY = Math.max(0, Math.min(newY, currentImage.height));
+            
+            // 更新中心点
+            selectedImageData.centerX = validX;
+            selectedImageData.centerY = validY;
+            
+            // 更新显示
+            updateCenterPointDisplay();
+            xInput.value = Math.round(validX);
+            yInput.value = Math.round(validY);
+            
+            // 重新绘制
+            drawImageWithGrid(currentImage, validX, validY);
+        }
+        
+        // 复制中心点坐标
+        function copyCenterCoords() {
+            if (!selectedImageData) return;
+            
+            // 格式化坐标字符串，保留整数
+            const coordsText = `${Math.round(selectedImageData.centerX)}, ${Math.round(selectedImageData.centerY)}`;
+            
+            // 复制到剪贴板
+            navigator.clipboard.writeText(coordsText).then(() => {
+                // 显示复制成功提示
+                const notice = document.getElementById('copy-notice');
+                notice.style.display = 'inline';
+                setTimeout(() => {
+                    notice.style.display = 'none';
+                }, 2000);
+            }).catch(err => {
+                console.error('复制失败:', err);
+                // 降级方案：创建临时输入框
+                const tempInput = document.createElement('input');
+                tempInput.value = coordsText;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                
+                // 显示复制成功提示
+                const notice = document.getElementById('copy-notice');
+                notice.style.display = 'inline';
+                setTimeout(() => {
+                    notice.style.display = 'none';
+                }, 2000);
+            });
+        }
+        
+        // 更新中心点坐标显示
+        function updateCenterPointDisplay() {
+            if (!selectedImageData) {
+                document.getElementById('current-center-coords').textContent = '-- , --';
+                return;
+            }
+            
+            // 显示整数坐标
+            const centerText = `${Math.round(selectedImageData.centerX)}, ${Math.round(selectedImageData.centerY)}`;
+            document.getElementById('current-center-coords').textContent = centerText;
+        }
+        
+        // 处理画布点击事件
+        function handleCanvasClick(e) {
+            if (!selectedImageData || !currentImage) return;
+            
+            // 关键修复：获取画布容器的边界矩形，而不是画布本身
+            const container = editCanvasContainer;
+            const containerRect = container.getBoundingClientRect();
+            
+            // 计算点击位置相对于容器的坐标
+            const clickX = e.clientX - containerRect.left;
+            const clickY = e.clientY - containerRect.top;
+            
+            // 正确的坐标转换逻辑：
+            // 1. 减去画布在容器中的偏移量
+            // 2. 除以当前缩放比例
+            // 这样得到的是相对于原始图片的准确坐标
+            const imageX = (clickX - offsetX) / currentScale;
+            const imageY = (clickY - offsetY) / currentScale;
+            
+            // 确保坐标在图片有效范围内
+            const validX = Math.max(0, Math.min(imageX, selectedImageData.width));
+            const validY = Math.max(0, Math.min(imageY, selectedImageData.height));
+            
+            // 更新中心点坐标
+            selectedImageData.centerX = validX;
+            selectedImageData.centerY = validY;
+            
+            // 更新坐标显示和输入框
+            updateCenterPointDisplay();
+            document.getElementById('center-x-input').value = Math.round(validX);
+            document.getElementById('center-y-input').value = Math.round(validY);
+            
+            // 重新绘制，使用验证后的坐标
+            drawImageWithGrid(currentImage, validX, validY);
+            
+            // 调试信息（可选）
+            console.log(`点击坐标: (${clickX}, ${clickY}), 偏移: (${offsetX}, ${offsetY}), 缩放: ${currentScale}, 转换后: (${imageX}, ${imageY}), 有效坐标: (${validX}, ${validY})`);
+        }
+        
+        // 初始化坐标输入框的粘贴功能
+        function initCoordsInputPaste() {
+            const xInput = document.getElementById('center-x-input');
+            const yInput = document.getElementById('center-y-input');
+            
+            // 为X输入框添加粘贴事件
+            xInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text');
+                processPastedCoords(text);
+            });
+            
+            // 为Y输入框添加粘贴事件
+            yInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text');
+                processPastedCoords(text);
+            });
+        }
+        
+        // 处理粘贴的坐标数据
+        function processPastedCoords(text) {
+            // 尝试解析坐标格式，支持多种格式："x,y"、"x y"、"(x,y)"等
+            const regex = /\d+\.?\d*/g;
+            const matches = text.match(regex);
+            
+            if (matches && matches.length >= 2) {
+                const x = parseFloat(matches[0]);
+                const y = parseFloat(matches[1]);
+                
+                if (!isNaN(x) && !isNaN(y)) {
+                    // 更新输入框
+                    document.getElementById('center-x-input').value = Math.round(x);
+                    document.getElementById('center-y-input').value = Math.round(y);
+                    
+                    // 可选：自动应用坐标
+                    setCenterByInput();
+                }
+            }
+        }
+        
+        // 绘制图片和九宫格网格
+        function drawImageWithGrid(img, centerX, centerY) {
+            // 清空画布
+            editCtx.clearRect(0, 0, editCanvas.width, editCanvas.height);
+            
+            // 绘制图片（原始尺寸）
+            editCtx.drawImage(img, 0, 0, img.width, img.height);
+            
+            // 确保中心点坐标有效
+            const validCenterX = Math.max(0, Math.min(centerX, editCanvas.width));
+            const validCenterY = Math.max(0, Math.min(centerY, editCanvas.height));
+            
+            // 绘制九宫格网格
+            editCtx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+            editCtx.lineWidth = 1;
+            
+            // 绘制垂直线
+            editCtx.beginPath();
+            editCtx.moveTo(editCanvas.width / 3, 0);
+            editCtx.lineTo(editCanvas.width / 3, editCanvas.height);
+            editCtx.moveTo(editCanvas.width * 2 / 3, 0);
+            editCtx.lineTo(editCanvas.width * 2 / 3, editCanvas.height);
+            editCtx.stroke();
+            
+            // 绘制水平线
+            editCtx.beginPath();
+            editCtx.moveTo(0, editCanvas.height / 3);
+            editCtx.lineTo(editCanvas.width, editCanvas.height / 3);
+            editCtx.moveTo(0, editCanvas.height * 2 / 3);
+            editCtx.lineTo(editCanvas.width, editCanvas.height * 2 / 3);
+            editCtx.stroke();
+            
+            // 绘制穿过中心点的米字线
+            editCtx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+            editCtx.lineWidth = 1;
+            
+            // 垂直线（穿过中心点）
+            editCtx.beginPath();
+            editCtx.moveTo(validCenterX, 0);
+            editCtx.lineTo(validCenterX, editCanvas.height);
+            editCtx.stroke();
+            
+            // 水平线（穿过中心点）
+            editCtx.beginPath();
+            editCtx.moveTo(0, validCenterY);
+            editCtx.lineTo(editCanvas.width, validCenterY);
+            editCtx.stroke();
+            
+            // 对角线（左上到右下）
+            editCtx.beginPath();
+            editCtx.moveTo(0, 0);
+            editCtx.lineTo(editCanvas.width, editCanvas.height);
+            editCtx.stroke();
+            
+            // 对角线（右上到左下）
+            editCtx.beginPath();
+            editCtx.moveTo(editCanvas.width, 0);
+            editCtx.lineTo(0, editCanvas.height);
+            editCtx.stroke();
+            
+            // 绘制中心点标记
+            editCtx.fillStyle = 'red';
+            editCtx.beginPath();
+            editCtx.arc(validCenterX, validCenterY, 5, 0, Math.PI * 2);
+            editCtx.fill();
+            
+            // 绘制中心点外圈
+            editCtx.strokeStyle = 'white';
+            editCtx.lineWidth = 2;
+            editCtx.beginPath();
+            editCtx.arc(validCenterX, validCenterY, 7, 0, Math.PI * 2);
+            editCtx.stroke();
+        }
+        
+        // 按中心点对齐图片
+        function alignImagesByCenter() {
+            if (imagesData.length === 0) {
+                alert('请先上传图片');
+                return;
+            }
+            
+            // 创建一个新的画布来处理对齐
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 计算需要的总尺寸（基于最大宽度和高度）
+            const maxWidth = Math.max(...imagesData.map(img => img.width));
+            const maxHeight = Math.max(...imagesData.map(img => img.height));
+            
+            // 对每个图片进行对齐处理
+            imagesData.forEach(imageData => {
+                canvas.width = maxWidth;
+                canvas.height = maxHeight;
+                ctx.clearRect(0, 0, maxWidth, maxHeight);
+                
+                // 计算新的位置，使中心点对齐
+                const newX = (maxWidth / 2) - imageData.centerX;
+                const newY = (maxHeight / 2) - imageData.centerY;
+                
+                // 绘制图片到新位置
+                const img = new Image();
+                img.src = imageData.src;
+                ctx.drawImage(img, newX, newY, imageData.width, imageData.height);
+                
+                // 更新图片数据
+                imageData.src = canvas.toDataURL();
+                imageData.width = maxWidth;
+                imageData.height = maxHeight;
+                imageData.centerX = maxWidth / 2;
+                imageData.centerY = maxHeight / 2;
+            });
+            
+            // 更新视图
+            updateFrameItems();
+            updatePreviewImages();
+            
+            alert('图片已按中心点对齐');
+        }
+        
+        // 批量裁剪图片
+        function cropImages() {
+            const width = parseInt(document.getElementById('width-input').value);
+            const height = parseInt(document.getElementById('height-input').value);
+            
+            if (isNaN(width) || isNaN(height) || width <= 0 || height <= 0) {
+                alert('请输入有效的宽度和高度');
+                return;
+            }
+            
+            if (imagesData.length === 0) {
+                alert('请先上传图片');
+                return;
+            }
+            
+            // 创建画布进行裁剪
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            
+            // 裁剪每个图片
+            imagesData.forEach(imageData => {
+                // 计算裁剪区域，以中心点为基准
+                const cropX = Math.max(0, imageData.centerX - width / 2);
+                const cropY = Math.max(0, imageData.centerY - height / 2);
+                
+                // 确保裁剪区域不超出原图范围
+                const actualCropX = Math.min(cropX, imageData.width - width);
+                const actualCropY = Math.min(cropY, imageData.height - height);
+                
+                // 清空画布
+                ctx.clearRect(0, 0, width, height);
+                
+                // 绘制裁剪区域
+                const img = new Image();
+                img.src = imageData.src;
+                ctx.drawImage(img, actualCropX, actualCropY, width, height, 0, 0, width, height);
+                
+                // 更新图片数据
+                imageData.src = canvas.toDataURL();
+                imageData.width = width;
+                imageData.height = height;
+                // 中心点相对于裁剪后的图片保持在中心位置
+                imageData.centerX = width / 2;
+                imageData.centerY = height / 2;
+            });
+            
+            // 更新视图
+            updateFrameItems();
+            updatePreviewImages();
+            
+            alert('图片已裁剪完成');
+        }
+        
+        // 更新帧项视图
+        function updateFrameItems() {
+            const framesContainer = document.getElementById('frames-container');
+            framesContainer.innerHTML = '';
+            
+            imagesData.forEach(imageData => {
+                createFrameItem(imageData);
+            });
+        }
+        
+        // 更新预览图片
+        function updatePreviewImages() {
+            const previewContainer = document.getElementById('animation-preview');
+            previewContainer.innerHTML = '';
+            
+            if (imagesData.length === 0) {
+                const placeholder = document.createElement('div');
+                placeholder.id = 'preview-placeholder';
+                placeholder.textContent = '请上传图片以预览动画';
+                previewContainer.appendChild(placeholder);
+                return;
+            }
+            
+            // 创建预览图片
+            imagesData.forEach((imageData, index) => {
+                const img = document.createElement('img');
+                img.src = imageData.src;
+                img.alt = `帧 ${index + 1}`;
+                if (index === 0) {
+                    img.classList.add('active');
+                }
+                previewContainer.appendChild(img);
+            });
+        }
+        
+        // 开始动画预览
+        function startAnimation() {
+            if (imagesData.length === 0) {
+                alert('请先上传图片');
+                return;
+            }
+            
+            // 停止之前的动画
+            stopAnimation();
+            
+            const fps = parseInt(document.getElementById('fps-input').value) || 10;
+            const intervalTime = 1000 / fps;
+            
+            animationInterval = setInterval(() => {
+                const previewContainer = document.getElementById('animation-preview');
+                const images = previewContainer.querySelectorAll('img');
+                
+                // 隐藏所有图片
+                images.forEach(img => img.classList.remove('active'));
+                
+                // 显示当前帧
+                images[currentFrameIndex].classList.add('active');
+                
+                // 更新索引
+                currentFrameIndex = (currentFrameIndex + 1) % imagesData.length;
+            }, intervalTime);
+        }
+        
+        // 停止动画预览
+        function stopAnimation() {
+            if (animationInterval) {
+                clearInterval(animationInterval);
+                animationInterval = null;
+            }
+            currentFrameIndex = 0;
+            
+            // 显示第一帧
+            const previewContainer = document.getElementById('animation-preview');
+            const images = previewContainer.querySelectorAll('img');
+            if (images.length > 0) {
+                images.forEach(img => img.classList.remove('active'));
+                images[0].classList.add('active');
+            }
+        }
+        
+        // 下载所有图片
+        function downloadAllImages() {
+            if (imagesData.length === 0) {
+                alert('请先上传图片');
+                return;
+            }
+            
+            // 如果只有一张图片，直接下载
+            if (imagesData.length === 1) {
+                downloadImage(imagesData[0]);
+                return;
+            }
+            
+            // 多张图片，创建ZIP（简化版，实际项目中可以使用JSZip库）
+            // 这里我们逐个下载
+            imagesData.forEach((imageData, index) => {
+                setTimeout(() => downloadImage(imageData), index * 100);
+            });
+            
+            alert(`开始下载 ${imagesData.length} 张图片`);
+        }
+        
+        // 下载单张图片
+        function downloadImage(imageData) {
+            const link = document.createElement('a');
+            link.href = imageData.src;
+            link.download = imageData.name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

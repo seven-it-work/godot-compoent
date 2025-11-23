@@ -1,0 +1,296 @@
+[gd_scene load_steps=72 format=3 uid="uid://kvgwjt8g8k1u"]
+
+[ext_resource type="Texture2D" uid="uid://ct4hgxb1108yi" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000000.png" id="1_i0uew"]
+[ext_resource type="Texture2D" uid="uid://bn6qx680h48jw" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000001.png" id="2_dgtov"]
+[ext_resource type="Texture2D" uid="uid://cvd6e3shjo3f7" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000002.png" id="3_3tp15"]
+[ext_resource type="Texture2D" uid="uid://8qle2phxeody" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000003.png" id="4_2emuy"]
+[ext_resource type="Texture2D" uid="uid://cwrbsjijxucsv" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000004.png" id="5_vwtes"]
+[ext_resource type="Texture2D" uid="uid://ci58pt4v7g80p" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000005.png" id="6_h3g0w"]
+[ext_resource type="Texture2D" uid="uid://b13y15axdy7d1" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000006.png" id="7_td54y"]
+[ext_resource type="Texture2D" uid="uid://bl3sa4dnyb602" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000007.png" id="8_siyni"]
+[ext_resource type="Texture2D" uid="uid://1xjjrhf7ox7q" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000008.png" id="9_kkqrr"]
+[ext_resource type="Texture2D" uid="uid://cg6wq70me43ne" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000009.png" id="10_7777b"]
+[ext_resource type="Texture2D" uid="uid://q8mostae5o2l" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000010.png" id="11_qqgvm"]
+[ext_resource type="Texture2D" uid="uid://cdn5mjh2lbjby" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000011.png" id="12_jids8"]
+[ext_resource type="Texture2D" uid="uid://ig6i1uix00an" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000012.png" id="13_udq43"]
+[ext_resource type="Texture2D" uid="uid://8sx3m8p7uhry" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000013.png" id="14_edls7"]
+[ext_resource type="Texture2D" uid="uid://dpbypewvshel7" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000014.png" id="15_gqmjn"]
+[ext_resource type="Texture2D" uid="uid://tt7m8ki7jj1p" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000015.png" id="16_4e72k"]
+[ext_resource type="Texture2D" uid="uid://ccmih2l2mqvay" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000016.png" id="17_75bev"]
+[ext_resource type="Texture2D" uid="uid://d2q8pfbgjm3v6" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000017.png" id="18_rg4au"]
+[ext_resource type="Texture2D" uid="uid://gn7wtcaqf46l" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000018.png" id="19_0glg0"]
+[ext_resource type="Texture2D" uid="uid://uenao4pmpub7" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000019.png" id="20_ukkhp"]
+[ext_resource type="Texture2D" uid="uid://dxfa15i8u4ua8" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000020.png" id="21_0vq63"]
+[ext_resource type="Texture2D" uid="uid://cb1tucjvkiio2" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000021.png" id="22_lv65s"]
+[ext_resource type="Texture2D" uid="uid://dd0dd3amlodv4" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000022.png" id="23_fe2ok"]
+[ext_resource type="Texture2D" uid="uid://c5tfjtm5lsq1s" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000023.png" id="24_v254j"]
+[ext_resource type="Texture2D" uid="uid://ccrqgcj8f30ib" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000024.png" id="25_ywrkh"]
+[ext_resource type="Texture2D" uid="uid://dm25kk6c8rma6" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000025.png" id="26_cs7xn"]
+[ext_resource type="Texture2D" uid="uid://cgu6hu00xmcrx" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000026.png" id="27_xlamh"]
+[ext_resource type="Texture2D" uid="uid://c6twqwcy8y3ke" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000027.png" id="28_owmkf"]
+[ext_resource type="Texture2D" uid="uid://rxubplabtny7" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000028.png" id="29_ck2ky"]
+[ext_resource type="Texture2D" uid="uid://brvlnm17mukmt" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000029.png" id="30_uf2ul"]
+[ext_resource type="Texture2D" uid="uid://brypgmdljbjaq" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000030.png" id="31_bhoj8"]
+[ext_resource type="Texture2D" uid="uid://o7a1fu0ol7kd" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000031.png" id="32_iyue8"]
+[ext_resource type="Texture2D" uid="uid://c2goygttdsmf3" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000032.png" id="33_0gnmv"]
+[ext_resource type="Texture2D" uid="uid://c4nbm2jic5ofg" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000033.png" id="34_14md1"]
+[ext_resource type="Texture2D" uid="uid://8aybye1qgnha" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000034.png" id="35_ik31e"]
+[ext_resource type="Texture2D" uid="uid://cxj8w31ntgbpf" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000035.png" id="36_f6ygm"]
+[ext_resource type="Texture2D" uid="uid://v7bxa1rxqhhs" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000036.png" id="37_5gtt4"]
+[ext_resource type="Texture2D" uid="uid://qlbu8oc6xtv3" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000037.png" id="38_ds18k"]
+[ext_resource type="Texture2D" uid="uid://ocbyqoyfc3kb" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000038.png" id="39_mt5ab"]
+[ext_resource type="Texture2D" uid="uid://bak8p1ip4pqcc" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000039.png" id="40_7wyi4"]
+[ext_resource type="Texture2D" uid="uid://bgb58uge2r0mc" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000040.png" id="41_s5e3o"]
+[ext_resource type="Texture2D" uid="uid://brjd4pyyflndm" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000041.png" id="42_yynbn"]
+[ext_resource type="Texture2D" uid="uid://btdi5f6rmc6io" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000042.png" id="43_rx43u"]
+[ext_resource type="Texture2D" uid="uid://d3sxpm6clloyx" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000043.png" id="44_5tyd3"]
+[ext_resource type="Texture2D" uid="uid://cejda3ig2jae1" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000044.png" id="45_ngiei"]
+[ext_resource type="Texture2D" uid="uid://wa6mb3wpacd5" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000045.png" id="46_wwq3r"]
+[ext_resource type="Texture2D" uid="uid://dgjpjkg73nbbj" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000046.png" id="47_ii6uv"]
+[ext_resource type="Texture2D" uid="uid://crehhgsdxhcfu" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000047.png" id="48_mhl4v"]
+[ext_resource type="Texture2D" uid="uid://cda6jni8mc728" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000048.png" id="49_lsa4t"]
+[ext_resource type="Texture2D" uid="uid://byj2dhsgoacrk" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000049.png" id="50_15xgt"]
+[ext_resource type="Texture2D" uid="uid://dbtgorctg3xom" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000050.png" id="51_yy4lo"]
+[ext_resource type="Texture2D" uid="uid://cy3neiqj7viw5" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000051.png" id="52_w17w1"]
+[ext_resource type="Texture2D" uid="uid://dcy305t8e0kyr" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000052.png" id="53_83lqi"]
+[ext_resource type="Texture2D" uid="uid://v5es85she7sg" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000053.png" id="54_dxxvg"]
+[ext_resource type="Texture2D" uid="uid://bbw12h2lxo2vv" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000054.png" id="55_lsqaw"]
+[ext_resource type="Texture2D" uid="uid://de5ivu5c8p2is" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000055.png" id="56_avrvn"]
+[ext_resource type="Texture2D" uid="uid://c20f31nbjfgkf" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000056.png" id="57_2s6nv"]
+[ext_resource type="Texture2D" uid="uid://c0icqq210yjp3" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000057.png" id="58_42dmt"]
+[ext_resource type="Texture2D" uid="uid://cnxqh0a7tf8gr" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000058.png" id="59_eut7p"]
+[ext_resource type="Texture2D" uid="uid://cau75kmx5s33a" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000059.png" id="60_kj43j"]
+[ext_resource type="Texture2D" uid="uid://b6k2u6bqk1yec" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000060.png" id="61_gkb47"]
+[ext_resource type="Texture2D" uid="uid://y3qrdmak5lff" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000061.png" id="62_jw3ls"]
+[ext_resource type="Texture2D" uid="uid://dy45814oj0rf5" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000062.png" id="63_dl8fh"]
+[ext_resource type="Texture2D" uid="uid://cg7pegysjh6ho" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000063.png" id="64_nlwwt"]
+[ext_resource type="Texture2D" uid="uid://0ufgirl1n1ph" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000064.png" id="65_ji4hu"]
+[ext_resource type="Texture2D" uid="uid://ceg2fn3nxmp45" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000065.png" id="66_w0tj4"]
+[ext_resource type="Texture2D" uid="uid://dsgb1a3llj3b8" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000066.png" id="67_tyh3j"]
+[ext_resource type="Texture2D" uid="uid://bvlta5oo8tjq6" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000067.png" id="68_5x85u"]
+[ext_resource type="Texture2D" uid="uid://bt86lirn1cptd" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000068.png" id="69_njwy8"]
+[ext_resource type="Texture2D" uid="uid://b7x5gdutwxcq3" path="res://动画/特效/火焰/漩涡火焰/文件_frame_000069.png" id="70_gjsn5"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_2vqlr"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_i0uew")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_dgtov")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_3tp15")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_2emuy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_vwtes")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_h3g0w")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_td54y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_siyni")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_kkqrr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_7777b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_qqgvm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_jids8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_udq43")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_edls7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_gqmjn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_4e72k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_75bev")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_rg4au")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_0glg0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_ukkhp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_0vq63")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_lv65s")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_fe2ok")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_v254j")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_ywrkh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_cs7xn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_xlamh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_owmkf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_ck2ky")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_uf2ul")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_bhoj8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("32_iyue8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_0gnmv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_14md1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_ik31e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_f6ygm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_5gtt4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_ds18k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_mt5ab")
+}, {
+"duration": 1.0,
+"texture": ExtResource("40_7wyi4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_s5e3o")
+}, {
+"duration": 1.0,
+"texture": ExtResource("42_yynbn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("43_rx43u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("44_5tyd3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("45_ngiei")
+}, {
+"duration": 1.0,
+"texture": ExtResource("46_wwq3r")
+}, {
+"duration": 1.0,
+"texture": ExtResource("47_ii6uv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("48_mhl4v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("49_lsa4t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("50_15xgt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("51_yy4lo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("52_w17w1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("53_83lqi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("54_dxxvg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("55_lsqaw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("56_avrvn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("57_2s6nv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("58_42dmt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("59_eut7p")
+}, {
+"duration": 1.0,
+"texture": ExtResource("60_kj43j")
+}, {
+"duration": 1.0,
+"texture": ExtResource("61_gkb47")
+}, {
+"duration": 1.0,
+"texture": ExtResource("62_jw3ls")
+}, {
+"duration": 1.0,
+"texture": ExtResource("63_dl8fh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("64_nlwwt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("65_ji4hu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("66_w0tj4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("67_tyh3j")
+}, {
+"duration": 1.0,
+"texture": ExtResource("68_5x85u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("69_njwy8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("70_gjsn5")
+}],
+"loop": true,
+"name": &"default",
+"speed": 30.0
+}]
+
+[node name="漩涡火焰" type="AnimatedSprite2D"]
+position = Vector2(309, 413.00003)
+scale = Vector2(0.25, 0.26944444)
+sprite_frames = SubResource("SpriteFrames_2vqlr")
+frame_progress = 0.307296
