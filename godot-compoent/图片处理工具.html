@@ -210,6 +210,143 @@
         .download-btn:hover {
             background-color: #c0392b;
         }
+
+        /* 视频转帧图相关样式 */
+        .video-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .video-section h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .video-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: flex-end;
+        }
+
+        .video-control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .video-control-group label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .video-control-group input[type="file"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .video-control-group input[type="number"] {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .video-control-group small {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .video-preview {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #video-preview {
+            max-width: 100%;
+            max-height: 400px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #video-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        #frame-preview-section h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .frame-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .frame-item {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+
+        .frame-item img {
+            max-width: 150px;
+            max-height: 150px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+        }
+
+        .frame-info {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .frame-download-btn {
+            padding: 5px 10px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.3s;
+        }
+
+        .frame-download-btn:hover {
+            background-color: #c0392b;
+        }
+
+        #download-frames-btn {
+            background-color: #3498db;
+            color: white;
+        }
+
+        #download-frames-btn:hover {
+            background-color: #2980b9;
+        }
+
+        #download-zip-btn {
+            background-color: #9b59b6;
+            color: white;
+        }
+
+        #download-zip-btn:hover {
+            background-color: #8e44ad;
+        }
         
         .frame-info {
             font-size: 11px;
@@ -231,18 +368,6 @@
             background-color: #000;
             border: 2px solid #ddd;
             border-radius: 4px;
-            min-height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .animation-preview img {
-            max-width: 100%;
-            max-height: 300px;
             display: none;
         }
         
@@ -518,7 +643,7 @@
 <body>
     <div class="container">
         <h1>图片处理工具</h1>
-        
+
         <div class="upload-section">
             <label for="file-upload" class="upload-btn">
                 选择图片文件 (支持多选)
@@ -1793,8 +1918,496 @@
                 }
             } catch (error) {
                 alert('导出宫格图片失败: ' + error);
+            }}
+        
+        // 视频转帧图功能 - 等待DOM完全加载
+        document.addEventListener('DOMContentLoaded', function() {
+            // 确保视频转帧图的DOM元素存在
+            const videoUpload = document.getElementById('video-upload');
+            const videoPreview = document.getElementById('video-preview');
+            const videoInfo = document.getElementById('video-info');
+            const frameInterval = document.getElementById('frame-interval');
+            const startTime = document.getElementById('start-time');
+            const endTime = document.getElementById('end-time');
+            const extractFramesBtn = document.getElementById('extract-frames-btn');
+            const framePreviewSection = document.getElementById('frame-preview-section');
+            const frameGrid = document.getElementById('frame-grid');
+            const downloadFramesBtn = document.getElementById('download-frames-btn');
+            const downloadZipBtn = document.getElementById('download-zip-btn');
+            
+            // 检查是否所有元素都存在
+            if (!videoUpload || !videoPreview || !videoInfo || !frameInterval || 
+                !startTime || !endTime || !extractFramesBtn || !framePreviewSection || 
+                !frameGrid || !downloadFramesBtn || !downloadZipBtn) {
+                console.error('视频转帧图功能所需的DOM元素未找到');
+                return;
+            }
+            
+            // 存储提取的帧
+            let extractedFrames = [];
+            
+            // 处理视频上传
+            videoUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // 检查文件类型
+                if (!file.type.includes('video/')) {
+                    alert('请上传视频文件');
+                    return;
+                }
+                
+                // 创建视频URL
+                const videoURL = URL.createObjectURL(file);
+                videoPreview.src = videoURL;
+                videoInfo.textContent = `${file.name} (${formatFileSize(file.size)})`;
+                
+                // 启用提取按钮
+                extractFramesBtn.disabled = false;
+                
+                // 当视频元数据加载完成后，设置默认结束时间
+                videoPreview.onloadedmetadata = function() {
+                    if (endTime.value === '0') {
+                        endTime.value = Math.floor(videoPreview.duration);
+                    }
+                };
+            }
+        });
+        
+        // 添加进度显示元素
+        function addProgressDisplay() {
+            const progressContainer = document.createElement('div');
+            progressContainer.id = 'extraction-progress';
+            progressContainer.style.display = 'none';
+            progressContainer.style.marginTop = '10px';
+            
+            const progressBar = document.createElement('div');
+            progressBar.id = 'progress-bar';
+            progressBar.style.width = '100%';
+            progressBar.style.height = '20px';
+            progressBar.style.backgroundColor = '#f0f0f0';
+            progressBar.style.borderRadius = '10px';
+            progressBar.style.overflow = 'hidden';
+            
+            const progressFill = document.createElement('div');
+            progressFill.id = 'progress-fill';
+            progressFill.style.width = '0%';
+            progressFill.style.height = '100%';
+            progressFill.style.backgroundColor = '#3498db';
+            progressFill.style.transition = 'width 0.3s ease';
+            
+            const progressText = document.createElement('div');
+            progressText.id = 'progress-text';
+            progressText.style.textAlign = 'center';
+            progressText.style.marginTop = '5px';
+            progressText.style.fontSize = '14px';
+            progressText.style.color = '#666';
+            
+            progressBar.appendChild(progressFill);
+            progressContainer.appendChild(progressBar);
+            progressContainer.appendChild(progressText);
+            
+            // 添加到视频预览下方
+            videoPreview.parentNode.appendChild(progressContainer);
+        }
+        
+        // 更新进度显示
+        function updateProgress(current, total) {
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const progressContainer = document.getElementById('extraction-progress');
+            
+            if (progressFill && progressText && progressContainer) {
+                progressContainer.style.display = 'block';
+                const percentage = Math.floor((current / total) * 100);
+                progressFill.style.width = percentage + '%';
+                progressText.textContent = `提取进度: ${percentage}% (${current}/${total} 帧)`;
             }
         }
+        
+        // 隐藏进度显示
+        function hideProgress() {
+            const progressContainer = document.getElementById('extraction-progress');
+            if (progressContainer) {
+                progressContainer.style.display = 'none';
+            }
+        }
+        
+        // 提取帧图
+        extractFramesBtn.addEventListener('click', async function() {
+            try {
+                // 确保进度显示元素存在
+                if (!document.getElementById('extraction-progress')) {
+                    addProgressDisplay();
+                }
+                
+                // 清空之前的帧图
+                frameGrid.innerHTML = '';
+                extractedFrames = [];
+                
+                const interval = parseFloat(frameInterval.value) || 1;
+                let start = parseFloat(startTime.value) || 0;
+                let end = parseFloat(endTime.value) || videoPreview.duration;
+                
+                // 验证时间参数
+                if (isNaN(interval) || interval <= 0) {
+                    alert('请输入有效的提取间隔');
+                    return;
+                }
+                
+                if (start < 0 || end > videoPreview.duration || start >= end) {
+                    alert('请输入有效的时间范围');
+                    return;
+                }
+                
+                // 估算帧数，用于进度显示
+                const estimatedFrames = Math.ceil((end - start) / interval) + 1;
+                
+                // 显示加载状态
+                extractFramesBtn.disabled = true;
+                extractFramesBtn.textContent = '提取中...';
+                
+                // 提取帧图
+                extractedFrames = await extractFramesFromVideo(videoPreview, interval, start, end, estimatedFrames);
+                
+                // 隐藏进度显示
+                hideProgress();
+                
+                // 显示帧图预览
+                displayFramePreviews(extractedFrames);
+                
+                // 显示预览区域
+                framePreviewSection.style.display = 'block';
+                
+                // 滚动到预览区域
+                framePreviewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // 提示用户提取完成
+                alert(`成功提取 ${extractedFrames.length} 个帧图`);
+            } catch (error) {
+                console.error('提取帧图错误:', error);
+                alert('提取帧图失败: ' + (error.message || error));
+                hideProgress();
+            } finally {
+                // 恢复按钮状态
+                extractFramesBtn.disabled = false;
+                extractFramesBtn.textContent = '提取帧图';
+            }
+        });
+        
+        // 从视频中提取帧图
+        function extractFramesFromVideo(video, interval, startTime, endTime, estimatedFrames) {
+            return new Promise((resolve, reject) => {
+                try {
+                    // 创建canvas用于绘制帧
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // 检查浏览器兼容性
+                    if (!ctx) {
+                        reject(new Error('浏览器不支持Canvas API'));
+                        return;
+                    }
+                    
+                    // 设置canvas大小与视频一致
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    
+                    // 如果视频尺寸过大，进行适当缩放以提高性能
+                    const maxDimension = 1280; // 设置最大尺寸
+                    if (canvas.width > maxDimension || canvas.height > maxDimension) {
+                        const scale = maxDimension / Math.max(canvas.width, canvas.height);
+                        canvas.width = Math.floor(canvas.width * scale);
+                        canvas.height = Math.floor(canvas.height * scale);
+                    }
+                    
+                    const frames = [];
+                    let currentTime = startTime;
+                    let frameCount = 0;
+                    let seekTimeoutId = null;
+                    
+                    // 处理视频seek事件
+                    video.addEventListener('seeked', onSeeked);
+                    
+                    // 处理错误事件
+                    video.addEventListener('error', onError);
+                    
+                    function onSeeked() {
+                        try {
+                            // 清除之前的超时
+                            if (seekTimeoutId) {
+                                clearTimeout(seekTimeoutId);
+                                seekTimeoutId = null;
+                            }
+                            
+                            // 绘制当前帧到canvas
+                            ctx.drawImage(
+                                video, 
+                                0, 0, video.videoWidth, video.videoHeight, 
+                                0, 0, canvas.width, canvas.height
+                            );
+                            
+                            // 将canvas转换为DataURL
+                            const frameDataUrl = canvas.toDataURL('image/png');
+                            frames.push({
+                                dataUrl: frameDataUrl,
+                                time: currentTime,
+                                index: frameCount
+                            });
+                            
+                            // 更新进度
+                            updateProgress(frameCount + 1, estimatedFrames);
+                            
+                            // 增加计数器
+                            frameCount++;
+                            
+                            // 继续提取下一个帧
+                            currentTime += interval;
+                            if (currentTime <= endTime) {
+                                // 设置超时，防止视频seek事件不触发
+                                seekTimeoutId = setTimeout(() => {
+                                    console.warn('Seek超时，尝试下一个帧');
+                                    video.removeEventListener('seeked', onSeeked);
+                                    onSeeked(); // 手动调用一次
+                                }, 1000); // 1秒超时
+                                
+                                video.currentTime = currentTime;
+                            } else {
+                                // 清理事件监听
+                                cleanup();
+                                // 提取完成
+                                resolve(frames);
+                            }
+                        } catch (error) {
+                            cleanup();
+                            reject(error);
+                        }
+                    }
+                    
+                    function onError() {
+                        console.error('视频播放错误:', video.error);
+                        cleanup();
+                        reject(new Error('视频播放错误'));
+                    }
+                    
+                    function cleanup() {
+                        video.removeEventListener('seeked', onSeeked);
+                        video.removeEventListener('error', onError);
+                        if (seekTimeoutId) {
+                            clearTimeout(seekTimeoutId);
+                        }
+                    }
+                    
+                    // 开始提取第一帧
+                    video.currentTime = startTime;
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+        
+        // 显示帧图预览
+        function displayFramePreviews(frames) {
+            frames.forEach(frame => {
+                const frameContainer = document.createElement('div');
+                frameContainer.className = 'frame-item';
+                
+                const img = document.createElement('img');
+                img.src = frame.dataUrl;
+                img.alt = `帧图 ${frame.index + 1} (${frame.time.toFixed(2)}s)`;
+                img.style.maxWidth = '150px';
+                img.style.maxHeight = '150px';
+                img.style.objectFit = 'contain';
+                
+                const info = document.createElement('div');
+                info.className = 'frame-info';
+                info.textContent = `帧 ${frame.index + 1}\n${frame.time.toFixed(2)}s`;
+                
+                // 下载按钮
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'frame-download-btn';
+                downloadBtn.textContent = '下载';
+                downloadBtn.addEventListener('click', () => downloadFrame(frame));
+                
+                frameContainer.appendChild(img);
+                frameContainer.appendChild(info);
+                frameContainer.appendChild(downloadBtn);
+                frameGrid.appendChild(frameContainer);
+            });
+        }
+        
+        // 下载单个帧图
+        function downloadFrame(frame) {
+            const link = document.createElement('a');
+            link.href = frame.dataUrl;
+            link.download = `frame_${frame.index + 1}_${Math.floor(frame.time)}s.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 下载所有帧图
+        downloadFramesBtn.addEventListener('click', function() {
+            if (extractedFrames.length === 0) {
+                alert('没有可下载的帧图');
+                return;
+            }
+            
+            // 创建一个zip文件下载
+            if (extractedFrames.length > 5) {
+                // 如果帧图数量较多，提示用户使用ZIP下载
+                if (confirm(`发现 ${extractedFrames.length} 个帧图，是否下载为ZIP文件？`)) {
+                    downloadFramesAsZip();
+                } else {
+                    // 逐个下载
+                    extractedFrames.forEach(frame => downloadFrame(frame));
+                }
+            } else {
+                // 帧数较少，直接逐个下载
+                extractedFrames.forEach(frame => downloadFrame(frame));
+            }
+        });
+        
+        // 下载为ZIP文件
+        downloadZipBtn.addEventListener('click', function() {
+            if (extractedFrames.length === 0) {
+                alert('没有可下载的帧图');
+                return;
+            }
+            
+            downloadFramesAsZip();
+        });
+        
+        // 将帧图打包为ZIP下载
+        function downloadFramesAsZip() {
+            // 检查是否支持使用第三方库
+            if (typeof JSZip !== 'undefined') {
+                // 如果页面已加载JSZip库
+                createZipWithJSZip();
+            } else {
+                // 不支持ZIP下载时的替代方案
+                alert('当前环境不支持ZIP下载功能。请使用"下载所有帧图"按钮逐个下载。');
+            }
+        }
+        
+        // 使用JSZip创建ZIP文件（如果可用）
+        function createZipWithJSZip() {
+            // 显示加载状态
+            downloadZipBtn.disabled = true;
+            downloadZipBtn.textContent = '打包中...';
+            
+            try {
+                const zip = new JSZip();
+                const frameFolder = zip.folder('video_frames');
+                
+                // 添加所有帧图到ZIP
+                extractedFrames.forEach(frame => {
+                    // 从DataURL中提取二进制数据
+                    const data = frame.dataUrl.split(',')[1];
+                    const filename = `frame_${frame.index + 1}_${Math.floor(frame.time)}s.png`;
+                    frameFolder.file(filename, data, { base64: true });
+                });
+                
+                // 生成ZIP文件
+                zip.generateAsync({ type: 'blob' }).then(function(content) {
+                    // 创建下载链接
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(content);
+                    link.download = `video_frames_${new Date().getTime()}.zip`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // 恢复按钮状态
+                    downloadZipBtn.disabled = false;
+                    downloadZipBtn.textContent = '下载为ZIP';
+                    
+                    alert('ZIP文件已下载');
+                }).catch(function(error) {
+                    console.error('生成ZIP文件失败:', error);
+                    alert('生成ZIP文件失败，请稍后重试');
+                    
+                    // 恢复按钮状态
+                    downloadZipBtn.disabled = false;
+                    downloadZipBtn.textContent = '下载为ZIP';
+                });
+            } catch (error) {
+                console.error('ZIP功能错误:', error);
+                alert('ZIP下载功能暂不可用');
+                
+                // 恢复按钮状态
+                downloadZipBtn.disabled = false;
+                downloadZipBtn.textContent = '下载为ZIP';
+            }
+        }
+        
+        // 添加JSZip库（如果需要）
+        function loadJSZipLibrary() {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+            script.onload = function() {
+                console.log('JSZip库已加载');
+            };
+            script.onerror = function() {
+                console.warn('无法加载JSZip库，ZIP下载功能将不可用');
+            };
+            document.head.appendChild(script);
+        }
+        // 视频转帧图功能的JavaScript代码已完成
+        });
+        
+        // JavaScript代码结束
     </script>
+    
+    <!-- 视频转帧图部分 -->
+    <div class="video-section">
+        <h2>视频转帧图</h2>
+        <div class="video-controls">
+            <div class="video-control-group">
+                <label for="video-upload">选择视频</label>
+                <input type="file" id="video-upload" accept="video/*">
+            </div>
+            <div class="video-control-group">
+                <label for="frame-interval">提取间隔（秒）</label>
+                <input type="number" id="frame-interval" value="1" min="0.1" step="0.1">
+            </div>
+            <div class="video-control-group">
+                <label for="start-time">开始时间（秒）</label>
+                <input type="number" id="start-time" value="0" min="0" step="0.1">
+            </div>
+            <div class="video-control-group">
+                <label for="end-time">结束时间（秒）</label>
+                <input type="number" id="end-time" value="0" min="0" step="0.1">
+                <small>（0表示视频结束）</small>
+            </div>
+            <div class="video-control-group">
+                <button id="extract-frames-btn" class="action-btn" disabled>提取帧图</button>
+            </div>
+        </div>
+        
+        <div class="video-preview">
+            <video id="video-preview" controls></video>
+            <p id="video-info">请上传视频</p>
+        </div>
+        
+        <div id="frame-preview-section" style="display: none;">
+            <h3>帧图预览</h3>
+            <div class="frame-grid" id="frame-grid"></div>
+            <div class="button-group">
+                <button id="download-frames-btn" class="action-btn">下载所有帧图</button>
+                <button id="download-zip-btn" class="action-btn">下载为ZIP</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
