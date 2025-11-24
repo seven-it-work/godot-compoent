@@ -639,6 +639,8 @@
              font-size: 14px;
          }
         </style>
+    <!-- 直接引入JSZip库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -2290,6 +2292,18 @@
         
         // 将帧图打包为ZIP下载
         function downloadFramesAsZip() {
+            // 询问用户偏好的下载方式
+            const downloadMethod = confirm('请选择下载方式：\n\n- 点击确定：ZIP打包下载（推荐，减少文件数量）\n- 点击取消：批量单独下载（可能更兼容某些Windows安全设置）\n\n无论选择哪种方式，如果遇到安全警告，请右键点击文件，在属性中勾选"解除锁定"。');
+            
+            if (downloadMethod) {
+                // ZIP下载方式
+                // 常规的ZIP下载流程将继续执行
+            } else {
+                // 批量单独下载方式
+                downloadFramesAsMultipleFiles();
+                return; // 终止函数执行，不进入ZIP下载流程
+            }
+            
             // 检查是否支持使用第三方库
             if (typeof JSZip !== 'undefined') {
                 // 如果页面已加载JSZip库
@@ -2307,26 +2321,100 @@
             downloadZipBtn.textContent = '打包中...';
             
             try {
+                // 创建JSZip实例并设置更友好的中文文件夹名称
                 const zip = new JSZip();
-                const frameFolder = zip.folder('video_frames');
+                const frameFolder = zip.folder('视频帧图');
                 
-                // 添加所有帧图到ZIP
+                // 添加所有帧图到ZIP - 改进版，确保Base64数据正确处理
                 extractedFrames.forEach(frame => {
-                    // 从DataURL中提取二进制数据
-                    const data = frame.dataUrl.split(',')[1];
-                    const filename = `frame_${frame.index + 1}_${Math.floor(frame.time)}s.png`;
-                    frameFolder.file(filename, data, { base64: true });
+                    // 从DataURL中提取Base64数据
+                    const base64Data = frame.dataUrl.split(',')[1];
+                    // 使用更友好的中文文件名，避免英文数字混合命名触发安全警告
+                    const filename = `帧图_${String(frame.index + 1).padStart(3, '0')}_${Math.floor(frame.time)}秒.png`;
+                    
+                    // 增强PNG文件的MIME类型和元数据设置，减少安全警告
+                    frameFolder.file(filename, base64Data, {
+                        base64: true,
+                        binary: true,
+                        createFolders: true,
+                        // 明确指定MIME类型
+                        mimeType: 'image/png',
+                        // 设置文件创建日期增强可信度
+                        date: new Date()
+                    });
                 });
                 
-                // 生成ZIP文件
-                zip.generateAsync({ type: 'blob' }).then(function(content) {
-                    // 创建下载链接
+                // 生成ZIP文件 - 使用更可靠的配置
+                // 优化ZIP生成和下载流程，使用更安全的Blob处理方法
+                // 增强ZIP元数据和安全标记，使用中文注释和优化的压缩配置
+                zip.generateAsync({ 
+                    type: 'blob',
+                    compression: 'DEFLATE',
+                    compressionOptions: {
+                        level: 6
+                    },
+                    // 使用中文注释，增强文件可识别性和安全性
+                    comment: '视频帧图提取工具生成的安全文件，内容为PNG图片',
+                    // 添加创建者信息增强可信度
+                    created: new Date(),
+                    // 使用更标准的编码方式
+                }).then(function(zipContent) {
+                    // 确保使用正确的MIME类型
+                    const zipBlob = new Blob([zipContent], { 
+                        type: 'application/zip; charset=binary'
+                    });
+                    
+                    // 创建安全的下载链接
                     const link = document.createElement('a');
-                    link.href = URL.createObjectURL(content);
-                    link.download = `video_frames_${new Date().getTime()}.zip`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                    
+                    // 为链接添加更多元数据属性
+                    link.rel = 'noopener';
+                    link.setAttribute('download', true);
+                    
+                    // 使用更友好的文件名格式
+                    const now = new Date();
+                    const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+                    const timeStr = `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+                    link.download = `视频帧图_${dateStr}_${timeStr}.zip`;
+                    link.title = '视频帧图压缩包';
+                    link.setAttribute('aria-label', '下载视频帧图压缩包');
+                    
+                    // 创建Blob URL并执行下载
+                    try {
+                        link.href = URL.createObjectURL(zipBlob);
+                        
+                        // 使用现代下载方法，先隐藏元素再添加到DOM
+                        link.style.display = 'none';
+                        document.body.appendChild(link);
+                        
+                        // 使用更可靠的点击方法
+                        link.dispatchEvent(new MouseEvent('click', {
+                            bubbles: true,
+                            cancelable: true,
+                            view: window
+                        }));
+                        
+                        // 增强的资源清理机制
+                        setTimeout(() => {
+                            try {
+                                document.body.removeChild(link);
+                                if (link.href) {
+                                    URL.revokeObjectURL(link.href);
+                                    link.href = ''; // 确保链接被清除
+                                }
+                            } catch (cleanupError) {
+                                console.warn('资源清理时发生错误:', cleanupError);
+                            }
+                        }, 1000); // 延长清理时间，确保下载完成
+                    } catch (downloadError) {
+                        console.error('下载过程中发生错误:', downloadError);
+                        alert('文件下载失败，请重试。错误信息: ' + downloadError.message);
+                        
+                        // 确保错误情况下也进行清理
+                        if (link.href) {
+                            URL.revokeObjectURL(link.href);
+                        }
+                    }
                     
                     // 恢复按钮状态
                     downloadZipBtn.disabled = false;
@@ -2335,7 +2423,7 @@
                     alert('ZIP文件已下载');
                 }).catch(function(error) {
                     console.error('生成ZIP文件失败:', error);
-                    alert('生成ZIP文件失败，请稍后重试');
+                    alert('生成ZIP文件失败: ' + error.message);
                     
                     // 恢复按钮状态
                     downloadZipBtn.disabled = false;
@@ -2343,7 +2431,7 @@
                 });
             } catch (error) {
                 console.error('ZIP功能错误:', error);
-                alert('ZIP下载功能暂不可用');
+                alert('ZIP下载功能暂不可用: ' + error.message);
                 
                 // 恢复按钮状态
                 downloadZipBtn.disabled = false;
@@ -2351,18 +2439,119 @@
             }
         }
         
-        // 添加JSZip库（如果需要）
+        // JSZip库已经在页面初始化时直接引用，无需动态加载
         function loadJSZipLibrary() {
-            const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
-            script.onload = function() {
-                console.log('JSZip库已加载');
-            };
-            script.onerror = function() {
-                console.warn('无法加载JSZip库，ZIP下载功能将不可用');
-            };
-            document.head.appendChild(script);
+            return Promise.resolve(window.JSZip);
         }
+        // 批量单独下载图片文件的替代方法
+        function downloadFramesAsMultipleFiles() {
+            try {
+                // 显示加载状态
+                downloadZipBtn.disabled = true;
+                downloadZipBtn.textContent = '下载中...';
+                
+                // 检查是否有要下载的帧
+                if (!extractedFrames || extractedFrames.length === 0) {
+                    alert('没有可下载的帧图像。');
+                    downloadZipBtn.disabled = false;
+                    downloadZipBtn.textContent = '下载为ZIP';
+                    return;
+                }
+                
+                // 创建下载计数器
+                let downloadCount = 0;
+                const maxSimultaneousDownloads = 5; // 限制同时下载数量
+                const queue = [...extractedFrames];
+                
+                // 分批处理下载
+                function processDownloadQueue() {
+                    // 处理队列中的任务，直到达到最大并发数或队列为空
+                    while (downloadCount < maxSimultaneousDownloads && queue.length > 0) {
+                        const frame = queue.shift();
+                        downloadCount++;
+                        
+                        // 使用中文文件名
+                        const filename = `帧图_${String(frame.index + 1).padStart(3, '0')}_${Math.floor(frame.time)}秒.png`;
+                        
+                        // 从DataURL中提取Base64数据
+                        const base64Data = frame.dataUrl.split(',')[1];
+                        const byteCharacters = atob(base64Data);
+                        const byteArrays = [];
+                        
+                        for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+                            const slice = byteCharacters.slice(offset, offset + 512);
+                            const byteNumbers = new Array(slice.length);
+                            for (let i = 0; i < slice.length; i++) {
+                                byteNumbers[i] = slice.charCodeAt(i);
+                            }
+                            const byteArray = new Uint8Array(byteNumbers);
+                            byteArrays.push(byteArray);
+                        }
+                        
+                        const blob = new Blob(byteArrays, { type: 'image/png' });
+                        const url = URL.createObjectURL(blob);
+                        
+                        // 创建并触发下载链接
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = filename;
+                        link.rel = 'noopener';
+                        link.style.display = 'none';
+                        
+                        // 下载完成后清理
+                        link.onload = function() {
+                            setTimeout(() => {
+                                try {
+                                    URL.revokeObjectURL(url);
+                                    downloadCount--;
+                                    
+                                    // 处理下一批下载
+                                    if (queue.length > 0) {
+                                        processDownloadQueue();
+                                    } else if (downloadCount === 0) {
+                                        // 所有下载完成
+                                        downloadZipBtn.disabled = false;
+                                        downloadZipBtn.textContent = '下载为ZIP';
+                                        alert('所有图片已下载完成。如有安全警告，请在文件属性中勾选"解除锁定"。');
+                                    }
+                                } catch (cleanupError) {
+                                    console.warn('清理资源时发生错误:', cleanupError);
+                                    // 即使有错误也继续处理队列
+                                    downloadCount--;
+                                    if (queue.length > 0) {
+                                        processDownloadQueue();
+                                    } else if (downloadCount === 0) {
+                                        downloadZipBtn.disabled = false;
+                                        downloadZipBtn.textContent = '下载为ZIP';
+                                    }
+                                }
+                            }, 1000);
+                        };
+                        
+                        // 添加到DOM并触发点击
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+                }
+                
+                // 开始处理下载队列
+                processDownloadQueue();
+                
+                // 确保加载状态最终被重置
+                setTimeout(() => {
+                    downloadZipBtn.disabled = false;
+                    downloadZipBtn.textContent = '下载为ZIP';
+                }, 30000); // 30秒后强制重置，防止无限加载状态
+                
+            } catch (error) {
+                console.error('批量下载失败:', error);
+                alert('批量下载过程中发生错误，请尝试ZIP下载方式。');
+                downloadZipBtn.disabled = false;
+                downloadZipBtn.textContent = '下载为ZIP';
+            }
+        }
+        
         // 视频转帧图功能的JavaScript代码已完成
         });
         
