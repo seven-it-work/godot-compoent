@@ -368,7 +368,25 @@
             background-color: #000;
             border: 2px solid #ddd;
             border-radius: 4px;
+            /* display: block; */
+            /* position: relative; */
+            /* overflow: hidden; */
+
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .animation-preview img {
+            max-width: 100%;
+            max-height: 300px;
             display: none;
+            left: 0;
+            right: 0;
         }
         
         .animation-preview img.active {
@@ -824,6 +842,9 @@
             initEditMode();
         };
         
+        // 用于生成唯一ID的计数器
+        let imageIdCounter = 0;
+        
         function handleFileUpload(event) {
             const files = event.target.files;
             if (files.length === 0) return;
@@ -836,14 +857,14 @@
             framesContainer.innerHTML = '';
             
             // 处理每个文件
-            Array.from(files).forEach((file, index) => {
+            Array.from(files).forEach((file) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = new Image();
                     img.onload = () => {
                         // 创建图片数据对象，默认中心点为图片中心，默认选中
             const imageData = {
-                id: index,
+                id: imageIdCounter++,
                 name: file.name,
                 src: e.target.result,
                 width: img.width,
@@ -1282,6 +1303,12 @@
         
         // 反选功能
         function invertImageSelection() {
+            // 检查是否有图片数据
+            if (!imagesData || imagesData.length === 0) {
+                alert('没有可反选的图片');
+                return;
+            }
+            
             // 切换所有图片的选中状态
             imagesData.forEach(img => {
                 img.selected = !img.selected;
@@ -1726,14 +1753,22 @@
                 const previewContainer = document.getElementById('animation-preview');
                 const images = previewContainer.querySelectorAll('img');
                 
+                // 确保images数组不为空
+                if (images.length === 0) {
+                    stopAnimation();
+                    return;
+                }
+                
                 // 隐藏所有图片
                 images.forEach(img => img.classList.remove('active'));
                 
-                // 显示当前帧
-                images[currentFrameIndex].classList.add('active');
+                // 显示当前帧 - 添加边界检查
+                if (currentFrameIndex < images.length) {
+                    images[currentFrameIndex].classList.add('active');
+                }
                 
-                // 更新索引 - 使用选中图片的数量
-                currentFrameIndex = (currentFrameIndex + 1) % selectedImages.length;
+                // 更新索引 - 使用DOM中实际图片的数量
+                currentFrameIndex = (currentFrameIndex + 1) % images.length;
             }, intervalTime);
         }
         
@@ -1936,11 +1971,12 @@
             const frameGrid = document.getElementById('frame-grid');
             const downloadFramesBtn = document.getElementById('download-frames-btn');
             const downloadZipBtn = document.getElementById('download-zip-btn');
+            const pushToImageToolBtn = document.getElementById('push-to-image-tool-btn');
             
             // 检查是否所有元素都存在
             if (!videoUpload || !videoPreview || !videoInfo || !frameInterval || 
                 !startTime || !endTime || !extractFramesBtn || !framePreviewSection || 
-                !frameGrid || !downloadFramesBtn || !downloadZipBtn) {
+                !frameGrid || !downloadFramesBtn || !downloadZipBtn || !pushToImageToolBtn) {
                 console.error('视频转帧图功能所需的DOM元素未找到');
                 return;
             }
@@ -2083,8 +2119,7 @@
                 // 滚动到预览区域
                 framePreviewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 
-                // 提示用户提取完成
-                alert(`成功提取 ${extractedFrames.length} 个帧图`);
+                // 提取完成（静默处理，不显示提示）
             } catch (error) {
                 console.error('提取帧图错误:', error);
                 alert('提取帧图失败: ' + (error.message || error));
@@ -2265,20 +2300,68 @@
                 return;
             }
             
-            // 创建一个zip文件下载
-            if (extractedFrames.length > 5) {
-                // 如果帧图数量较多，提示用户使用ZIP下载
-                if (confirm(`发现 ${extractedFrames.length} 个帧图，是否下载为ZIP文件？`)) {
-                    downloadFramesAsZip();
-                } else {
-                    // 逐个下载
-                    extractedFrames.forEach(frame => downloadFrame(frame));
-                }
-            } else {
-                // 帧数较少，直接逐个下载
-                extractedFrames.forEach(frame => downloadFrame(frame));
-            }
+            // 直接逐个下载所有帧图
+            extractedFrames.forEach(frame => downloadFrame(frame));
         });
+        
+        // 推送至图片处理工具
+        pushToImageToolBtn.addEventListener('click', function() {
+            if (extractedFrames.length === 0) {
+                alert('没有可推送的帧图');
+                return;
+            }
+            
+            // 推送帧图到图片处理工具
+            pushFramesToImageTool(extractedFrames);
+        });
+        
+        // 将帧图推送到图片处理工具的函数
+        function pushFramesToImageTool(frames) {
+            try {
+                // 转换帧图数据为File对象
+                const fileList = [];
+                
+                frames.forEach((frame, index) => {
+                    // 从DataURL创建Blob
+                    const binaryString = atob(frame.dataUrl.split(',')[1]);
+                    const len = binaryString.length;
+                    const arr = new Uint8Array(len);
+                    
+                    for (let i = 0; i < len; i++) {
+                        arr[i] = binaryString.charCodeAt(i);
+                    }
+                    
+                    const blob = new Blob([arr], { type: 'image/png' });
+                    const fileName = `frame_${index}_${frame.time}s.png`;
+                    const file = new File([blob], fileName, { type: 'image/png' });
+                    fileList.push(file);
+                });
+                
+                // 创建一个FileList
+                const fileListObj = new DataTransfer();
+                fileList.forEach(file => fileListObj.items.add(file));
+                
+                // 获取图片处理工具的文件上传输入框
+                const imageToolFileInput = document.getElementById('file-upload');
+                
+                // 设置文件列表到输入框
+                imageToolFileInput.files = fileListObj.files;
+                
+                // 触发change事件，模拟文件上传
+                const event = new Event('change', { bubbles: true });
+                imageToolFileInput.dispatchEvent(event);
+                
+                // 滚动到图片处理工具区域
+                const uploadSection = document.querySelector('.upload-section');
+                if (uploadSection) {
+                    uploadSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                
+            } catch (error) {
+                console.error('推送帧图到图片处理工具时出错:', error);
+                alert('推送失败: ' + (error.message || error));
+            }
+        }
         
         // 下载为ZIP文件
         downloadZipBtn.addEventListener('click', function() {
@@ -2595,6 +2678,7 @@
             <div class="button-group">
                 <button id="download-frames-btn" class="action-btn">下载所有帧图</button>
                 <button id="download-zip-btn" class="action-btn">下载为ZIP</button>
+                <button id="push-to-image-tool-btn" class="action-btn">推送至图片处理</button>
             </div>
         </div>
     </div>
