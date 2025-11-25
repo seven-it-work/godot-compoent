@@ -6,3 +6,5 @@
 *.apk
 API_KEY_*
 *.tmp
+models/
+test_data/
