@@ -348,6 +348,65 @@
             background-color: #8e44ad;
         }
         
+        /* 加载进度弹窗样式 */
+        .loading-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            user-select: none;
+        }
+        
+        .loading-modal.active {
+            display: flex;
+        }
+        
+        .loading-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            min-width: 300px;
+        }
+        
+        .loading-content h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .loading-progress {
+            width: 100%;
+        }
+        
+        .loading-info {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .loading-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        
+        .loading-bar {
+            height: 100%;
+            background-color: #3498db;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
         .frame-info {
             font-size: 11px;
             color: #666;
@@ -392,6 +451,52 @@
         .animation-controls {
             margin-top: 10px;
             text-align: center;
+        }
+
+        .progress-section {
+            margin-top: 15px;
+            padding: 0 10px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .progress-container {
+            position: relative;
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0;
+            background-color: #3498db;
+            border-radius: 10px;
+            transition: width 0.1s ease;
+        }
+
+        .progress-thumb {
+            position: absolute;
+            top: -3px;
+            right: -6px;
+            width: 12px;
+            height: 26px;
+            background-color: #2980b9;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
         }
         
         .frames-container {
@@ -724,6 +829,17 @@
                 <button class="action-btn" onclick="startAnimation()">播放</button>
                 <button class="action-btn" onclick="stopAnimation()">停止</button>
             </div>
+            <div class="progress-section">
+                <div class="progress-info">
+                    <span id="current-frame">帧 0</span>
+                    <span id="total-frames">/ 0</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar">
+                        <div class="progress-thumb" id="progress-thumb"></div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <h3>图片列表</h3>
@@ -859,6 +975,19 @@
             const framesContainer = document.getElementById('frames-container');
             framesContainer.innerHTML = '';
             
+            // 显示加载进度弹窗
+            const loadingModal = document.getElementById('loading-modal');
+            const loadingCurrent = document.getElementById('loading-current');
+            const loadingTotal = document.getElementById('loading-total');
+            const loadingBar = document.getElementById('loading-bar');
+            
+            loadingModal.classList.add('active');
+            loadingTotal.textContent = files.length;
+            loadingCurrent.textContent = '0';
+            loadingBar.style.width = '0%';
+            
+            let loadedCount = 0;
+            
             // 处理每个文件
             Array.from(files).forEach((file) => {
                 const reader = new FileReader();
@@ -882,6 +1011,16 @@
                         imagesData.push(imageData);
                         createFrameItem(imageData);
                         updatePreviewImages();
+                        
+                        // 更新加载进度
+                        loadedCount++;
+                        loadingCurrent.textContent = loadedCount;
+                        loadingBar.style.width = `${(loadedCount / files.length) * 100}%`;
+                        
+                        // 所有图片加载完成后隐藏弹窗
+                        if (loadedCount === files.length) {
+                            loadingModal.classList.remove('active');
+                        }
                     };
                     img.src = e.target.result;
                 };
@@ -1301,62 +1440,33 @@
             const selectedImages = imagesData.filter(img => img.selected);
             const imagesToProcess = selectedImages.length > 0 ? selectedImages : imagesData;
             
-            // 按名称排序，确保顺序正确
-            imagesToProcess.sort((a, b) => {
-                const nameA = a.name.toLowerCase();
-                const nameB = b.name.toLowerCase();
-                return nameA.localeCompare(nameB, undefined, { numeric: true });
-            });
+            // 不自动排序，尊重用户手动设置的顺序
             
-            // 获取图片总数
-            const totalImages = imagesToProcess.length;
-            
-            // 为原图添加前缀"a-"，确保它们在列表前面
-            imagesToProcess.forEach((imageData, index) => {
-                // 获取原始文件名（包含扩展名）
-                const originalFileName = imageData.name;
-                
-                // 添加前缀"a-"
-                const newName = `a-${originalFileName}`;
-                
-                // 更新图片数据中的名称
-                const imageIndex = imagesData.findIndex(img => img.id === imageData.id);
-                if (imageIndex !== -1) {
-                    imagesData[imageIndex].name = newName;
-                }
-            });
-            
-            // 为逆序的图片创建副本并设置合适的名称
-            // 先将图片逆序
-            const reversedImages = [...imagesToProcess].reverse();
-            
-            // 为逆序的图片生成新名称，使用"b-"前缀确保它们在原图后面
-            reversedImages.forEach((imageData, index) => {
-                // 获取原始文件名（包含扩展名）
-                const originalFileName = imageData.name.replace('a-', ''); // 去掉之前添加的a-前缀
-                
+            // 创建逆序副本，不需要添加前缀，直接保持原始文件名
+            const reversedCopies = [...imagesToProcess].reverse().map(imageData => {
                 // 创建图片副本
                 const newImageData = JSON.parse(JSON.stringify(imageData));
                 newImageData.id = Date.now() + Math.random(); // 生成新ID
-                
-                // 使用"b-"前缀，这样它们会在按名称排序时紧跟在原图后面
-                // 保持原始文件名，这样逆序的图片会按照3, 2, 1的顺序排列
-                const newName = `b-${originalFileName}`;
-                newImageData.name = newName;
-                
-                // 添加到图片数据中
-                imagesData.push(newImageData);
+                // 保持与原始图片相同的文件名
+                newImageData.name = imageData.name;
+                return newImageData;
             });
+            
+            // 将逆序副本添加到原始序列的末尾
+            // 例如：原始顺序1,2,3，逆序副本是3,2,1
+            // 添加后整体顺序是1,2,3,3,2,1，实现帧倒放效果
+            imagesData.push(...reversedCopies);
             
             // 更新UI显示
             updateFrameItems();
             updatePreviewImages();
             
-            // 按名称排序，确保最终顺序正确
-            sortImagesByName();
-            
             // 显示成功通知，说明当前的顺序
-            showNotification(`已完成${imagesToProcess.length}张图片的逆序重命名！\n现在图片列表顺序为：${imagesToProcess.map(img => img.name.replace('a-', '')).join(', ')} ${reversedImages.map(img => img.name.replace('a-', '')).join(', ')}\n动画可以循环播放了！\n\n（注：前缀a-和b-是用来控制排序的，下载时会保留这些前缀。）`);
+            const originalNames = imagesToProcess.map(img => img.name);
+            const reversedNames = originalNames.slice().reverse();
+            showNotification(`已完成${imagesToProcess.length}张图片的逆序副本创建！
+现在图片列表顺序为：${originalNames.join(', ')} ${reversedNames.join(', ')}
+动画可以实现倒放效果（1 2 3 3 2 1）！`);
         }
         
         // 全选功能
@@ -1842,6 +1952,11 @@
                 }
                 previewContainer.appendChild(img);
             });
+            
+            // 初始化进度条
+            initProgressBar();
+            // 更新进度条信息
+            updateProgressBar(0, selectedImages.length);
         }
         
         // 开始动画预览
@@ -1865,27 +1980,7 @@
             const fps = parseInt(document.getElementById('fps-input').value) || 10;
             const intervalTime = 1000 / fps;
             
-            animationInterval = setInterval(() => {
-                const previewContainer = document.getElementById('animation-preview');
-                const images = previewContainer.querySelectorAll('img');
-                
-                // 确保images数组不为空
-                if (images.length === 0) {
-                    stopAnimation();
-                    return;
-                }
-                
-                // 隐藏所有图片
-                images.forEach(img => img.classList.remove('active'));
-                
-                // 显示当前帧 - 添加边界检查
-                if (currentFrameIndex < images.length) {
-                    images[currentFrameIndex].classList.add('active');
-                }
-                
-                // 更新索引 - 使用DOM中实际图片的数量
-                currentFrameIndex = (currentFrameIndex + 1) % images.length;
-            }, intervalTime);
+            animationInterval = setInterval(animateWithProgress, intervalTime);
         }
         
         // 停止动画预览
@@ -1902,7 +1997,119 @@
             if (images.length > 0) {
                 images.forEach(img => img.classList.remove('active'));
                 images[0].classList.add('active');
+                updateProgressBar(0, images.length);
             }
+        }
+        
+        // 更新进度条
+        function updateProgressBar(frameIndex, totalFrames) {
+            const progressBar = document.getElementById('progress-bar');
+            const currentFrameSpan = document.getElementById('current-frame');
+            const totalFramesSpan = document.getElementById('total-frames');
+            
+            if (!progressBar || !currentFrameSpan || !totalFramesSpan) return;
+            
+            // 更新帧信息
+            currentFrameSpan.textContent = `帧 ${frameIndex + 1}`;
+            totalFramesSpan.textContent = `/${totalFrames}`;
+            
+            // 更新进度条宽度
+            if (totalFrames > 0) {
+                const percentage = (frameIndex / (totalFrames - 1)) * 100;
+                progressBar.style.width = `${percentage}%`;
+            }
+        }
+        
+        // 初始化进度条事件
+        function initProgressBar() {
+            const progressContainer = document.querySelector('.progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const progressThumb = document.getElementById('progress-thumb');
+            
+            if (!progressContainer || !progressBar || !progressThumb) return;
+            
+            let isDragging = false;
+            
+            // 点击进度条定位
+            progressContainer.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const percentage = clickX / rect.width;
+                
+                seekToFrame(percentage);
+            });
+            
+            // 拖拽进度条定位
+            progressThumb.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const progressContainerRect = progressContainer.getBoundingClientRect();
+                let x = e.clientX - progressContainerRect.left;
+                
+                // 限制在进度条范围内
+                x = Math.max(0, Math.min(x, progressContainerRect.width));
+                
+                const percentage = x / progressContainerRect.width;
+                seekToFrame(percentage);
+            });
+            
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+        }
+        
+        // 根据百分比定位到特定帧
+        function seekToFrame(percentage) {
+            const previewContainer = document.getElementById('animation-preview');
+            const images = previewContainer.querySelectorAll('img');
+            
+            if (images.length === 0) return;
+            
+            // 停止当前动画
+            if (animationInterval) {
+                clearInterval(animationInterval);
+                animationInterval = null;
+            }
+            
+            // 计算目标帧索引
+            const frameIndex = Math.round(percentage * (images.length - 1));
+            currentFrameIndex = frameIndex;
+            
+            // 显示目标帧
+            images.forEach(img => img.classList.remove('active'));
+            images[frameIndex].classList.add('active');
+            
+            // 更新进度条
+            updateProgressBar(frameIndex, images.length);
+        }
+        
+        // 动画播放时更新进度条
+        function animateWithProgress() {
+            const previewContainer = document.getElementById('animation-preview');
+            const images = previewContainer.querySelectorAll('img');
+            
+            // 确保images数组不为空
+            if (images.length === 0) {
+                stopAnimation();
+                return;
+            }
+            
+            // 隐藏所有图片
+            images.forEach(img => img.classList.remove('active'));
+            
+            // 显示当前帧 - 添加边界检查
+            if (currentFrameIndex < images.length) {
+                images[currentFrameIndex].classList.add('active');
+                updateProgressBar(currentFrameIndex, images.length);
+            }
+            
+            // 更新索引 - 使用DOM中实际图片的数量
+            currentFrameIndex = (currentFrameIndex + 1) % images.length;
         }
         
         // 下载选中的图片
@@ -2805,6 +3012,23 @@
                 <button id="download-frames-btn" class="action-btn">下载所有帧图</button>
                 <button id="download-zip-btn" class="action-btn">下载为ZIP</button>
                 <button id="push-to-image-tool-btn" class="action-btn">推送至图片处理</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 加载进度弹窗 -->
+    <div id="loading-modal" class="loading-modal">
+        <div class="loading-content">
+            <h3>正在加载图片...</h3>
+            <div class="loading-progress">
+                <div class="loading-info">
+                    <span id="loading-current">0</span>
+                    <span>/</span>
+                    <span id="loading-total">0</span>
+                </div>
+                <div class="loading-bar-container">
+                    <div id="loading-bar" class="loading-bar"></div>
+                </div>
             </div>
         </div>
     </div>
