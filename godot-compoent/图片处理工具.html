@@ -695,6 +695,12 @@
                 <button class="action-btn select-btn" onclick="selectAllImages()">全选</button>
                 <button class="action-btn select-btn" onclick="invertImageSelection()">反选</button>
             </div>
+            
+            <div class="control-group">
+                <label>间隔勾选（每x张选1张）：</label>
+                <input type="number" id="interval-input" value="2" min="1" max="100">
+                <button class="action-btn select-btn" onclick="selectImagesByInterval()">间隔勾选</button>
+            </div>
         </div>
         
         <!-- 宫格合并预览区域 -->
@@ -1387,6 +1393,49 @@
             
             // 显示操作成功的通知
             showNotification('已反选所有图片');
+        }
+        
+        // 间隔勾选功能
+        function selectImagesByInterval() {
+            // 检查是否有图片数据
+            if (!imagesData || imagesData.length === 0) {
+                alert('没有可勾选的图片');
+                return;
+            }
+            
+            // 获取间隔值
+            const interval = parseInt(document.getElementById('interval-input').value) || 1;
+            
+            // 按名称排序图片，确保顺序正确
+            const sortedImages = [...imagesData].sort((a, b) => {
+                const nameA = a.name.toLowerCase();
+                const nameB = b.name.toLowerCase();
+                return nameA.localeCompare(nameB, undefined, { numeric: true });
+            });
+            
+            // 先取消所有图片的选中状态
+            imagesData.forEach(img => {
+                img.selected = false;
+            });
+            
+            // 按照间隔值选中图片
+            sortedImages.forEach((img, index) => {
+                if (index % interval === 0) {
+                    // 找到原数组中的图片并选中
+                    const originalImg = imagesData.find(image => image.id === img.id);
+                    if (originalImg) {
+                        originalImg.selected = true;
+                    }
+                }
+            });
+            
+            // 更新UI显示
+            updateFrameItems();
+            updatePreviewImages();
+            
+            // 显示操作成功的通知
+            const selectedCount = imagesData.filter(img => img.selected).length;
+            showNotification(`已按间隔 ${interval} 勾选图片，共选中 ${selectedCount} 张`);
         }
         
         // 重置中心点到图片中心
