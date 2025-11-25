@@ -691,6 +691,7 @@
                 <button class="action-btn align-btn" onclick="alignImagesByCenter()">按中心点对齐</button>
                 <button class="action-btn download-btn" onclick="downloadAllImages()">下载所有图片</button>
                 <button class="action-btn sort-btn" onclick="sortImagesByName()">按名称排序</button>
+                <button class="action-btn sort-btn" onclick="reverseRenameImages()">逆序重命名</button>
                 <button class="action-btn select-btn" onclick="selectAllImages()">全选</button>
                 <button class="action-btn select-btn" onclick="invertImageSelection()">反选</button>
             </div>
@@ -1282,6 +1283,76 @@
             showNotification('图片已按名称排序');
         }
         
+        // 逆序重命名图片（实现动画循环）
+        function reverseRenameImages() {
+            // 检查是否有图片数据
+            if (!imagesData || imagesData.length === 0) {
+                alert('没有可重命名的图片');
+                return;
+            }
+            
+            // 获取当前选中的图片，如果没有选中则处理所有图片
+            const selectedImages = imagesData.filter(img => img.selected);
+            const imagesToProcess = selectedImages.length > 0 ? selectedImages : imagesData;
+            
+            // 按名称排序，确保顺序正确
+            imagesToProcess.sort((a, b) => {
+                const nameA = a.name.toLowerCase();
+                const nameB = b.name.toLowerCase();
+                return nameA.localeCompare(nameB, undefined, { numeric: true });
+            });
+            
+            // 获取图片总数
+            const totalImages = imagesToProcess.length;
+            
+            // 为原图添加前缀"a-"，确保它们在列表前面
+            imagesToProcess.forEach((imageData, index) => {
+                // 获取原始文件名（包含扩展名）
+                const originalFileName = imageData.name;
+                
+                // 添加前缀"a-"
+                const newName = `a-${originalFileName}`;
+                
+                // 更新图片数据中的名称
+                const imageIndex = imagesData.findIndex(img => img.id === imageData.id);
+                if (imageIndex !== -1) {
+                    imagesData[imageIndex].name = newName;
+                }
+            });
+            
+            // 为逆序的图片创建副本并设置合适的名称
+            // 先将图片逆序
+            const reversedImages = [...imagesToProcess].reverse();
+            
+            // 为逆序的图片生成新名称，使用"b-"前缀确保它们在原图后面
+            reversedImages.forEach((imageData, index) => {
+                // 获取原始文件名（包含扩展名）
+                const originalFileName = imageData.name.replace('a-', ''); // 去掉之前添加的a-前缀
+                
+                // 创建图片副本
+                const newImageData = JSON.parse(JSON.stringify(imageData));
+                newImageData.id = Date.now() + Math.random(); // 生成新ID
+                
+                // 使用"b-"前缀，这样它们会在按名称排序时紧跟在原图后面
+                // 保持原始文件名，这样逆序的图片会按照3, 2, 1的顺序排列
+                const newName = `b-${originalFileName}`;
+                newImageData.name = newName;
+                
+                // 添加到图片数据中
+                imagesData.push(newImageData);
+            });
+            
+            // 更新UI显示
+            updateFrameItems();
+            updatePreviewImages();
+            
+            // 按名称排序，确保最终顺序正确
+            sortImagesByName();
+            
+            // 显示成功通知，说明当前的顺序
+            showNotification(`已完成${imagesToProcess.length}张图片的逆序重命名！\n现在图片列表顺序为：${imagesToProcess.map(img => img.name.replace('a-', '')).join(', ')} ${reversedImages.map(img => img.name.replace('a-', '')).join(', ')}\n动画可以循环播放了！\n\n（注：前缀a-和b-是用来控制排序的，下载时会保留这些前缀。）`);
+        }
+        
         // 全选功能
         function selectAllImages() {
             // 将所有图片标记为选中
@@ -1818,7 +1889,17 @@
         function downloadImage(imageData) {
             const link = document.createElement('a');
             link.href = imageData.src;
-            link.download = imageData.name;
+            
+            // 在下载时自动去除排序前缀（aaa-和aab-）
+            let downloadName = imageData.name;
+            // 去除前缀"aaa-"或"aab-"
+            if (downloadName.startsWith('aaa-')) {
+                downloadName = downloadName.substring(4);
+            } else if (downloadName.startsWith('aab-')) {
+                downloadName = downloadName.substring(4);
+            }
+            
+            link.download = downloadName;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
