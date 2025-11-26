@@ -1,0 +1,220 @@
+[gd_scene load_steps=53 format=3 uid="uid://bvsgadpw1ci1i"]
+
+[ext_resource type="Texture2D" uid="uid://c2c8l8fvv0krs" path="res://python_utils/test_data/新建文件夹 (2)/帧图_001_0秒_compressed.png" id="1_p1e7g"]
+[ext_resource type="Texture2D" uid="uid://bgtldwmlepdlp" path="res://python_utils/test_data/新建文件夹 (2)/帧图_002_0秒_compressed.png" id="2_bkvyx"]
+[ext_resource type="Texture2D" uid="uid://cyrx4jp1d3rsi" path="res://python_utils/test_data/新建文件夹 (2)/帧图_003_0秒_compressed.png" id="3_2th0n"]
+[ext_resource type="Texture2D" uid="uid://bi46p5msaqw5w" path="res://python_utils/test_data/新建文件夹 (2)/帧图_004_0秒_compressed.png" id="4_guxwp"]
+[ext_resource type="Texture2D" uid="uid://brp46s7hu6uif" path="res://python_utils/test_data/新建文件夹 (2)/帧图_005_0秒_compressed.png" id="5_sbdln"]
+[ext_resource type="Texture2D" uid="uid://d34yflfdqktxr" path="res://python_utils/test_data/新建文件夹 (2)/帧图_006_0秒_compressed.png" id="6_ka5ui"]
+[ext_resource type="Texture2D" uid="uid://dq2tmuc5e2hyn" path="res://python_utils/test_data/新建文件夹 (2)/帧图_007_0秒_compressed.png" id="7_ydv4l"]
+[ext_resource type="Texture2D" uid="uid://dwgdbbu2f4y2b" path="res://python_utils/test_data/新建文件夹 (2)/帧图_008_0秒_compressed.png" id="8_2d2pi"]
+[ext_resource type="Texture2D" uid="uid://cbkm88j1jr8wx" path="res://python_utils/test_data/新建文件夹 (2)/帧图_009_0秒_compressed.png" id="9_h2uiq"]
+[ext_resource type="Texture2D" uid="uid://r40bbhb3556x" path="res://python_utils/test_data/新建文件夹 (2)/帧图_010_0秒_compressed.png" id="10_beb2n"]
+[ext_resource type="Texture2D" uid="uid://t4cwg7a8vkgp" path="res://python_utils/test_data/新建文件夹 (2)/帧图_011_0秒_compressed.png" id="11_4cg88"]
+[ext_resource type="Texture2D" uid="uid://dbqd15d3rerq" path="res://python_utils/test_data/新建文件夹 (2)/帧图_012_1秒_compressed.png" id="12_3n25e"]
+[ext_resource type="Texture2D" uid="uid://qw7cm0ew8x7h" path="res://python_utils/test_data/新建文件夹 (2)/帧图_013_1秒_compressed.png" id="13_fm1nn"]
+[ext_resource type="Texture2D" uid="uid://br3ves2veavy0" path="res://python_utils/test_data/新建文件夹 (2)/帧图_014_1秒_compressed.png" id="14_nmj1j"]
+[ext_resource type="Texture2D" uid="uid://cs75fr4sqdr68" path="res://python_utils/test_data/新建文件夹 (2)/帧图_015_1秒_compressed.png" id="15_pr27f"]
+[ext_resource type="Texture2D" uid="uid://c2jus0xhuo0n1" path="res://python_utils/test_data/新建文件夹 (2)/帧图_016_1秒_compressed.png" id="16_p1bxk"]
+[ext_resource type="Texture2D" uid="uid://cx00q3gnxml81" path="res://python_utils/test_data/新建文件夹 (2)/帧图_017_1秒_compressed.png" id="17_6eykn"]
+[ext_resource type="Texture2D" uid="uid://dx03xxd7wqkpd" path="res://python_utils/test_data/新建文件夹 (2)/帧图_018_1秒_compressed.png" id="18_q8yg2"]
+[ext_resource type="Texture2D" uid="uid://bt5e837n25sjf" path="res://python_utils/test_data/新建文件夹 (2)/帧图_019_1秒_compressed.png" id="19_0epwp"]
+[ext_resource type="Texture2D" uid="uid://c7l3e6aul75kd" path="res://python_utils/test_data/新建文件夹 (2)/帧图_020_1秒_compressed.png" id="20_1qyln"]
+[ext_resource type="Texture2D" uid="uid://bwnuejfpljijg" path="res://python_utils/test_data/新建文件夹 (2)/帧图_021_2秒_compressed.png" id="21_ve2b8"]
+[ext_resource type="Texture2D" uid="uid://bu11i30yh57v7" path="res://python_utils/test_data/新建文件夹 (2)/帧图_022_2秒_compressed.png" id="22_f2alo"]
+[ext_resource type="Texture2D" uid="uid://dj6qhxp0r2fav" path="res://python_utils/test_data/新建文件夹 (2)/帧图_023_2秒_compressed.png" id="23_mgxbp"]
+[ext_resource type="Texture2D" uid="uid://dknn64m5x08qf" path="res://python_utils/test_data/新建文件夹 (2)/帧图_024_2秒_compressed.png" id="24_dcnmb"]
+[ext_resource type="Texture2D" uid="uid://c3l4b7excj0s3" path="res://python_utils/test_data/新建文件夹 (2)/帧图_025_2秒_compressed.png" id="25_v2nvp"]
+[ext_resource type="Texture2D" uid="uid://b8kwfdeb0phsr" path="res://python_utils/test_data/新建文件夹 (2)/帧图_026_2秒_compressed.png" id="26_a5vuw"]
+[ext_resource type="Texture2D" uid="uid://vgjaduv223km" path="res://python_utils/test_data/新建文件夹 (2)/帧图_027_2秒_compressed.png" id="27_lg0m5"]
+[ext_resource type="Texture2D" uid="uid://bmcirdnmbrqc7" path="res://python_utils/test_data/新建文件夹 (2)/帧图_028_2秒_compressed.png" id="28_laxgl"]
+[ext_resource type="Texture2D" uid="uid://da5ta67wxy1dt" path="res://python_utils/test_data/新建文件夹 (2)/帧图_029_2秒_compressed.png" id="29_2ev3f"]
+[ext_resource type="Texture2D" uid="uid://ddgiow5d3br66" path="res://python_utils/test_data/新建文件夹 (2)/帧图_030_2秒_compressed.png" id="30_qi0qf"]
+[ext_resource type="Texture2D" uid="uid://dh6f6a0ogboni" path="res://python_utils/test_data/新建文件夹 (2)/帧图_031_3秒_compressed.png" id="31_1cuql"]
+[ext_resource type="Texture2D" uid="uid://cj3c6hg5vpg4e" path="res://python_utils/test_data/新建文件夹 (2)/帧图_032_3秒_compressed.png" id="32_5fdf1"]
+[ext_resource type="Texture2D" uid="uid://dgv12dm7m145f" path="res://python_utils/test_data/新建文件夹 (2)/帧图_033_3秒_compressed.png" id="33_j8nxq"]
+[ext_resource type="Texture2D" uid="uid://dfm5331rb85mi" path="res://python_utils/test_data/新建文件夹 (2)/帧图_034_3秒_compressed.png" id="34_7wge3"]
+[ext_resource type="Texture2D" uid="uid://jtnp6qvriugt" path="res://python_utils/test_data/新建文件夹 (2)/帧图_035_3秒_compressed.png" id="35_h4s76"]
+[ext_resource type="Texture2D" uid="uid://br8i04r7r0shq" path="res://python_utils/test_data/新建文件夹 (2)/帧图_036_3秒_compressed.png" id="36_sqrd3"]
+[ext_resource type="Texture2D" uid="uid://cccq0hhjrha4" path="res://python_utils/test_data/新建文件夹 (2)/帧图_037_3秒_compressed.png" id="37_2dwh2"]
+[ext_resource type="Texture2D" uid="uid://csibhm6hua6bg" path="res://python_utils/test_data/新建文件夹 (2)/帧图_038_3秒_compressed.png" id="38_ndb3s"]
+[ext_resource type="Texture2D" uid="uid://dponoo2nivegd" path="res://python_utils/test_data/新建文件夹 (2)/帧图_039_3秒_compressed.png" id="39_iyfj2"]
+[ext_resource type="Texture2D" uid="uid://dtcrdsl22u75n" path="res://python_utils/test_data/新建文件夹 (2)/帧图_040_3秒_compressed.png" id="40_k7b8c"]
+[ext_resource type="Texture2D" uid="uid://dwmu5q8dhect" path="res://python_utils/test_data/新建文件夹 (2)/帧图_041_4秒_compressed.png" id="41_tq74y"]
+[ext_resource type="Texture2D" uid="uid://cxy2mrio6w74d" path="res://python_utils/test_data/新建文件夹 (2)/帧图_042_4秒_compressed.png" id="42_4dnlr"]
+[ext_resource type="Texture2D" uid="uid://bpfwhuahxkgdc" path="res://python_utils/test_data/新建文件夹 (2)/帧图_043_4秒_compressed.png" id="43_mlq3t"]
+[ext_resource type="Texture2D" uid="uid://7fhir1pnknuw" path="res://python_utils/test_data/新建文件夹 (2)/帧图_044_4秒_compressed.png" id="44_nrk7e"]
+[ext_resource type="Texture2D" uid="uid://cr4rbfko4rv62" path="res://python_utils/test_data/新建文件夹 (2)/帧图_045_4秒_compressed.png" id="45_bw1dl"]
+[ext_resource type="Texture2D" uid="uid://wb54v6ixxfs7" path="res://python_utils/test_data/新建文件夹 (2)/帧图_046_4秒_compressed.png" id="46_xdlc4"]
+[ext_resource type="Texture2D" uid="uid://safwrj7ai6ph" path="res://python_utils/test_data/新建文件夹 (2)/帧图_047_4秒_compressed.png" id="47_kpq51"]
+[ext_resource type="Texture2D" uid="uid://gugrg53bmn1r" path="res://python_utils/test_data/新建文件夹 (2)/帧图_048_4秒_compressed.png" id="48_iwd4g"]
+[ext_resource type="Texture2D" uid="uid://dkwr3r1hh05ua" path="res://python_utils/test_data/新建文件夹 (2)/帧图_049_4秒_compressed.png" id="49_7em02"]
+[ext_resource type="Texture2D" uid="uid://cobti1mcqrh5s" path="res://python_utils/test_data/新建文件夹 (2)/帧图_050_4秒_compressed.png" id="50_3uyyl"]
+[ext_resource type="Texture2D" uid="uid://cou6gt1jussrv" path="res://python_utils/test_data/新建文件夹 (2)/帧图_051_4秒_compressed.png" id="51_21e7u"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_sc3a2"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_p1e7g")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_bkvyx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_2th0n")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_guxwp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_sbdln")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_ka5ui")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_ydv4l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_2d2pi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_h2uiq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_beb2n")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_4cg88")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_3n25e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_fm1nn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_nmj1j")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_pr27f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_p1bxk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_6eykn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_q8yg2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_0epwp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_1qyln")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_ve2b8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_f2alo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_mgxbp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_dcnmb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_v2nvp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_a5vuw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_lg0m5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_laxgl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_2ev3f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_qi0qf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_1cuql")
+}, {
+"duration": 1.0,
+"texture": ExtResource("32_5fdf1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_j8nxq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_7wge3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_h4s76")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_sqrd3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_2dwh2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_ndb3s")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_iyfj2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("40_k7b8c")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_tq74y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("42_4dnlr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("43_mlq3t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("44_nrk7e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("45_bw1dl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("46_xdlc4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("47_kpq51")
+}, {
+"duration": 1.0,
+"texture": ExtResource("48_iwd4g")
+}, {
+"duration": 1.0,
+"texture": ExtResource("49_7em02")
+}, {
+"duration": 1.0,
+"texture": ExtResource("50_3uyyl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("51_21e7u")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[node name="Test01" type="AnimatedSprite2D"]
+position = Vector2(104.49999, 101.5)
+scale = Vector2(0.22301137, 0.19791666)
+sprite_frames = SubResource("SpriteFrames_sc3a2")
+frame_progress = 0.022034511

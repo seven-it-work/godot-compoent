@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>图片处理工具</title>
+    <!-- 引入JSZip库用于ZIP打包 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -806,6 +808,13 @@
                 <input type="number" id="interval-input" value="2" min="1" max="100">
                 <button class="action-btn select-btn" onclick="selectImagesByInterval()">间隔勾选</button>
             </div>
+            
+            <div class="control-group">
+                <label>图片质量压缩（百分比）：</label>
+                <input type="range" id="compress-quality" min="1" max="100" value="80">
+                <span id="quality-value">80</span>%
+                <button class="action-btn compress-btn" onclick="compressImagesByQuality()">压缩图片</button>
+            </div>
         </div>
         
         <!-- 宫格合并预览区域 -->
@@ -923,6 +932,18 @@
         
         // 文件上传处理
         document.getElementById('file-upload').addEventListener('change', handleFileUpload);
+        
+        // 初始化压缩质量滑块的事件监听
+        document.addEventListener('DOMContentLoaded', () => {
+            const qualitySlider = document.getElementById('compress-quality');
+            const qualityValue = document.getElementById('quality-value');
+            
+            if (qualitySlider && qualityValue) {
+                qualitySlider.addEventListener('input', () => {
+                    qualityValue.textContent = qualitySlider.value;
+                });
+            }
+        });
         
         // 初始化大图编辑相关
         function initEditMode() {
@@ -1548,6 +1569,89 @@
             showNotification(`已按间隔 ${interval} 勾选图片，共选中 ${selectedCount} 张`);
         }
         
+        // 图片质量压缩功能
+        function compressImagesByQuality() {
+            // 检查是否有图片数据
+            if (!imagesData || imagesData.length === 0) {
+                alert('没有可压缩的图片');
+                return;
+            }
+            
+            // 获取压缩质量百分比
+            const qualityPercent = parseInt(document.getElementById('compress-quality').value);
+            if (isNaN(qualityPercent) || qualityPercent < 1 || qualityPercent > 100) {
+                alert('请选择有效的压缩质量百分比');
+                return;
+            }
+            
+            // 将百分比转换为0-1之间的值（Canvas API要求）
+            const quality = qualityPercent / 100;
+            
+            // 获取当前选中的图片，如果没有选中则处理所有图片
+            const selectedImages = imagesData.filter(img => img.selected);
+            const imagesToProcess = selectedImages.length > 0 ? selectedImages : imagesData;
+            
+            // 显示加载进度弹窗
+            const loadingModal = document.getElementById('loading-modal');
+            const loadingCurrent = document.getElementById('loading-current');
+            const loadingTotal = document.getElementById('loading-total');
+            const loadingBar = document.getElementById('loading-bar');
+            
+            loadingTotal.textContent = imagesToProcess.length;
+            loadingCurrent.textContent = '0';
+            loadingBar.style.width = '0%';
+            loadingModal.classList.add('active');
+            
+            // 定义压缩图片的函数
+            async function compressImage(imageData, index) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        // 创建临时canvas
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // 设置canvas尺寸与原图相同
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        
+                        // 绘制图片到canvas
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        
+                        // 将canvas转换为图片数据URL
+                        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                        
+                        // 更新图片数据
+                        imageData.src = dataUrl;
+                        
+                        // 更新加载进度
+                        setTimeout(() => {
+                            loadingCurrent.textContent = index + 1;
+                            loadingBar.style.width = `${((index + 1) / imagesToProcess.length) * 100}%`;
+                            resolve();
+                        }, 50);
+                    };
+                    
+                    img.src = imageData.src;
+                });
+            }
+            
+            // 逐个压缩图片
+            async function processImages() {
+                for (let i = 0; i < imagesToProcess.length; i++) {
+                    await compressImage(imagesToProcess[i], i);
+                }
+                
+                // 隐藏加载弹窗
+                setTimeout(() => {
+                    loadingModal.classList.remove('active');
+                    alert(`图片压缩完成！共处理 ${imagesToProcess.length} 张图片，压缩质量：${qualityPercent}%`);
+                }, 500);
+            }
+            
+            processImages();
+        }
+        
         // 重置中心点到图片中心
         function resetCenterPoint() {
             if (!selectedImageData || !currentImage) return;
@@ -2133,12 +2237,83 @@
                 return;
             }
             
-            // 多张选中的图片，逐个下载
+            // 多张选中的图片，打包为ZIP下载
+            const zip = new JSZip();
+            const promises = [];
+            
+            // 显示加载进度
+            const loadingModal = document.getElementById('loading-modal');
+            const loadingCurrent = document.getElementById('loading-current');
+            const loadingTotal = document.getElementById('loading-total');
+            const loadingBar = document.getElementById('loading-bar');
+            
+            loadingTotal.textContent = selectedImages.length;
+            loadingCurrent.textContent = '0';
+            loadingBar.style.width = '0%';
+            loadingModal.classList.add('active');
+            
+            // 逐个添加图片到ZIP
             selectedImages.forEach((imageData, index) => {
-                setTimeout(() => downloadImage(imageData), index * 100);
+                // 创建一个Promise来处理图片添加
+                const promise = new Promise((resolve, reject) => {
+                    // 在下载时自动去除排序前缀（aaa-和aab-）
+                    let fileName = imageData.name;
+                    // 去除前缀"aaa-"或"aab-"
+                    if (fileName.startsWith('aaa-')) {
+                        fileName = fileName.substring(4);
+                    } else if (fileName.startsWith('aab-')) {
+                        fileName = fileName.substring(4);
+                    }
+                    
+                    // 处理不同类型的图片源
+                    if (imageData.src.startsWith('data:image')) {
+                        // 直接使用Base64数据
+                        zip.file(fileName, imageData.src.split(',')[1], { base64: true });
+                        resolve();
+                    } else {
+                        // 对于其他类型的URL，先获取图片数据
+                        fetch(imageData.src)
+                            .then(response => response.blob())
+                            .then(blob => {
+                                zip.file(fileName, blob);
+                                resolve();
+                            })
+                            .catch(error => {
+                                console.error('添加图片到ZIP失败:', error);
+                                reject(error);
+                            });
+                    }
+                });
+                
+                promises.push(promise);
             });
             
-            alert(`开始下载 ${selectedImages.length} 张选中的图片`);
+            // 等待所有图片添加完成
+            Promise.all(promises)
+                .then(() => {
+                    // 生成ZIP文件
+                    return zip.generateAsync({ type: 'blob' });
+                })
+                .then(blob => {
+                    // 下载ZIP文件
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `图片集合_${new Date().getTime()}.zip`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                    
+                    // 隐藏加载进度
+                    loadingModal.classList.remove('active');
+                    
+                    alert(`成功下载包含 ${selectedImages.length} 张图片的ZIP文件`);
+                })
+                .catch(error => {
+                    console.error('创建ZIP文件失败:', error);
+                    loadingModal.classList.remove('active');
+                    alert('创建ZIP文件失败，请重试');
+                });
         }
         
         // 下载单张图片
