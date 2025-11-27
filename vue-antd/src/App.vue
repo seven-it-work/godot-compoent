@@ -7,12 +7,14 @@
           type="primary"
           :class="{ active: currentSystem === 'training' }"
           @click="switchSystem('training')"
+          :disabled="currentSystem === 'battle'"
         >
           修炼系统
         </a-button>
         <a-button
           :class="{ active: currentSystem === 'outdoor' }"
           @click="switchSystem('outdoor')"
+          :disabled="currentSystem === 'battle'"
         >
           外出系统
         </a-button>
@@ -23,22 +25,36 @@
       <!-- 修炼系统 -->
       <TrainingSystem v-if="currentSystem === 'training'" />
 
-      <!-- 外出系统（待开发） -->
-      <div v-else-if="currentSystem === 'outdoor'" class="coming-soon">
-        <h2>外出系统</h2>
-        <p>开发中，敬请期待...</p>
-      </div>
+      <!-- 外出系统 -->
+      <OutdoorSystem v-else-if="currentSystem === 'outdoor'" />
+
+      <!-- 战斗系统 -->
+      <BattleComponent v-else-if="currentSystem === 'battle'" />
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, onMounted } from "vue";
+import { useGameStore } from "./store/gameStore";
 import TrainingSystem from "./components/TrainingSystem.vue";
+import OutdoorSystem from "./components/OutdoorSystem.vue";
+import BattleComponent from "./components/BattleComponent.vue";
 
-const currentSystem = ref<"training" | "outdoor">("training");
+const gameStore = useGameStore();
 
-const switchSystem = (system: "training" | "outdoor") => {
+// 初始化游戏
+onMounted(() => {
+  gameStore.initGame();
+});
+
+// 计算属性，与store中的currentSystem双向绑定
+const currentSystem = computed({
+  get: () => gameStore.currentSystem,
+  set: (value) => gameStore.switchSystem(value)
+});
+
+const switchSystem = (system: "training" | "outdoor" | "battle") => {
   currentSystem.value = system;
 };
 </script>

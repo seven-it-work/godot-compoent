@@ -2,6 +2,9 @@
   <div class="training-system">
     <h2>修炼系统</h2>
 
+    <!-- 时间显示 -->
+    <TimeDisplay />
+
     <!-- 玩家基本信息 -->
     <a-card title="玩家信息" class="player-info-card">
       <div class="player-info">
@@ -46,6 +49,13 @@
       :is-cooldown="player.isCooldown"
       :cooldown-remaining="player.cooldownRemaining"
     />
+
+    <!-- 外出探索按钮 -->
+    <div class="outdoor-button-container">
+      <a-button type="primary" size="large" @click="goToOutdoor">
+        外出探索
+      </a-button>
+    </div>
   </div>
 </template>
 
@@ -54,6 +64,7 @@ import { computed } from "vue";
 import { useGameStore } from "../store/gameStore";
 import SpiritRootInfo from "./SpiritRootInfo.vue";
 import SpiritQiAbsorb from "./SpiritQiAbsorb.vue";
+import TimeDisplay from "./TimeDisplay.vue";
 import type { SpiritRootType } from "../types/game";
 
 const gameStore = useGameStore();
@@ -101,6 +112,11 @@ const getMaxQi = (type: SpiritRootType) => {
 // 吸收灵气
 const absorbSpiritQi = (spiritType: SpiritRootType) => {
   gameStore.absorbSpiritQi(spiritType);
+};
+
+// 前往外出系统
+const goToOutdoor = () => {
+  gameStore.switchSystem("outdoor");
 };
 </script>
 
@@ -168,6 +184,13 @@ h2 {
   text-align: right;
 }
 
+/* 外出按钮样式 */
+.outdoor-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .training-system {
@@ -192,6 +215,10 @@ h2 {
   .qi-value {
     width: auto;
     text-align: left;
+  }
+
+  .outdoor-button-container {
+    margin-top: 20px;
   }
 }
 </style>
