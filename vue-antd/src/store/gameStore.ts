@@ -68,7 +68,7 @@ export const useGameStore = defineStore("game", {
         isCurrent: true,
       },
     },
-    currentSystem: "training",
+    currentSystem: "outdoor",
     map: {
       width: 10,
       height: 10,

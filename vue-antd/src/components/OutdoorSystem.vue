@@ -1,7 +1,5 @@
 <template>
   <div class="outdoor-system">
-    <h2>外出系统</h2>
-
     <!-- 时间显示 -->
     <TimeDisplay />
 
@@ -18,10 +16,10 @@
       </div>
     </div>
 
-    <!-- 返回按钮 -->
+    <!-- 进入修炼按钮 -->
     <div class="back-button-container">
-      <a-button type="primary" size="large" @click="backToTraining">
-        返回修炼系统
+      <a-button type="primary" size="large" @click="enterTraining">
+        进入修炼
       </a-button>
     </div>
   </div>
@@ -35,8 +33,8 @@ import TimeDisplay from "./TimeDisplay.vue";
 
 const gameStore = useGameStore();
 
-// 返回修炼系统
-const backToTraining = () => {
+// 进入修炼系统
+const enterTraining = () => {
   gameStore.switchSystem("training");
 };
 </script>

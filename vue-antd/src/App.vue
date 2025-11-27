@@ -1,29 +1,8 @@
 <template>
   <div class="app-container">
-    <header class="app-header">
-      <h1 class="game-title">修仙文字游戏</h1>
-      <nav class="game-nav">
-        <a-button
-          type="primary"
-          :class="{ active: currentSystem === 'training' }"
-          @click="switchSystem('training')"
-          :disabled="currentSystem === 'battle'"
-        >
-          修炼系统
-        </a-button>
-        <a-button
-          :class="{ active: currentSystem === 'outdoor' }"
-          @click="switchSystem('outdoor')"
-          :disabled="currentSystem === 'battle'"
-        >
-          外出系统
-        </a-button>
-      </nav>
-    </header>
-
     <main class="app-main">
       <!-- 修炼系统 -->
-      <TrainingSystem v-if="currentSystem === 'training'" />
+      <CultivationUI v-if="currentSystem === 'training'" />
 
       <!-- 外出系统 -->
       <OutdoorSystem v-else-if="currentSystem === 'outdoor'" />
@@ -37,7 +16,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from "vue";
 import { useGameStore } from "./store/gameStore";
-import TrainingSystem from "./components/TrainingSystem.vue";
+import CultivationUI from "./components/CultivationUI.vue";
 import OutdoorSystem from "./components/OutdoorSystem.vue";
 import BattleComponent from "./components/BattleComponent.vue";
 
@@ -54,9 +33,10 @@ const currentSystem = computed({
   set: (value) => gameStore.switchSystem(value),
 });
 
-const switchSystem = (system: "training" | "outdoor" | "battle") => {
-  currentSystem.value = system;
-};
+// 系统切换函数（暂时注释，后续可能需要使用）
+// const switchSystem = (system: "training" | "outdoor" | "battle") => {
+//   currentSystem.value = system;
+// };
 </script>
 
 <style scoped>

@@ -77,34 +77,33 @@
 
         <!-- 灵气分布 -->
         <a-divider orientation="left">灵气分布</a-divider>
-        <div class="spirit-qi-distribution">
+        <div class="spirit-qi-distribution-compact">
           <div
             v-for="rootType in spiritRootTypes"
             :key="rootType"
-            class="spirit-qi-item"
+            class="spirit-qi-bar-item"
           >
-            <span class="root-name" :style="{ color: getRootColor(rootType) }">
-              {{ getRootName(rootType) }}灵气：
-            </span>
-            <a-progress
-              :percent="calculateQiPercent(rootType)"
-              :stroke-color="getRootColor(rootType)"
-              :show-info="false"
-            />
-            <span class="qi-value">
-              {{ currentLocation.spiritQi[rootType] }} /
-              {{ getMaxQi(rootType) }}
+            <div class="bar-container">
+              <div class="spirit-qi-bar-wrapper">
+            <div
+              class="spirit-qi-bar"
+              :style="{
+                width: `${calculateQiPercent(rootType)}%`,
+                backgroundColor: getRootColor(rootType),
+              }"
+            ></div>
+            <span class="bar-label">
+              <span :style="{  fontWeight: 'bold' }">
+                {{ getRootName(rootType) }}:
+              </span>
+              <span class="bar-value">
+                {{ currentLocation.spiritQi[rootType] }}/{{ getMaxQi(rootType) }}
+              </span>
             </span>
           </div>
+            </div>
+          </div>
         </div>
-
-        <!-- 灵气吸收 -->
-        <a-divider orientation="left">灵气吸收</a-divider>
-        <SpiritQiAbsorb
-          @absorb="absorbSpiritQi"
-          :is-cooldown="player.isCooldown"
-          :cooldown-remaining="player.cooldownRemaining"
-        />
       </div>
     </a-card>
   </div>
@@ -113,14 +112,16 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useGameStore } from "../store/gameStore";
-import SpiritQiAbsorb from "./SpiritQiAbsorb.vue";
+// 暂时注释未使用的导入
+// import SpiritQiAbsorb from "./SpiritQiAbsorb.vue";
 import type { SpiritRootType } from "../types/game";
 
 const gameStore = useGameStore();
 
 // 获取当前地点和玩家信息
 const currentLocation = computed(() => gameStore.player.currentLocation);
-const player = computed(() => gameStore.player);
+// 暂时注释未使用的变量
+// const player = computed(() => gameStore.player);
 
 // 灵根类型列表
 const spiritRootTypes: SpiritRootType[] = [
@@ -181,9 +182,10 @@ const calculateQiPercent = (type: SpiritRootType) => {
 };
 
 // 吸收灵气
-const absorbSpiritQi = (spiritType: SpiritRootType) => {
-  gameStore.absorbSpiritQi(spiritType);
-};
+// 暂时注释未使用的函数
+// const absorbSpiritQi = (spiritType: SpiritRootType) => {
+//   gameStore.absorbSpiritQi(spiritType);
+// };
 </script>
 
 <style scoped>
@@ -289,26 +291,67 @@ const absorbSpiritQi = (spiritType: SpiritRootType) => {
   font-size: 18px;
 }
 
-.spirit-qi-distribution {
+.spirit-qi-distribution-compact {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 8px;
 }
 
-.spirit-qi-item {
+.spirit-qi-bar-item {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.root-name {
-  width: 80px;
-  font-weight: bold;
+.bar-container {
+  flex: 1;
+  height: 24px;
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
 }
 
-.qi-value {
-  width: 120px;
-  text-align: right;
+.spirit-qi-bar {
+  height: 100%;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  transition: width 0.5s ease;
+}
+
+.spirit-qi-bar-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.spirit-qi-bar {
+  height: 100%;
+  border-radius: 12px;
+  transition: width 0.5s ease;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+.bar-label {
+  position: relative;
+  z-index: 2;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.bar-value {
+  color: #333;
+  font-weight: bold;
+  margin-left: 5px;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
 }
 
 /* 响应式设计 */

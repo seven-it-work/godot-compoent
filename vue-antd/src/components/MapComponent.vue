@@ -142,18 +142,29 @@ const move = (direction: "up" | "down" | "left" | "right") => {
 }
 
 .map-container {
-  display: flex;
-  justify-content: center;
+  overflow-x: auto;
+  overflow-y: auto;
   padding: 20px;
+  scroll-behavior: smooth;
+  cursor: grab;
+}
+
+.map-container:active {
+  cursor: grabbing;
 }
 
 .map-grid {
-  display: grid;
+  display: inline-grid;
   gap: 2px;
   background-color: #f0f0f0;
   padding: 10px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /* 确保地图网格不会被父容器压缩 */
+  width: auto !important;
+  min-width: min-content;
+  /* 确保网格列数与实际地图宽度一致 */
+  white-space: nowrap;
 }
 
 .map-row {
@@ -259,28 +270,39 @@ const move = (direction: "up" | "down" | "left" | "right") => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .map-container {
+    padding: 10px 5px;
+  }
+
   .map-grid {
-    grid-template-columns: repeat(auto-fit, 40px) !important;
-    grid-template-rows: repeat(auto-fit, 40px) !important;
+    /* 保持与地图数据一致的行列布局，但减小单元格大小 */
+    gap: 1px;
+    padding: 5px;
+    /* 确保地图在小屏幕上正确显示 */
+    display: inline-grid;
+    /* 确保网格不会被父容器压缩 */
+    width: auto !important;
   }
 
   .map-cell {
-    width: 40px !important;
-    height: 40px !important;
+    width: 35px !important;
+    height: 35px !important;
   }
 
   .location-name {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .spirit-vein-marker,
   .monster-marker {
-    font-size: 8px;
+    font-size: 7px;
+    padding: 0 2px;
   }
 
   .spirit-qi-tooltip {
-    width: 100px;
-    font-size: 10px;
+    width: 80px;
+    font-size: 9px;
+    padding: 5px;
   }
 }
 </style>
