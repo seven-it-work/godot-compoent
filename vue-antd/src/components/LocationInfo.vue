@@ -68,9 +68,9 @@
             </div>
             <div class="monster-item">
               <span class="monster-label">击败奖励：</span>
-              <span class="monster-value">{{
-                currentLocation.monster.expReward
-              }} 经验值</span>
+              <span class="monster-value"
+                >{{ currentLocation.monster.expReward }} 经验值</span
+              >
             </div>
           </div>
         </div>

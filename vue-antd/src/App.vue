@@ -51,7 +51,7 @@ onMounted(() => {
 // 计算属性，与store中的currentSystem双向绑定
 const currentSystem = computed({
   get: () => gameStore.currentSystem,
-  set: (value) => gameStore.switchSystem(value)
+  set: (value) => gameStore.switchSystem(value),
 });
 
 const switchSystem = (system: "training" | "outdoor" | "battle") => {

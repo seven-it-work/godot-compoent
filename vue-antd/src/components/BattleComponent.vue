@@ -14,17 +14,23 @@
           <div class="participant-info">
             <div class="participant-name">你</div>
             <div class="participant-level">等级: {{ player.level }}</div>
-            
+
             <!-- 生命值 -->
             <div class="health-bar-container">
               <span class="health-label">神魂强度:</span>
               <a-progress
-                :percent="calculateHealthPercent(player.attributes.health, player.attributes.maxHealth)"
+                :percent="
+                  calculateHealthPercent(
+                    player.attributes.health,
+                    player.attributes.maxHealth
+                  )
+                "
                 :stroke-color="playerHealthColor"
                 :show-info="false"
               />
               <span class="health-value">
-                {{ player.attributes.health }} / {{ player.attributes.maxHealth }}
+                {{ player.attributes.health }} /
+                {{ player.attributes.maxHealth }}
               </span>
             </div>
 
@@ -32,23 +38,33 @@
             <div class="battle-attributes">
               <div class="attribute-item">
                 <span class="attribute-label">灵力攻击:</span>
-                <span class="attribute-value">{{ player.attributes.attack }}</span>
+                <span class="attribute-value">{{
+                  player.attributes.attack
+                }}</span>
               </div>
               <div class="attribute-item">
                 <span class="attribute-label">灵力防御:</span>
-                <span class="attribute-value">{{ player.attributes.defense }}</span>
+                <span class="attribute-value">{{
+                  player.attributes.defense
+                }}</span>
               </div>
               <div class="attribute-item">
                 <span class="attribute-label">身法:</span>
-                <span class="attribute-value">{{ player.attributes.dodge }}</span>
+                <span class="attribute-value">{{
+                  player.attributes.dodge
+                }}</span>
               </div>
               <div class="attribute-item">
                 <span class="attribute-label">灵力护盾:</span>
-                <span class="attribute-value">{{ player.attributes.block }}</span>
+                <span class="attribute-value">{{
+                  player.attributes.block
+                }}</span>
               </div>
               <div class="attribute-item">
                 <span class="attribute-label">灵眼:</span>
-                <span class="attribute-value">{{ player.attributes.critical }}</span>
+                <span class="attribute-value">{{
+                  player.attributes.critical
+                }}</span>
               </div>
             </div>
           </div>
@@ -58,21 +74,33 @@
         <div class="vs-mark">VS</div>
 
         <!-- 怪物信息 -->
-        <a-card title="怪物" class="participant-card monster-card" v-if="currentMonster">
+        <a-card
+          title="怪物"
+          class="participant-card monster-card"
+          v-if="currentMonster"
+        >
           <div class="participant-info">
             <div class="participant-name">{{ currentMonster.name }}</div>
-            <div class="participant-level">等级: {{ currentMonster.level }}</div>
-            
+            <div class="participant-level">
+              等级: {{ currentMonster.level }}
+            </div>
+
             <!-- 生命值 -->
             <div class="health-bar-container">
               <span class="health-label">神魂强度:</span>
               <a-progress
-                :percent="calculateHealthPercent(currentMonster.attributes.health, currentMonster.attributes.maxHealth)"
+                :percent="
+                  calculateHealthPercent(
+                    currentMonster.attributes.health,
+                    currentMonster.attributes.maxHealth
+                  )
+                "
                 :stroke-color="monsterHealthColor"
                 :show-info="false"
               />
               <span class="health-value">
-                {{ currentMonster.attributes.health }} / {{ currentMonster.attributes.maxHealth }}
+                {{ currentMonster.attributes.health }} /
+                {{ currentMonster.attributes.maxHealth }}
               </span>
             </div>
 
@@ -80,23 +108,33 @@
             <div class="battle-attributes">
               <div class="attribute-item">
                 <span class="attribute-label">灵力攻击:</span>
-                <span class="attribute-value">{{ currentMonster.attributes.attack }}</span>
+                <span class="attribute-value">{{
+                  currentMonster.attributes.attack
+                }}</span>
               </div>
               <div class="attribute-item">
                 <span class="attribute-label">灵力防御:</span>
-                <span class="attribute-value">{{ currentMonster.attributes.defense }}</span>
+                <span class="attribute-value">{{
+                  currentMonster.attributes.defense
+                }}</span>
               </div>
               <div class="attribute-item">
                 <span class="attribute-label">身法:</span>
-                <span class="attribute-value">{{ currentMonster.attributes.dodge }}</span>
+                <span class="attribute-value">{{
+                  currentMonster.attributes.dodge
+                }}</span>
               </div>
               <div class="attribute-item">
                 <span class="attribute-label">灵力护盾:</span>
-                <span class="attribute-value">{{ currentMonster.attributes.block }}</span>
+                <span class="attribute-value">{{
+                  currentMonster.attributes.block
+                }}</span>
               </div>
               <div class="attribute-item">
                 <span class="attribute-label">灵眼:</span>
-                <span class="attribute-value">{{ currentMonster.attributes.critical }}</span>
+                <span class="attribute-value">{{
+                  currentMonster.attributes.critical
+                }}</span>
               </div>
             </div>
           </div>
@@ -120,13 +158,28 @@
       <!-- 战斗操作 -->
       <div class="battle-actions" v-if="isPlayerTurn && !battleResult">
         <a-space size="large" wrap>
-          <a-button type="primary" size="large" @click="handleAttack" icon="attack">
+          <a-button
+            type="primary"
+            size="large"
+            @click="handleAttack"
+            icon="attack"
+          >
             攻击
           </a-button>
-          <a-button type="default" size="large" @click="handleDefend" icon="shield">
+          <a-button
+            type="default"
+            size="large"
+            @click="handleDefend"
+            icon="shield"
+          >
             防御
           </a-button>
-          <a-button type="default" size="large" @click="handleEscape" icon="swap">
+          <a-button
+            type="default"
+            size="large"
+            @click="handleEscape"
+            icon="swap"
+          >
             逃跑
           </a-button>
         </a-space>
@@ -136,7 +189,7 @@
       <div class="battle-result" v-if="battleResult">
         <h3>{{ getBattleResultText }}</h3>
         <a-button type="primary" size="large" @click="endBattle" icon="back">
-          {{ battleResult === 'win' ? '继续探索' : '返回地图' }}
+          {{ battleResult === "win" ? "继续探索" : "返回地图" }}
         </a-button>
       </div>
     </a-card>
@@ -144,8 +197,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useGameStore } from '../store/gameStore';
+import { computed } from "vue";
+import { useGameStore } from "../store/gameStore";
 
 const gameStore = useGameStore();
 
@@ -156,7 +209,9 @@ const player = computed(() => gameStore.player);
 const currentMonster = computed(() => gameStore.currentMonster);
 
 // 获取当前地点名称
-const currentLocationName = computed(() => gameStore.player.currentLocation.name);
+const currentLocationName = computed(
+  () => gameStore.player.currentLocation.name
+);
 
 // 获取战斗日志
 const battleLogs = computed(() => gameStore.battleLogs);
@@ -174,35 +229,38 @@ const calculateHealthPercent = (current: number, max: number): number => {
 
 // 玩家生命值颜色
 const playerHealthColor = computed(() => {
-  const percent = calculateHealthPercent(player.value.attributes.health, player.value.attributes.maxHealth);
-  if (percent > 60) return '#52c41a';
-  if (percent > 30) return '#faad14';
-  return '#f5222d';
+  const percent = calculateHealthPercent(
+    player.value.attributes.health,
+    player.value.attributes.maxHealth
+  );
+  if (percent > 60) return "#52c41a";
+  if (percent > 30) return "#faad14";
+  return "#f5222d";
 });
 
 // 怪物生命值颜色
 const monsterHealthColor = computed(() => {
-  if (!currentMonster.value) return '#52c41a';
+  if (!currentMonster.value) return "#52c41a";
   const percent = calculateHealthPercent(
     currentMonster.value.attributes.health,
     currentMonster.value.attributes.maxHealth
   );
-  if (percent > 60) return '#52c41a';
-  if (percent > 30) return '#faad14';
-  return '#f5222d';
+  if (percent > 60) return "#52c41a";
+  if (percent > 30) return "#faad14";
+  return "#f5222d";
 });
 
 // 获取战斗结果文本
 const getBattleResultText = computed(() => {
   switch (battleResult.value) {
-    case 'win':
-      return '战斗胜利！';
-    case 'lose':
-      return '战斗失败！';
-    case 'escape':
-      return '成功逃脱！';
+    case "win":
+      return "战斗胜利！";
+    case "lose":
+      return "战斗失败！";
+    case "escape":
+      return "成功逃脱！";
     default:
-      return '';
+      return "";
   }
 });
 

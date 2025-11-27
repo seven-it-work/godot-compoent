@@ -3,7 +3,11 @@
     <a-card title="地图" class="map-card">
       <!-- 移动控制按钮 -->
       <div class="movement-controls">
-        <a-space direction="vertical" size="small" style="display: flex; justify-content: center;">
+        <a-space
+          direction="vertical"
+          size="small"
+          style="display: flex; justify-content: center"
+        >
           <a-button @click="move('up')" icon="up">上</a-button>
           <a-space>
             <a-button @click="move('left')" icon="left">左</a-button>

@@ -106,9 +106,10 @@ export const useGameStore = defineStore("game", {
       // 检查每个活跃灵根对应的灵气是否达到上限
       return activeRoots.every((root) => {
         const currentQi = spiritQi[root.type];
-        const maxQi = spiritQi[
-          `max${root.type.charAt(0).toUpperCase() + root.type.slice(1)}` as keyof SpiritQi
-        ];
+        const maxQi =
+          spiritQi[
+            `max${root.type.charAt(0).toUpperCase() + root.type.slice(1)}` as keyof SpiritQi
+          ];
         return currentQi >= (maxQi as number);
       });
     },
@@ -175,7 +176,8 @@ export const useGameStore = defineStore("game", {
         const row: Location[] = [];
         for (let x = 0; x < width; x++) {
           // 随机生成地点名称
-          const randomName = locationNames[Math.floor(Math.random() * locationNames.length)];
+          const randomName =
+            locationNames[Math.floor(Math.random() * locationNames.length)];
           const locationName = `${randomName}(${x},${y})`;
 
           // 随机生成灵气分布
@@ -195,7 +197,9 @@ export const useGameStore = defineStore("game", {
           // 随机生成灵脉（30%概率）
           let spiritVein: SpiritVein | undefined;
           if (Math.random() < 0.3) {
-            const veinTypeIndex = Math.floor(Math.random() * spiritVeinTypes.length);
+            const veinTypeIndex = Math.floor(
+              Math.random() * spiritVeinTypes.length
+            );
             const veinType = spiritVeinTypes[veinTypeIndex] as SpiritRootType;
             const veinLevel = Math.floor(Math.random() * 3) + 1; // 1-3级
             spiritVein = {
@@ -208,7 +212,8 @@ export const useGameStore = defineStore("game", {
 
           // 随机生成怪物（25%概率）
           let monster: Monster | undefined;
-          if (Math.random() < 0.25 && !(x === 0 && y === 0)) { // 初始地点没有怪物
+          if (Math.random() < 0.25 && !(x === 0 && y === 0)) {
+            // 初始地点没有怪物
             monster = this.generateMonster(x, y);
           }
 
@@ -239,18 +244,28 @@ export const useGameStore = defineStore("game", {
     // 生成怪物
     generateMonster(x: number, y: number): Monster {
       const monsterNames = [
-        "山妖", "水怪", "火灵", "木精", "土怪",
-        "风妖", "雷怪", "冰灵", "毒蛊", "血魔"
+        "山妖",
+        "水怪",
+        "火灵",
+        "木精",
+        "土怪",
+        "风妖",
+        "雷怪",
+        "冰灵",
+        "毒蛊",
+        "血魔",
       ];
       const monsterDescriptions = [
         "盘踞在此地的妖怪，吸收天地灵气修炼",
         "诞生于灵气汇聚之处的精怪",
         "作恶多端的邪修所化",
         "上古遗留的妖物",
-        "被魔气侵蚀的生灵"
+        "被魔气侵蚀的生灵",
       ];
 
-      const name = monsterNames[Math.floor(Math.random() * monsterNames.length)] || "神秘怪物";
+      const name =
+        monsterNames[Math.floor(Math.random() * monsterNames.length)] ||
+        "神秘怪物";
       const level = Math.floor(Math.random() * 3) + 1; // 1-3级
       const baseAttack = 5 + level * 3;
       const baseDefense = 2 + level * 2;
@@ -266,7 +281,7 @@ export const useGameStore = defineStore("game", {
         maxHealth: baseHealth,
         dodge: baseDodge,
         block: baseBlock,
-        critical: baseCritical
+        critical: baseCritical,
       };
 
       return {
@@ -275,7 +290,10 @@ export const useGameStore = defineStore("game", {
         level,
         attributes,
         expReward: level * 20,
-        description: monsterDescriptions[Math.floor(Math.random() * monsterDescriptions.length)] || "这是一个强大的怪物"
+        description:
+          monsterDescriptions[
+            Math.floor(Math.random() * monsterDescriptions.length)
+          ] || "这是一个强大的怪物",
       };
     },
 
@@ -349,7 +367,7 @@ export const useGameStore = defineStore("game", {
       // 添加战斗开始日志
       this.addBattleLog({
         text: `你在${this.player.currentLocation.name}遇到了${monster.name}！`,
-        type: "system"
+        type: "system",
       });
 
       // 切换到战斗系统
@@ -361,14 +379,18 @@ export const useGameStore = defineStore("game", {
       const newLog: BattleLog = {
         ...log,
         id: `log-${Date.now()}-${Math.random()}`,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
       this.battleState.battleLogs.push(newLog);
     },
 
     // 玩家攻击
     playerAttack() {
-      if (!this.battleState.isInBattle || !this.battleState.currentMonster || !this.battleState.isPlayerTurn) {
+      if (
+        !this.battleState.isInBattle ||
+        !this.battleState.currentMonster ||
+        !this.battleState.isPlayerTurn
+      ) {
         return;
       }
 
@@ -376,20 +398,23 @@ export const useGameStore = defineStore("game", {
       const player = this.player;
 
       // 检查是否命中
-      const hitChance = 0.8 - (monster.attributes.dodge / 100);
+      const hitChance = 0.8 - monster.attributes.dodge / 100;
       const isHit = Math.random() < hitChance;
 
       if (!isHit) {
         this.addBattleLog({
           text: `${monster.name}灵巧地避开了你的攻击！`,
-          type: "monster"
+          type: "monster",
         });
       } else {
         // 检查是否暴击
-        const isCritical = Math.random() < (player.attributes.critical / 100);
-        
+        const isCritical = Math.random() < player.attributes.critical / 100;
+
         // 计算伤害
-        let damage = Math.max(1, player.attributes.attack - monster.attributes.defense / 2);
+        let damage = Math.max(
+          1,
+          player.attributes.attack - monster.attributes.defense / 2
+        );
         if (isCritical) {
           damage = Math.floor(damage * 1.5);
         }
@@ -397,31 +422,34 @@ export const useGameStore = defineStore("game", {
         // 检查是否被格挡
         const blockChance = monster.attributes.block / 100;
         const isBlocked = Math.random() < blockChance;
-        
+
         if (isBlocked) {
           damage = Math.floor(damage * 0.5);
           this.addBattleLog({
             text: `${monster.name}用灵力护盾挡住了你的攻击，只受到了${damage}点伤害！`,
-            type: "monster"
+            type: "monster",
           });
         } else {
-          const logText = isCritical 
+          const logText = isCritical
             ? `你对${monster.name}发动了致命一击！造成了${damage}点伤害！`
             : `你对${monster.name}造成了${damage}点伤害。`;
           this.addBattleLog({
             text: logText,
-            type: "player"
+            type: "player",
           });
         }
 
         // 更新怪物生命值
-        monster.attributes.health = Math.max(0, monster.attributes.health - damage);
+        monster.attributes.health = Math.max(
+          0,
+          monster.attributes.health - damage
+        );
 
         // 检查怪物是否死亡
         if (monster.attributes.health <= 0) {
           this.addBattleLog({
             text: `你击败了${monster.name}！`,
-            type: "system"
+            type: "system",
           });
           this.handleBattleWin(monster);
           return;
@@ -430,7 +458,7 @@ export const useGameStore = defineStore("game", {
 
       // 切换到怪物回合
       this.battleState.isPlayerTurn = false;
-      
+
       // 延迟怪物攻击，让玩家有时间看到结果
       setTimeout(() => {
         this.monsterAttack();
@@ -439,7 +467,11 @@ export const useGameStore = defineStore("game", {
 
     // 怪物攻击
     monsterAttack() {
-      if (!this.battleState.isInBattle || !this.battleState.currentMonster || this.battleState.isPlayerTurn) {
+      if (
+        !this.battleState.isInBattle ||
+        !this.battleState.currentMonster ||
+        this.battleState.isPlayerTurn
+      ) {
         return;
       }
 
@@ -447,20 +479,23 @@ export const useGameStore = defineStore("game", {
       const player = this.player;
 
       // 检查是否命中
-      const hitChance = 0.7 - (player.attributes.dodge / 100);
+      const hitChance = 0.7 - player.attributes.dodge / 100;
       const isHit = Math.random() < hitChance;
 
       if (!isHit) {
         this.addBattleLog({
           text: `你灵巧地避开了${monster.name}的攻击！`,
-          type: "player"
+          type: "player",
         });
       } else {
         // 检查是否暴击
-        const isCritical = Math.random() < (monster.attributes.critical / 100);
-        
+        const isCritical = Math.random() < monster.attributes.critical / 100;
+
         // 计算伤害
-        let damage = Math.max(1, monster.attributes.attack - player.attributes.defense / 2);
+        let damage = Math.max(
+          1,
+          monster.attributes.attack - player.attributes.defense / 2
+        );
         if (isCritical) {
           damage = Math.floor(damage * 1.5);
         }
@@ -468,31 +503,34 @@ export const useGameStore = defineStore("game", {
         // 检查是否被格挡
         const blockChance = player.attributes.block / 100;
         const isBlocked = Math.random() < blockChance;
-        
+
         if (isBlocked) {
           damage = Math.floor(damage * 0.5);
           this.addBattleLog({
             text: `你用灵力护盾挡住了${monster.name}的攻击，只受到了${damage}点伤害！`,
-            type: "player"
+            type: "player",
           });
         } else {
-          const logText = isCritical 
+          const logText = isCritical
             ? `${monster.name}对你发动了致命一击！造成了${damage}点伤害！`
             : `${monster.name}对你造成了${damage}点伤害。`;
           this.addBattleLog({
             text: logText,
-            type: "monster"
+            type: "monster",
           });
         }
 
         // 更新玩家生命值
-        player.attributes.health = Math.max(0, player.attributes.health - damage);
+        player.attributes.health = Math.max(
+          0,
+          player.attributes.health - damage
+        );
 
         // 检查玩家是否死亡
         if (player.attributes.health <= 0) {
           this.addBattleLog({
             text: `你被${monster.name}击败了！`,
-            type: "system"
+            type: "system",
           });
           this.handleBattleLose();
           return;
@@ -512,15 +550,15 @@ export const useGameStore = defineStore("game", {
       // 临时增加防御和格挡
       this.player.attributes.defense += 5;
       this.player.attributes.block += 5;
-      
+
       this.addBattleLog({
         text: "你进入了防御姿态，防御力和格挡率临时提升！",
-        type: "player"
+        type: "player",
       });
 
       // 切换到怪物回合
       this.battleState.isPlayerTurn = false;
-      
+
       // 延迟怪物攻击
       setTimeout(() => {
         this.monsterAttack();
@@ -537,24 +575,24 @@ export const useGameStore = defineStore("game", {
       }
 
       // 逃跑成功率基于身法
-      const escapeChance = 0.5 + (this.player.attributes.dodge / 200);
+      const escapeChance = 0.5 + this.player.attributes.dodge / 200;
       const isEscaped = Math.random() < escapeChance;
 
       if (isEscaped) {
         this.addBattleLog({
           text: "你成功逃脱了战斗！",
-          type: "player"
+          type: "player",
         });
         this.handleBattleEscape();
       } else {
         this.addBattleLog({
           text: "你没能逃脱，战斗继续！",
-          type: "monster"
+          type: "monster",
         });
-        
+
         // 切换到怪物回合
         this.battleState.isPlayerTurn = false;
-        
+
         // 延迟怪物攻击
         setTimeout(() => {
           this.monsterAttack();
@@ -565,12 +603,12 @@ export const useGameStore = defineStore("game", {
     // 处理战斗胜利
     handleBattleWin(monster: Monster) {
       this.battleState.battleResult = "win";
-      
+
       // 获得经验值
       this.player.exp += monster.expReward;
       this.addBattleLog({
         text: `你获得了${monster.expReward}点经验值！`,
-        type: "system"
+        type: "system",
       });
 
       // 移除地点中的怪物
@@ -592,23 +630,23 @@ export const useGameStore = defineStore("game", {
       );
       this.addBattleLog({
         text: `战斗结束，你恢复了${healthRecovery}点神魂强度。`,
-        type: "system"
+        type: "system",
       });
     },
 
     // 处理战斗失败
     handleBattleLose() {
       this.battleState.battleResult = "lose";
-      
+
       // 重置玩家状态
       this.player.attributes.health = this.player.attributes.maxHealth;
-      
+
       // 扣除一些经验值
       const expPenalty = Math.floor(this.player.exp * 0.1);
       this.player.exp = Math.max(0, this.player.exp - expPenalty);
       this.addBattleLog({
         text: `你损失了${expPenalty}点经验值！`,
-        type: "system"
+        type: "system",
       });
 
       // 自动回到初始地点
@@ -618,7 +656,7 @@ export const useGameStore = defineStore("game", {
     // 处理战斗逃跑
     handleBattleEscape() {
       this.battleState.battleResult = "escape";
-      
+
       // 结束战斗
       this.endBattle();
     },
