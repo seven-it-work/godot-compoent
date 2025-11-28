@@ -1,10 +1,10 @@
 <template>
-  <a-layout class="mobile-cultivation">
-    <!-- 顶部区域：头像和属性 -->
-    <a-layout-content>
-      <a-row :gutter="[8, 8]">
-        <!-- 头像区域 -->
-        <a-col :span="6">
+    <a-layout class="mobile-cultivation">
+      <!-- 顶部区域：头像和属性 -->
+      <a-layout-content>
+        <a-row :gutter="[4, 4]">
+          <!-- 头像区域 -->
+          <a-col :span="6">
           <a-card class="avatar-card" :bordered="true">
             <div class="avatar-container">
               <div class="avatar">
@@ -14,11 +14,11 @@
             </div>
           </a-card>
         </a-col>
-        <!-- 属性区域 -->
-        <a-col :span="18">
+          <!-- 属性区域 -->
+          <a-col :span="18">
           <a-card class="attributes-card" :bordered="true" title="基础属性">
             <div class="attributes-content">
-              <a-row :gutter="[8, 8]">
+              <a-row :gutter="[4, 4]">
                 <a-col :span="12" v-for="(attr, index) in attributesList" :key="index">
                   <div class="attribute-item">
                     <span class="attribute-label">{{ attr.label }}</span>
@@ -27,9 +27,14 @@
                 </a-col>
               </a-row>
               <div class="exp-bar-container">
-                <div class="exp-label">等级: {{ player.level }}</div>
-                <a-progress :percent="(player.exp / player.maxExp) * 100" :show-info="false" size="small" />
-                <div class="exp-text">{{ player.exp }}/{{ player.maxExp }} 经验</div>
+                <ExpLevelProgress 
+                  label="等级" 
+                  :level="player.level" 
+                  :current="player.exp" 
+                  :max="player.maxExp" 
+                  strokeColor="#52c41a" 
+                  height="24px" 
+                />
               </div>
             </div>
           </a-card>
@@ -37,7 +42,7 @@
       </a-row>
 
       <!-- 底部区域：地点属性和灵气分布 -->
-      <a-row :gutter="[8, 8]" style="margin-top: 8px;">
+       <a-row :gutter="[4, 4]" style="margin-top: 4px;">
         <!-- 地点区域 -->
         <a-col :span="12">
           <a-card class="location-card" :bordered="true" title="所在地点">
@@ -61,17 +66,15 @@
                 <div class="section-subtitle">灵气分布</div>
                 <div class="spirit-qi-bars">
                   <div class="spirit-qi-bar-item" v-for="spiritType in spiritQiTypes" :key="spiritType">
-                    <div class="spirit-qi-label">{{ typeMap[spiritType] }}</div>
                     <div class="spirit-qi-bar-container">
-                      <a-progress 
-                        :percent="(currentLocation.spiritQi[spiritType as SpiritRootType] / currentLocation.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi]) * 100" 
-                        :show-info="false" 
-                        size="small" 
+                      <SpiritProgress
+                        :label="typeMap[spiritType]"
+                        :current="currentLocation.spiritQi[spiritType as SpiritRootType]"
+                        :max="currentLocation.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi]"
                         :stroke-color="colorMap[spiritType]"
+                        :is-cooldown="player.isCooldown"
+                        @click="absorbSpiritQiWithType(spiritType)"
                       />
-                    </div>
-                    <div class="spirit-qi-value">
-                      {{ currentLocation.spiritQi[spiritType as SpiritRootType] }}/{{ currentLocation.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi] }}
                     </div>
                   </div>
                 </div>
@@ -85,58 +88,33 @@
             <div class="player-qi-content">
               <div class="player-qi-bars">
                 <div class="player-qi-bar-item" v-for="spiritType in spiritQiTypes" :key="spiritType">
-                  <div class="player-qi-label">
-                    <span class="element-icon" :style="{ backgroundColor: colorMap[spiritType] }">{{ typeMap[spiritType] }}</span>
-                    <span class="type-name">{{ typeMap[spiritType] }}</span>
-                  </div>
-                  <div class="player-qi-bar-wrapper">
-                    <div class="player-qi-bar">
-                      <div 
-                        class="player-qi-bar-fill" 
-                        :style="{
-                          width: `${(player.spiritQi[spiritType as SpiritRootType] / player.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi]) * 100}%`,
-                          backgroundColor: colorMap[spiritType]
-                        }"
-                      ></div>
-                    </div>
-                    <div class="player-qi-value">
-                      {{ player.spiritQi[spiritType as SpiritRootType] }}/{{ player.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi] }}
-                    </div>
-                  </div>
+                  <SpiritProgress
+                    :label="getSpiritRootLabel(spiritType)"
+                    :current="player.spiritQi[spiritType as SpiritRootType]"
+                    :max="player.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi]"
+                    :stroke-color="colorMap[spiritType]"
+                    :is-cooldown="player.isCooldown"
+                    @click="absorbSpiritQiWithType(spiritType as SpiritRootType)"
+                  />
                 </div>
               </div>
-              <div class="spirit-root-overview">
-                <div class="section-subtitle">灵根概览</div>
-                <a-row type="flex" justify="space-around">
-                  <a-col v-for="root in player.spiritRoots" :key="root.type">
-                    <div class="root-level-item">
-                      <div class="root-level-icon" :style="{ backgroundColor: colorMap[root.type] }">
-                        {{ typeMap[root.type] }}
-                      </div>
-                      <div class="root-level-info">
-                        <div class="root-level-label">{{ root.name }}</div>
-                        <div class="root-level-value">{{ root.level }}级</div>
-                      </div>
-                    </div>
-                  </a-col>
-                </a-row>
-              </div>
+
             </div>
           </a-card>
         </a-col>
       </a-row>
 
       <!-- 操作按钮 -->
-      <a-row :gutter="[8, 8]" style="margin-top: 8px;">
-        <a-col :span="12">
-          <a-button type="primary" :loading="player.isCooldown" @click="absorbSpiritQi" block>
-            {{ player.isCooldown ? `吸收中(${player.cooldownRemaining/1000}s)` : '吸收灵气' }}
-          </a-button>
-        </a-col>
+       <a-row :gutter="[4, 4]" style="margin-top: 4px;">
         <a-col :span="12">
           <a-button type="default" :disabled="!canLevelUp" @click="levelUp" block>
             突破境界
           </a-button>
+        </a-col>
+        <a-col :span="12" style="display: flex; align-items: center; justify-content: center; padding: 4px;">
+          <a-checkbox v-model:checked="isAutoAbsorbing" @change="handleAutoAbsorbChange">
+            自动吸收灵气
+          </a-checkbox>
         </a-col>
       </a-row>
     </a-layout-content>
@@ -147,6 +125,8 @@
 import { ref, computed } from 'vue';
 import { useGameStore } from '../store/gameStore';
 import type { SpiritRootType, SpiritQi } from '../types/game';
+import SpiritProgress from './components/SpiritProgress.vue';
+import ExpLevelProgress from './components/ExpLevelProgress.vue';
 
 const gameStore = useGameStore();
 
@@ -154,6 +134,83 @@ const gameStore = useGameStore();
 const player = computed(() => gameStore.player);
 const currentLocation = computed(() => gameStore.getCurrentLocation);
 const canLevelUp = computed(() => gameStore.canLevelUp);
+
+// 自动吸收状态
+const isAutoAbsorbing = ref(false);
+let autoAbsorbTimer: number | null = null;
+
+// 检查是否可以吸收特定类型的灵气
+const canAbsorbSpiritQi = (spiritType: SpiritRootType): boolean => {
+  const root = player.value.spiritRoots.find(r => r.type === spiritType);
+  if (!root) return false;
+  
+  const playerMaxQi = player.value.spiritQi[
+    `max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi
+  ] as number;
+  
+  const playerAvailableSpace = playerMaxQi - player.value.spiritQi[spiritType];
+  const availableQi = currentLocation.value.spiritQi[spiritType];
+  
+  return playerAvailableSpace > 0 && availableQi > 0;
+};
+
+// 尝试自动吸收灵气
+const tryAutoAbsorb = () => {
+  // 检查是否在冷却中
+  if (player.value.isCooldown) return;
+  
+  // 尝试所有灵气类型
+  for (const spiritType of spiritQiTypes.value) {
+    if (canAbsorbSpiritQi(spiritType)) {
+      absorbSpiritQiWithType(spiritType);
+      return true;
+    }
+  }
+  
+  // 如果所有灵气都吸收不了，关闭自动吸收
+  isAutoAbsorbing.value = false;
+  return false;
+};
+
+// 处理自动吸收状态变化
+const handleAutoAbsorbChange = () => {
+  if (isAutoAbsorbing.value) {
+    // 立即尝试一次吸收
+    tryAutoAbsorb();
+    
+    // 设置定时器，定期尝试吸收
+    autoAbsorbTimer = window.setInterval(() => {
+      if (!isAutoAbsorbing.value) {
+        clearInterval(autoAbsorbTimer!);
+        autoAbsorbTimer = null;
+        return;
+      }
+      
+      tryAutoAbsorb();
+    }, 100); // 频繁检查，确保冷却结束后立即吸收
+  } else {
+    // 清除定时器
+    if (autoAbsorbTimer) {
+      clearInterval(autoAbsorbTimer);
+      autoAbsorbTimer = null;
+    }
+  }
+};
+
+// 组件销毁时清除定时器
+import { onBeforeUnmount } from 'vue';
+onBeforeUnmount(() => {
+  if (autoAbsorbTimer) {
+    clearInterval(autoAbsorbTimer);
+    autoAbsorbTimer = null;
+  }
+});
+
+// 获取灵根标签（包含等级信息）
+const getSpiritRootLabel = (spiritType: string) => {
+  const root = player.value.spiritRoots.find(r => r.type === spiritType);
+  return `${root?.name} lv${root?.level}`;
+};
 
 // 属性列表，用于在网格中展示
 const attributesList = computed(() => [
@@ -182,14 +239,15 @@ const colorMap = ref<Record<SpiritRootType, string>>({
   earth: '#deb887'
 });
 
-// 选中的灵气类型
-const selectedSpiritType = ref<SpiritRootType>('gold');
 
-// 吸收灵气
-const absorbSpiritQi = () => {
+
+// 按类型吸收灵气
+const absorbSpiritQiWithType = (spiritType: SpiritRootType) => {
   if (gameStore.player.isCooldown) return;
-  gameStore.absorbSpiritQi(selectedSpiritType.value);
+  gameStore.absorbSpiritQi(spiritType);
 };
+
+
 
 // 升级
 const levelUp = () => {
@@ -203,7 +261,7 @@ const levelUp = () => {
 .mobile-cultivation {
   width: 100%;
   height: 100vh;
-  padding: 8px;
+  padding: 4px;
   box-sizing: border-box;
   background-color: #f0f2f5;
   overflow-y: auto;
@@ -224,14 +282,14 @@ const levelUp = () => {
 }
 
 .avatar {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   background-color: #f0f0f0;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   border: 2px solid #d9d9d9;
 }
 
@@ -265,7 +323,7 @@ const levelUp = () => {
 .attributes-content {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   flex: 1;
 }
 
@@ -273,10 +331,10 @@ const levelUp = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 8px;
+  padding: 3px 6px;
   background-color: #fafafa;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .attribute-label {
@@ -291,12 +349,12 @@ const levelUp = () => {
 .exp-bar-container {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-top: 8px;
+  gap: 2px;
+  margin-top: 4px;
 }
 
 .exp-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
   color: #333;
 }
@@ -313,34 +371,34 @@ const levelUp = () => {
 }
 
 .location-card .ant-card-head {
-  padding: 0 12px;
-  min-height: 32px;
+  padding: 0 8px;
+  min-height: 28px;
 }
 
 .location-card .ant-card-head-title {
-  font-size: 14px;
-  padding: 8px 0;
+  font-size: 12px;
+  padding: 6px 0;
 }
 
 .location-content {
   display: flex;
   flex-direction: column;
   height: 100%;
-  gap: 8px;
+  gap: 4px;
 }
 
 .location-name {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .location-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  font-size: 12px;
+  gap: 3px;
+  font-size: 11px;
 }
 
 .info-label {
@@ -359,33 +417,38 @@ const levelUp = () => {
 }
 
 .section-subtitle {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .spirit-qi-bars {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   flex: 1;
 }
 
 .spirit-qi-bar-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
-.spirit-qi-label {
-  font-size: 11px;
-  color: #666;
+.absorbable:hover {
+  transform: scale(1.02);
+  transition: all 0.2s ease;
 }
+
+/* 灵气标签已整合到progress内部，不再需要单独样式 */
 
 .spirit-qi-bar-container {
-  flex: 1;
-  min-height: 12px;
+  width: 100%;
+  padding: 0 1px;
+  margin-bottom: 2px;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .spirit-qi-value {
@@ -412,7 +475,7 @@ const levelUp = () => {
 .player-qi-content {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   flex: 1;
 }
 
@@ -420,7 +483,7 @@ const levelUp = () => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .player-qi-bar-item {
