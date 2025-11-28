@@ -9,7 +9,6 @@
         </div>
         <div class="map-controls">
           <a-button type="text" size="small" @click="showMapLegend">图例</a-button>
-          <a-button type="text" size="small" @click="toggleFullMap">全屏</a-button>
         </div>
       </div>
 
@@ -122,19 +121,26 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useGameStore } from '../store/gameStore';
 import type { SpiritRootType } from '../types/game';
 
 const gameStore = useGameStore();
+const router = useRouter();
 
 // 响应式数据
 const showLegend = ref(false);
-const fullMapMode = ref(false);
 const mapRef = ref<HTMLElement | null>(null);
-// 玩家位置 - 使用响应式变量，默认设置为地图的左上角附近作为起始点
-const playerPosition = ref({ x: 10, y: 10 }); // 从坐标(10,10)开始，用户提到的'A'位置
+// 玩家位置 - 优先从gameStore读取保存的位置，如果不存在则使用默认值
+const playerPosition = ref({
+  x: gameStore.player?.currentLocation?.x ?? 10,
+  y: gameStore.player?.currentLocation?.y ?? 10
+});
 // 使用响应式变量存储地图数据，而不是计算属性，确保地图只生成一次
 const visibleMapData = ref<string[][]>([]);
+// 移动状态控制
+const isMoving = ref(false); // 标记玩家是否正在移动中
+const moveStepDelay = 150; // 每步移动的延迟时间（毫秒）
 
 // 计算属性
 const currentLocation = computed(() => gameStore.getCurrentLocation);
@@ -257,14 +263,71 @@ const getCellStyle = (cell: string) => {
   return styleMap[cell] || { backgroundColor: '#e6f7ff' };
 };
 
-const moveTo = (x: number, y: number) => {
-  // 更新玩家位置
-  playerPosition.value = { x, y };
-  // 更新地图上的玩家位置
-  updatePlayerPosition();
-  console.log(`移动到坐标 (${x}, ${y})`);
-  // 滚动到玩家位置
-  scrollToPlayer();
+// 计算两点之间的路径（使用曼哈顿距离，简单的直线移动）
+const calculatePath = (startX: number, startY: number, endX: number, endY: number): {x: number, y: number}[] => {
+  const path: {x: number, y: number}[] = [];
+  let currentX = startX;
+  let currentY = startY;
+  
+  // 先处理水平移动，再处理垂直移动（简单的曼哈顿路径）
+  while (currentX !== endX) {
+    currentX += currentX < endX ? 1 : -1;
+    path.push({x: currentX, y: currentY});
+  }
+  
+  while (currentY !== endY) {
+    currentY += currentY < endY ? 1 : -1;
+    path.push({x: currentX, y: currentY});
+  }
+  
+  return path;
+};
+
+// 平滑移动函数
+const moveTo = async (targetX: number, targetY: number) => {
+  // 如果已经在移动中或者目标位置就是当前位置，则不执行
+  if (isMoving.value || 
+      playerPosition.value.x === targetX && playerPosition.value.y === targetY) {
+    return;
+  }
+  
+  isMoving.value = true;
+  
+  try {
+    // 计算移动路径
+    const path = calculatePath(
+      playerPosition.value.x,
+      playerPosition.value.y,
+      targetX,
+      targetY
+    );
+    
+    // 逐个格子移动
+    for (const step of path) {
+      // 更新玩家位置
+      playerPosition.value = { x: step.x, y: step.y };
+      // 更新gameStore中的位置信息
+      if (gameStore.player) {
+        gameStore.player.currentLocation = {
+          ...gameStore.player.currentLocation,
+          x: step.x,
+          y: step.y,
+          name: getLocationName(step.x, step.y)
+        };
+      }
+      // 更新地图上的玩家位置
+      updatePlayerPosition();
+      console.log(`移动到坐标 (${step.x}, ${step.y})`);
+      // 滚动到玩家位置
+      scrollToPlayer();
+      // 等待一段时间，产生动画效果
+      await new Promise(resolve => setTimeout(resolve, moveStepDelay));
+    }
+  } catch (error) {
+    console.error('移动过程中发生错误:', error);
+  } finally {
+    isMoving.value = false;
+  }
 };
 
 // 滚动到玩家位置
@@ -281,83 +344,132 @@ const scrollToPlayer = () => {
   }
 };
 
+// 根据坐标生成地点名称的函数
+const getLocationName = (x: number, y: number): string => {
+  // 根据地形类型返回对应的地点名称
+  if (visibleMapData.value[y] && visibleMapData.value[y][x]) {
+    const terrain = visibleMapData.value[y][x];
+    switch (terrain) {
+      case 'forest': return '森林区域';
+      case 'mountain': return '山地';
+      case 'water': return '水域';
+      case 'spiritVein': return '灵脉所在地';
+      case 'monster': return '怪物领地';
+      case 'exit': return '出口';
+      default: return '普通区域';
+    }
+  }
+  return '未知区域';
+};
+
 // 在组件挂载时初始化地图
 onMounted(() => {
   console.log('探索页面初始化');
-  // 生成地图数据
-  visibleMapData.value = generateMap();
-  // 设置初始玩家位置
+  // 检查是否已经有地图数据，如果没有则生成
+  if (visibleMapData.value.length === 0) {
+    visibleMapData.value = generateMap();
+  }
+  
+  // 优先从gameStore读取保存的位置
+  if (gameStore.player?.currentLocation) {
+    playerPosition.value.x = gameStore.player.currentLocation.x;
+    playerPosition.value.y = gameStore.player.currentLocation.y;
+  }
+  
+  // 设置玩家位置
   updatePlayerPosition();
+  
+  // 确保gameStore中的位置信息正确
+  if (gameStore.player) {
+    gameStore.player.currentLocation = {
+      ...gameStore.player.currentLocation,
+      x: playerPosition.value.x,
+      y: playerPosition.value.y,
+      name: getLocationName(playerPosition.value.x, playerPosition.value.y)
+    };
+  }
+  
   // 延迟滚动以确保DOM已完全渲染
   setTimeout(() => {
     scrollToPlayer();
   }, 100);
 });
 
-const moveDirection = (direction: 'up' | 'down' | 'left' | 'right') => {
-  // 更新玩家位置
-  const { x, y } = playerPosition.value;
-  switch (direction) {
-    case 'up':
-      if (y > 0) playerPosition.value.y--;
-      break;
-    case 'down':
-      if (y < 99) playerPosition.value.y++;
-      break;
-    case 'left':
-      if (x > 0) playerPosition.value.x--;
-      break;
-    case 'right':
-      if (x < 99) playerPosition.value.x++;
-      break;
+const moveDirection = async (direction: 'up' | 'down' | 'left' | 'right') => {
+  // 如果正在移动中，则不执行
+  if (isMoving.value) {
+    return;
   }
-  // 更新地图上的玩家位置
-  updatePlayerPosition();
-  // 滚动到玩家位置
-  scrollToPlayer();
+  
+  isMoving.value = true;
+  
+  try {
+    const { x, y } = playerPosition.value;
+    let newX = x;
+    let newY = y;
+    
+    // 计算新位置
+    switch (direction) {
+      case 'up':
+        if (y > 0) newY--;
+        break;
+      case 'down':
+        if (y < 99) newY++;
+        break;
+      case 'left':
+        if (x > 0) newX--;
+        break;
+      case 'right':
+        if (x < 99) newX++;
+        break;
+    }
+    
+    // 如果位置发生变化，则移动
+    if (newX !== x || newY !== y) {
+      // 更新玩家位置
+      playerPosition.value = { x: newX, y: newY };
+      // 更新gameStore中的位置信息
+      if (gameStore.player) {
+        gameStore.player.currentLocation = {
+          ...gameStore.player.currentLocation,
+          x: newX,
+          y: newY,
+          name: getLocationName(newX, newY)
+        };
+      }
+      // 更新地图上的玩家位置
+      updatePlayerPosition();
+      console.log(`向${direction}移动到坐标 (${newX}, ${newY})`);
+      // 滚动到玩家位置
+      scrollToPlayer();
+      // 添加短暂延迟，保持一致性
+      await new Promise(resolve => setTimeout(resolve, moveStepDelay));
+    }
+  } catch (error) {
+    console.error('方向移动过程中发生错误:', error);
+  } finally {
+    isMoving.value = false;
+  }
 };
 
-const exploreLocation = () => {
-  // 探索地点逻辑
-  console.log('探索当前地点');
-};
-
-const collectResources = () => {
-  // 采集资源逻辑
-  console.log('采集资源');
-};
-
-const rest = () => {
-  // 休息逻辑
-  console.log('休息');
-};
-
-const backToHome = () => {
-  // 返回主页逻辑
-  console.log('返回主页');
+const cultivation = () => {
+  // 跳转到修炼页面
+  console.log('跳转到修炼页面');
+  router.push('/mobile/修炼');
 };
 
 const showMapLegend = () => {
   showLegend.value = true;
 };
 
-const toggleFullMap = () => {
-  fullMapMode.value = !fullMapMode.value;
-};
 
-// 操作按钮数据
+
+// 操作按钮数据 - 只保留修炼按钮
 const actions = ref([
-  { label: '探索', type: 'primary', handler: exploreLocation },
-  { label: '采集', type: 'default', handler: collectResources },
-  { label: '休息', type: 'default', handler: rest },
-  { label: '返回', type: 'default', handler: backToHome }
+  { label: '修炼', type: 'primary', handler: cultivation }
 ]);
 
-// 初始化
-onMounted(() => {
-  // 确保地图数据已加载
-  console.log('探索页面初始化');
-});
+// 移除重复的初始化代码
 </script>
 
 <style scoped>
