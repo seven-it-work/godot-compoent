@@ -13,8 +13,8 @@
           backgroundColor: strokeColor
         }"
       ></div>
-      <div class="spirit-progress-text">
-        {{ label }} {{ current }}/{{ max }}
+      <div v-if="!hideLabel" class="spirit-progress-text">
+        {{ label ? label + ' ' : '' }}{{ current }}/{{ max }}
       </div>
     </div>
   </div>
@@ -30,11 +30,13 @@ interface Props {
   strokeColor: string;
   height?: string;
   isCooldown?: boolean;
+  hideLabel?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   height: '40px',
-  isCooldown: false
+  isCooldown: false,
+  hideLabel: false
 });
 
 const emit = defineEmits<{
@@ -92,9 +94,15 @@ const handleClick = () => {
   left: 0;
   right: 0;
   text-align: center;
+  font-size: 10px;
   font-weight: 500;
   color: #333;
   z-index: 1;
   text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+  line-height: 1.2;
+  padding: 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

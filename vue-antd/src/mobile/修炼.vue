@@ -1,90 +1,90 @@
 <template>
-    <a-layout class="mobile-cultivation">
+    <a-layout class="mobile-cultivation" :style="{ padding: 0, margin: 0 }">
       <!-- 顶部区域：头像和属性 -->
-      <a-layout-content>
+      <a-layout-content :style="{ padding: 0, margin: 0 }">
         <a-row :gutter="[4, 4]">
           <!-- 头像区域 -->
-          <a-col :span="6">
-          <a-card class="avatar-card" :bordered="true">
-            <div class="avatar-container">
-              <div class="avatar">
-                <div class="avatar-placeholder">修</div>
-              </div>
-              <div class="player-name">{{ player.name }}</div>
-            </div>
-          </a-card>
-        </a-col>
+      <a-col :span="6">
+      <div class="avatar-card">
+        <div class="avatar-container">
+          <div class="avatar">
+            <div class="avatar-placeholder">修</div>
+          </div>
+          <div class="player-name">{{ player.name }}</div>
+        </div>
+      </div>
+    </a-col>
           <!-- 属性区域 -->
-          <a-col :span="18">
-          <a-card class="attributes-card" :bordered="true" title="基础属性">
-            <div class="attributes-content">
-              <a-row :gutter="[4, 4]">
-                <a-col :span="12" v-for="(attr, index) in attributesList" :key="index">
-                  <div class="attribute-item">
-                    <span class="attribute-label">{{ attr.label }}</span>
-                    <span class="attribute-value">{{ attr.value }}</span>
-                  </div>
-                </a-col>
-              </a-row>
-              <div class="exp-bar-container">
-                <ExpLevelProgress 
-                  label="等级" 
-                  :level="player.level" 
-                  :current="player.exp" 
-                  :max="player.maxExp" 
-                  strokeColor="#52c41a" 
-                  height="24px" 
-                />
+      <a-col :span="18">
+      <div class="attributes-card">
+        <div class="card-title">基础属性</div>
+        <div class="attributes-content">
+          <a-row :gutter="[4, 4]">
+            <a-col :span="12" v-for="(attr, index) in attributesList" :key="index">
+              <div class="attribute-item">
+                <span class="attribute-label">{{ attr.label }}</span>
+                <span class="attribute-value">{{ attr.value }}</span>
               </div>
-            </div>
-          </a-card>
-        </a-col>
+            </a-col>
+          </a-row>
+          <div class="exp-bar-container">
+            <ExpLevelProgress 
+              label="等级" 
+              :level="player.level" 
+              :current="player.exp" 
+              :max="player.maxExp" 
+              strokeColor="#52c41a" 
+              height="24px" 
+            />
+          </div>
+        </div>
+      </div>
+    </a-col>
       </a-row>
 
       <!-- 底部区域：地点属性和灵气分布 -->
-       <a-row :gutter="[4, 4]" style="margin-top: 4px;">
+       <a-row :gutter="[0, 0]" style="margin-top: 0 !important;">
         <!-- 地点区域 -->
         <a-col :span="12">
-          <a-card class="location-card" :bordered="true" title="所在地点">
-            <div class="location-content">
-              <div class="location-name">{{ currentLocation.name }}</div>
-              <div class="location-info">
-                <template v-if="currentLocation.spiritVein">
-                  <div class="vein-info">
-                    <span class="info-label">灵脉:</span>
-                    <span class="info-value">{{ currentLocation.spiritVein.name }} ({{ currentLocation.spiritVein.level }}级)</span>
+          <div class="location-card">
+            <div class="location-table">
+              <!-- 顶部信息行 -->
+              <div class="location-info-row">
+                <div class="location-cell location-name-cell">
+                  <div class="location-name">{{ currentLocation.name }}</div>
+                </div>
+                <div class="location-cell vein-info-cell">
+                  <div class="vein-info" v-if="currentLocation.spiritVein">
+                    <div>{{ currentLocation.spiritVein.name }} ({{ currentLocation.spiritVein.level }}级)</div>
                   </div>
-                </template>
-                <template v-if="currentLocation.monster">
-                  <div class="monster-info">
-                    <span class="info-label">怪物:</span>
-                    <span class="info-value">{{ currentLocation.monster.name }} ({{ currentLocation.monster.level }}级)</span>
-                  </div>
-                </template>
+                  <div class="vein-info" v-else>无</div>
+                </div>
               </div>
-              <div class="spirit-qi-section">
-                <div class="section-subtitle">灵气分布</div>
-                <div class="spirit-qi-bars">
-                  <div class="spirit-qi-bar-item" v-for="spiritType in spiritQiTypes" :key="spiritType">
-                    <div class="spirit-qi-bar-container">
-                      <SpiritProgress
+              
+              <!-- 灵气分布 -->
+              <div class="spirit-qi-distribution">
+                <div class="qi-distribution-item" v-for="spiritType in spiritQiTypes" :key="spiritType">
+                  <div class="qi-progress-container">
+                    <SpiritProgress
                         :label="typeMap[spiritType]"
                         :current="currentLocation.spiritQi[spiritType as SpiritRootType]"
                         :max="currentLocation.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi]"
                         :stroke-color="colorMap[spiritType]"
                         :is-cooldown="player.isCooldown"
+                        :height="'24px'"
+                        :hide-label="false"
                         @click="absorbSpiritQiWithType(spiritType)"
                       />
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </a-card>
+          </div>
         </a-col>
         <!-- 玩家灵气区域 -->
         <a-col :span="12">
-          <a-card class="player-qi-card" :bordered="true" title="玩家灵气">
+          <div class="player-qi-card">
+            <div class="card-title">玩家灵气</div>
             <div class="player-qi-content">
               <div class="player-qi-bars">
                 <div class="player-qi-bar-item" v-for="spiritType in spiritQiTypes" :key="spiritType">
@@ -100,19 +100,19 @@
               </div>
 
             </div>
-          </a-card>
+          </div>
         </a-col>
       </a-row>
 
       <!-- 操作按钮 -->
-       <a-row :gutter="[4, 4]" style="margin-top: 4px;">
+       <a-row :gutter="[0, 0]" style="margin-top: 0 !important;">
         <a-col :span="12">
-          <a-button type="default" :disabled="!canLevelUp" @click="levelUp" block>
+          <a-button type="default" :disabled="!canLevelUp" @click="levelUp" block style="padding: 0; margin: 0;">
             突破境界
           </a-button>
         </a-col>
-        <a-col :span="12" style="display: flex; align-items: center; justify-content: center; padding: 4px;">
-          <a-checkbox v-model:checked="isAutoAbsorbing" @change="handleAutoAbsorbChange">
+        <a-col :span="12" style="display: flex; align-items: center; justify-content: center; padding: 0;">
+          <a-checkbox v-model:checked="isAutoAbsorbing" @change="handleAutoAbsorbChange" style="margin: 0;">
             自动吸收灵气
           </a-checkbox>
         </a-col>
@@ -261,7 +261,8 @@ const levelUp = () => {
 .mobile-cultivation {
   width: 100%;
   height: 100vh;
-  padding: 4px;
+  padding: 0 !important;
+  margin: 0 !important;
   box-sizing: border-box;
   background-color: #f0f2f5;
   overflow-y: auto;
@@ -273,6 +274,13 @@ const levelUp = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.avatar-card .ant-card-body {
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .avatar-container {
@@ -308,6 +316,13 @@ const levelUp = () => {
 /* 属性区域 */
 .attributes-card {
   height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.attributes-card .ant-card-body {
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .attributes-card .ant-card-head {
@@ -368,52 +383,65 @@ const levelUp = () => {
 /* 地点区域 */
 .location-card {
   height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-.location-card .ant-card-head {
-  padding: 0 8px;
-  min-height: 28px;
+.location-card .ant-card-body {
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-.location-card .ant-card-head-title {
-  font-size: 12px;
-  padding: 6px 0;
-}
-
-.location-content {
+.location-table {
   display: flex;
   flex-direction: column;
   height: 100%;
-  gap: 4px;
+}
+
+.location-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.location-name-cell {
+  flex: 1;
 }
 
 .location-name {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 2px;
 }
 
-.location-info {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  font-size: 11px;
+.vein-info-cell {
+  flex: 1;
+  text-align: right;
 }
 
-.info-label {
+.vein-info {
+  font-size: 10px;
   color: #666;
 }
 
-.info-value {
-  color: #333;
-  font-weight: bold;
-}
-
-.spirit-qi-section {
-  flex: 1;
+.spirit-qi-distribution {
   display: flex;
   flex-direction: column;
+  gap: 1px;
+}
+
+.qi-distribution-item {
+  display: flex;
+  align-items: center;
+  height: 24px;
+}
+
+.qi-progress-container {
+  flex: 1;
+  height: 24px;
 }
 
 .section-subtitle {
@@ -460,6 +488,23 @@ const levelUp = () => {
 /* 玩家灵气区域 */
 .player-qi-card {
   height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 自定义卡片样式 */
+.avatar-card, .attributes-card, .location-card, .player-qi-card {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* 移除所有卡片内部padding和margin */
+.avatar-card > *, .attributes-card > *, .location-card > *, .player-qi-card > * {
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .player-qi-card .ant-card-head {
@@ -610,7 +655,8 @@ const levelUp = () => {
   .attributes-card,
   .location-card,
   .player-qi-card {
-    margin-bottom: 6px;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   .avatar {
