@@ -188,8 +188,14 @@ const spiritRootTypes: SpiritRootName[] = [
   "earth",
 ];
 
-// 玩家灵根信息 - 使用any暂时解决类型问题
-const playerSpiritRoots = player.value.spiritRoots || ({} as any);
+// 玩家灵根信息 - 转换为对象格式以便于使用
+const playerSpiritRoots = computed(() => {
+  const roots = player.value.spiritRoots || [];
+  return roots.reduce((acc, root) => {
+    acc[root.type] = root;
+    return acc;
+  }, {} as Record<string, any>);
+});
 
 // 玩家灵气信息 - 使用any暂时解决类型问题
 const playerSpiritQi = player.value.spiritQi || ({} as any);
@@ -247,7 +253,7 @@ const calculateLocationQiPercent = (type: SpiritRootName) => {
 // 获取玩家灵气上限值
 const getMaxPlayerQi = (type: SpiritRootName) => {
   // 假设基于灵根等级计算上限
-  const rootLevel = (playerSpiritRoots as any)[type]?.level || 1;
+  const rootLevel = playerSpiritRoots.value[type]?.level || 1;
   // 简单的等级映射，实际可能需要更复杂的计算
   return rootLevel * 1000;
 };

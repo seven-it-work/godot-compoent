@@ -13,6 +13,7 @@ import type {
 export const useGameStore = defineStore("game", {
   state: (): GameState => ({
     player: {
+      name: "玩家",
       level: 1,
       exp: 0,
       maxExp: 100,

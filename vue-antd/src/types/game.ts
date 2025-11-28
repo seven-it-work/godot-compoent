@@ -102,6 +102,7 @@ export interface GameMap {
 
 // 玩家数据模型
 export interface Player {
+  name: string; // 玩家名称
   level: number; // 玩家等级
   exp: number; // 当前经验值
   maxExp: number; // 升级所需经验值
