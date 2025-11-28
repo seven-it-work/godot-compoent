@@ -26,16 +26,19 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 import { useGameStore } from "../store/gameStore";
 import MapComponent from "./MapComponent.vue";
 import LocationInfo from "./LocationInfo.vue";
 import TimeDisplay from "./TimeDisplay.vue";
 
 const gameStore = useGameStore();
+const router = useRouter();
 
 // 进入修炼系统
 const enterTraining = () => {
   gameStore.switchSystem("training");
+  router.push("/pc/training");
 };
 </script>
 

@@ -198,9 +198,11 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useRouter } from "vue-router";
 import { useGameStore } from "../store/gameStore";
 
 const gameStore = useGameStore();
+const router = useRouter();
 
 // 获取玩家信息
 const player = computed(() => gameStore.player);
@@ -282,6 +284,7 @@ const handleEscape = () => {
 // 结束战斗
 const endBattle = () => {
   gameStore.endBattle();
+  router.push("/pc/outdoor");
 };
 </script>
 

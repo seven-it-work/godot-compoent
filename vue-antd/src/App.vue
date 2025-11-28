@@ -1,24 +1,15 @@
 <template>
   <div class="app-container">
     <main class="app-main">
-      <!-- 修炼系统 -->
-      <CultivationUI v-if="currentSystem === 'training'" />
-
-      <!-- 外出系统 -->
-      <OutdoorSystem v-else-if="currentSystem === 'outdoor'" />
-
-      <!-- 战斗系统 -->
-      <BattleComponent v-else-if="currentSystem === 'battle'" />
+      <!-- 路由视图组件 -->
+      <router-view />
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { onMounted } from "vue";
 import { useGameStore } from "./store/gameStore";
-import CultivationUI from "./components/CultivationUI.vue";
-import OutdoorSystem from "./components/OutdoorSystem.vue";
-import BattleComponent from "./components/BattleComponent.vue";
 
 const gameStore = useGameStore();
 
@@ -26,17 +17,6 @@ const gameStore = useGameStore();
 onMounted(() => {
   gameStore.initGame();
 });
-
-// 计算属性，与store中的currentSystem双向绑定
-const currentSystem = computed({
-  get: () => gameStore.currentSystem,
-  set: (value) => gameStore.switchSystem(value),
-});
-
-// 系统切换函数（暂时注释，后续可能需要使用）
-// const switchSystem = (system: "training" | "outdoor" | "battle") => {
-//   currentSystem.value = system;
-// };
 </script>
 
 <style scoped>
