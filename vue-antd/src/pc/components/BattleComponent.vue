@@ -199,7 +199,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter } from "vue-router";
-import { useGameStore } from "../store/gameStore";
+import { useGameStore } from "../../store/gameStore";
 
 const gameStore = useGameStore();
 const router = useRouter();

@@ -52,7 +52,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import type { SpiritRootType } from "../types/game";
+import type { SpiritRootType } from "../../types/game";
 
 interface Props {
   isCooldown: boolean;

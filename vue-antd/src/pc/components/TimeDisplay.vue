@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useGameStore } from "../store/gameStore";
+import { useGameStore } from "../../store/gameStore";
 
 const gameStore = useGameStore();
 

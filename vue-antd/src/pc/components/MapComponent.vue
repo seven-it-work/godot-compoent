@@ -74,8 +74,8 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useGameStore } from "../store/gameStore";
-import type { SpiritRootType } from "../types/game";
+import { useGameStore } from "../../store/gameStore";
+import type { SpiritRootType } from "../../types/game";
 
 const gameStore = useGameStore();
 

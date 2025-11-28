@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
-import CultivationUI from '../components/CultivationUI.vue';
-import OutdoorSystem from '../components/OutdoorSystem.vue';
-import BattleComponent from '../components/BattleComponent.vue';
+import CultivationUI from '../pc/components/CultivationUI.vue';
+import OutdoorSystem from '../pc/components/OutdoorSystem.vue';
+import BattleComponent from '../pc/components/BattleComponent.vue';
 
 // PC端路由
 const pcRoutes: RouteRecordRaw[] = [
@@ -37,17 +37,17 @@ const mobileRoutes: RouteRecordRaw[] = [
     children: [
       {
         path: 'training',
-        component: CultivationUI,
+        component: () => import('../mobile/修炼.vue'),
         name: 'MobileTraining',
       },
       {
         path: 'outdoor',
-        component: OutdoorSystem,
+        component: () => import('../mobile/探索.vue'),
         name: 'MobileOutdoor',
       },
       {
         path: 'battle',
-        component: BattleComponent,
+        component: () => import('../mobile/战斗.vue'),
         name: 'MobileBattle',
       },
     ],

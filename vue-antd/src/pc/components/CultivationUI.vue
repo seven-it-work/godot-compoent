@@ -35,7 +35,6 @@
               <span class="attribute-value">{{ (player as any).hp || 0 }} / {{ (player as any).maxHp || 0 }}</span>
             </div>
             <!-- 暂时移除不存在的属性 -->
-            <!-- 暂时移除不存在的属性 -->
           </div>
           
           <!-- 经验条 -->
@@ -60,47 +59,52 @@
       <!-- 左侧：地点信息和灵气分布 -->
       <div class="location-section">
         <div class="section-title">地点</div>
-        <div class="location-attributes">
-          <div class="attribute-item">
-            <span class="attribute-label">位置:</span>
-            <span class="attribute-value">{{ currentLocation.name }}</span>
+        <div class="location-content">
+          <!-- 地点属性 -->
+          <div class="location-attributes">
+            <div class="attribute-item">
+              <span class="attribute-label">位置:</span>
+              <span class="attribute-value">{{ currentLocation.name }}</span>
+            </div>
+            <div class="attribute-item">
+              <span class="attribute-label">坐标:</span>
+              <span class="attribute-value">({{ currentLocation.x }}, {{ currentLocation.y }})</span>
+            </div>
+            <!-- 显示灵脉信息（如果有） -->
+            <div v-if="currentLocation.spiritVein" class="attribute-item">
+              <span class="attribute-label">灵脉:</span>
+              <span class="attribute-value spirit-vein">{{ currentLocation.spiritVein.name }}</span>
+            </div>
+            <!-- 显示怪物信息（如果有） -->
+            <div v-if="currentLocation.monster" class="attribute-item">
+              <span class="attribute-label">怪物:</span>
+              <span class="attribute-value monster">{{ currentLocation.monster.name }}</span>
+            </div>
           </div>
-          <div class="attribute-item">
-            <span class="attribute-label">坐标:</span>
-            <span class="attribute-value">({{ currentLocation.x }}, {{ currentLocation.y }})</span>
-          </div>
-          <!-- 显示灵脉信息（如果有） -->
-          <div v-if="currentLocation.spiritVein" class="attribute-item">
-            <span class="attribute-label">灵脉:</span>
-            <span class="attribute-value spirit-vein">{{ currentLocation.spiritVein.name }}</span>
-          </div>
-          <!-- 显示怪物信息（如果有） -->
-          <div v-if="currentLocation.monster" class="attribute-item">
-            <span class="attribute-label">怪物:</span>
-            <span class="attribute-value monster">{{ currentLocation.monster.name }}</span>
-          </div>
-        </div>
-        <div class="spirit-qi-section">
-          <div class="section-title">灵气分布</div>
-          <div class="spirit-qi-bars">
-            <div
-              v-for="rootType in spiritRootTypes"
-              :key="rootType"
-              class="spirit-qi-bar-item"
-            >
-              <div class="spirit-qi-bar-wrapper">
-                <div class="spirit-qi-bar">
-                  <div 
-                    class="spirit-qi-bar-fill" 
-                    :style="{ 
-                      width: `${calculateLocationQiPercent(rootType)}%`,
-                      backgroundColor: getRootColor(rootType) 
-                    }"
-                  ></div>
-                </div>
-                <div class="spirit-qi-label">
-                  <span class="root-name">{{ getRootName(rootType) }}:</span>
-                  <span class="qi-value">{{ currentLocation.spiritQi[rootType] }}/{{ getMaxLocationQi(rootType) }}</span>
+          
+          <!-- 地点灵气分布 -->
+          <div class="spirit-qi-section">
+            <div class="section-title">灵气分布</div>
+            <div class="spirit-qi-bars">
+              <div
+                v-for="rootType in spiritRootTypes"
+                :key="rootType"
+                class="spirit-qi-bar-item"
+              >
+                <div class="spirit-qi-bar-wrapper">
+                  <div class="spirit-qi-bar">
+                    <div 
+                      class="spirit-qi-bar-fill" 
+                      :style="{ 
+                        width: `${calculateLocationQiPercent(rootType)}%`,
+                        backgroundColor: getRootColor(rootType) 
+                      }"
+                    ></div>
+                  </div>
+                  <div class="spirit-qi-label">
+                    <span class="root-name">{{ getRootName(rootType) }}:</span>
+                    <span class="qi-value">{{ currentLocation.spiritQi[rootType] }}/{{ getMaxLocationQi(rootType) }}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -123,7 +127,7 @@
                 </div>
                 <div class="root-level-info">
                   <div class="root-level-label">{{ getRootName(rootType) }}灵根</div>
-                  <div class="root-level-value">等级: {{ (playerSpiritRoots as any)[rootType]?.level || 0 }}</div>
+                  <div class="root-level-value">等级: {{ playerSpiritRoots[rootType]?.level || 0 }}</div>
                 </div>
               </div>
             </div>
@@ -156,7 +160,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useGameStore } from "../store/gameStore";
+import { useGameStore } from "../../store/gameStore";
 
 // 定义类型
 type SpiritRootName = "gold" | "wood" | "water" | "fire" | "earth";
@@ -272,18 +276,30 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 20px;
+  gap: 10px;
+  padding: 10px;
   box-sizing: border-box;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #f0f2f5;
+  min-height: 100vh;
+}
+
+/* 响应式设计：手机端调整 */
+@media (max-width: 768px) {
+  .cultivation-ui {
+    padding: 5px;
+    gap: 5px;
+  }
 }
 
 /* 顶部区域样式 */
 .top-section {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 20px;
+  grid-template-columns: 250px 1fr;
+  gap: 10px;
   flex: 1;
-  min-height: 300px;
+  min-height: 280px;
 }
 
 /* 头像和名称区域 */
@@ -291,63 +307,78 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  justify-content: flex-start;
+  padding: 15px;
   border: 1px solid #d9d9d9;
   border-radius: 8px;
   background-color: #ffffff;
+}
+
+/* 响应式设计：手机端调整 */
+@media (max-width: 768px) {
+  .top-section {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .avatar-section {
+    padding: 10px;
+  }
 }
 
 .avatar-container {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .avatar {
-  width: 200px;
-  height: 200px;
+  width: 180px;
+  height: 180px;
   background-color: #1890ff;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 16px;
   color: #ffffff;
-  border: 3px solid #40a9ff;
+  border: 2px solid #40a9ff;
   overflow: hidden;
 }
 
 .avatar-placeholder {
-  font-size: 48px;
+  font-size: 40px;
   font-weight: bold;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .player-name {
   width: 100%;
-  padding: 10px 0;
+  padding: 8px 0;
   background-color: #f5f5f5;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   text-align: center;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   color: #333;
 }
 
 /* 属性区域 */
 .attributes-section {
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
   border: 1px solid #d9d9d9;
   border-radius: 8px;
   background-color: #ffffff;
 }
 
 .section-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   text-align: center;
   color: #333;
 }
@@ -355,26 +386,26 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
 .attributes-content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
   height: 100%;
 }
 
 .attribute-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  gap: 10px;
   flex: 1;
 }
 
 .exp-bar-container {
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .exp-bar-info {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 14px;
+  margin-bottom: 5px;
+  font-size: 12px;
   color: #666;
 }
 
@@ -387,16 +418,16 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
 }
 
 .exp-bar-wrapper {
-  height: 10px;
+  height: 8px;
   background-color: #f0f0f0;
-  border-radius: 5px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .exp-bar-fill {
   height: 100%;
   background-color: #1890ff;
-  border-radius: 5px;
+  border-radius: 4px;
   transition: width 0.3s ease;
 }
 
@@ -404,7 +435,7 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
+  padding: 8px;
   background-color: #f9f9f9;
   border-radius: 4px;
 }
@@ -412,10 +443,11 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
 .attribute-label {
   font-weight: bold;
   color: #666;
+  font-size: 14px;
 }
 
 .attribute-value {
-  font-size: 16px;
+  font-size: 15px;
   color: #1890ff;
   font-weight: bold;
 }
@@ -423,10 +455,44 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
 /* 底部区域 */
 .bottom-section {
   display: grid;
-  grid-template-columns: 400px 1fr;
-  gap: 20px;
+  grid-template-columns: 320px 1fr;
+  gap: 10px;
   flex: 1;
-  min-height: 300px;
+  min-height: 280px;
+}
+
+/* 响应式设计：手机端调整 */
+@media (max-width: 768px) {
+  .avatar {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .avatar-placeholder {
+    font-size: 32px;
+  }
+  
+  .attributes-section {
+    padding: 10px;
+  }
+  
+  .section-title {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  
+  .attribute-item {
+    padding: 6px;
+  }
+  
+  .attribute-label, .attribute-value {
+    font-size: 13px;
+  }
+  
+  .bottom-section {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
 }
 
 /* 地点信息和灵气分布区域 */
@@ -436,16 +502,25 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
   border: 1px solid #d9d9d9;
   border-radius: 8px;
   background-color: #ffffff;
-  padding: 20px;
-  gap: 20px;
+  padding: 12px;
+  gap: 12px;
+}
+
+.location-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 12px;
 }
 
 .location-attributes {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #f0f0f0;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  background-color: #f9f9f9;
 }
 
 .spirit-vein {
@@ -462,38 +537,42 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
   flex: 1;
   display: flex;
   flex-direction: column;
+  padding: 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  background-color: #f9f9f9;
 }
 
 .spirit-qi-bars {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .spirit-qi-bar-item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .spirit-qi-bar-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .spirit-qi-bar {
-  height: 24px;
+  height: 18px;
   background-color: #f0f0f0;
-  border-radius: 12px;
+  border-radius: 9px;
   overflow: hidden;
   position: relative;
 }
 
 .spirit-qi-bar-fill {
   height: 100%;
-  border-radius: 12px;
+  border-radius: 9px;
   transition: width 0.5s ease;
   position: absolute;
   left: 0;
@@ -504,7 +583,7 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  font-size: 13px;
   color: #666;
 }
 
@@ -525,48 +604,48 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
   border: 1px solid #d9d9d9;
   border-radius: 8px;
   background-color: #ffffff;
-  padding: 20px;
-  gap: 20px;
+  padding: 12px;
+  gap: 12px;
   height: 100%;
 }
 
 .player-qi-content {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
+  flex: 1;
 }
 
 /* 灵根概览区域 */
 .spirit-root-overview {
-  padding: 15px;
+  padding: 10px;
   background-color: #f5f5f5;
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid #e8e8e8;
 }
 
 .root-levels {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
+  gap: 10px;
 }
 
 .root-level-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .root-level-icon {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   color: white;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 14px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -577,59 +656,98 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
 }
 
 .root-level-label {
-  font-size: 14px;
-  color: #333;
-  font-weight: bold;
+  font-size: 13px;
 }
 
-.root-level-value {
-  font-size: 12px;
-  color: #666;
+/* 响应式设计：手机端调整 */
+@media (max-width: 768px) {
+  .location-section,
+  .player-qi-section {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .spirit-qi-bar {
+    height: 15px;
+  }
+  
+  .spirit-qi-label,
+  .player-qi-label {
+    font-size: 12px;
+  }
+  
+  .spirit-root-overview {
+    padding: 8px;
+  }
+  
+  .root-levels {
+    gap: 8px;
+  }
+  
+  .root-level-item {
+    gap: 6px;
+  }
+  
+  .root-level-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+  
+  .root-level-label {
+    font-size: 12px;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .root-level-value {
+    font-size: 12px;
+    color: #666;
+  }
 }
 
-/* 玩家灵气条 */
+/* 玩家灵气分布 */
 .player-qi-bars {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 8px;
 }
 
 .player-qi-bar-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 3px;
 }
 
 .player-qi-bar-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 3px;
 }
 
 .player-qi-bar {
-  height: 30px;
+  height: 18px;
   background-color: #f0f0f0;
-  border-radius: 15px;
+  border-radius: 9px;
   overflow: hidden;
   position: relative;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .player-qi-bar-fill {
   height: 100%;
-  border-radius: 15px;
+  border-radius: 9px;
   transition: width 0.5s ease;
   position: absolute;
   left: 0;
   top: 0;
-  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3);
 }
 
 .player-qi-label {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  font-size: 13px;
   color: #666;
 }
 
@@ -693,26 +811,5 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
   }
 }
 
-@media (max-width: 768px) {
-  .cultivation-ui {
-    padding: 10px;
-  }
-  
-  .avatar-section {
-    flex-direction: column;
-  }
-  
-  .avatar-container {
-    margin-bottom: 20px;
-  }
-  
-  .avatar {
-    width: 150px;
-    height: 150px;
-  }
-  
-  .avatar-placeholder {
-    font-size: 36px;
-  }
-}
+/* 其他响应式样式已经在上面定义 */
 </style>

@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { useGameStore } from "../store/gameStore";
+import { useGameStore } from "../../store/gameStore";
 import MapComponent from "./MapComponent.vue";
 import LocationInfo from "./LocationInfo.vue";
 import TimeDisplay from "./TimeDisplay.vue";

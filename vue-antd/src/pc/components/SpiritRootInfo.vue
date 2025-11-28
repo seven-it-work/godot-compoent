@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import type { SpiritRoot, SpiritRootType } from "../types/game";
+import type { SpiritRoot, SpiritRootType } from "../../types/game";
 
 interface Props {
   spiritRoots: SpiritRoot[];

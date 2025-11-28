@@ -111,10 +111,10 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useGameStore } from "../store/gameStore";
+import { useGameStore } from "../../store/gameStore";
 // 暂时注释未使用的导入
 // import SpiritQiAbsorb from "./SpiritQiAbsorb.vue";
-import type { SpiritRootType } from "../types/game";
+import type { SpiritRootType } from "../../types/game";
 
 const gameStore = useGameStore();
 
