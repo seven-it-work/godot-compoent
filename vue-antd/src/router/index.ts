@@ -33,23 +33,27 @@ const pcRoutes: RouteRecordRaw[] = [
 const mobileRoutes: RouteRecordRaw[] = [
   {
     path: '/mobile',
-    redirect: '/mobile/training',
+    component: () => import('../mobile/index.vue'),
     children: [
       {
         path: 'training',
-        component: () => import('../mobile/修炼.vue'),
+        component: () => import('../mobile/index.vue'),
         name: 'MobileTraining',
       },
       {
         path: 'outdoor',
-        component: () => import('../mobile/探索.vue'),
+        component: () => import('../mobile/index.vue'),
         name: 'MobileOutdoor',
       },
       {
         path: 'battle',
-        component: () => import('../mobile/战斗.vue'),
+        component: () => import('../mobile/index.vue'),
         name: 'MobileBattle',
       },
+      {
+        path: '', // 空路径作为默认子路由
+        redirect: 'training'
+      }
     ],
   },
 ];

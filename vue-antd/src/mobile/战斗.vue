@@ -1,150 +1,171 @@
 <template>
-  <div class="mobile-battle">
-    <!-- 顶部战斗信息 -->
-    <div class="battle-header">
-      <div class="battle-title">战斗进行中</div>
-      <div class="battle-round">第 {{ currentRound }} 回合</div>
-    </div>
+  <a-layout class="mobile-battle">
+    <a-layout-content>
+      <!-- 顶部战斗信息 -->
+      <a-card class="battle-header-card" :bordered="true">
+        <a-row justify="center" :gutter="[8, 8]">
+          <a-col :span="24" class="text-center">
+            <div class="battle-title">战斗进行中</div>
+            <div class="battle-round">第 {{ currentRound }} 回合</div>
+          </a-col>
+        </a-row>
+      </a-card>
 
-    <!-- 战斗区域 -->
-    <div class="battle-area">
-      <!-- 敌人区域 -->
-      <div class="enemy-section">
-        <div class="character-card enemy-card">
-          <div class="character-avatar enemy-avatar">
-            <span class="enemy-icon">👹</span>
-          </div>
-          <div class="character-info">
-            <div class="character-name enemy-name">{{ currentEnemy.name }}</div>
-            <div class="character-level">Lv.{{ currentEnemy.level }}</div>
-            <div class="health-bar-container">
-              <div class="health-label">生命</div>
-              <a-progress 
-                :percent="(currentEnemy.health / currentEnemy.maxHealth) * 100" 
-                :show-info="false" 
-                :stroke-color="{ '0%': '#ff4d4f', '100%': '#52c41a' }"
-                size="small"
-              />
-              <div class="health-text">{{ currentEnemy.health }}/{{ currentEnemy.maxHealth }}</div>
+      <!-- 战斗区域 -->
+      <a-card class="battle-area-card" :bordered="true" style="margin-top: 8px;">
+        <!-- 敌人区域 -->
+        <a-row :gutter="[8, 8]">
+          <a-col :span="24">
+            <div class="character-card enemy-card">
+              <div class="character-avatar enemy-avatar">
+                <span class="enemy-icon">👹</span>
+              </div>
+              <div class="character-info">
+                <div class="character-name enemy-name">{{ currentEnemy.name }}</div>
+                <div class="character-level">Lv.{{ currentEnemy.level }}</div>
+                <div class="health-bar-container">
+                  <div class="health-label">生命</div>
+                  <a-progress 
+                    :percent="(currentEnemy.health / currentEnemy.maxHealth) * 100" 
+                    :show-info="false" 
+                    :stroke-color="{ '0%': '#ff4d4f', '100%': '#52c41a' }"
+                    size="small"
+                  />
+                  <div class="health-text">{{ currentEnemy.health }}/{{ currentEnemy.maxHealth }}</div>
+                </div>
+                <div class="character-stats">
+                  <span class="stat-item">攻击: {{ currentEnemy.attack }}</span>
+                  <span class="stat-item">防御: {{ currentEnemy.defense }}</span>
+                </div>
+              </div>
             </div>
-            <div class="character-stats">
-              <span class="stat-item">攻击: {{ currentEnemy.attack }}</span>
-              <span class="stat-item">防御: {{ currentEnemy.defense }}</span>
+          </a-col>
+        </a-row>
+
+        <!-- 战斗指示器 -->
+        <a-row justify="center" :gutter="[8, 8]">
+          <a-col :span="24" class="text-center">
+            <div class="battle-indicator">
+              <div class="indicator-arrow" :class="{ 'player-turn': currentTurn === 'player', 'enemy-turn': currentTurn === 'enemy' }">
+                {{ currentTurn === 'player' ? '玩家回合' : '敌人回合' }}
+              </div>
             </div>
+          </a-col>
+        </a-row>
+
+        <!-- 玩家区域 -->
+        <a-row :gutter="[8, 8]">
+          <a-col :span="24">
+            <div class="character-card player-card">
+              <div class="character-info">
+                <div class="character-name player-name">{{ player.name }}</div>
+                <div class="character-level">Lv.{{ player.level }}</div>
+                <div class="health-bar-container">
+                  <div class="health-label">生命</div>
+                  <a-progress 
+                    :percent="(player.attributes.health / player.attributes.maxHealth) * 100" 
+                    :show-info="false" 
+                    :stroke-color="{ '0%': '#ff4d4f', '100%': '#52c41a' }"
+                    size="small"
+                  />
+                  <div class="health-text">{{ player.attributes.health }}/{{ player.attributes.maxHealth }}</div>
+                </div>
+                <div class="character-stats">
+                  <span class="stat-item">攻击: {{ player.attributes.attack }}</span>
+                  <span class="stat-item">防御: {{ player.attributes.defense }}</span>
+                </div>
+              </div>
+              <div class="character-avatar player-avatar">
+                <span class="player-icon">👤</span>
+              </div>
+            </div>
+          </a-col>
+        </a-row>
+      </a-card>
+
+      <!-- 战斗日志 -->
+      <a-card class="battle-log-card" :bordered="true" style="margin-top: 8px;" title="战斗日志">
+        <div class="battle-log" ref="logRef">
+          <div v-for="(log, index) in battleLogs" :key="index" class="log-entry">
+            <span class="log-text">{{ log }}</span>
           </div>
         </div>
-      </div>
+      </a-card>
 
-      <!-- 战斗指示器 -->
-      <div class="battle-indicator">
-        <div class="indicator-arrow" :class="{ 'player-turn': currentTurn === 'player', 'enemy-turn': currentTurn === 'enemy' }">
-          {{ currentTurn === 'player' ? '玩家回合' : '敌人回合' }}
-        </div>
-      </div>
+      <!-- 战斗操作按钮 -->
+      <a-card class="battle-actions-card" :bordered="true" style="margin-top: 8px;">
+        <a-row :gutter="[8, 8]">
+          <a-col :span="12">
+            <a-button type="primary" :disabled="currentTurn !== 'player'" @click="attackEnemy" size="small" block>
+              普通攻击
+            </a-button>
+          </a-col>
+          <a-col :span="12">
+            <a-button type="default" :disabled="currentTurn !== 'player'" @click="useSkill" size="small" block>
+              使用技能
+            </a-button>
+          </a-col>
+        </a-row>
+        <a-row :gutter="[8, 8]" style="margin-top: 8px;">
+          <a-col :span="12">
+            <a-button type="default" :disabled="currentTurn !== 'player'" @click="useItem" size="small" block>
+              使用道具
+            </a-button>
+          </a-col>
+          <a-col :span="12">
+            <a-button type="default" :disabled="currentTurn !== 'player'" @click="escapeBattle" size="small" block>
+              逃跑
+            </a-button>
+          </a-col>
+        </a-row>
+      </a-card>
 
-      <!-- 玩家区域 -->
-      <div class="player-section">
-        <div class="character-card player-card">
-          <div class="character-info">
-            <div class="character-name player-name">{{ player.name }}</div>
-            <div class="character-level">Lv.{{ player.level }}</div>
-            <div class="health-bar-container">
-              <div class="health-label">生命</div>
-              <a-progress 
-                :percent="(player.attributes.health / player.attributes.maxHealth) * 100" 
-                :show-info="false" 
-                :stroke-color="{ '0%': '#ff4d4f', '100%': '#52c41a' }"
-                size="small"
-              />
-              <div class="health-text">{{ player.attributes.health }}/{{ player.attributes.maxHealth }}</div>
-            </div>
-            <div class="character-stats">
-              <span class="stat-item">攻击: {{ player.attributes.attack }}</span>
-              <span class="stat-item">防御: {{ player.attributes.defense }}</span>
-            </div>
+      <!-- 技能选择弹窗 -->
+      <a-modal v-model:open="showSkillModal" title="选择技能" size="small" footer="null">
+        <div class="skill-selection">
+          <div class="skill-item">
+            <div class="skill-name">普通攻击</div>
+            <div class="skill-desc">对敌人造成基础伤害</div>
+            <div class="skill-cost">消耗: 0灵气</div>
           </div>
-          <div class="character-avatar player-avatar">
-            <span class="player-icon">👤</span>
+        </div>
+        <template #footer>
+          <a-button type="primary" @click="selectSkill">确定</a-button>
+          <a-button @click="showSkillModal = false">取消</a-button>
+        </template>
+      </a-modal>
+
+      <!-- 道具选择弹窗 -->
+      <a-modal v-model:open="showItemModal" title="选择道具" size="small" footer="null">
+        <div class="item-selection">
+          <div class="item-item">
+            <div class="item-name">治疗药水</div>
+            <div class="item-desc">恢复少量生命值</div>
+            <div class="item-count">数量: 1</div>
           </div>
         </div>
-      </div>
-    </div>
+        <template #footer>
+          <a-button type="primary" @click="selectItem">确定</a-button>
+          <a-button @click="showItemModal = false">取消</a-button>
+        </template>
+      </a-modal>
 
-    <!-- 战斗日志 -->
-    <div class="battle-log-section">
-      <div class="section-title">战斗日志</div>
-      <div class="battle-log" ref="logRef">
-        <div v-for="(log, index) in battleLogs" :key="index" class="log-entry">
-          <span class="log-text">{{ log }}</span>
+      <!-- 战斗结果弹窗 -->
+      <a-modal v-model:open="showResultModal" :title="battleResult.title" size="small">
+        <div class="battle-result">
+          <div class="result-icon">{{ battleResult.icon }}</div>
+          <div class="result-message">{{ battleResult.message }}</div>
+          <div v-if="battleResult.exp > 0" class="result-reward">
+            <div class="reward-item">获得经验: {{ battleResult.exp }}</div>
+            <div class="reward-item">获得物品: {{ battleResult.items.join(', ') }}</div>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <!-- 战斗操作按钮 -->
-    <div class="battle-actions">
-      <div class="action-buttons-row">
-        <a-button type="primary" :disabled="currentTurn !== 'player'" @click="attackEnemy" size="small">
-          普通攻击
-        </a-button>
-        <a-button type="default" :disabled="currentTurn !== 'player'" @click="useSkill" size="small">
-          使用技能
-        </a-button>
-      </div>
-      <div class="action-buttons-row">
-        <a-button type="default" :disabled="currentTurn !== 'player'" @click="useItem" size="small">
-          使用道具
-        </a-button>
-        <a-button type="default" :disabled="currentTurn !== 'player'" @click="escapeBattle" size="small">
-          逃跑
-        </a-button>
-      </div>
-    </div>
-
-    <!-- 技能选择弹窗 -->
-    <a-modal v-model:open="showSkillModal" title="选择技能" size="small" footer="null">
-      <div class="skill-selection">
-        <div class="skill-item">
-          <div class="skill-name">普通攻击</div>
-          <div class="skill-desc">对敌人造成基础伤害</div>
-          <div class="skill-cost">消耗: 0灵气</div>
-        </div>
-      </div>
-      <template #footer>
-        <a-button type="primary" @click="selectSkill">确定</a-button>
-        <a-button @click="showSkillModal = false">取消</a-button>
-      </template>
-    </a-modal>
-
-    <!-- 道具选择弹窗 -->
-    <a-modal v-model:open="showItemModal" title="选择道具" size="small" footer="null">
-      <div class="item-selection">
-        <div class="item-item">
-          <div class="item-name">治疗药水</div>
-          <div class="item-desc">恢复少量生命值</div>
-          <div class="item-count">数量: 1</div>
-        </div>
-      </div>
-      <template #footer>
-        <a-button type="primary" @click="selectItem">确定</a-button>
-        <a-button @click="showItemModal = false">取消</a-button>
-      </template>
-    </a-modal>
-
-    <!-- 战斗结果弹窗 -->
-    <a-modal v-model:open="showResultModal" :title="battleResult.title" size="small">
-      <div class="battle-result">
-        <div class="result-icon">{{ battleResult.icon }}</div>
-        <div class="result-message">{{ battleResult.message }}</div>
-        <div v-if="battleResult.exp > 0" class="result-reward">
-          <div class="reward-item">获得经验: {{ battleResult.exp }}</div>
-          <div class="reward-item">获得物品: {{ battleResult.items.join(', ') }}</div>
-        </div>
-      </div>
-      <template #footer>
-        <a-button type="primary" @click="endBattle">确定</a-button>
-      </template>
-    </a-modal>
-  </div>
+        <template #footer>
+          <a-button type="primary" @click="endBattle">确定</a-button>
+        </template>
+      </a-modal>
+    </a-layout-content>
+  </a-layout>
 </template>
 
 <script setup lang="ts">
@@ -365,19 +386,14 @@ onMounted(() => {
 .mobile-battle {
   width: 100%;
   height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   padding: 8px;
   box-sizing: border-box;
   background-color: #f0f2f5;
+  overflow-y: auto;
 }
 
 /* 顶部战斗信息 */
-.battle-header {
-  background-color: #ffffff;
-  border-radius: 6px;
-  border: 1px solid #d9d9d9;
+.battle-header-card {
   padding: 10px;
   text-align: center;
 }
@@ -395,22 +411,17 @@ onMounted(() => {
 }
 
 /* 战斗区域 */
-.battle-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 10px 0;
+.battle-area-card {
+  padding: 10px;
 }
 
 .character-card {
-  background-color: #ffffff;
-  border-radius: 6px;
-  border: 1px solid #d9d9d9;
-  padding: 10px;
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 10px;
+  background-color: #fafafa;
+  border-radius: 4px;
 }
 
 .enemy-card {
@@ -492,7 +503,7 @@ onMounted(() => {
 }
 
 .stat-item {
-  background-color: #fafafa;
+  background-color: #ffffff;
   padding: 2px 6px;
   border-radius: 10px;
 }
@@ -521,33 +532,24 @@ onMounted(() => {
 }
 
 /* 战斗日志 */
-.battle-log-section {
-  background-color: #ffffff;
-  border-radius: 6px;
-  border: 1px solid #d9d9d9;
-  padding: 10px;
+.battle-log-card {
   height: 120px;
-  display: flex;
-  flex-direction: column;
 }
 
-.section-title {
-  font-size: 14px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 8px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid #eee;
+.battle-log-card .ant-card-body {
+  padding: 0;
+  height: calc(100% - 48px);
 }
 
 .battle-log {
-  flex: 1;
+  height: 100%;
   overflow-y: auto;
   font-size: 12px;
   color: #333;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  padding: 8px;
 }
 
 .log-entry {
@@ -557,19 +559,11 @@ onMounted(() => {
 }
 
 /* 战斗操作 */
-.battle-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.battle-actions-card {
+  padding: 10px;
 }
 
-.action-buttons-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-
-.action-buttons-row .ant-btn {
+.battle-actions-card .ant-btn {
   font-size: 12px;
   padding: 8px 0;
 }
@@ -651,7 +645,10 @@ onMounted(() => {
 @media (max-width: 480px) {
   .mobile-battle {
     padding: 6px;
-    gap: 6px;
+  }
+
+  .battle-header-card, .battle-area-card, .battle-log-card, .battle-actions-card {
+    margin-bottom: 6px;
   }
 
   .character-avatar {
@@ -665,11 +662,7 @@ onMounted(() => {
     gap: 8px;
   }
 
-  .action-buttons-row {
-    grid-template-columns: 1fr;
-  }
-
-  .battle-log-section {
+  .battle-log-card {
     height: 100px;
   }
 }

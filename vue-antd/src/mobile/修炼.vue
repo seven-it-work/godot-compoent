@@ -1,149 +1,146 @@
 <template>
-  <div class="mobile-cultivation">
+  <a-layout class="mobile-cultivation">
     <!-- 顶部区域：头像和属性 -->
-    <div class="top-section">
-      <div class="avatar-section">
-        <div class="avatar-container">
-          <div class="avatar">
-            <div class="avatar-placeholder">修</div>
-          </div>
-          <div class="player-name">{{ player.name }}</div>
-        </div>
-      </div>
-      <div class="attributes-section">
-        <div class="section-title">基础属性</div>
-        <div class="attributes-content">
-          <div class="attribute-grid">
-            <div class="attribute-item">
-              <span class="attribute-label">攻击</span>
-              <span class="attribute-value">{{ player.attributes.attack }}</span>
+    <a-layout-content>
+      <a-row :gutter="[8, 8]">
+        <!-- 头像区域 -->
+        <a-col :span="6">
+          <a-card class="avatar-card" :bordered="true">
+            <div class="avatar-container">
+              <div class="avatar">
+                <div class="avatar-placeholder">修</div>
+              </div>
+              <div class="player-name">{{ player.name }}</div>
             </div>
-            <div class="attribute-item">
-              <span class="attribute-label">防御</span>
-              <span class="attribute-value">{{ player.attributes.defense }}</span>
+          </a-card>
+        </a-col>
+        <!-- 属性区域 -->
+        <a-col :span="18">
+          <a-card class="attributes-card" :bordered="true" title="基础属性">
+            <div class="attributes-content">
+              <a-row :gutter="[8, 8]">
+                <a-col :span="12" v-for="(attr, index) in attributesList" :key="index">
+                  <div class="attribute-item">
+                    <span class="attribute-label">{{ attr.label }}</span>
+                    <span class="attribute-value">{{ attr.value }}</span>
+                  </div>
+                </a-col>
+              </a-row>
+              <div class="exp-bar-container">
+                <div class="exp-label">等级: {{ player.level }}</div>
+                <a-progress :percent="(player.exp / player.maxExp) * 100" :show-info="false" size="small" />
+                <div class="exp-text">{{ player.exp }}/{{ player.maxExp }} 经验</div>
+              </div>
             </div>
-            <div class="attribute-item">
-              <span class="attribute-label">生命</span>
-              <span class="attribute-value">{{ player.attributes.health }}/{{ player.attributes.maxHealth }}</span>
-            </div>
-            <div class="attribute-item">
-              <span class="attribute-label">闪避</span>
-              <span class="attribute-value">{{ player.attributes.dodge }}</span>
-            </div>
-            <div class="attribute-item">
-              <span class="attribute-label">格挡</span>
-              <span class="attribute-value">{{ player.attributes.block }}</span>
-            </div>
-            <div class="attribute-item">
-              <span class="attribute-label">暴击</span>
-              <span class="attribute-value">{{ player.attributes.critical }}</span>
-            </div>
-          </div>
-          <div class="exp-bar-container">
-            <div class="exp-label">等级: {{ player.level }}</div>
-            <a-progress :percent="(player.exp / player.maxExp) * 100" :show-info="false" size="small" />
-            <div class="exp-text">{{ player.exp }}/{{ player.maxExp }} 经验</div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </a-card>
+        </a-col>
+      </a-row>
 
-    <!-- 底部区域：地点属性和灵气分布 -->
-    <div class="bottom-section">
-      <div class="location-section">
-        <div class="section-title">所在地点</div>
-        <div class="location-content">
-          <div class="location-attributes">
-            <div class="location-name">{{ currentLocation.name }}</div>
-            <div class="location-info">
-              <template v-if="currentLocation.spiritVein">
-                <div class="vein-info">
-                  <span class="info-label">灵脉:</span>
-                  <span class="info-value">{{ currentLocation.spiritVein.name }} ({{ currentLocation.spiritVein.level }}级)</span>
-                </div>
-              </template>
-              <template v-if="currentLocation.monster">
-                <div class="monster-info">
-                  <span class="info-label">怪物:</span>
-                  <span class="info-value">{{ currentLocation.monster.name }} ({{ currentLocation.monster.level }}级)</span>
-                </div>
-              </template>
-            </div>
-          </div>
-          <div class="spirit-qi-section">
-            <div class="section-subtitle">灵气分布</div>
-            <div class="spirit-qi-bars">
-          <div class="spirit-qi-bar-item" v-for="spiritType in spiritQiTypes" :key="spiritType">
-            <div class="spirit-qi-label">{{ typeMap[spiritType] }}</div>
-            <div class="spirit-qi-bar-container">
-              <a-progress 
-                :percent="(currentLocation.spiritQi[spiritType as SpiritRootType] / currentLocation.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi]) * 100" 
-                :show-info="false" 
-                size="small" 
-                :stroke-color="colorMap[spiritType]"
-              />
-            </div>
-            <div class="spirit-qi-value">
-              {{ currentLocation.spiritQi[spiritType as SpiritRootType] }}/{{ currentLocation.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi] }}
-            </div>
-          </div>
-        </div>
-          </div>
-        </div>
-      </div>
-      <div class="player-qi-section">
-        <div class="section-title">玩家灵气</div>
-        <div class="player-qi-content">
-          <div class="player-qi-bars">
-            <div class="player-qi-bar-item" v-for="spiritType in spiritQiTypes" :key="spiritType">
-              <div class="player-qi-label">
-                <span class="element-icon" :style="{ backgroundColor: colorMap[spiritType] }">{{ typeMap[spiritType] }}</span>
-                <span class="type-name">{{ typeMap[spiritType] }}</span>
+      <!-- 底部区域：地点属性和灵气分布 -->
+      <a-row :gutter="[8, 8]" style="margin-top: 8px;">
+        <!-- 地点区域 -->
+        <a-col :span="12">
+          <a-card class="location-card" :bordered="true" title="所在地点">
+            <div class="location-content">
+              <div class="location-name">{{ currentLocation.name }}</div>
+              <div class="location-info">
+                <template v-if="currentLocation.spiritVein">
+                  <div class="vein-info">
+                    <span class="info-label">灵脉:</span>
+                    <span class="info-value">{{ currentLocation.spiritVein.name }} ({{ currentLocation.spiritVein.level }}级)</span>
+                  </div>
+                </template>
+                <template v-if="currentLocation.monster">
+                  <div class="monster-info">
+                    <span class="info-label">怪物:</span>
+                    <span class="info-value">{{ currentLocation.monster.name }} ({{ currentLocation.monster.level }}级)</span>
+                  </div>
+                </template>
               </div>
-              <div class="player-qi-bar-wrapper">
-                <div class="player-qi-bar">
-                  <div 
-                    class="player-qi-bar-fill" 
-                    :style="{
-                      width: `${(player.spiritQi[spiritType as SpiritRootType] / player.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi]) * 100}%`,
-                      backgroundColor: colorMap[spiritType]
-                    }"
-                  ></div>
-                </div>
-                <div class="player-qi-value">
-                  {{ player.spiritQi[spiritType as SpiritRootType] }}/{{ player.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi] }}
+              <div class="spirit-qi-section">
+                <div class="section-subtitle">灵气分布</div>
+                <div class="spirit-qi-bars">
+                  <div class="spirit-qi-bar-item" v-for="spiritType in spiritQiTypes" :key="spiritType">
+                    <div class="spirit-qi-label">{{ typeMap[spiritType] }}</div>
+                    <div class="spirit-qi-bar-container">
+                      <a-progress 
+                        :percent="(currentLocation.spiritQi[spiritType as SpiritRootType] / currentLocation.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi]) * 100" 
+                        :show-info="false" 
+                        size="small" 
+                        :stroke-color="colorMap[spiritType]"
+                      />
+                    </div>
+                    <div class="spirit-qi-value">
+                      {{ currentLocation.spiritQi[spiritType as SpiritRootType] }}/{{ currentLocation.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi] }}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="spirit-root-overview">
-            <div class="section-subtitle">灵根概览</div>
-            <div class="root-levels">
-              <div class="root-level-item" v-for="root in player.spiritRoots" :key="root.type">
-                <div class="root-level-icon" :style="{ backgroundColor: colorMap[root.type] }">
-                  {{ typeMap[root.type] }}
-                </div>
-                <div class="root-level-info">
-                  <div class="root-level-label">{{ root.name }}</div>
-                  <div class="root-level-value">{{ root.level }}级</div>
+          </a-card>
+        </a-col>
+        <!-- 玩家灵气区域 -->
+        <a-col :span="12">
+          <a-card class="player-qi-card" :bordered="true" title="玩家灵气">
+            <div class="player-qi-content">
+              <div class="player-qi-bars">
+                <div class="player-qi-bar-item" v-for="spiritType in spiritQiTypes" :key="spiritType">
+                  <div class="player-qi-label">
+                    <span class="element-icon" :style="{ backgroundColor: colorMap[spiritType] }">{{ typeMap[spiritType] }}</span>
+                    <span class="type-name">{{ typeMap[spiritType] }}</span>
+                  </div>
+                  <div class="player-qi-bar-wrapper">
+                    <div class="player-qi-bar">
+                      <div 
+                        class="player-qi-bar-fill" 
+                        :style="{
+                          width: `${(player.spiritQi[spiritType as SpiritRootType] / player.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi]) * 100}%`,
+                          backgroundColor: colorMap[spiritType]
+                        }"
+                      ></div>
+                    </div>
+                    <div class="player-qi-value">
+                      {{ player.spiritQi[spiritType as SpiritRootType] }}/{{ player.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi] }}
+                    </div>
+                  </div>
                 </div>
               </div>
+              <div class="spirit-root-overview">
+                <div class="section-subtitle">灵根概览</div>
+                <a-row type="flex" justify="space-around">
+                  <a-col v-for="root in player.spiritRoots" :key="root.type">
+                    <div class="root-level-item">
+                      <div class="root-level-icon" :style="{ backgroundColor: colorMap[root.type] }">
+                        {{ typeMap[root.type] }}
+                      </div>
+                      <div class="root-level-info">
+                        <div class="root-level-label">{{ root.name }}</div>
+                        <div class="root-level-value">{{ root.level }}级</div>
+                      </div>
+                    </div>
+                  </a-col>
+                </a-row>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </a-card>
+        </a-col>
+      </a-row>
 
-    <!-- 操作按钮 -->
-    <div class="action-buttons">
-      <a-button type="primary" :loading="player.isCooldown" @click="absorbSpiritQi">
-        {{ player.isCooldown ? `吸收中(${player.cooldownRemaining/1000}s)` : '吸收灵气' }}
-      </a-button>
-      <a-button type="default" :disabled="!canLevelUp" @click="levelUp">
-        突破境界
-      </a-button>
-    </div>
-  </div>
+      <!-- 操作按钮 -->
+      <a-row :gutter="[8, 8]" style="margin-top: 8px;">
+        <a-col :span="12">
+          <a-button type="primary" :loading="player.isCooldown" @click="absorbSpiritQi" block>
+            {{ player.isCooldown ? `吸收中(${player.cooldownRemaining/1000}s)` : '吸收灵气' }}
+          </a-button>
+        </a-col>
+        <a-col :span="12">
+          <a-button type="default" :disabled="!canLevelUp" @click="levelUp" block>
+            突破境界
+          </a-button>
+        </a-col>
+      </a-row>
+    </a-layout-content>
+  </a-layout>
 </template>
 
 <script setup lang="ts">
@@ -157,6 +154,16 @@ const gameStore = useGameStore();
 const player = computed(() => gameStore.player);
 const currentLocation = computed(() => gameStore.getCurrentLocation);
 const canLevelUp = computed(() => gameStore.canLevelUp);
+
+// 属性列表，用于在网格中展示
+const attributesList = computed(() => [
+  { label: '攻击', value: player.value.attributes.attack },
+  { label: '防御', value: player.value.attributes.defense },
+  { label: '生命', value: `${player.value.attributes.health}/${player.value.attributes.maxHealth}` },
+  { label: '闪避', value: player.value.attributes.dodge },
+  { label: '格挡', value: player.value.attributes.block },
+  { label: '暴击', value: player.value.attributes.critical }
+]);
 
 // 灵气类型映射
 const spiritQiTypes = ref<SpiritRootType[]>(['gold', 'wood', 'water', 'fire', 'earth']);
@@ -196,39 +203,24 @@ const levelUp = () => {
 .mobile-cultivation {
   width: 100%;
   height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   padding: 8px;
   box-sizing: border-box;
   background-color: #f0f2f5;
-}
-
-/* 顶部区域 */
-.top-section {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 8px;
-  min-height: 180px;
+  overflow-y: auto;
 }
 
 /* 头像区域 */
-.avatar-section {
+.avatar-card {
+  height: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 10px;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
-  background-color: #ffffff;
 }
 
 .avatar-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 8px;
 }
 
 .avatar {
@@ -256,22 +248,18 @@ const levelUp = () => {
 }
 
 /* 属性区域 */
-.attributes-section {
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
-  background-color: #ffffff;
+.attributes-card {
+  height: 100%;
 }
 
-.section-title {
+.attributes-card .ant-card-head {
+  padding: 0 12px;
+  min-height: 32px;
+}
+
+.attributes-card .ant-card-head-title {
   font-size: 14px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 10px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid #eee;
+  padding: 8px 0;
 }
 
 .attributes-content {
@@ -279,12 +267,6 @@ const levelUp = () => {
   flex-direction: column;
   gap: 10px;
   flex: 1;
-}
-
-.attribute-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
 }
 
 .attribute-item {
@@ -310,6 +292,7 @@ const levelUp = () => {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  margin-top: 8px;
 }
 
 .exp-label {
@@ -324,23 +307,19 @@ const levelUp = () => {
   text-align: right;
 }
 
-/* 底部区域 */
-.bottom-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  flex: 1;
-  min-height: 300px;
+/* 地点区域 */
+.location-card {
+  height: 100%;
 }
 
-/* 地点区域 */
-.location-section {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
-  background-color: #ffffff;
-  overflow: hidden;
+.location-card .ant-card-head {
+  padding: 0 12px;
+  min-height: 32px;
+}
+
+.location-card .ant-card-head-title {
+  font-size: 14px;
+  padding: 8px 0;
 }
 
 .location-content {
@@ -348,13 +327,6 @@ const levelUp = () => {
   flex-direction: column;
   height: 100%;
   gap: 8px;
-}
-
-.location-attributes {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  background-color: #f9f9f9;
-  border-radius: 6px 6px 0 0;
 }
 
 .location-name {
@@ -381,8 +353,9 @@ const levelUp = () => {
 }
 
 .spirit-qi-section {
-  padding: 10px;
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .section-subtitle {
@@ -396,7 +369,7 @@ const levelUp = () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  height: 100%;
+  flex: 1;
 }
 
 .spirit-qi-bar-item {
@@ -422,13 +395,18 @@ const levelUp = () => {
 }
 
 /* 玩家灵气区域 */
-.player-qi-section {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
-  background-color: #ffffff;
-  padding: 10px;
+.player-qi-card {
+  height: 100%;
+}
+
+.player-qi-card .ant-card-head {
+  padding: 0 12px;
+  min-height: 32px;
+}
+
+.player-qi-card .ant-card-head-title {
+  font-size: 14px;
+  padding: 8px 0;
 }
 
 .player-qi-content {
@@ -509,12 +487,6 @@ const levelUp = () => {
   padding-top: 4px;
 }
 
-.root-levels {
-  display: flex;
-  justify-content: space-around;
-  gap: 4px;
-}
-
 .root-level-item {
   display: flex;
   flex-direction: column;
@@ -569,49 +541,22 @@ const levelUp = () => {
 @media (max-width: 480px) {
   .mobile-cultivation {
     padding: 6px;
-    gap: 6px;
   }
 
-  .top-section {
-    grid-template-columns: 1fr;
-    min-height: auto;
-  }
-
-  .avatar-section {
-    flex-direction: row;
-    justify-content: space-around;
-    padding: 8px;
-  }
-
-  .avatar-container {
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 0;
-    gap: 10px;
+  .avatar-card,
+  .attributes-card,
+  .location-card,
+  .player-qi-card {
+    margin-bottom: 6px;
   }
 
   .avatar {
     width: 80px;
     height: 80px;
-    margin-bottom: 0;
   }
 
   .avatar-placeholder {
     font-size: 18px;
-  }
-
-  .bottom-section {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-
-  .attribute-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    padding: 6px 0;
   }
 }
 </style>

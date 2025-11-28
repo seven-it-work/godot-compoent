@@ -1,140 +1,153 @@
 <template>
-  <div class="mobile-exploration">
-    <!-- 顶部信息栏 -->
-    <div class="top-info">
-      <div class="location-info">
-        <div class="location-name">{{ currentLocation.name }}</div>
-        <div class="location-coords">坐标: {{ currentLocation.x }}, {{ currentLocation.y }}</div>
-      </div>
-      <div class="map-controls">
-        <a-button type="text" size="small" @click="showMapLegend">图例</a-button>
-        <a-button type="text" size="small" @click="toggleFullMap">全屏</a-button>
-      </div>
-    </div>
+  <a-layout class="mobile-exploration">
+    <a-layout-content>
+      <!-- 顶部信息栏 -->
+      <a-card class="top-info-card" :bordered="true">
+        <a-row :gutter="[8, 8]">
+          <a-col :span="16">
+            <div class="location-info">
+              <div class="location-name">{{ currentLocation.name }}</div>
+              <div class="location-coords">坐标: {{ currentLocation.x }}, {{ currentLocation.y }}</div>
+            </div>
+          </a-col>
+          <a-col :span="8">
+            <div class="map-controls">
+              <a-button type="text" size="small" @click="showMapLegend">图例</a-button>
+              <a-button type="text" size="small" @click="toggleFullMap">全屏</a-button>
+            </div>
+          </a-col>
+        </a-row>
+      </a-card>
 
-    <!-- 地图区域 -->
-    <div class="map-section">
-      <div class="map-container">
-        <div class="game-map" ref="mapRef">
-          <!-- 地图网格 -->
-          <div class="map-grid">
-            <div 
-              v-for="(row, y) in visibleMapData" 
-              :key="`row-${y}`" 
-              class="map-row"
-            >
+      <!-- 地图区域 -->
+      <a-card class="map-section-card" :bordered="true" style="margin-top: 8px;">
+        <div class="map-container">
+          <div class="game-map" ref="mapRef">
+            <!-- 地图网格 -->
+            <div class="map-grid">
               <div 
-                v-for="(cell, x) in row" 
-                :key="`cell-${x}-${y}`" 
-                class="map-cell"
-                :class="getCellClass(cell)"
-                @click="moveTo(x, y)"
-                :style="getCellStyle(cell)"
+                v-for="(row, y) in visibleMapData" 
+                :key="`row-${y}`" 
+                class="map-row"
               >
-                <span v-if="cell === 'player'" class="player-marker">👤</span>
-                <span v-else-if="cell === 'spiritVein'" class="cell-icon">💎</span>
-                <span v-else-if="cell === 'monster'" class="cell-icon">👹</span>
-                <span v-else-if="cell === 'exit'" class="cell-icon">🚪</span>
+                <div 
+                  v-for="(cell, x) in row" 
+                  :key="`cell-${x}-${y}`" 
+                  class="map-cell"
+                  :class="getCellClass(cell)"
+                  @click="moveTo(x, y)"
+                  :style="getCellStyle(cell)"
+                >
+                  <span v-if="cell === 'player'" class="player-marker">👤</span>
+                  <span v-else-if="cell === 'spiritVein'" class="cell-icon">💎</span>
+                  <span v-else-if="cell === 'monster'" class="cell-icon">👹</span>
+                  <span v-else-if="cell === 'exit'" class="cell-icon">🚪</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- 地图控制按钮 -->
-        <div class="map-nav-buttons">
-          <div class="nav-row">
-            <a-button type="default" size="small" @click="moveDirection('up')">↑</a-button>
-          </div>
-          <div class="nav-row">
-            <a-button type="default" size="small" @click="moveDirection('left')">←</a-button>
-            <a-button type="default" size="small" @click="moveDirection('down')">↓</a-button>
-            <a-button type="default" size="small" @click="moveDirection('right')">→</a-button>
+          <!-- 地图控制按钮 -->
+          <div class="map-nav-buttons">
+            <a-row justify="center">
+              <a-col :span="8">
+                <a-button type="default" size="small" @click="moveDirection('up')" block>↑</a-button>
+              </a-col>
+            </a-row>
+            <a-row justify="center" :gutter="[8, 8]" style="margin-top: 8px;">
+              <a-col :span="8">
+                <a-button type="default" size="small" @click="moveDirection('left')" block>←</a-button>
+              </a-col>
+              <a-col :span="8">
+                <a-button type="default" size="small" @click="moveDirection('down')" block>↓</a-button>
+              </a-col>
+              <a-col :span="8">
+                <a-button type="default" size="small" @click="moveDirection('right')" block>→</a-button>
+              </a-col>
+            </a-row>
           </div>
         </div>
-      </div>
-    </div>
+      </a-card>
 
-    <!-- 底部信息区域 -->
-    <div class="bottom-info">
-      <div class="location-details">
-        <div class="section-title">当前地点</div>
-        <div class="details-content">
-          <div v-if="currentLocation.spiritVein" class="detail-item">
-            <span class="detail-label">灵脉:</span>
-            <span class="detail-value">{{ currentLocation.spiritVein.name }} ({{ currentLocation.spiritVein.level }}级)</span>
-          </div>
-          <div v-if="currentLocation.monster" class="detail-item">
-            <span class="detail-label">怪物:</span>
-            <span class="detail-value">{{ currentLocation.monster.name }} ({{ currentLocation.monster.level }}级)</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">灵气:</span>
-            <div class="spirit-qi-summary">
-              <div 
-                v-for="spiritType in spiritQiTypes" 
-                :key="spiritType"
-                class="spirit-qi-dot"
-                :style="{ backgroundColor: colorMap[spiritType] }"
-                :title="`${typeMap[spiritType]}: ${currentLocation.spiritQi[spiritType as SpiritRootType]}`"
-              ></div>
+      <!-- 底部信息区域 -->
+      <a-row :gutter="[8, 8]" style="margin-top: 8px;">
+        <!-- 地点详情 -->
+        <a-col :span="24">
+          <a-card class="location-details-card" :bordered="true" title="当前地点">
+            <div class="details-content">
+              <a-row v-if="currentLocation.spiritVein" :gutter="[8, 8]">
+                <a-col :span="8">
+                  <div class="detail-label">灵脉:</div>
+                </a-col>
+                <a-col :span="16">
+                  <div class="detail-value">{{ currentLocation.spiritVein.name }} ({{ currentLocation.spiritVein.level }}级)</div>
+                </a-col>
+              </a-row>
+              <a-row v-if="currentLocation.monster" :gutter="[8, 8]">
+                <a-col :span="8">
+                  <div class="detail-label">怪物:</div>
+                </a-col>
+                <a-col :span="16">
+                  <div class="detail-value">{{ currentLocation.monster.name }} ({{ currentLocation.monster.level }}级)</div>
+                </a-col>
+              </a-row>
+              <a-row :gutter="[8, 8]">
+                <a-col :span="8">
+                  <div class="detail-label">灵气:</div>
+                </a-col>
+                <a-col :span="16">
+                  <div class="spirit-qi-summary">
+                    <div 
+                      v-for="spiritType in spiritQiTypes" 
+                      :key="spiritType"
+                      class="spirit-qi-dot"
+                      :style="{ backgroundColor: colorMap[spiritType] }"
+                      :title="`${typeMap[spiritType]}: ${currentLocation.spiritQi[spiritType as SpiritRootType]}`"
+                    ></div>
+                  </div>
+                </a-col>
+              </a-row>
             </div>
-          </div>
-        </div>
-      </div>
+          </a-card>
+        </a-col>
 
-      <div class="action-panel">
-        <div class="section-title">操作</div>
-        <div class="action-buttons">
-          <a-button type="primary" size="small" @click="exploreLocation">探索</a-button>
-          <a-button type="default" size="small" @click="collectResources">采集</a-button>
-          <a-button type="default" size="small" @click="rest">休息</a-button>
-          <a-button type="default" size="small" @click="backToHome">返回</a-button>
-        </div>
-      </div>
-    </div>
+        <!-- 操作按钮 -->
+        <a-col :span="24">
+          <a-card class="action-panel-card" :bordered="true" title="操作">
+            <a-row :gutter="[8, 8]">
+              <a-col :span="6" v-for="(action, index) in actions" :key="index">
+                <a-button 
+                  :type="action.type" 
+                  size="small" 
+                  @click="action.handler" 
+                  block
+                >
+                  {{ action.label }}
+                </a-button>
+              </a-col>
+            </a-row>
+          </a-card>
+        </a-col>
+      </a-row>
+    </a-layout-content>
 
     <!-- 图例弹窗 -->
     <a-modal v-model:open="showLegend" title="地图图例" size="small" footer="null">
       <div class="legend-content">
-        <div class="legend-item">
-          <div class="legend-color" style="background-color: #e6f7ff;"></div>
-          <span class="legend-text">普通地形</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background-color: #95de64;"></div>
-          <span class="legend-text">森林</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background-color: #ffd591;"></div>
-          <span class="legend-text">山脉</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background-color: #bae7ff;"></div>
-          <span class="legend-text">水域</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background-color: #73d13d;"></div>
-          <span class="legend-text">灵脉</span>
-          <span class="legend-icon">💎</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background-color: #ff7875;"></div>
-          <span class="legend-text">怪物</span>
-          <span class="legend-icon">👹</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background-color: #c9c9c9;"></div>
-          <span class="legend-text">出口</span>
-          <span class="legend-icon">🚪</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background-color: transparent;"></div>
-          <span class="legend-text">玩家</span>
-          <span class="legend-icon">👤</span>
-        </div>
+        <a-row :gutter="[8, 8]" v-for="(legend, index) in mapLegend" :key="index">
+          <a-col :span="6">
+            <div class="legend-color" :style="{ backgroundColor: legend.color }"></div>
+          </a-col>
+          <a-col :span="12">
+            <span class="legend-text">{{ legend.text }}</span>
+          </a-col>
+          <a-col :span="6">
+            <span class="legend-icon">{{ legend.icon }}</span>
+          </a-col>
+        </a-row>
       </div>
     </a-modal>
-  </div>
+  </a-layout>
 </template>
 
 <script setup lang="ts">
@@ -178,6 +191,18 @@ const colorMap = ref<Record<string, string>>({
   fire: '#ff6347',
   earth: '#deb887'
 });
+
+// 地图图例数据
+const mapLegend = ref([
+  { color: '#e6f7ff', text: '普通地形', icon: '' },
+  { color: '#95de64', text: '森林', icon: '' },
+  { color: '#ffd591', text: '山脉', icon: '' },
+  { color: '#bae7ff', text: '水域', icon: '' },
+  { color: '#73d13d', text: '灵脉', icon: '💎' },
+  { color: '#ff7875', text: '怪物', icon: '👹' },
+  { color: '#c9c9c9', text: '出口', icon: '🚪' },
+  { color: 'transparent', text: '玩家', icon: '👤' }
+]);
 
 // 地图相关方法
 const getCellClass = (cell: string) => {
@@ -244,6 +269,14 @@ const toggleFullMap = () => {
   fullMapMode.value = !fullMapMode.value;
 };
 
+// 操作按钮数据
+const actions = ref([
+  { label: '探索', type: 'primary', handler: exploreLocation },
+  { label: '采集', type: 'default', handler: collectResources },
+  { label: '休息', type: 'default', handler: rest },
+  { label: '返回', type: 'default', handler: backToHome }
+]);
+
 // 初始化
 onMounted(() => {
   // 确保地图数据已加载
@@ -255,23 +288,15 @@ onMounted(() => {
 .mobile-exploration {
   width: 100%;
   height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   padding: 8px;
   box-sizing: border-box;
   background-color: #f0f2f5;
+  overflow-y: auto;
 }
 
 /* 顶部信息栏 */
-.top-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.top-info-card {
   padding: 8px 12px;
-  background-color: #ffffff;
-  border-radius: 6px;
-  border: 1px solid #d9d9d9;
 }
 
 .location-info {
@@ -293,18 +318,20 @@ onMounted(() => {
 .map-controls {
   display: flex;
   gap: 4px;
+  justify-content: flex-end;
 }
 
 /* 地图区域 */
-.map-section {
-  flex: 1;
-  background-color: #ffffff;
-  border-radius: 6px;
-  border: 1px solid #d9d9d9;
+.map-section-card {
   padding: 10px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.map-section-card .ant-card-body {
+  padding: 0;
+  height: 100%;
 }
 
 .map-container {
@@ -384,13 +411,8 @@ onMounted(() => {
   padding: 10px;
 }
 
-.nav-row {
-  display: flex;
-  gap: 8px;
-}
-
-.nav-row .ant-btn {
-  width: 40px;
+.map-nav-buttons .ant-btn {
+  width: 100%;
   height: 40px;
   display: flex;
   align-items: center;
@@ -400,26 +422,8 @@ onMounted(() => {
 }
 
 /* 底部信息区域 */
-.bottom-info {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.location-details, .action-panel {
-  background-color: #ffffff;
-  border-radius: 6px;
-  border: 1px solid #d9d9d9;
-  padding: 10px;
-}
-
-.section-title {
-  font-size: 14px;
-  font-weight: bold;
-  color: #333;
+.location-details-card, .action-panel-card {
   margin-bottom: 8px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid #eee;
 }
 
 .details-content {
@@ -428,20 +432,15 @@ onMounted(() => {
   gap: 6px;
 }
 
-.detail-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-}
-
 .detail-label {
   color: #666;
+  font-size: 12px;
 }
 
 .detail-value {
   color: #333;
   font-weight: bold;
+  font-size: 12px;
 }
 
 /* 灵气分布摘要 */
@@ -502,7 +501,10 @@ onMounted(() => {
 @media (max-width: 480px) {
   .mobile-exploration {
     padding: 6px;
-    gap: 6px;
+  }
+
+  .top-info-card, .map-section-card, .location-details-card, .action-panel-card {
+    margin-bottom: 6px;
   }
 
   .map-cell {
@@ -511,20 +513,14 @@ onMounted(() => {
     font-size: 12px;
   }
 
-  .nav-row .ant-btn {
-    width: 36px;
+  .map-nav-buttons .ant-btn {
+    width: 100%;
     height: 36px;
     font-size: 14px;
   }
 
-  .action-buttons {
-    grid-template-columns: 1fr;
-  }
-
-  .top-info {
-    flex-direction: column;
-    gap: 6px;
-    align-items: stretch;
+  .top-info-card .ant-card-body {
+    padding: 8px;
   }
 
   .map-controls {
