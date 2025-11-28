@@ -18,6 +18,7 @@ const router = useRouter();
 const pathToComponent: Record<string, any> = {
   '/training': TrainingPage,
   '/outdoor': ExplorationPage,
+  '/explore': ExplorationPage,
   '/battle': BattlePage
 };
 

@@ -51,6 +51,11 @@ const mobileRoutes: RouteRecordRaw[] = [
         name: 'MobileBattle',
       },
       {
+        path: 'explore',
+        component: () => import('../mobile/探索.vue'),
+        name: 'MobileExplore',
+      },
+      {
         path: '', // 空路径作为默认子路由
         redirect: 'training'
       }

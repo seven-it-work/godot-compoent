@@ -2,25 +2,19 @@
   <a-layout class="mobile-exploration">
     <a-layout-content>
       <!-- 顶部信息栏 -->
-      <a-card class="top-info-card" :bordered="true">
-        <a-row :gutter="[8, 8]">
-          <a-col :span="16">
-            <div class="location-info">
-              <div class="location-name">{{ currentLocation.name }}</div>
-              <div class="location-coords">坐标: {{ currentLocation.x }}, {{ currentLocation.y }}</div>
-            </div>
-          </a-col>
-          <a-col :span="8">
-            <div class="map-controls">
-              <a-button type="text" size="small" @click="showMapLegend">图例</a-button>
-              <a-button type="text" size="small" @click="toggleFullMap">全屏</a-button>
-            </div>
-          </a-col>
-        </a-row>
-      </a-card>
+      <div class="top-info-container">
+        <div class="location-info">
+          <div class="location-name">{{ currentLocation.name }}</div>
+          <div class="location-coords">坐标: {{ currentLocation.x }}, {{ currentLocation.y }}</div>
+        </div>
+        <div class="map-controls">
+          <a-button type="text" size="small" @click="showMapLegend">图例</a-button>
+          <a-button type="text" size="small" @click="toggleFullMap">全屏</a-button>
+        </div>
+      </div>
 
       <!-- 地图区域 -->
-      <a-card class="map-section-card" :bordered="true" style="margin-top: 8px;">
+      <div class="map-section-container">
         <div class="map-container">
           <div class="game-map" ref="mapRef">
             <!-- 地图网格 -->
@@ -49,86 +43,62 @@
 
           <!-- 地图控制按钮 -->
           <div class="map-nav-buttons">
-            <a-row justify="center">
-              <a-col :span="8">
-                <a-button type="default" size="small" @click="moveDirection('up')" block>↑</a-button>
-              </a-col>
-            </a-row>
-            <a-row justify="center" :gutter="[8, 8]" style="margin-top: 8px;">
-              <a-col :span="8">
-                <a-button type="default" size="small" @click="moveDirection('left')" block>←</a-button>
-              </a-col>
-              <a-col :span="8">
-                <a-button type="default" size="small" @click="moveDirection('down')" block>↓</a-button>
-              </a-col>
-              <a-col :span="8">
-                <a-button type="default" size="small" @click="moveDirection('right')" block>→</a-button>
-              </a-col>
-            </a-row>
+            <div class="nav-row">
+              <a-button type="default" size="small" @click="moveDirection('up')" class="nav-btn">↑</a-button>
+            </div>
+            <div class="nav-row">
+              <a-button type="default" size="small" @click="moveDirection('left')" class="nav-btn">←</a-button>
+              <a-button type="default" size="small" @click="moveDirection('down')" class="nav-btn">↓</a-button>
+              <a-button type="default" size="small" @click="moveDirection('right')" class="nav-btn">→</a-button>
+            </div>
           </div>
         </div>
-      </a-card>
+      </div>
 
       <!-- 底部信息区域 -->
-      <a-row :gutter="[8, 8]" style="margin-top: 8px;">
-        <!-- 地点详情 -->
-        <a-col :span="24">
-          <a-card class="location-details-card" :bordered="true" title="当前地点">
-            <div class="details-content">
-              <a-row v-if="currentLocation.spiritVein" :gutter="[8, 8]">
-                <a-col :span="8">
-                  <div class="detail-label">灵脉:</div>
-                </a-col>
-                <a-col :span="16">
-                  <div class="detail-value">{{ currentLocation.spiritVein.name }} ({{ currentLocation.spiritVein.level }}级)</div>
-                </a-col>
-              </a-row>
-              <a-row v-if="currentLocation.monster" :gutter="[8, 8]">
-                <a-col :span="8">
-                  <div class="detail-label">怪物:</div>
-                </a-col>
-                <a-col :span="16">
-                  <div class="detail-value">{{ currentLocation.monster.name }} ({{ currentLocation.monster.level }}级)</div>
-                </a-col>
-              </a-row>
-              <a-row :gutter="[8, 8]">
-                <a-col :span="8">
-                  <div class="detail-label">灵气:</div>
-                </a-col>
-                <a-col :span="16">
-                  <div class="spirit-qi-summary">
-                    <div 
-                      v-for="spiritType in spiritQiTypes" 
-                      :key="spiritType"
-                      class="spirit-qi-dot"
-                      :style="{ backgroundColor: colorMap[spiritType] }"
-                      :title="`${typeMap[spiritType]}: ${currentLocation.spiritQi[spiritType as SpiritRootType]}`"
-                    ></div>
-                  </div>
-                </a-col>
-              </a-row>
+      <!-- 地点详情 -->
+      <div class="location-details-container">
+        <div class="section-title">当前地点</div>
+        <div class="details-content">
+          <div class="detail-row" v-if="currentLocation.spiritVein">
+            <div class="detail-label">灵脉:</div>
+            <div class="detail-value">{{ currentLocation.spiritVein.name }} ({{ currentLocation.spiritVein.level }}级)</div>
+          </div>
+          <div class="detail-row" v-if="currentLocation.monster">
+            <div class="detail-label">怪物:</div>
+            <div class="detail-value">{{ currentLocation.monster.name }} ({{ currentLocation.monster.level }}级)</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">灵气:</div>
+            <div class="spirit-qi-summary">
+              <div 
+                v-for="spiritType in spiritQiTypes" 
+                :key="spiritType"
+                class="spirit-qi-dot"
+                :style="{ backgroundColor: colorMap[spiritType] }"
+                :title="`${typeMap[spiritType]}: ${currentLocation.spiritQi[spiritType as SpiritRootType]}`"
+              ></div>
             </div>
-          </a-card>
-        </a-col>
+          </div>
+        </div>
+      </div>
 
-        <!-- 操作按钮 -->
-        <a-col :span="24">
-          <a-card class="action-panel-card" :bordered="true" title="操作">
-            <a-row :gutter="[8, 8]">
-              <a-col :span="6" v-for="(action, index) in actions" :key="index">
-                <a-button 
-                  :type="action.type" 
-                  size="small" 
-                  @click="action.handler" 
-                  block
-                >
-                  {{ action.label }}
-                </a-button>
-              </a-col>
-            </a-row>
-          </a-card>
-        </a-col>
-      </a-row>
+      <!-- 操作按钮 -->
+      <div class="action-panel-container">
+        <div class="section-title">操作</div>
+        <div class="action-buttons-grid">
+          <a-button 
+            v-for="(action, index) in actions" 
+            :key="index"
+            :type="action.type" 
+            size="small" 
+            @click="action.handler" 
+            class="action-btn"
+          >
+            {{ action.label }}
+          </a-button>
+        </div>
+      </div>
     </a-layout-content>
 
     <!-- 图例弹窗 -->
@@ -161,19 +131,75 @@ const gameStore = useGameStore();
 const showLegend = ref(false);
 const fullMapMode = ref(false);
 const mapRef = ref<HTMLElement | null>(null);
+// 玩家位置 - 使用响应式变量，默认设置为地图的左上角附近作为起始点
+const playerPosition = ref({ x: 10, y: 10 }); // 从坐标(10,10)开始，用户提到的'A'位置
+// 使用响应式变量存储地图数据，而不是计算属性，确保地图只生成一次
+const visibleMapData = ref<string[][]>([]);
 
 // 计算属性
 const currentLocation = computed(() => gameStore.getCurrentLocation);
 
-// 模拟可见地图数据，实际应该从gameStore获取
-const visibleMapData = computed(() => {
-  // 简单模拟一个3x3的可见地图
-  return [
-    ['forest', 'spiritVein', 'mountain'],
-    ['water', 'player', 'monster'],
-    ['empty', 'exit', 'empty']
-  ];
-});
+// 生成地图函数
+const generateMap = () => {
+  const mapSize = 100;
+  const map: string[][] = [];
+  
+  for (let y = 0; y < mapSize; y++) {
+    const row: string[] = [];
+    for (let x = 0; x < mapSize; x++) {
+      // 随机生成不同类型的地形
+      const terrainTypes: string[] = ['empty', 'forest', 'mountain', 'water', 'spiritVein', 'monster', 'exit'];
+      const weights: number[] = [0.45, 0.2, 0.15, 0.1, 0.04, 0.04, 0.02]; // 调整不同地形的出现概率
+      
+      // 根据权重选择地形
+        const random = Math.random();
+        let cumulative = 0;
+        let selectedTerrain = 'empty';
+        
+        for (let i = 0; i < terrainTypes.length; i++) {
+          // 使用类型断言确保weights[i]是number类型
+          const weight = weights[i] as number;
+          cumulative += weight;
+          if (random < cumulative) {
+            const terrain = terrainTypes[i];
+            if (terrain !== undefined) {
+              selectedTerrain = terrain;
+            }
+            break;
+          }
+        }
+      
+      row.push(selectedTerrain);
+    }
+    map.push(row);
+  }
+  
+  return map;
+};
+
+// 更新玩家在地图上的位置
+const updatePlayerPosition = () => {
+  // 首先清除地图上的所有玩家位置
+  for (let y = 0; y < visibleMapData.value.length; y++) {
+    const row = visibleMapData.value[y];
+    if (row !== undefined) {
+      for (let x = 0; x < row.length; x++) {
+        if (row[x] === 'player') {
+          row[x] = 'empty'; // 恢复为空地
+        }
+      }
+    }
+  }
+  
+  // 在新位置设置玩家
+  const { x, y } = playerPosition.value;
+  if (x >= 0 && x < 100 && y >= 0 && y < 100) {
+    const row = visibleMapData.value[y];
+    if (row !== undefined) {
+      row[x] = 'player';
+    }
+  }
+};
 
 // 配置
 const spiritQiTypes = ref<string[]>(['gold', 'wood', 'water', 'fire', 'earth']);
@@ -232,13 +258,63 @@ const getCellStyle = (cell: string) => {
 };
 
 const moveTo = (x: number, y: number) => {
-  // 使用gameStore的move方法，而不是moveTo
-  // gameStore.moveTo(x, y);
+  // 更新玩家位置
+  playerPosition.value = { x, y };
+  // 更新地图上的玩家位置
+  updatePlayerPosition();
   console.log(`移动到坐标 (${x}, ${y})`);
+  // 滚动到玩家位置
+  scrollToPlayer();
 };
 
+// 滚动到玩家位置
+const scrollToPlayer = () => {
+  if (mapRef.value) {
+    const cellSize = 48; // 单元格大小
+    const playerX = playerPosition.value.x * cellSize;
+    const playerY = playerPosition.value.y * cellSize;
+    mapRef.value.scrollTo({
+      left: playerX - mapRef.value.clientWidth / 2,
+      top: playerY - mapRef.value.clientHeight / 2,
+      behavior: 'smooth'
+    });
+  }
+};
+
+// 在组件挂载时初始化地图
+onMounted(() => {
+  console.log('探索页面初始化');
+  // 生成地图数据
+  visibleMapData.value = generateMap();
+  // 设置初始玩家位置
+  updatePlayerPosition();
+  // 延迟滚动以确保DOM已完全渲染
+  setTimeout(() => {
+    scrollToPlayer();
+  }, 100);
+});
+
 const moveDirection = (direction: 'up' | 'down' | 'left' | 'right') => {
-  gameStore.move(direction);
+  // 更新玩家位置
+  const { x, y } = playerPosition.value;
+  switch (direction) {
+    case 'up':
+      if (y > 0) playerPosition.value.y--;
+      break;
+    case 'down':
+      if (y < 99) playerPosition.value.y++;
+      break;
+    case 'left':
+      if (x > 0) playerPosition.value.x--;
+      break;
+    case 'right':
+      if (x < 99) playerPosition.value.x++;
+      break;
+  }
+  // 更新地图上的玩家位置
+  updatePlayerPosition();
+  // 滚动到玩家位置
+  scrollToPlayer();
 };
 
 const exploreLocation = () => {
@@ -288,15 +364,31 @@ onMounted(() => {
 .mobile-exploration {
   width: 100%;
   height: 100vh;
-  padding: 8px;
+  padding: 4px;
   box-sizing: border-box;
   background-color: #f0f2f5;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 主要内容区域 */
+.ant-layout-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 /* 顶部信息栏 */
-.top-info-card {
-  padding: 8px 12px;
+.top-info-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px;
+  background-color: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 2px;
+  flex-shrink: 0;
 }
 
 .location-info {
@@ -307,7 +399,6 @@ onMounted(() => {
   font-size: 14px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 2px;
 }
 
 .location-coords {
@@ -317,69 +408,98 @@ onMounted(() => {
 
 .map-controls {
   display: flex;
-  gap: 4px;
-  justify-content: flex-end;
+  gap: 2px;
+}
+
+.map-controls .ant-btn {
+  padding: 0 6px;
 }
 
 /* 地图区域 */
-.map-section-card {
-  padding: 10px;
+.map-section-container {
+  background-color: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 2px;
+  flex: 0 0 70%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-}
-
-.map-section-card .ant-card-body {
-  padding: 0;
-  height: 100%;
+  min-height: 0;
 }
 
 .map-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  position: relative;
-  overflow: hidden;
+  min-height: 0;
 }
 
 .game-map {
   flex: 1;
   overflow: auto;
-  padding: 10px;
+  padding: 6px;
   background-color: #fafafa;
-  border-radius: 4px;
-  border: 1px solid #e8e8e8;
+  border-bottom: 1px solid #e8e8e8;
+  /* 确保容器有明确的高度限制，强制内容超出时显示滚动条 */
+  height: 400px; /* 设置一个明确的高度 */
+  /* 增加滚动条样式优化 */
+  scrollbar-width: thin;
+  scrollbar-color: #d9d9d9 #f0f0f0;
 }
 
-/* 地图网格 */
+/* Webkit浏览器滚动条样式 */
+.game-map::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.game-map::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 3px;
+}
+
+.game-map::-webkit-scrollbar-thumb {
+  background: #d9d9d9;
+  border-radius: 3px;
+}
+
+.game-map::-webkit-scrollbar-thumb:hover {
+  background: #bfbfbf;
+}
+
+/* 地图网格 - 确保不会被压缩 */
 .map-grid {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 1px;
+  flex-shrink: 0; /* 防止整个网格被压缩 */
 }
 
+/* 地图行样式 - 确保不会被压缩 */
 .map-row {
   display: flex;
   gap: 1px;
+  flex-shrink: 0; /* 防止行被压缩 */
 }
 
+/* 固定大小的地图单元格 */
 .map-cell {
-  width: 32px;
-  height: 32px;
+  width: 48px; /* 固定宽度 */
+  height: 48px; /* 固定高度 */
   border: 1px solid rgba(0, 0, 0, 0.1);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 18px;
   transition: all 0.2s ease;
-  border-radius: 2px;
+  user-select: none;
+  -webkit-user-select: none;
+  flex-shrink: 0; /* 确保单元格不会被压缩 */
+  box-sizing: border-box; /* 确保边框不影响尺寸 */
 }
 
-.map-cell:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.map-cell:active {
+  transform: scale(0.95);
 }
 
 /* 单元格类型 */
@@ -404,49 +524,75 @@ onMounted(() => {
 
 /* 地图导航按钮 */
 .map-nav-buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 10px;
+  padding: 4px;
 }
 
-.map-nav-buttons .ant-btn {
-  width: 100%;
-  height: 40px;
+.nav-row {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-bottom: 2px;
+}
+
+.nav-row:last-child {
+  margin-bottom: 0;
+}
+
+.nav-btn {
+  width: 40px;
+  height: 36px;
+  padding: 0;
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  font-size: 16px;
 }
 
-/* 底部信息区域 */
-.location-details-card, .action-panel-card {
-  margin-bottom: 8px;
+/* 地点详情 */
+.location-details-container {
+  padding: 4px;
+  background-color: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 4px;
 }
 
 .details-content {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 2px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .detail-label {
   color: #666;
   font-size: 12px;
+  min-width: 40px;
 }
 
 .detail-value {
   color: #333;
-  font-weight: bold;
   font-size: 12px;
+  flex: 1;
 }
 
 /* 灵气分布摘要 */
 .spirit-qi-summary {
   display: flex;
-  gap: 4px;
+  gap: 2px;
+  flex: 1;
 }
 
 .spirit-qi-dot {
@@ -457,74 +603,70 @@ onMounted(() => {
 }
 
 /* 操作按钮 */
-.action-buttons {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
+.action-panel-container {
+  padding: 4px;
+  background-color: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 2px;
+  flex-shrink: 0;
 }
 
-.action-buttons .ant-btn {
+.action-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+}
+
+.action-btn {
   font-size: 12px;
-  padding: 6px 0;
+  padding: 4px 0;
+  margin: 0;
 }
 
 /* 图例样式 */
 .legend-content {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  gap: 4px;
 }
 
 .legend-color {
   width: 20px;
   height: 20px;
   border: 1px solid #d9d9d9;
-  border-radius: 2px;
 }
 
 .legend-text {
   flex: 1;
+  font-size: 12px;
 }
 
 .legend-icon {
   font-size: 14px;
 }
 
-/* 响应式设计 */
-@media (max-width: 480px) {
-  .mobile-exploration {
-    padding: 6px;
-  }
+/* 优化移动端触摸体验 */
+.ant-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
 
-  .top-info-card, .map-section-card, .location-details-card, .action-panel-card {
-    margin-bottom: 6px;
-  }
+/* 移除所有不必要的边距和内边距 */
+:deep(.ant-card) {
+  margin: 0;
+  padding: 0;
+}
 
-  .map-cell {
-    width: 28px;
-    height: 28px;
-    font-size: 12px;
-  }
+:deep(.ant-card-body) {
+  margin: 0;
+  padding: 0;
+}
 
-  .map-nav-buttons .ant-btn {
-    width: 100%;
-    height: 36px;
-    font-size: 14px;
-  }
+:deep(.ant-row) {
+  margin: 0;
+}
 
-  .top-info-card .ant-card-body {
-    padding: 8px;
-  }
-
-  .map-controls {
-    justify-content: flex-end;
-  }
+:deep(.ant-col) {
+  padding: 0;
 }
 </style>

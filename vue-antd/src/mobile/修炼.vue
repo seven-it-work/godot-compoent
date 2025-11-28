@@ -117,18 +117,29 @@
           </a-checkbox>
         </a-col>
       </a-row>
+      
+      <!-- 探索按钮 -->
+      <a-row :gutter="[0, 0]" style="margin-top: 4px !important;">
+        <a-col :span="24">
+          <a-button type="primary" @click="goExplore" block style="padding: 0; margin: 0;">
+            探索
+          </a-button>
+        </a-col>
+      </a-row>
     </a-layout-content>
   </a-layout>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useGameStore } from '../store/gameStore';
 import type { SpiritRootType, SpiritQi } from '../types/game';
 import SpiritProgress from './components/SpiritProgress.vue';
 import ExpLevelProgress from './components/ExpLevelProgress.vue';
 
 const gameStore = useGameStore();
+const router = useRouter();
 
 // 计算属性
 const player = computed(() => gameStore.player);
@@ -254,6 +265,12 @@ const levelUp = () => {
   if (gameStore.canLevelUp) {
     gameStore.levelUp();
   }
+};
+
+// 探索
+const goExplore = () => {
+  console.log('goExplore');
+  router.push('/mobile/explore');
 };
 </script>
 
