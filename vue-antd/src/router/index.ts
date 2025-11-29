@@ -8,6 +8,8 @@ import BattleComponent from '../pc/components/BattleComponent.vue';
 const pcRoutes: RouteRecordRaw[] = [
   {
     path: '/pc',
+    // 添加组件支持，让 /pc 路径可以直接访问
+    component: { template: '<router-view />' },
     redirect: '/pc/training',
     children: [
       {
@@ -77,7 +79,8 @@ const baseRoutes: RouteRecordRaw[] = [
 
 // 创建路由实例
 const router = createRouter({
-  history: createWebHistory(),
+  // 设置基础路径，适配 GitHub Pages 部署
+  history: createWebHistory('/temp_html/'),
   routes: [...pcRoutes, ...mobileRoutes, ...baseRoutes],
 });
 
