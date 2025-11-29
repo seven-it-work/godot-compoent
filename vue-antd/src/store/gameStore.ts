@@ -304,30 +304,31 @@ export const useGameStore = defineStore("game", {
         return; // 超出地图范围
       }
 
-      // 取消当前地点的标记
+      // 取消当前地点的标记 - 只更新isCurrent状态，保留其他所有属性
       const currentLoc = this.player.currentLocation;
-      if (currentLoc) {
-        const currentRow = this.map.locations[currentLoc.y];
-        if (currentRow) {
-          const currentLocation = currentRow[currentLoc.x];
-          if (currentLocation) {
-            currentLocation.isCurrent = false;
-          }
+      if (currentLoc && typeof currentLoc.y === 'number' && typeof currentLoc.x === 'number') {
+        const row = this.map.locations[currentLoc.y];
+        if (row && row[currentLoc.x]) {
+          // 使用非空断言操作符确保TypeScript识别类型
+          row[currentLoc.x]!.isCurrent = false;
         }
       }
 
-      // 设置新地点
+      // 设置新地点 - 直接使用地图中存储的原始地点对象，避免属性丢失
       const newRow = this.map.locations[y];
-      if (newRow) {
-        const newLocation = newRow[x];
-        if (newLocation) {
-          newLocation.isCurrent = true;
-          this.player.currentLocation = newLocation;
+      if (newRow && newRow[x]) {
+        // 确保使用地图中存储的原始地点对象
+        const mapLocation = newRow[x];
+        
+        // 只更新isCurrent状态
+        mapLocation.isCurrent = true;
+        
+        // 直接引用地图中的原始对象，而不是创建新对象
+        this.player.currentLocation = mapLocation;
 
-          // 检查是否有怪物，触发战斗
-          if (newLocation.monster) {
-            this.startBattle(newLocation.monster);
-          }
+        // 检查是否有怪物，触发战斗
+        if (mapLocation.monster) {
+          this.startBattle(mapLocation.monster);
         }
       }
     },

@@ -3,7 +3,10 @@
 """
 自动推送dist目录内容到GitHub仓库的脚本
 使用方法: python push_to_github.py
-功能：推送前会自动检查并修复index.html中的资源路径（/assets/ 改为 .//assets/）
+功能：
+1. 自动进入项目的dist目录
+2. 自动初始化git仓库并绑定远程仓库
+3. 推送前会自动检查并修复index.html中的资源路径（/assets/ 改为 ./assets/）
 """
 
 import os
@@ -11,6 +14,12 @@ import re
 import subprocess
 import sys
 from datetime import datetime
+
+# 项目根目录（使用绝对路径）
+PROJECT_DIR = 'e:\\dev_soft\\Godot_v4.3-stable_win64.exe\\godot-compoent\\vue-antd'
+DIST_DIR = os.path.join(PROJECT_DIR, 'dist')
+# 远程仓库地址（可以根据需要修改）
+REMOTE_REPO_URL = 'git@github.com-seven-it-work:seven-it-work/temp_html.git'  # 默认远程仓库地址
 
 def run_command(cmd):
     """执行命令并返回结果"""
@@ -30,6 +39,95 @@ def run_command(cmd):
         # 处理错误输出
         error_output = e.stderr if isinstance(e.stderr, str) else e.stderr.decode('utf-8', errors='replace')
         return False, error_output
+
+def change_directory(directory):
+    """切换到指定目录"""
+    try:
+        os.chdir(directory)
+        print(f"成功切换到目录: {directory}")
+        return True
+    except Exception as e:
+        print(f"切换目录失败: {str(e)}")
+        return False
+
+def initialize_git_repo():
+    """初始化git仓库"""
+    # 检查是否已经有git仓库
+    if os.path.exists('.git'):
+        print("git仓库已存在")
+        return True
+    
+    # 初始化git仓库
+    print("初始化git仓库...")
+    success, output = run_command('git init')
+    if not success:
+        print(f"git init失败: {output}")
+        return False
+    
+    # 创建.gitignore文件（如果不存在）
+    if not os.path.exists('.gitignore'):
+        print("创建.gitignore文件...")
+        gitignore_content = """# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build output
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment variables
+.env
+.env.local
+.env.*.local"""
+        try:
+            with open('.gitignore', 'w', encoding='utf-8') as f:
+                f.write(gitignore_content)
+            print(".gitignore文件创建成功")
+        except Exception as e:
+            print(f"创建.gitignore文件失败: {str(e)}")
+    
+    return True
+
+def setup_remote_repo():
+    """设置远程仓库"""
+    # 检查是否已有远程仓库配置
+    success, output = run_command('git remote -v')
+    if success and 'origin' in output:
+        print("远程仓库已配置")
+        print(output)
+        return True
+    
+    # 配置远程仓库
+    print(f"配置远程仓库: {REMOTE_REPO_URL}")
+    success, output = run_command(f'git remote add origin {REMOTE_REPO_URL}')
+    if not success:
+        print(f"配置远程仓库失败: {output}")
+        return False
+    
+    print("远程仓库配置成功")
+    return True
 
 def fix_asset_paths():
     """检查并修复index.html中的资源路径
@@ -53,13 +151,13 @@ def fix_asset_paths():
             return True
         
         # 替换路径
-        new_content = re.sub(r'"/assets/', r'"./assets/', content)
+        new_content = re.sub(r'"/assets/', r'\"./assets/', content)
         
         # 写回文件
         with open(index_path, 'w', encoding='utf-8') as f:
             f.write(new_content)
         
-        print(f"成功修复index.html中的资源路径: \"/assets/ -> \"./assets/")
+        print(f"成功修复index.html中的资源路径: \"/assets/ -> \"\./assets/")
         return True
     
     except Exception as e:
@@ -69,10 +167,22 @@ def fix_asset_paths():
 def main():
     print("===== 开始推送dist目录到GitHub =====")
     
-    # 检查是否在正确的目录
-    if not os.path.exists('.git'):
-        print("错误: 当前目录不是git仓库！")
-        print("请确保在包含.git目录的dist文件夹中运行此脚本")
+    # 切换到dist目录
+    print(f"\n准备切换到dist目录: {DIST_DIR}")
+    if not change_directory(DIST_DIR):
+        print("错误: 无法切换到dist目录，请先运行构建命令")
+        sys.exit(1)
+    
+    # 初始化git仓库
+    print("\n检查/初始化git仓库...")
+    if not initialize_git_repo():
+        print("初始化git仓库失败，停止推送")
+        sys.exit(1)
+    
+    # 设置远程仓库
+    print("\n检查/配置远程仓库...")
+    if not setup_remote_repo():
+        print("配置远程仓库失败，停止推送")
         sys.exit(1)
     
     # 检查并修复index.html中的资源路径
@@ -80,15 +190,6 @@ def main():
     if not fix_asset_paths():
         print("资源路径修复失败，停止推送")
         sys.exit(1)
-    
-    # 检查远程仓库配置
-    success, output = run_command('git remote -v')
-    if not success:
-        print(f"获取远程仓库信息失败: {output}")
-        sys.exit(1)
-    
-    print("\n远程仓库配置:")
-    print(output)
     
     # 执行git add
     print("\n执行 git add . ...")
@@ -118,10 +219,30 @@ def main():
     success, output = run_command('git push -f origin master:main')
     if not success:
         print(f"git push失败: {output}")
-        sys.exit(1)
+        print("提示: 如果是第一次推送，可能需要先拉取远程仓库")
+        # 尝试拉取并合并
+        print("\n尝试拉取远程仓库...")
+        pull_success, pull_output = run_command('git pull origin main --allow-unrelated-histories')
+        if pull_success:
+            print("拉取成功，再次尝试推送...")
+            success, output = run_command('git push -f origin master:main')
+            if not success:
+                print(f"再次推送失败: {output}")
+                sys.exit(1)
+        else:
+            print(f"拉取失败: {pull_output}")
+            sys.exit(1)
     
     print("\ngit push 成功！")
     print("===== 推送完成 =====")
+
+# 获取命令行参数
+if __name__ == "__main__":
+    # 如果提供了远程仓库地址作为参数，使用它
+    if len(sys.argv) > 1:
+        REMOTE_REPO_URL = sys.argv[1]
+    
+    main()
 
 if __name__ == "__main__":
     main()

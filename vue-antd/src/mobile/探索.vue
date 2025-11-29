@@ -31,7 +31,8 @@
                   @click="moveTo(x, y)"
                   :style="getCellStyle(cell)"
                 >
-                  <span v-if="cell === 'player'" class="player-marker">👤</span>
+                  <!-- 玩家标记显示在当前玩家位置，不改变格子类型 -->
+                  <span v-if="x === playerPosition.x && y === playerPosition.y" class="player-marker">👤</span>
                   <span v-else-if="cell === 'spiritVein'" class="cell-icon">💎</span>
                   <span v-else-if="cell === 'monster'" class="cell-icon">👹</span>
                   <span v-else-if="cell === 'exit'" class="cell-icon">🚪</span>
@@ -138,6 +139,8 @@ const playerPosition = ref({
 });
 // 使用响应式变量存储地图数据，而不是计算属性，确保地图只生成一次
 const visibleMapData = ref<string[][]>([]);
+// 存储地图原始地形类型，用于玩家离开后恢复正确的地形类型
+const originalTerrainData = ref<string[][]>([]);
 // 移动状态控制
 const isMoving = ref(false); // 标记玩家是否正在移动中
 const moveStepDelay = 150; // 每步移动的延迟时间（毫秒）
@@ -149,9 +152,11 @@ const currentLocation = computed(() => gameStore.getCurrentLocation);
 const generateMap = () => {
   const mapSize = 100;
   const map: string[][] = [];
+  const originalMap: string[][] = [];
   
   for (let y = 0; y < mapSize; y++) {
     const row: string[] = [];
+    const originalRow: string[] = [];
     for (let x = 0; x < mapSize; x++) {
       // 随机生成不同类型的地形
       const terrainTypes: string[] = ['empty', 'forest', 'mountain', 'water', 'spiritVein', 'monster', 'exit'];
@@ -176,35 +181,28 @@ const generateMap = () => {
         }
       
       row.push(selectedTerrain);
+      originalRow.push(selectedTerrain); // 同时保存到原始地形记录中
     }
     map.push(row);
+    originalMap.push(originalRow);
   }
+  
+  // 保存原始地形数据
+  originalTerrainData.value = originalMap;
   
   return map;
 };
 
 // 更新玩家在地图上的位置
 const updatePlayerPosition = () => {
-  // 首先清除地图上的所有玩家位置
-  for (let y = 0; y < visibleMapData.value.length; y++) {
-    const row = visibleMapData.value[y];
-    if (row !== undefined) {
-      for (let x = 0; x < row.length; x++) {
-        if (row[x] === 'player') {
-          row[x] = 'empty'; // 恢复为空地
-        }
-      }
-    }
-  }
+  // 由于我们不再需要将格子类型设置为'player'，这个函数现在变得简单
+  // 我们会通过CSS和模板中的条件渲染来显示玩家位置，而不是改变格子类型
+  // 因此，这个函数实际上可以保留为空，或者我们可以保留原始功能作为备用
+  // 但为了确保一致性，我们保留原来的循环逻辑，但不做任何修改
   
-  // 在新位置设置玩家
-  const { x, y } = playerPosition.value;
-  if (x >= 0 && x < 100 && y >= 0 && y < 100) {
-    const row = visibleMapData.value[y];
-    if (row !== undefined) {
-      row[x] = 'player';
-    }
-  }
+  // 注意：玩家位置的显示现在完全依赖于模板中的条件渲染
+  // 即通过v-if="cell === 'player' || (x === playerPosition.x && y === playerPosition.y)"
+  // 这样可以在不改变格子类型的情况下显示玩家标记
 };
 
 // 配置
@@ -285,16 +283,17 @@ const calculatePath = (startX: number, startY: number, endX: number, endY: numbe
 
 // 平滑移动函数
 const moveTo = async (targetX: number, targetY: number) => {
-  // 如果已经在移动中或者目标位置就是当前位置，则不执行
+  // 防止重复执行移动操作
   if (isMoving.value || 
-      playerPosition.value.x === targetX && playerPosition.value.y === targetY) {
+      (playerPosition.value.x === targetX && playerPosition.value.y === targetY)) {
     return;
   }
   
+  // 设置移动状态
   isMoving.value = true;
   
   try {
-    // 计算移动路径
+    // 计算从当前位置到目标位置的路径
     const path = calculatePath(
       playerPosition.value.x,
       playerPosition.value.y,
@@ -302,11 +301,12 @@ const moveTo = async (targetX: number, targetY: number) => {
       targetY
     );
     
-    // 逐个格子移动
+    // 逐格移动实现平滑动画效果
     for (const step of path) {
       // 更新玩家位置
       playerPosition.value = { x: step.x, y: step.y };
-      // 更新gameStore中的位置信息
+      
+      // 更新游戏状态存储中的位置信息
       if (gameStore.player) {
         gameStore.player.currentLocation = {
           ...gameStore.player.currentLocation,
@@ -315,17 +315,28 @@ const moveTo = async (targetX: number, targetY: number) => {
           name: getLocationName(step.x, step.y)
         };
       }
-      // 更新地图上的玩家位置
-      updatePlayerPosition();
+      
+      // 调试信息
       console.log(`移动到坐标 (${step.x}, ${step.y})`);
-      // 滚动到玩家位置
+      
+      // 滚动地图使玩家保持在视图中心
       scrollToPlayer();
-      // 等待一段时间，产生动画效果
+      
+      // 延迟以创建平滑动画效果
       await new Promise(resolve => setTimeout(resolve, moveStepDelay));
     }
+    
+    // 检查目标位置是否是怪物格子
+    if (visibleMapData.value[targetY] && visibleMapData.value[targetY][targetX] === 'monster') {
+      console.log('遭遇怪物！准备战斗...');
+      // 处理怪物遭遇逻辑
+      handleMonsterEncounter(targetX, targetY);
+    }
   } catch (error) {
+    // 错误处理
     console.error('移动过程中发生错误:', error);
   } finally {
+    // 确保移动状态重置
     isMoving.value = false;
   }
 };
@@ -376,8 +387,7 @@ onMounted(() => {
     playerPosition.value.y = gameStore.player.currentLocation.y;
   }
   
-  // 设置玩家位置
-  updatePlayerPosition();
+  // 不再需要调用updatePlayerPosition，因为玩家位置现在通过模板条件渲染
   
   // 确保gameStore中的位置信息正确
   if (gameStore.player) {
@@ -462,7 +472,45 @@ const showMapLegend = () => {
   showLegend.value = true;
 };
 
+// 处理怪物遭遇事件
+const handleMonsterEncounter = (monsterX: number, monsterY: number) => {
+  // 根据玩家等级和位置生成一个怪物
+  const monsterLevel = Math.max(1, (gameStore.player?.level || 1) + Math.floor(Math.random() * 3) - 1);
+  
+  // 创建怪物数据（符合Monster类型）
+  const monsterData = {
+    id: `monster-${monsterX}-${monsterY}-${Date.now()}`,
+    name: `怪物Lv${monsterLevel}`,
+    level: monsterLevel,
+    attributes: {
+      health: monsterLevel * 50,
+      maxHealth: monsterLevel * 50,
+      attack: monsterLevel * 15,
+      defense: monsterLevel * 8,
+      spiritPower: monsterLevel * 10,
+      // 添加必要的战斗属性
+      dodge: monsterLevel * 5,
+      block: monsterLevel * 3,
+      critical: monsterLevel * 4
+    },
+    expReward: monsterLevel * 100,
+    description: `这是一只${monsterLevel}级的怪物，盘踞在此地修炼。`
+  };
+  
+  console.log('生成的怪物数据:', monsterData);
+  
+  // 使用gameStore中的startBattle方法开始战斗
+  gameStore.startBattle(monsterData);
+  
+  // 导航到战斗页面
+  navigateToBattle();
+};
 
+// 导航到战斗页面
+const navigateToBattle = () => {
+  console.log('跳转到战斗页面');
+  router.push('/mobile/战斗');
+};
 
 // 操作按钮数据 - 只保留修炼按钮
 const actions = ref([
