@@ -454,6 +454,13 @@ const moveDirection = async (direction: 'up' | 'down' | 'left' | 'right') => {
       scrollToPlayer();
       // 添加短暂延迟，保持一致性
       await new Promise(resolve => setTimeout(resolve, moveStepDelay));
+      
+      // 检查目标位置是否是怪物格子
+      if (visibleMapData.value[newY] && visibleMapData.value[newY][newX] === 'monster') {
+        console.log('遭遇怪物！准备战斗...');
+        // 处理怪物遭遇逻辑
+        handleMonsterEncounter(newX, newY);
+      }
     }
   } catch (error) {
     console.error('方向移动过程中发生错误:', error);
@@ -502,14 +509,26 @@ const handleMonsterEncounter = (monsterX: number, monsterY: number) => {
   // 使用gameStore中的startBattle方法开始战斗
   gameStore.startBattle(monsterData);
   
-  // 导航到战斗页面
-  navigateToBattle();
-};
-
-// 导航到战斗页面
-const navigateToBattle = () => {
-  console.log('跳转到战斗页面');
-  router.push('/mobile/战斗');
+  // 立即导航到战斗页面，不等待其他异步操作
+  console.log('===== 导航调试信息开始 =====');
+  console.log('准备导航到战斗页面，目标路由:', '/mobile/battle');
+  console.log('当前路由状态:', router.currentRoute.value);
+  console.log('游戏商店战斗状态:', gameStore.currentBattle);
+  
+  // 执行路由跳转
+  try {
+    const navigationResult = router.push('/mobile/battle');
+    console.log('导航请求已发送，结果:', navigationResult);
+    
+    // 监听路由变化
+    setTimeout(() => {
+      console.log('导航后当前路由:', router.currentRoute.value);
+      console.log('===== 导航调试信息结束 =====');
+    }, 100);
+  } catch (error) {
+    console.error('导航过程中发生错误:', error);
+    console.log('===== 导航调试信息结束（错误）=====');
+  }
 };
 
 // 操作按钮数据 - 只保留修炼按钮

@@ -49,7 +49,7 @@ const mobileRoutes: RouteRecordRaw[] = [
       },
       {
         path: 'battle',
-        component: () => import('../mobile/index.vue'),
+        component: () => import('../mobile/战斗.vue'),
         name: 'MobileBattle',
       },
       {
