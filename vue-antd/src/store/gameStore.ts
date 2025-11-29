@@ -91,6 +91,9 @@ export const useGameStore = defineStore("game", {
       battleLogs: [],
       isPlayerTurn: true,
     },
+    // 自动吸收灵气相关状态
+    isAutoAbsorbing: false,
+    autoAbsorbInterval: null,
   }),
 
   getters: {
@@ -147,6 +150,68 @@ export const useGameStore = defineStore("game", {
     initGame() {
       this.generateMap();
       this.startTimeFlow();
+    },
+    
+    // 重置玩家信息到初始状态
+    resetPlayer() {
+      this.player = {
+        name: "玩家",
+        level: 1,
+        exp: 0,
+        maxExp: 100,
+        spiritRoots: [
+          { type: "gold", level: 1, name: "金灵根" },
+          { type: "wood", level: 1, name: "木灵根" },
+          { type: "water", level: 1, name: "水灵根" },
+          { type: "fire", level: 1, name: "火灵根" },
+          { type: "earth", level: 1, name: "土灵根" },
+        ],
+        spiritQi: {
+          gold: 0,
+          wood: 0,
+          water: 0,
+          fire: 0,
+          earth: 0,
+          maxGold: 100,
+          maxWood: 100,
+          maxWater: 100,
+          maxFire: 100,
+          maxEarth: 100,
+        },
+        attributes: {
+          attack: 10, // 灵力攻击
+          defense: 5, // 灵力防御
+          health: 100, // 神魂强度
+          maxHealth: 100, // 最大神魂强度
+          dodge: 5, // 身法
+          block: 5, // 灵力护盾
+          critical: 5, // 灵眼
+        },
+        absorbSpeed: 1.0,
+        cooldown: 1000, // 1秒冷却时间
+        isCooldown: false,
+        cooldownRemaining: 0,
+        currentLocation: {
+          id: "0-0",
+          x: 0,
+          y: 0,
+          name: "初始地点",
+          spiritQi: {
+            gold: 50,
+            wood: 50,
+            water: 50,
+            fire: 50,
+            earth: 50,
+            maxGold: 100,
+            maxWood: 100,
+            maxWater: 100,
+            maxFire: 100,
+            maxEarth: 100,
+          },
+          isCurrent: true,
+        },
+      };
+      console.log('玩家信息已重置到初始状态');
     },
 
     // 生成地图
@@ -784,6 +849,64 @@ export const useGameStore = defineStore("game", {
           this.player.cooldownRemaining -= 100;
         }
       }, 100);
+    },
+
+    // 检查是否可以吸收特定类型的灵气
+    canAbsorbSpiritQi(spiritType: SpiritRootType): boolean {
+      const root = this.player.spiritRoots.find(r => r.type === spiritType);
+      if (!root) return false;
+      
+      const playerMaxQi = this.player.spiritQi[
+        `max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi
+      ] as number;
+      
+      const playerAvailableSpace = playerMaxQi - this.player.spiritQi[spiritType];
+      const availableQi = this.player.currentLocation.spiritQi[spiritType];
+      
+      return !this.player.isCooldown && playerAvailableSpace > 0 && availableQi > 0;
+    },
+
+    // 尝试自动吸收灵气
+    tryAutoAbsorb() {
+      // 检查是否在冷却中或不在修炼模式
+      if (this.player.isCooldown || this.currentSystem !== 'outdoor') return;
+      
+      // 尝试所有灵气类型
+      const spiritTypes: SpiritRootType[] = ['gold', 'wood', 'water', 'fire', 'earth'];
+      for (const spiritType of spiritTypes) {
+        if (this.canAbsorbSpiritQi(spiritType)) {
+          this.absorbSpiritQi(spiritType);
+          return true;
+        }
+      }
+      
+      return false;
+    },
+
+    // 开始自动吸收灵气
+    startAutoAbsorb() {
+      console.log('Starting auto absorb...');
+      if (this.autoAbsorbInterval) return;
+      
+      this.isAutoAbsorbing = true;
+      
+      // 立即尝试一次吸收
+      this.tryAutoAbsorb();
+      
+      // 设置定时器，定期尝试吸收
+      this.autoAbsorbInterval = window.setInterval(() => {
+        this.tryAutoAbsorb();
+      }, 100);
+    },
+
+    // 停止自动吸收灵气
+    stopAutoAbsorb() {
+      console.log('Stopping auto absorb...');
+      if (this.autoAbsorbInterval) {
+        clearInterval(this.autoAbsorbInterval);
+        this.autoAbsorbInterval = null;
+      }
+      this.isAutoAbsorbing = false;
     },
 
     // 开始时间流逝

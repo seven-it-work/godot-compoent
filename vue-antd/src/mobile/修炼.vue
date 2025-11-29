@@ -112,7 +112,7 @@
           </a-button>
         </a-col>
         <a-col :span="12" style="display: flex; align-items: center; justify-content: center; padding: 0;">
-          <a-checkbox v-model:checked="isAutoAbsorbing" @change="handleAutoAbsorbChange" style="margin: 0;">
+          <a-checkbox :checked="isAutoAbsorbing" @change="handleAutoAbsorbChange" style="margin: 0;">
             自动吸收灵气
           </a-checkbox>
         </a-col>
@@ -145,77 +145,16 @@ const router = useRouter();
 const player = computed(() => gameStore.player);
 const currentLocation = computed(() => gameStore.getCurrentLocation);
 const canLevelUp = computed(() => gameStore.canLevelUp);
-
-// 自动吸收状态
-const isAutoAbsorbing = ref(false);
-let autoAbsorbTimer: number | null = null;
-
-// 检查是否可以吸收特定类型的灵气
-const canAbsorbSpiritQi = (spiritType: SpiritRootType): boolean => {
-  const root = player.value.spiritRoots.find(r => r.type === spiritType);
-  if (!root) return false;
-  
-  const playerMaxQi = player.value.spiritQi[
-    `max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi
-  ] as number;
-  
-  const playerAvailableSpace = playerMaxQi - player.value.spiritQi[spiritType];
-  const availableQi = currentLocation.value.spiritQi[spiritType];
-  
-  return playerAvailableSpace > 0 && availableQi > 0;
-};
-
-// 尝试自动吸收灵气
-const tryAutoAbsorb = () => {
-  // 检查是否在冷却中
-  if (player.value.isCooldown) return;
-  
-  // 尝试所有灵气类型
-  for (const spiritType of spiritQiTypes.value) {
-    if (canAbsorbSpiritQi(spiritType)) {
-      absorbSpiritQiWithType(spiritType);
-      return true;
-    }
-  }
-  
-  // 如果所有灵气都吸收不了，关闭自动吸收
-  isAutoAbsorbing.value = false;
-  return false;
-};
+const isAutoAbsorbing = computed(() => gameStore.isAutoAbsorbing);
 
 // 处理自动吸收状态变化
-const handleAutoAbsorbChange = () => {
-  if (isAutoAbsorbing.value) {
-    // 立即尝试一次吸收
-    tryAutoAbsorb();
-    
-    // 设置定时器，定期尝试吸收
-    autoAbsorbTimer = window.setInterval(() => {
-      if (!isAutoAbsorbing.value) {
-        clearInterval(autoAbsorbTimer!);
-        autoAbsorbTimer = null;
-        return;
-      }
-      
-      tryAutoAbsorb();
-    }, 100); // 频繁检查，确保冷却结束后立即吸收
+const handleAutoAbsorbChange = (e: any) => {
+  if (e.target.checked) {
+    gameStore.startAutoAbsorb();
   } else {
-    // 清除定时器
-    if (autoAbsorbTimer) {
-      clearInterval(autoAbsorbTimer);
-      autoAbsorbTimer = null;
-    }
+    gameStore.stopAutoAbsorb();
   }
 };
-
-// 组件销毁时清除定时器
-import { onBeforeUnmount } from 'vue';
-onBeforeUnmount(() => {
-  if (autoAbsorbTimer) {
-    clearInterval(autoAbsorbTimer);
-    autoAbsorbTimer = null;
-  }
-});
 
 // 获取灵根标签（包含等级信息）
 const getSpiritRootLabel = (spiritType: string) => {

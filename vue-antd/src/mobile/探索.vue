@@ -456,7 +456,7 @@ const moveDirection = async (direction: 'up' | 'down' | 'left' | 'right') => {
       await new Promise(resolve => setTimeout(resolve, moveStepDelay));
       
       // 检查目标位置是否是怪物格子
-      if (visibleMapData.value[newY] && visibleMapData.value[newY][newX] === 'monster') {
+      if (visibleMapData.value[newY]?.[newX] === 'monster') {
         console.log('遭遇怪物！准备战斗...');
         // 处理怪物遭遇逻辑
         handleMonsterEncounter(newX, newY);
@@ -513,7 +513,7 @@ const handleMonsterEncounter = (monsterX: number, monsterY: number) => {
   console.log('===== 导航调试信息开始 =====');
   console.log('准备导航到战斗页面，目标路由:', '/mobile/battle');
   console.log('当前路由状态:', router.currentRoute.value);
-  console.log('游戏商店战斗状态:', gameStore.currentBattle);
+  console.log('游戏商店战斗状态:', gameStore.battleState);
   
   // 执行路由跳转
   try {

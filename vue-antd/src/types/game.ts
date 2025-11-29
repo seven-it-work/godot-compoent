@@ -124,4 +124,6 @@ export interface GameState {
   gameTime: GameTime; // 游戏时间
   timeInterval: number | null; // 时间流逝定时器
   battleState: BattleState; // 战斗状态
+  isAutoAbsorbing: boolean; // 是否自动吸收灵气
+  autoAbsorbInterval: number | null; // 自动吸收定时器
 }
