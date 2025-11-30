@@ -1,6 +1,0 @@
-Host codeup.aliyun.com
-  HostName codeup.aliyun.com
-  User git
-  IdentityFile C:\Users\seven\.ssh\codeup_github_sync
-  PreferredAuthentications publickey
-  IdentitiesOnly yes
