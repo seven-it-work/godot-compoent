@@ -1,14 +1,11 @@
 <template>
-  <div 
-    class="exp-level-progress-container"
-    :style="{ height: height }"
-  >
+  <div class="exp-level-progress-container" :style="{ height: height }">
     <div class="exp-level-progress-content">
-      <div 
+      <div
         class="exp-level-progress-bar"
-        :style="{ 
+        :style="{
           width: `${percent}%`,
-          backgroundColor: strokeColor
+          backgroundColor: strokeColor,
         }"
       ></div>
       <div class="exp-level-progress-text">
@@ -19,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 interface Props {
   label: string;
@@ -31,7 +28,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  height: '24px'
+  height: "24px",
 });
 
 const percent = computed(() => {

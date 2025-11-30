@@ -8,7 +8,12 @@
 
     <!-- 开始游戏按钮 -->
     <div class="start-buttons">
-      <a-button type="primary" size="large" @click="startNewGame" class="start-btn">
+      <a-button
+        type="primary"
+        size="large"
+        @click="startNewGame"
+        class="start-btn"
+      >
         开始新游戏
       </a-button>
       <a-button size="large" @click="continueGame" class="continue-btn">
@@ -56,9 +61,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useGameStore } from '../store/gameStore';
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useGameStore } from "../store/gameStore";
 
 const router = useRouter();
 const gameStore = useGameStore();
@@ -74,7 +79,7 @@ const startNewGame = () => {
   // 生成新地图
   gameStore.generateMap();
   // 跳转到玩家详情页面
-  router.push('/mobile/player-detail');
+  router.push("/mobile/player-detail");
 };
 
 // 继续游戏
@@ -82,7 +87,7 @@ const continueGame = () => {
   // 检查是否有存档
   // 如果没有存档，跳转到开始新游戏
   // 否则，继续游戏
-  router.push('/mobile/player-detail');
+  router.push("/mobile/player-detail");
 };
 
 // 显示设置

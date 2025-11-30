@@ -10,8 +10,21 @@ import type {
   BattleLog,
 } from "../types/game";
 
+// 扩展GameState类型
+interface ExtendedGameState extends GameState {
+  // 用户界面相关状态
+  uiState: {
+    playerDetailActiveTab: string;
+  };
+}
+
 export const useGameStore = defineStore("game", {
-  state: (): GameState => ({
+  state: (): ExtendedGameState => ({
+    // 从localStorage读取保存的tab状态，如果没有则使用默认值
+    uiState: {
+      playerDetailActiveTab:
+        localStorage.getItem("playerDetailActiveTab") || "attributes",
+    },
     player: {
       name: "玩家",
       level: 1,
@@ -97,6 +110,15 @@ export const useGameStore = defineStore("game", {
   }),
 
   getters: {
+    // 获取玩家详情页当前激活的tab
+    getPlayerDetailActiveTab: (state): string => {
+      console.log(
+        "[gameStore] 获取当前激活的tab:",
+        state.uiState.playerDetailActiveTab
+      );
+      return state.uiState.playerDetailActiveTab;
+    },
+
     // 获取玩家拥有的灵根类型列表
     activeSpiritRoots: (state): SpiritRootType[] => {
       return state.player.spiritRoots.map((root) => root.type);
@@ -146,12 +168,41 @@ export const useGameStore = defineStore("game", {
   },
 
   actions: {
+    // 设置玩家详情页当前激活的tab
+    setPlayerDetailActiveTab(tab: string): void {
+      console.log(
+        '[gameStore] 设置激活的tab: 从 "' +
+          this.uiState.playerDetailActiveTab +
+          '" 到 "' +
+          tab +
+          '"'
+      );
+      this.uiState.playerDetailActiveTab = tab;
+
+      // 保存到localStorage
+      localStorage.setItem("playerDetailActiveTab", tab);
+      console.log(
+        "[gameStore] 已保存tab到localStorage:",
+        localStorage.getItem("playerDetailActiveTab")
+      );
+    },
+
+    // 初始化游戏界面状态
+    initUIState(): void {
+      console.log("[gameStore] 初始化UI状态");
+      // 尝试从localStorage恢复状态
+      const savedTab = localStorage.getItem("playerDetailActiveTab");
+      if (savedTab) {
+        this.uiState.playerDetailActiveTab = savedTab;
+        console.log("[gameStore] 从localStorage恢复tab状态:", savedTab);
+      }
+    },
     // 初始化游戏
     initGame() {
       this.generateMap();
       this.startTimeFlow();
     },
-    
+
     // 重置玩家信息到初始状态
     resetPlayer() {
       this.player = {
@@ -211,7 +262,7 @@ export const useGameStore = defineStore("game", {
           isCurrent: true,
         },
       };
-      console.log('玩家信息已重置到初始状态');
+      console.log("玩家信息已重置到初始状态");
     },
 
     // 生成地图
@@ -371,7 +422,11 @@ export const useGameStore = defineStore("game", {
 
       // 取消当前地点的标记 - 只更新isCurrent状态，保留其他所有属性
       const currentLoc = this.player.currentLocation;
-      if (currentLoc && typeof currentLoc.y === 'number' && typeof currentLoc.x === 'number') {
+      if (
+        currentLoc &&
+        typeof currentLoc.y === "number" &&
+        typeof currentLoc.x === "number"
+      ) {
         const row = this.map.locations[currentLoc.y];
         if (row && row[currentLoc.x]) {
           // 使用非空断言操作符确保TypeScript识别类型
@@ -384,10 +439,10 @@ export const useGameStore = defineStore("game", {
       if (newRow && newRow[x]) {
         // 确保使用地图中存储的原始地点对象
         const mapLocation = newRow[x];
-        
+
         // 只更新isCurrent状态
         mapLocation.isCurrent = true;
-        
+
         // 直接引用地图中的原始对象，而不是创建新对象
         this.player.currentLocation = mapLocation;
 
@@ -439,9 +494,9 @@ export const useGameStore = defineStore("game", {
 
       // 切换到战斗系统
       this.currentSystem = "battle";
-      
+
       // 触发全局事件，通知UI层需要跳转到战斗页面
-      window.dispatchEvent(new CustomEvent('start-battle'));
+      window.dispatchEvent(new CustomEvent("start-battle"));
     },
 
     // 添加战斗日志
@@ -856,46 +911,55 @@ export const useGameStore = defineStore("game", {
 
     // 检查是否可以吸收特定类型的灵气
     canAbsorbSpiritQi(spiritType: SpiritRootType): boolean {
-      const root = this.player.spiritRoots.find(r => r.type === spiritType);
+      const root = this.player.spiritRoots.find((r) => r.type === spiritType);
       if (!root) return false;
-      
+
       const playerMaxQi = this.player.spiritQi[
         `max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi
       ] as number;
-      
-      const playerAvailableSpace = playerMaxQi - this.player.spiritQi[spiritType];
+
+      const playerAvailableSpace =
+        playerMaxQi - this.player.spiritQi[spiritType];
       const availableQi = this.player.currentLocation.spiritQi[spiritType];
-      
-      return !this.player.isCooldown && playerAvailableSpace > 0 && availableQi > 0;
+
+      return (
+        !this.player.isCooldown && playerAvailableSpace > 0 && availableQi > 0
+      );
     },
 
     // 尝试自动吸收灵气
     tryAutoAbsorb() {
       // 检查是否在冷却中或不在修炼模式
-      if (this.player.isCooldown || this.currentSystem !== 'outdoor') return;
-      
+      if (this.player.isCooldown || this.currentSystem !== "outdoor") return;
+
       // 尝试所有灵气类型
-      const spiritTypes: SpiritRootType[] = ['gold', 'wood', 'water', 'fire', 'earth'];
+      const spiritTypes: SpiritRootType[] = [
+        "gold",
+        "wood",
+        "water",
+        "fire",
+        "earth",
+      ];
       for (const spiritType of spiritTypes) {
         if (this.canAbsorbSpiritQi(spiritType)) {
           this.absorbSpiritQi(spiritType);
           return true;
         }
       }
-      
+
       return false;
     },
 
     // 开始自动吸收灵气
     startAutoAbsorb() {
-      console.log('Starting auto absorb...');
+      console.log("Starting auto absorb...");
       if (this.autoAbsorbInterval) return;
-      
+
       this.isAutoAbsorbing = true;
-      
+
       // 立即尝试一次吸收
       this.tryAutoAbsorb();
-      
+
       // 设置定时器，定期尝试吸收
       this.autoAbsorbInterval = window.setInterval(() => {
         this.tryAutoAbsorb();
@@ -904,7 +968,7 @@ export const useGameStore = defineStore("game", {
 
     // 停止自动吸收灵气
     stopAutoAbsorb() {
-      console.log('Stopping auto absorb...');
+      console.log("Stopping auto absorb...");
       if (this.autoAbsorbInterval) {
         clearInterval(this.autoAbsorbInterval);
         this.autoAbsorbInterval = null;

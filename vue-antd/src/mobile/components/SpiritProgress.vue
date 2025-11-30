@@ -1,27 +1,27 @@
 <template>
-  <div 
+  <div
     class="spirit-progress-container"
     :style="{ height: height }"
     @click="handleClick"
-    :class="{ 'absorbable': !isCooldown }"
+    :class="{ absorbable: !isCooldown }"
   >
     <div class="spirit-progress-content">
-      <div 
+      <div
         class="spirit-progress-bar"
-        :style="{ 
+        :style="{
           width: `${percent}%`,
-          backgroundColor: strokeColor
+          backgroundColor: strokeColor,
         }"
       ></div>
       <div v-if="!hideLabel" class="spirit-progress-text">
-        {{ label ? label + ' ' : '' }}{{ current }}/{{ max }}
+        {{ label ? label + " " : "" }}{{ current }}/{{ max }}
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 interface Props {
   label: string;
@@ -34,9 +34,9 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  height: '40px',
+  height: "40px",
   isCooldown: false,
-  hideLabel: false
+  hideLabel: false,
 });
 
 const emit = defineEmits<{
@@ -49,7 +49,7 @@ const percent = computed(() => {
 
 const handleClick = () => {
   if (!props.isCooldown) {
-    emit('click');
+    emit("click");
   }
 };
 </script>

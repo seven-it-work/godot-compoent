@@ -7,12 +7,14 @@
         <div class="avatar-container">
           <div class="avatar">
             <!-- 实际项目中这里可以使用真实头像图片 -->
-            <div class="avatar-placeholder">{{ getAvatarInitials((player as any).name) }}</div>
+            <div class="avatar-placeholder">
+              {{ getAvatarInitials((player as any).name) }}
+            </div>
           </div>
         </div>
         <div class="player-name">{{ (player as any).name }}</div>
       </div>
-      
+
       <!-- 右侧：属性面板 -->
       <div class="attributes-section">
         <div class="section-title">属性</div>
@@ -24,19 +26,26 @@
             </div>
             <div class="attribute-item">
               <span class="attribute-label">经验值:</span>
-              <span class="attribute-value">{{ player.exp }} / {{ player.maxExp }}</span>
+              <span class="attribute-value"
+                >{{ player.exp }} / {{ player.maxExp }}</span
+              >
             </div>
             <div class="attribute-item">
               <span class="attribute-label">攻击:</span>
-              <span class="attribute-value">{{ (player as any).attack || 0 }}</span>
+              <span class="attribute-value">{{
+                (player as any).attack || 0
+              }}</span>
             </div>
             <div class="attribute-item">
               <span class="attribute-label">生命:</span>
-              <span class="attribute-value">{{ (player as any).hp || 0 }} / {{ (player as any).maxHp || 0 }}</span>
+              <span class="attribute-value"
+                >{{ (player as any).hp || 0 }} /
+                {{ (player as any).maxHp || 0 }}</span
+              >
             </div>
             <!-- 暂时移除不存在的属性 -->
           </div>
-          
+
           <!-- 经验条 -->
           <div class="exp-bar-container">
             <div class="exp-bar-info">
@@ -44,8 +53,8 @@
               <span class="exp-percent">{{ calculateExpPercent() }}%</span>
             </div>
             <div class="exp-bar-wrapper">
-              <div 
-                class="exp-bar-fill" 
+              <div
+                class="exp-bar-fill"
                 :style="{ width: calculateExpPercent() + '%' }"
               ></div>
             </div>
@@ -53,7 +62,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- 底部区域：地点信息、灵气分布和玩家灵气分布 -->
     <div class="bottom-section">
       <!-- 左侧：地点信息和灵气分布 -->
@@ -68,20 +77,26 @@
             </div>
             <div class="attribute-item">
               <span class="attribute-label">坐标:</span>
-              <span class="attribute-value">({{ currentLocation.x }}, {{ currentLocation.y }})</span>
+              <span class="attribute-value"
+                >({{ currentLocation.x }}, {{ currentLocation.y }})</span
+              >
             </div>
             <!-- 显示灵脉信息（如果有） -->
             <div v-if="currentLocation.spiritVein" class="attribute-item">
               <span class="attribute-label">灵脉:</span>
-              <span class="attribute-value spirit-vein">{{ currentLocation.spiritVein.name }}</span>
+              <span class="attribute-value spirit-vein">{{
+                currentLocation.spiritVein.name
+              }}</span>
             </div>
             <!-- 显示怪物信息（如果有） -->
             <div v-if="currentLocation.monster" class="attribute-item">
               <span class="attribute-label">怪物:</span>
-              <span class="attribute-value monster">{{ currentLocation.monster.name }}</span>
+              <span class="attribute-value monster">{{
+                currentLocation.monster.name
+              }}</span>
             </div>
           </div>
-          
+
           <!-- 地点灵气分布 -->
           <div class="spirit-qi-section">
             <div class="section-title">灵气分布</div>
@@ -93,17 +108,21 @@
               >
                 <div class="spirit-qi-bar-wrapper">
                   <div class="spirit-qi-bar">
-                    <div 
-                      class="spirit-qi-bar-fill" 
-                      :style="{ 
+                    <div
+                      class="spirit-qi-bar-fill"
+                      :style="{
                         width: `${calculateLocationQiPercent(rootType)}%`,
-                        backgroundColor: getRootColor(rootType) 
+                        backgroundColor: getRootColor(rootType),
                       }"
                     ></div>
                   </div>
                   <div class="spirit-qi-label">
                     <span class="root-name">{{ getRootName(rootType) }}:</span>
-                    <span class="qi-value">{{ currentLocation.spiritQi[rootType] }}/{{ getMaxLocationQi(rootType) }}</span>
+                    <span class="qi-value"
+                      >{{ currentLocation.spiritQi[rootType] }}/{{
+                        getMaxLocationQi(rootType)
+                      }}</span
+                    >
                   </div>
                 </div>
               </div>
@@ -111,43 +130,59 @@
           </div>
         </div>
       </div>
-      
+
       <!-- 右侧：玩家灵气分布 -->
       <div class="player-qi-section">
         <div class="section-title">玩家灵气分布</div>
         <div class="player-qi-content">
           <div class="spirit-root-overview">
             <div class="root-levels">
-              <div v-for="rootType in spiritRootTypes" :key="rootType" class="root-level-item">
-                <div 
+              <div
+                v-for="rootType in spiritRootTypes"
+                :key="rootType"
+                class="root-level-item"
+              >
+                <div
                   class="root-level-icon"
                   :style="{ backgroundColor: getRootColor(rootType) }"
                 >
                   {{ getRootName(rootType) }}
                 </div>
                 <div class="root-level-info">
-                  <div class="root-level-label">{{ getRootName(rootType) }}灵根</div>
-                  <div class="root-level-value">等级: {{ playerSpiritRoots[rootType]?.level || 0 }}</div>
+                  <div class="root-level-label">
+                    {{ getRootName(rootType) }}灵根
+                  </div>
+                  <div class="root-level-value">
+                    等级: {{ playerSpiritRoots[rootType]?.level || 0 }}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          
+
           <div class="player-qi-bars">
-            <div v-for="rootType in spiritRootTypes" :key="rootType" class="player-qi-bar-item">
+            <div
+              v-for="rootType in spiritRootTypes"
+              :key="rootType"
+              class="player-qi-bar-item"
+            >
               <div class="player-qi-bar-wrapper">
                 <div class="player-qi-bar">
-                  <div 
+                  <div
                     class="player-qi-bar-fill"
-                    :style="{ 
+                    :style="{
                       width: `${calculatePlayerQiPercent(rootType)}%`,
-                      backgroundColor: getRootColor(rootType)
+                      backgroundColor: getRootColor(rootType),
                     }"
                   ></div>
                 </div>
                 <div class="player-qi-label">
                   <span class="root-name">{{ getRootName(rootType) }}:</span>
-                  <span class="qi-value">{{ (playerSpiritQi as any)[rootType] || 0 }}/{{ getMaxPlayerQi(rootType) }}</span>
+                  <span class="qi-value"
+                    >{{ (playerSpiritQi as any)[rootType] || 0 }}/{{
+                      getMaxPlayerQi(rootType)
+                    }}</span
+                  >
                 </div>
               </div>
             </div>
@@ -195,10 +230,13 @@ const spiritRootTypes: SpiritRootName[] = [
 // 玩家灵根信息 - 转换为对象格式以便于使用
 const playerSpiritRoots = computed(() => {
   const roots = player.value.spiritRoots || [];
-  return roots.reduce((acc, root) => {
-    acc[root.type] = root;
-    return acc;
-  }, {} as Record<string, any>);
+  return roots.reduce(
+    (acc, root) => {
+      acc[root.type] = root;
+      return acc;
+    },
+    {} as Record<string, any>
+  );
 });
 
 // 玩家灵气信息 - 使用any暂时解决类型问题
@@ -206,8 +244,8 @@ const playerSpiritQi = player.value.spiritQi || ({} as any);
 
 // 获取玩家名称首字母作为头像占位符
 const getAvatarInitials = (name: string) => {
-  if (!name) return '玩家';
-  return name.charAt(0) || '玩家';
+  if (!name) return "玩家";
+  return name.charAt(0) || "玩家";
 };
 
 // 计算经验值百分比
@@ -243,7 +281,8 @@ const getRootColor = (type: SpiritRootName): string => {
 
 // 获取地点灵气上限值
 const getMaxLocationQi = (type: SpiritRootName) => {
-  const maxKey = `max${type.charAt(0).toUpperCase() + type.slice(1)}` as keyof SpiritQiInfo;
+  const maxKey =
+    `max${type.charAt(0).toUpperCase() + type.slice(1)}` as keyof SpiritQiInfo;
   return currentLocation.value.spiritQi[maxKey] || 0;
 };
 
@@ -320,7 +359,7 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
     grid-template-columns: 1fr;
     gap: 8px;
   }
-  
+
   .avatar-section {
     padding: 10px;
   }
@@ -467,28 +506,29 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
     width: 150px;
     height: 150px;
   }
-  
+
   .avatar-placeholder {
     font-size: 32px;
   }
-  
+
   .attributes-section {
     padding: 10px;
   }
-  
+
   .section-title {
     font-size: 15px;
     margin-bottom: 8px;
   }
-  
+
   .attribute-item {
     padding: 6px;
   }
-  
-  .attribute-label, .attribute-value {
+
+  .attribute-label,
+  .attribute-value {
     font-size: 13px;
   }
-  
+
   .bottom-section {
     grid-template-columns: 1fr;
     gap: 8px;
@@ -666,40 +706,40 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
     padding: 8px;
     gap: 8px;
   }
-  
+
   .spirit-qi-bar {
     height: 15px;
   }
-  
+
   .spirit-qi-label,
   .player-qi-label {
     font-size: 12px;
   }
-  
+
   .spirit-root-overview {
     padding: 8px;
   }
-  
+
   .root-levels {
     gap: 8px;
   }
-  
+
   .root-level-item {
     gap: 6px;
   }
-  
+
   .root-level-icon {
     width: 28px;
     height: 28px;
     font-size: 12px;
   }
-  
+
   .root-level-label {
     font-size: 12px;
     color: #333;
     font-weight: bold;
   }
-  
+
   .root-level-value {
     font-size: 12px;
     color: #666;
@@ -776,15 +816,15 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
   .top-section {
     grid-template-columns: 1fr;
   }
-  
+
   .bottom-section {
     grid-template-columns: 1fr;
   }
-  
+
   .attribute-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .root-levels {
     grid-template-columns: 1fr 1fr;
   }
@@ -796,16 +836,16 @@ const calculatePlayerQiPercent = (type: SpiritRootName) => {
   .bottom-section {
     grid-template-columns: 1fr;
   }
-  
+
   .avatar-section {
     flex-direction: row;
     justify-content: space-around;
   }
-  
+
   .avatar-container {
     margin-bottom: 0;
   }
-  
+
   .attribute-grid {
     grid-template-columns: 1fr;
   }

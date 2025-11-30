@@ -2,14 +2,18 @@
   <div class="skills-container">
     <!-- 技能分类 -->
     <div class="skills-tabs">
-      <a-radio-group v-model:value="selectedCategory" buttonStyle="solid" size="small">
+      <a-radio-group
+        v-model:value="selectedCategory"
+        buttonStyle="solid"
+        size="small"
+      >
         <a-radio-button value="all">全部</a-radio-button>
         <a-radio-button value="attack">攻击</a-radio-button>
         <a-radio-button value="defense">防御</a-radio-button>
         <a-radio-button value="support">辅助</a-radio-button>
       </a-radio-group>
     </div>
-    
+
     <!-- 技能列表 -->
     <div class="skills-list">
       <!-- 示例技能1 -->
@@ -29,7 +33,7 @@
           <span>消耗: 15 灵气</span>
         </div>
       </div>
-      
+
       <!-- 示例技能2 -->
       <div class="skill-card">
         <div class="skill-header">
@@ -40,14 +44,12 @@
           </div>
           <div class="skill-type">防御</div>
         </div>
-        <div class="skill-description">
-          临时提升自身防御力20%，持续3回合。
-        </div>
+        <div class="skill-description">临时提升自身防御力20%，持续3回合。</div>
         <div class="skill-cost">
           <span>消耗: 10 灵气</span>
         </div>
       </div>
-      
+
       <!-- 示例技能3 -->
       <div class="skill-card">
         <div class="skill-header">
@@ -58,9 +60,7 @@
           </div>
           <div class="skill-type">辅助</div>
         </div>
-        <div class="skill-description">
-          恢复自身或队友20%的最大生命值。
-        </div>
+        <div class="skill-description">恢复自身或队友20%的最大生命值。</div>
         <div class="skill-cost">
           <span>消耗: 20 灵气</span>
         </div>
@@ -70,10 +70,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from "vue";
 
 // 响应式数据
-const selectedCategory = ref('all');
+const selectedCategory = ref("all");
 
 // 未来可以添加技能筛选和升级逻辑
 </script>
@@ -167,7 +167,7 @@ const selectedCategory = ref('all');
     padding-left: 8px;
     padding-right: 8px;
   }
-  
+
   .skill-card {
     padding: 10px;
   }

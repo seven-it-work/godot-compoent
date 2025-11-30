@@ -2,14 +2,18 @@
   <div class="quests-container">
     <!-- 任务分类 -->
     <div class="quests-tabs">
-      <a-radio-group v-model:value="selectedCategory" buttonStyle="solid" size="small">
+      <a-radio-group
+        v-model:value="selectedCategory"
+        buttonStyle="solid"
+        size="small"
+      >
         <a-radio-button value="all">全部</a-radio-button>
         <a-radio-button value="main">主线</a-radio-button>
         <a-radio-button value="side">支线</a-radio-button>
         <a-radio-button value="daily">日常</a-radio-button>
       </a-radio-group>
     </div>
-    
+
     <!-- 任务列表 -->
     <div class="quests-list">
       <!-- 示例任务1 -->
@@ -21,15 +25,13 @@
           </div>
           <div class="quest-progress">1/3</div>
         </div>
-        <div class="quest-description">
-          击败3只森林里的野兽，证明你的实力。
-        </div>
+        <div class="quest-description">击败3只森林里的野兽，证明你的实力。</div>
         <div class="quest-rewards">
           <span class="reward-item">💰 500</span>
           <span class="reward-item">📖 200 经验</span>
         </div>
       </div>
-      
+
       <!-- 示例任务2 -->
       <div class="quest-card">
         <div class="quest-header">
@@ -39,15 +41,13 @@
           </div>
           <div class="quest-progress">2/5</div>
         </div>
-        <div class="quest-description">
-          帮王药师采集5株灵草。
-        </div>
+        <div class="quest-description">帮王药师采集5株灵草。</div>
         <div class="quest-rewards">
           <span class="reward-item">💰 200</span>
           <span class="reward-item">💊 治疗药水×3</span>
         </div>
       </div>
-      
+
       <!-- 示例任务3 -->
       <div class="quest-card">
         <div class="quest-header">
@@ -57,9 +57,7 @@
           </div>
           <div class="quest-progress">0/1</div>
         </div>
-        <div class="quest-description">
-          完成1次修炼，提升修为。
-        </div>
+        <div class="quest-description">完成1次修炼，提升修为。</div>
         <div class="quest-rewards">
           <span class="reward-item">💎 10 灵气</span>
           <span class="reward-item">📖 100 经验</span>
@@ -70,10 +68,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from "vue";
 
 // 响应式数据
-const selectedCategory = ref('all');
+const selectedCategory = ref("all");
 
 // 未来可以添加任务筛选和完成逻辑
 </script>
@@ -185,11 +183,11 @@ const selectedCategory = ref('all');
     padding-left: 8px;
     padding-right: 8px;
   }
-  
+
   .quest-card {
     padding: 10px;
   }
-  
+
   .reward-item {
     font-size: 11px;
   }

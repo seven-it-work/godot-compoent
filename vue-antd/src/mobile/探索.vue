@@ -5,10 +5,14 @@
       <div class="top-info-container">
         <div class="location-info">
           <div class="location-name">{{ currentLocation.name }}</div>
-          <div class="location-coords">坐标: {{ currentLocation.x }}, {{ currentLocation.y }}</div>
+          <div class="location-coords">
+            坐标: {{ currentLocation.x }}, {{ currentLocation.y }}
+          </div>
         </div>
         <div class="map-controls">
-          <a-button type="text" size="small" @click="showMapLegend">图例</a-button>
+          <a-button type="text" size="small" @click="showMapLegend"
+            >图例</a-button
+          >
         </div>
       </div>
 
@@ -18,23 +22,27 @@
           <div class="game-map" ref="mapRef">
             <!-- 地图网格 -->
             <div class="map-grid">
-              <div 
-                v-for="(row, y) in gameStore.map.locations" 
-                :key="`row-${y}`" 
+              <div
+                v-for="(row, y) in gameStore.map.locations"
+                :key="`row-${y}`"
                 class="map-row"
               >
-                <div 
-                  v-for="(location, x) in row" 
-                  :key="`cell-${x}-${y}`" 
+                <div
+                  v-for="(location, x) in row"
+                  :key="`cell-${x}-${y}`"
                   class="map-cell"
                   :class="getCellClass(location)"
                   @click="moveTo(x, y)"
                   :style="getCellStyle(location)"
                 >
                   <!-- 玩家标记显示在当前玩家位置 -->
-                  <span v-if="location.isCurrent" class="player-marker">👤</span>
+                  <span v-if="location.isCurrent" class="player-marker"
+                    >👤</span
+                  >
                   <!-- 灵脉标记 -->
-                  <span v-else-if="location.spiritVein" class="cell-icon">💎</span>
+                  <span v-else-if="location.spiritVein" class="cell-icon"
+                    >💎</span
+                  >
                   <!-- 怪物标记 -->
                   <span v-else-if="location.monster" class="cell-icon">👹</span>
                 </div>
@@ -51,17 +59,25 @@
         <div class="details-content">
           <div class="detail-row" v-if="currentLocation.spiritVein">
             <div class="detail-label">灵脉:</div>
-            <div class="detail-value">{{ currentLocation.spiritVein.name }} ({{ currentLocation.spiritVein.level }}级)</div>
+            <div class="detail-value">
+              {{ currentLocation.spiritVein.name }} ({{
+                currentLocation.spiritVein.level
+              }}级)
+            </div>
           </div>
           <div class="detail-row" v-if="currentLocation.monster">
             <div class="detail-label">怪物:</div>
-            <div class="detail-value">{{ currentLocation.monster.name }} ({{ currentLocation.monster.level }}级)</div>
+            <div class="detail-value">
+              {{ currentLocation.monster.name }} ({{
+                currentLocation.monster.level
+              }}级)
+            </div>
           </div>
           <div class="detail-row">
             <div class="detail-label">灵气:</div>
             <div class="spirit-qi-summary">
-              <div 
-                v-for="spiritType in spiritQiTypes" 
+              <div
+                v-for="spiritType in spiritQiTypes"
                 :key="spiritType"
                 class="spirit-qi-dot"
                 :style="{ backgroundColor: colorMap[spiritType] }"
@@ -76,12 +92,12 @@
       <div class="action-panel-container">
         <div class="section-title">操作</div>
         <div class="action-buttons-grid">
-          <a-button 
-            v-for="(action, index) in actions" 
+          <a-button
+            v-for="(action, index) in actions"
             :key="index"
-            :type="action.type" 
-            size="small" 
-            @click="action.handler" 
+            :type="action.type"
+            size="small"
+            @click="action.handler"
             class="action-btn"
           >
             {{ action.label }}
@@ -91,12 +107,23 @@
     </a-layout-content>
 
     <!-- 图例弹窗 -->
-    <a-modal v-model:open="showLegend" title="地图图例" size="small" footer="null">
+    <a-modal
+      v-model:open="showLegend"
+      title="地图图例"
+      size="small"
+      footer="null"
+    >
       <div class="legend-content">
-        <a-row :gutter="[8, 8]" v-for="(legend, index) in mapLegend" :key="index">
+        <a-row
+          :gutter="[8, 8]"
+          v-for="(legend, index) in mapLegend"
+          :key="index"
+        >
           <a-col :span="6">
-            <div class="legend-color" :style="{ backgroundColor: legend.color }">
-          </div>
+            <div
+              class="legend-color"
+              :style="{ backgroundColor: legend.color }"
+            ></div>
           </a-col>
           <a-col :span="12">
             <span class="legend-text">{{ legend.text }}</span>
@@ -111,10 +138,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useGameStore } from '../store/gameStore';
-import type { SpiritRootType, Location } from '../types/game';
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+import { useGameStore } from "../store/gameStore";
+import type { SpiritRootType, Location } from "../types/game";
 
 const gameStore = useGameStore();
 const router = useRouter();
@@ -130,97 +157,104 @@ const moveStepDelay = 150; // 每步移动的延迟时间（毫秒）
 const currentLocation = computed(() => gameStore.getCurrentLocation);
 
 // 配置
-const spiritQiTypes = ref<string[]>(['gold', 'wood', 'water', 'fire', 'earth']);
+const spiritQiTypes = ref<string[]>(["gold", "wood", "water", "fire", "earth"]);
 const typeMap = ref<Record<string, string>>({
-  gold: '金',
-  wood: '木',
-  water: '水',
-  fire: '火',
-  earth: '土'
+  gold: "金",
+  wood: "木",
+  water: "水",
+  fire: "火",
+  earth: "土",
 });
 const colorMap = ref<Record<string, string>>({
-  gold: '#ffd700',
-  wood: '#90ee90',
-  water: '#87ceeb',
-  fire: '#ff6347',
-  earth: '#deb887'
+  gold: "#ffd700",
+  wood: "#90ee90",
+  water: "#87ceeb",
+  fire: "#ff6347",
+  earth: "#deb887",
 });
 
 // 地图图例数据
 const mapLegend = ref([
-  { color: '#e6f7ff', text: '普通地形', icon: '' },
-  { color: '#73d13d', text: '灵脉', icon: '💎' },
-  { color: '#ff7875', text: '怪物', icon: '👹' },
-  { color: '#1890ff', text: '当前位置', icon: '👤' }
+  { color: "#e6f7ff", text: "普通地形", icon: "" },
+  { color: "#73d13d", text: "灵脉", icon: "💎" },
+  { color: "#ff7875", text: "怪物", icon: "👹" },
+  { color: "#1890ff", text: "当前位置", icon: "👤" },
 ]);
 
 // 战斗开始函数
 const startBattle = (monster: any) => {
-  console.log('开始战斗，设置当前怪物:', monster.name);
+  console.log("开始战斗，设置当前怪物:", monster.name);
   // 直接调用gameStore的startBattle方法
   gameStore.startBattle(monster);
   // 直接跳转到战斗页面
-  router.push('/mobile/battle');
+  router.push("/mobile/battle");
 };
 
 // 地图相关方法
 const getCellClass = (location: Location) => {
   const classes: string[] = [];
   if (location.isCurrent) {
-    classes.push('cell-current');
+    classes.push("cell-current");
   }
   if (location.spiritVein) {
-    classes.push('cell-spirit-vein');
+    classes.push("cell-spirit-vein");
   }
   if (location.monster) {
-    classes.push('cell-monster');
+    classes.push("cell-monster");
   }
   return classes;
 };
 
 const getCellStyle = (location: Location) => {
   if (location.isCurrent) {
-    return { backgroundColor: '#1890ff' }; // 当前位置蓝色
+    return { backgroundColor: "#1890ff" }; // 当前位置蓝色
   } else if (location.spiritVein) {
-    return { backgroundColor: '#73d13d' }; // 灵脉绿色
+    return { backgroundColor: "#73d13d" }; // 灵脉绿色
   } else if (location.monster) {
-    return { backgroundColor: '#ff7875' }; // 怪物红色
+    return { backgroundColor: "#ff7875" }; // 怪物红色
   } else {
-    return { backgroundColor: '#e6f7ff' }; // 普通地形浅蓝色
+    return { backgroundColor: "#e6f7ff" }; // 普通地形浅蓝色
   }
 };
 
 // 计算两点之间的路径（使用曼哈顿距离，简单的直线移动）
-const calculatePath = (startX: number, startY: number, endX: number, endY: number): {x: number, y: number}[] => {
-  const path: {x: number, y: number}[] = [];
+const calculatePath = (
+  startX: number,
+  startY: number,
+  endX: number,
+  endY: number
+): { x: number; y: number }[] => {
+  const path: { x: number; y: number }[] = [];
   let currentX = startX;
   let currentY = startY;
-  
+
   // 先处理水平移动，再处理垂直移动（简单的曼哈顿路径）
   while (currentX !== endX) {
     currentX += currentX < endX ? 1 : -1;
-    path.push({x: currentX, y: currentY});
+    path.push({ x: currentX, y: currentY });
   }
-  
+
   while (currentY !== endY) {
     currentY += currentY < endY ? 1 : -1;
-    path.push({x: currentX, y: currentY});
+    path.push({ x: currentX, y: currentY });
   }
-  
+
   return path;
 };
 
 // 平滑移动函数
 const moveTo = async (targetX: number, targetY: number) => {
   // 防止重复执行移动操作
-  if (isMoving.value || 
-      (currentLocation.value.x === targetX && currentLocation.value.y === targetY)) {
+  if (
+    isMoving.value ||
+    (currentLocation.value.x === targetX && currentLocation.value.y === targetY)
+  ) {
     return;
   }
-  
+
   // 设置移动状态
   isMoving.value = true;
-  
+
   try {
     // 计算从当前位置到目标位置的路径
     const path = calculatePath(
@@ -229,40 +263,40 @@ const moveTo = async (targetX: number, targetY: number) => {
       targetX,
       targetY
     );
-    
-    // 检查目标位置是否有怪物
-    const targetLocation = gameStore.map.locations[targetY][targetX];
-    
+
+    // 检查目标位置是否有怪物（已移除未使用的变量）
+    // 添加安全检查以避免undefined错误
+
     // 逐格移动实现平滑动画效果
     for (const step of path) {
       // 检查当前位置是否有怪物，如果有则停止移动并触发战斗
-      const currentStepLocation = gameStore.map.locations[step.y][step.x];
-      if (currentStepLocation.monster) {
+      const currentStepLocation = gameStore.map.locations?.[step.y]?.[step.x];
+      if (currentStepLocation && currentStepLocation.monster) {
         console.log(`遭遇怪物: ${currentStepLocation.monster.name}`);
-        // 触发战斗
+
+        // 停止移动并触发战斗
         startBattle(currentStepLocation.monster);
         // 立即终止函数执行，防止继续移动
         return;
       }
-      
+
       // 使用gameStore的switchLocation方法切换地点
       gameStore.switchLocation(step.x, step.y);
-      
+
       // 调试信息
       console.log(`移动到坐标 (${step.x}, ${step.y})`);
-      
+
       // 滚动地图使玩家保持在视图中心
       scrollToPlayer();
-      
+
       // 延迟以创建平滑动画效果
-      await new Promise(resolve => setTimeout(resolve, moveStepDelay));
+      await new Promise((resolve) => setTimeout(resolve, moveStepDelay));
     }
-    
+
     // 跳转逻辑已在循环中处理，移除此处的重复检查
-    
   } catch (error) {
     // 错误处理
-    console.error('移动过程中发生错误:', error);
+    console.error("移动过程中发生错误:", error);
   } finally {
     // 确保移动状态重置
     isMoving.value = false;
@@ -278,85 +312,40 @@ const scrollToPlayer = () => {
     mapRef.value.scrollTo({
       left: playerX - mapRef.value.clientWidth / 2,
       top: playerY - mapRef.value.clientHeight / 2,
-      behavior: 'smooth'
+      behavior: "smooth",
     });
   }
 };
 
 // 在组件挂载时初始化地图
 onMounted(() => {
-  console.log('探索页面初始化');
-  
+  console.log("探索页面初始化");
+
   // 延迟滚动以确保DOM已完全渲染
   setTimeout(() => {
     scrollToPlayer();
   }, 100);
-  
+
   // 监听战斗开始事件，跳转到战斗页面
   const handleStartBattle = () => {
-    console.log('收到战斗开始事件，跳转到战斗页面');
-    router.push('/mobile/战斗');
+    console.log("收到战斗开始事件，跳转到战斗页面");
+    router.push("/mobile/战斗");
   };
-  
-  window.addEventListener('start-battle', handleStartBattle);
-  
+
+  window.addEventListener("start-battle", handleStartBattle);
+
   // 组件卸载时移除事件监听
   onUnmounted(() => {
-    window.removeEventListener('start-battle', handleStartBattle);
+    window.removeEventListener("start-battle", handleStartBattle);
   });
 });
 
-const moveDirection = async (direction: 'up' | 'down' | 'left' | 'right') => {
-  // 如果正在移动中，则不执行
-  if (isMoving.value) {
-    return;
-  }
-  
-  isMoving.value = true;
-  
-  try {
-    const { x, y } = currentLocation.value;
-    let newX = x;
-    let newY = y;
-    
-    // 计算新位置
-    switch (direction) {
-      case 'up':
-        newY = y - 1;
-        break;
-      case 'down':
-        newY = y + 1;
-        break;
-      case 'left':
-        newX = x - 1;
-        break;
-      case 'right':
-        newX = x + 1;
-        break;
-    }
-    
-    // 检查新位置是否在地图范围内
-    if (newX >= 0 && newX < gameStore.map.width && newY >= 0 && newY < gameStore.map.height) {
-      // 使用gameStore的switchLocation方法切换地点
-      gameStore.switchLocation(newX, newY);
-      
-      console.log(`向${direction}移动到坐标 (${newX}, ${newY})`);
-      // 滚动地图使玩家保持在视图中心
-      scrollToPlayer();
-      // 添加短暂延迟，保持一致性
-      await new Promise(resolve => setTimeout(resolve, moveStepDelay));
-    }
-  } catch (error) {
-    console.error('方向移动过程中发生错误:', error);
-  } finally {
-    isMoving.value = false;
-  }
-};
+// 移除未使用的moveDirection函数
 
 const cultivation = () => {
   // 跳转到玩家详情页面
-  console.log('跳转到玩家详情页面');
-  router.push('/mobile/player-detail');
+  console.log("跳转到玩家详情页面");
+  router.push("/mobile/player-detail");
 };
 
 const showMapLegend = () => {
@@ -364,9 +353,7 @@ const showMapLegend = () => {
 };
 
 // 操作按钮数据
-const actions = ref([
-  { label: '修炼', type: 'primary', handler: cultivation }
-]);
+const actions = ref([{ label: "修炼", type: "primary", handler: cultivation }]);
 </script>
 
 <style scoped>
@@ -509,10 +496,18 @@ const actions = ref([
 }
 
 /* 单元格类型 */
-.cell-empty { background-color: #e6f7ff; }
-.cell-current { background-color: #1890ff; }
-.cell-spirit-vein { background-color: #73d13d; }
-.cell-monster { background-color: #ff7875; }
+.cell-empty {
+  background-color: #e6f7ff;
+}
+.cell-current {
+  background-color: #1890ff;
+}
+.cell-spirit-vein {
+  background-color: #73d13d;
+}
+.cell-monster {
+  background-color: #ff7875;
+}
 
 .player-marker {
   font-size: 16px;

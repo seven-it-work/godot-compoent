@@ -5,14 +5,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useGameStore } from '../store/gameStore';
-import StartGamePage from './开始游戏.vue';
-import TrainingPage from './playerDetail/Cultivation.vue';
-import ExplorationPage from './探索.vue';
-import BattlePage from './战斗.vue';
-import PlayerDetailPage from './玩家详情.vue';
+import { computed, watch, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useGameStore } from "../store/gameStore";
+import StartGamePage from "./开始游戏.vue";
+import TrainingPage from "./playerDetail/Cultivation.vue";
+import ExplorationPage from "./探索.vue";
+import BattlePage from "./战斗.vue";
+import PlayerDetailPage from "./玩家详情.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -20,13 +20,13 @@ const gameStore = useGameStore();
 
 // 映射路径到组件
 const pathToComponent: Record<string, any> = {
-  '/': StartGamePage,
-  '/start': StartGamePage,
-  '/training': TrainingPage,
-  '/outdoor': ExplorationPage,
-  '/explore': ExplorationPage,
-  '/battle': BattlePage,
-  '/player-detail': PlayerDetailPage
+  "/": StartGamePage,
+  "/start": StartGamePage,
+  "/training": TrainingPage,
+  "/outdoor": ExplorationPage,
+  "/explore": ExplorationPage,
+  "/battle": BattlePage,
+  "/player-detail": PlayerDetailPage,
 };
 
 // 检查游戏是否已初始化
@@ -38,13 +38,17 @@ const isGameInitialized = computed(() => {
 // 根据当前路径计算要显示的组件
 const currentComponent = computed(() => {
   // 移除 /mobile 前缀，得到相对路径
-  const relativePath = route.path.replace('/mobile', '');
-  
+  const relativePath = route.path.replace("/mobile", "");
+
   // 如果游戏未初始化且不是开始页面，强制显示开始游戏页面
-  if (!isGameInitialized.value && relativePath !== '/' && relativePath !== '/start') {
+  if (
+    !isGameInitialized.value &&
+    relativePath !== "/" &&
+    relativePath !== "/start"
+  ) {
     return StartGamePage;
   }
-  
+
   // 正常返回对应组件或默认显示开始游戏页面
   return pathToComponent[relativePath] || StartGamePage;
 });
@@ -53,19 +57,19 @@ const currentComponent = computed(() => {
 watch(
   () => route.path,
   (newPath) => {
-    const relativePath = newPath.replace('/mobile', '');
-    const isStartPage = relativePath === '/' || relativePath === '/start';
+    const relativePath = newPath.replace("/mobile", "");
+    const isStartPage = relativePath === "/" || relativePath === "/start";
     const isAllowedPath = pathToComponent[relativePath] !== undefined;
-    
+
     // 如果访问的是不允许的路径，重定向到开始页面
     if (!isAllowedPath) {
-      router.replace('/mobile/');
+      router.replace("/mobile/");
       return;
     }
-    
+
     // 如果不是开始页面且游戏未初始化，重定向到开始页面
     if (!isStartPage && !isGameInitialized.value) {
-      router.replace('/mobile/');
+      router.replace("/mobile/");
     }
   },
   { immediate: true }
@@ -73,12 +77,12 @@ watch(
 
 // 组件挂载时执行一次路由检查
 onMounted(() => {
-  const relativePath = route.path.replace('/mobile', '');
-  const isStartPage = relativePath === '/' || relativePath === '/start';
-  
+  const relativePath = route.path.replace("/mobile", "");
+  const isStartPage = relativePath === "/" || relativePath === "/start";
+
   // 如果不是开始页面且游戏未初始化，立即重定向
   if (!isStartPage && !isGameInitialized.value) {
-    router.replace('/mobile/');
+    router.replace("/mobile/");
   }
 });
 </script>

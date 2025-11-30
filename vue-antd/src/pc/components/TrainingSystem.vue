@@ -32,7 +32,7 @@
               <span class="root-name">{{ root.name }}</span>
               <span class="root-level">等级 {{ root.level }}</span>
             </div>
-            
+
             <div class="qi-progress">
               <div class="qi-info">
                 <span class="qi-label">灵气值：</span>
@@ -47,41 +47,46 @@
                 class="progress-bar"
               />
             </div>
-            
-            <div class="button-container" :class="{ 'cooldown-active': player.isCooldown }">
-                <a-button
-                  type="primary"
-                  size="small"
-                  :disabled="player.isCooldown"
-                  @click="handleAbsorb(root.type)"
-                  :style="{ 
-                    backgroundColor: getRootColor(root.type), 
-                    borderColor: getRootColor(root.type),
-                    position: 'relative',
-                    zIndex: 1
-                  }"
-                  class="train-button"
-                >
-                  修炼
-                </a-button>
-                <div 
-                  v-if="player.isCooldown" 
-                  class="cooldown-overlay"
-                  :style="{ 
-                    background: getRootColor(root.type),
-                    width: cooldownProgress + '%'
-                  }"
-                ></div>
-                <div v-if="player.isCooldown" class="cooldown-text">
-                  {{ formatCooldownTime(player.cooldownRemaining) }}
-                </div>
+
+            <div
+              class="button-container"
+              :class="{ 'cooldown-active': player.isCooldown }"
+            >
+              <a-button
+                type="primary"
+                size="small"
+                :disabled="player.isCooldown"
+                @click="handleAbsorb(root.type)"
+                :style="{
+                  backgroundColor: getRootColor(root.type),
+                  borderColor: getRootColor(root.type),
+                  position: 'relative',
+                  zIndex: 1,
+                }"
+                class="train-button"
+              >
+                修炼
+              </a-button>
+              <div
+                v-if="player.isCooldown"
+                class="cooldown-overlay"
+                :style="{
+                  background: getRootColor(root.type),
+                  width: cooldownProgress + '%',
+                }"
+              ></div>
+              <div v-if="player.isCooldown" class="cooldown-text">
+                {{ formatCooldownTime(player.cooldownRemaining) }}
               </div>
+            </div>
           </div>
         </div>
-        
+
         <div v-if="player.isCooldown" class="cooldown-info">
           <span class="cooldown-label">冷却时间：</span>
-          <span class="cooldown-time">{{ formatCooldownTime(player.cooldownRemaining) }}</span>
+          <span class="cooldown-time">{{
+            formatCooldownTime(player.cooldownRemaining)
+          }}</span>
         </div>
       </a-card>
     </div>

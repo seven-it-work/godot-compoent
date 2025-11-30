@@ -19,13 +19,13 @@
         <a-col :span="18">
           <div class="level-card">
             <div class="exp-bar-container">
-              <ExpLevelProgress 
-                label="等级" 
-                :level="player.level" 
-                :current="player.exp" 
-                :max="player.maxExp" 
-                strokeColor="#52c41a" 
-                height="24px" 
+              <ExpLevelProgress
+                label="等级"
+                :level="player.level"
+                :current="player.exp"
+                :max="player.maxExp"
+                strokeColor="#52c41a"
+                height="24px"
               />
             </div>
           </div>
@@ -39,22 +39,22 @@
           <a-tab-pane tab="属性" key="attributes">
             <PlayerAttributes />
           </a-tab-pane>
-          
+
           <!-- 修炼Tab：使用现有的修炼.vue文件 -->
           <a-tab-pane tab="修炼" key="cultivation">
             <Cultivation />
           </a-tab-pane>
-          
+
           <!-- 背包Tab：使用独立组件 -->
           <a-tab-pane tab="背包" key="inventory">
             <PlayerInventory />
           </a-tab-pane>
-          
+
           <!-- 技能Tab：使用独立组件 -->
           <a-tab-pane tab="技能" key="skills">
             <PlayerSkills />
           </a-tab-pane>
-          
+
           <!-- 任务Tab：使用独立组件 -->
           <a-tab-pane tab="任务" key="tasks">
             <PlayerQuests />
@@ -66,25 +66,62 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted } from "vue";
 // 导入独立组件
-import PlayerAttributes from './playerDetail/PlayerAttributes.vue';
-import PlayerInventory from './playerDetail/PlayerInventory.vue';
-import PlayerSkills from './playerDetail/PlayerSkills.vue';
-import PlayerQuests from './playerDetail/PlayerQuests.vue';
+import PlayerAttributes from "./playerDetail/PlayerAttributes.vue";
+import PlayerInventory from "./playerDetail/PlayerInventory.vue";
+import PlayerSkills from "./playerDetail/PlayerSkills.vue";
+import PlayerQuests from "./playerDetail/PlayerQuests.vue";
 // 导入现有的修炼组件
-import Cultivation from './playerDetail/Cultivation.vue';
+import Cultivation from "./playerDetail/Cultivation.vue";
 // 导入进度条组件
-import ExpLevelProgress from './components/ExpLevelProgress.vue';
-import { useGameStore } from '../store/gameStore';
+import ExpLevelProgress from "./components/ExpLevelProgress.vue";
+import { useGameStore } from "../store/gameStore";
 
 const gameStore = useGameStore();
 
 // 响应式数据
-  const activeTab = ref('attributes'); // 默认选中属性tab
-  
-  // 计算属性
-  const player = computed(() => gameStore.player);
+// 从gameStore中获取当前激活的tab
+const activeTab = ref(gameStore.getPlayerDetailActiveTab);
+
+// 监听tab页签变化，调用store的方法更新状态
+watch(
+  () => activeTab.value,
+  (newValue) => {
+    console.log(
+      '[玩家详情] 检测到tab变化: "' + newValue + '"，正在更新到store'
+    );
+    // 确保gameStore有这个方法
+    if (typeof gameStore.setPlayerDetailActiveTab === "function") {
+      gameStore.setPlayerDetailActiveTab(newValue);
+    } else {
+      console.error(
+        "[玩家详情] 错误: gameStore.setPlayerDetailActiveTab 不是一个函数"
+      );
+    }
+  }
+);
+
+// 在组件挂载时从store同步当前tab状态
+onMounted(() => {
+  console.log("[玩家详情] 组件挂载完成，从store同步tab状态");
+  const savedTab = gameStore.getPlayerDetailActiveTab;
+  console.log('[玩家详情] 从store获取到的tab: "' + savedTab + '"');
+
+  // 如果store中的tab与当前activeTab不同，则更新activeTab
+  if (savedTab !== activeTab.value) {
+    console.log('[玩家详情] 更新activeTab为store中的值: "' + savedTab + '"');
+    activeTab.value = savedTab;
+  }
+});
+
+// 计算属性
+const player = computed(() => gameStore.player);
+
+// 初始化日志
+console.log(
+  '[玩家详情] 组件初始化完成，当前activeTab: "' + activeTab.value + '"'
+);
 </script>
 
 <style scoped>
@@ -193,86 +230,86 @@ const gameStore = useGameStore();
 }
 
 .tab-content {
-      padding: 8px;
-      background-color: #fff;
-      border-radius: 8px;
-      min-height: 300px;
-    }
+  padding: 8px;
+  background-color: #fff;
+  border-radius: 8px;
+  min-height: 300px;
+}
 
-    .empty-state {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 200px;
-      color: #999;
-      font-size: 14px;
-    }
-    
-    /* 属性页面样式 */
-    .attributes-container {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    
-    .attribute-section {
-      background: #fff;
-      border-radius: 8px;
-      padding: 12px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-    
-    .section-title {
-      font-size: 14px;
-      font-weight: bold;
-      color: #333;
-      margin: 0 0 12px 0;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .attribute-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-    
-    .attribute-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px;
-      background: #fafafa;
-      border-radius: 6px;
-    }
-    
-    .attribute-label {
-      font-size: 12px;
-      color: #666;
-    }
-    
-    .attribute-value {
-      font-size: 14px;
-      font-weight: bold;
-      color: #1890ff;
-    }
-    
-    .rating-container {
-      text-align: center;
-      padding: 16px;
-    }
-    
-    .rating-score {
-      font-size: 32px;
-      font-weight: bold;
-      color: #ff7875;
-      margin-bottom: 8px;
-    }
-    
-    .rating-description {
-      font-size: 14px;
-      color: #666;
-    }
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #999;
+  font-size: 14px;
+}
+
+/* 属性页面样式 */
+.attributes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.attribute-section {
+  background: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.attribute-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.attribute-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: #fafafa;
+  border-radius: 6px;
+}
+
+.attribute-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.attribute-value {
+  font-size: 14px;
+  font-weight: bold;
+  color: #1890ff;
+}
+
+.rating-container {
+  text-align: center;
+  padding: 16px;
+}
+
+.rating-score {
+  font-size: 32px;
+  font-weight: bold;
+  color: #ff7875;
+  margin-bottom: 8px;
+}
+
+.rating-description {
+  font-size: 14px;
+  color: #666;
+}
 
 /* 修炼区域样式 */
 .cultivation-container {
@@ -467,12 +504,12 @@ const gameStore = useGameStore();
   background: #fff;
   border-radius: 8px;
   padding: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.2s;
 }
 
 .skill-card:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .skill-header {
@@ -550,12 +587,12 @@ const gameStore = useGameStore();
   background: #fff;
   border-radius: 8px;
   padding: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.2s;
 }
 
 .quest-card:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .quest-header {
@@ -626,14 +663,16 @@ const gameStore = useGameStore();
   .inventory-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .skill-icon {
     font-size: 24px;
     width: 40px;
     height: 40px;
   }
-  
-  .inventory-tabs, .skill-tabs, .quest-tabs {
+
+  .inventory-tabs,
+  .skill-tabs,
+  .quest-tabs {
     margin-left: -8px;
     margin-right: -8px;
     padding-left: 8px;

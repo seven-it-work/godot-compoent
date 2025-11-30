@@ -85,22 +85,24 @@
           >
             <div class="bar-container">
               <div class="spirit-qi-bar-wrapper">
-            <div
-              class="spirit-qi-bar"
-              :style="{
-                width: `${calculateQiPercent(rootType)}%`,
-                backgroundColor: getRootColor(rootType),
-              }"
-            ></div>
-            <span class="bar-label">
-              <span :style="{  fontWeight: 'bold' }">
-                {{ getRootName(rootType) }}:
-              </span>
-              <span class="bar-value">
-                {{ currentLocation.spiritQi[rootType] }}/{{ getMaxQi(rootType) }}
-              </span>
-            </span>
-          </div>
+                <div
+                  class="spirit-qi-bar"
+                  :style="{
+                    width: `${calculateQiPercent(rootType)}%`,
+                    backgroundColor: getRootColor(rootType),
+                  }"
+                ></div>
+                <span class="bar-label">
+                  <span :style="{ fontWeight: 'bold' }">
+                    {{ getRootName(rootType) }}:
+                  </span>
+                  <span class="bar-value">
+                    {{ currentLocation.spiritQi[rootType] }}/{{
+                      getMaxQi(rootType)
+                    }}
+                  </span>
+                </span>
+              </div>
             </div>
           </div>
         </div>

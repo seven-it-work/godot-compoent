@@ -4,7 +4,7 @@
       <!-- 修炼内容区域 -->
       <div class="cultivation-content">
         <!-- 底部区域：地点属性和灵气分布 -->
-        <a-row :gutter="[0, 0]" style="margin-top: 0 !important;">
+        <a-row :gutter="[0, 0]" style="margin-top: 0 !important">
           <!-- 地点区域 -->
           <a-col :span="12">
             <div class="location-card">
@@ -16,26 +16,40 @@
                   </div>
                   <div class="location-cell vein-info-cell">
                     <div class="vein-info" v-if="currentLocation.spiritVein">
-                      <div>{{ currentLocation.spiritVein.name }} ({{ currentLocation.spiritVein.level }}级)</div>
+                      <div>
+                        {{ currentLocation.spiritVein.name }} ({{
+                          currentLocation.spiritVein.level
+                        }}级)
+                      </div>
                     </div>
                     <div class="vein-info" v-else>无</div>
                   </div>
                 </div>
-                
+
                 <!-- 灵气分布 -->
                 <div class="spirit-qi-distribution">
-                  <div class="qi-distribution-item" v-for="spiritType in spiritQiTypes" :key="spiritType">
+                  <div
+                    class="qi-distribution-item"
+                    v-for="spiritType in spiritQiTypes"
+                    :key="spiritType"
+                  >
                     <div class="qi-progress-container">
                       <SpiritProgress
-                          :label="typeMap[spiritType]"
-                          :current="currentLocation.spiritQi[spiritType as SpiritRootType]"
-                          :max="currentLocation.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi]"
-                          :stroke-color="colorMap[spiritType]"
-                          :is-cooldown="player.isCooldown"
-                          :height="'24px'"
-                          :hide-label="false"
-                          @click="absorbSpiritQiWithType(spiritType)"
-                        />
+                        :label="typeMap[spiritType]"
+                        :current="
+                          currentLocation.spiritQi[spiritType as SpiritRootType]
+                        "
+                        :max="
+                          currentLocation.spiritQi[
+                            `max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi
+                          ]
+                        "
+                        :stroke-color="colorMap[spiritType]"
+                        :is-cooldown="player.isCooldown"
+                        :height="'24px'"
+                        :hide-label="false"
+                        @click="absorbSpiritQiWithType(spiritType)"
+                      />
                     </div>
                   </div>
                 </div>
@@ -48,14 +62,24 @@
               <div class="card-title">玩家灵气</div>
               <div class="player-qi-content">
                 <div class="player-qi-bars">
-                  <div class="player-qi-bar-item" v-for="spiritType in spiritQiTypes" :key="spiritType">
+                  <div
+                    class="player-qi-bar-item"
+                    v-for="spiritType in spiritQiTypes"
+                    :key="spiritType"
+                  >
                     <SpiritProgress
                       :label="getSpiritRootLabel(spiritType)"
                       :current="player.spiritQi[spiritType as SpiritRootType]"
-                      :max="player.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi]"
+                      :max="
+                        player.spiritQi[
+                          `max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi
+                        ]
+                      "
                       :stroke-color="colorMap[spiritType]"
                       :is-cooldown="player.isCooldown"
-                      @click="absorbSpiritQiWithType(spiritType as SpiritRootType)"
+                      @click="
+                        absorbSpiritQiWithType(spiritType as SpiritRootType)
+                      "
                     />
                   </div>
                 </div>
@@ -65,23 +89,46 @@
         </a-row>
 
         <!-- 操作按钮 -->
-        <a-row :gutter="[0, 0]" style="margin-top: 0 !important;">
+        <a-row :gutter="[0, 0]" style="margin-top: 0 !important">
           <a-col :span="12">
-            <a-button type="default" :disabled="!canLevelUp" @click="levelUp" block style="padding: 0; margin: 0;">
+            <a-button
+              type="default"
+              :disabled="!canLevelUp"
+              @click="levelUp"
+              block
+              style="padding: 0; margin: 0"
+            >
               突破境界
             </a-button>
           </a-col>
-          <a-col :span="12" style="display: flex; align-items: center; justify-content: center; padding: 0;">
-            <a-checkbox :checked="isAutoAbsorbing" @change="handleAutoAbsorbChange" style="margin: 0;">
+          <a-col
+            :span="12"
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 0;
+            "
+          >
+            <a-checkbox
+              :checked="isAutoAbsorbing"
+              @change="handleAutoAbsorbChange"
+              style="margin: 0"
+            >
               自动吸收灵气
             </a-checkbox>
           </a-col>
         </a-row>
-        
+
         <!-- 探索按钮 -->
-        <a-row :gutter="[0, 0]" style="margin-top: 4px !important;">
+        <a-row :gutter="[0, 0]" style="margin-top: 4px !important">
           <a-col :span="24">
-            <a-button type="primary" @click="goExplore" block style="padding: 0; margin: 0;">
+            <a-button
+              type="primary"
+              @click="goExplore"
+              block
+              style="padding: 0; margin: 0"
+            >
               探索
             </a-button>
           </a-col>
@@ -92,11 +139,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useGameStore } from '../../store/gameStore';
-import type { SpiritRootType, SpiritQi } from '../../types/game';
-import SpiritProgress from '../components/SpiritProgress.vue';
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import { useGameStore } from "../../store/gameStore";
+import type { SpiritRootType, SpiritQi } from "../../types/game";
+import SpiritProgress from "../components/SpiritProgress.vue";
 
 const gameStore = useGameStore();
 const router = useRouter();
@@ -118,34 +165,38 @@ const handleAutoAbsorbChange = (e: any) => {
 
 // 获取灵根标签（包含等级信息）
 const getSpiritRootLabel = (spiritType: string) => {
-  const root = player.value.spiritRoots.find(r => r.type === spiritType);
+  const root = player.value.spiritRoots.find((r) => r.type === spiritType);
   return `${root?.name} lv${root?.level}`;
 };
 
 // 灵气类型映射
-const spiritQiTypes = ref<SpiritRootType[]>(['gold', 'wood', 'water', 'fire', 'earth']);
+const spiritQiTypes = ref<SpiritRootType[]>([
+  "gold",
+  "wood",
+  "water",
+  "fire",
+  "earth",
+]);
 const typeMap = ref<Record<SpiritRootType, string>>({
-  gold: '金',
-  wood: '木',
-  water: '水',
-  fire: '火',
-  earth: '土'
+  gold: "金",
+  wood: "木",
+  water: "水",
+  fire: "火",
+  earth: "土",
 });
 const colorMap = ref<Record<SpiritRootType, string>>({
-  gold: '#ffd700',
-  wood: '#90ee90',
-  water: '#87ceeb',
-  fire: '#ff6347',
-  earth: '#deb887'
+  gold: "#ffd700",
+  wood: "#90ee90",
+  water: "#87ceeb",
+  fire: "#ff6347",
+  earth: "#deb887",
 });
-
 
 // 按类型吸收灵气
 const absorbSpiritQiWithType = (spiritType: SpiritRootType) => {
   if (gameStore.player.isCooldown) return;
   gameStore.absorbSpiritQi(spiritType);
 };
-
 
 // 升级
 const levelUp = () => {
@@ -156,8 +207,8 @@ const levelUp = () => {
 
 // 探索
 const goExplore = () => {
-  console.log('goExplore');
-  router.push('/mobile/explore');
+  console.log("goExplore");
+  router.push("/mobile/explore");
 };
 </script>
 
@@ -303,7 +354,9 @@ const goExplore = () => {
 }
 
 /* 自定义卡片样式 */
-.avatar-card, .location-card, .player-qi-card {
+.avatar-card,
+.location-card,
+.player-qi-card {
   margin: 0 !important;
   padding: 0 !important;
   border: 1px solid #d9d9d9;
@@ -312,7 +365,9 @@ const goExplore = () => {
 }
 
 /* 移除所有卡片内部padding和margin */
-.avatar-card > *, .location-card > *, .player-qi-card > * {
+.avatar-card > *,
+.location-card > *,
+.player-qi-card > * {
   margin: 0 !important;
   padding: 0 !important;
 }

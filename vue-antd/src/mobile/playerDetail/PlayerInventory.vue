@@ -2,7 +2,11 @@
   <div class="inventory-container">
     <!-- 背包分类 -->
     <div class="inventory-tabs">
-      <a-radio-group v-model:value="selectedCategory" buttonStyle="solid" size="small">
+      <a-radio-group
+        v-model:value="selectedCategory"
+        buttonStyle="solid"
+        size="small"
+      >
         <a-radio-button value="all">全部</a-radio-button>
         <a-radio-button value="equipment">装备</a-radio-button>
         <a-radio-button value="consumable">消耗品</a-radio-button>
@@ -10,7 +14,7 @@
         <a-radio-button value="other">其他</a-radio-button>
       </a-radio-group>
     </div>
-    
+
     <!-- 背包物品网格 -->
     <div class="inventory-grid">
       <!-- 示例物品 -->
@@ -63,7 +67,7 @@
         <div class="empty-icon">+</div>
       </div>
     </div>
-    
+
     <!-- 背包统计信息 -->
     <div class="inventory-stats">
       <span>背包容量: 6/20</span>
@@ -72,10 +76,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from "vue";
 
 // 响应式数据
-const selectedCategory = ref('all');
+const selectedCategory = ref("all");
 
 // 未来可以添加物品筛选和交互逻辑
 </script>
@@ -173,7 +177,7 @@ const selectedCategory = ref('all');
   .inventory-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .inventory-tabs {
     margin-left: -8px;
     margin-right: -8px;

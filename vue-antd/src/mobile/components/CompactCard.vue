@@ -1,5 +1,5 @@
 <template>
-  <div class="compact-card" :class="{ 'bordered': bordered }">
+  <div class="compact-card" :class="{ bordered: bordered }">
     <div v-if="title" class="card-title">{{ title }}</div>
     <div class="card-body">
       <slot></slot>
@@ -53,17 +53,17 @@ defineProps<{
   .compact-card {
     border-radius: 2px;
   }
-  
+
   .card-title {
     font-size: 11px;
     padding: 0 2px;
     border-bottom: 0.5px solid #e8e8e8;
   }
-  
+
   .card-body {
     padding: 0 2px;
   }
-  
+
   .compact-card.bordered {
     border: 0.5px solid #e8e8e8;
   }
