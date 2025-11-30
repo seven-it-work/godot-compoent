@@ -15,8 +15,8 @@ import subprocess
 import sys
 from datetime import datetime
 
-# 项目根目录（使用绝对路径）
-PROJECT_DIR = 'e:\\dev_soft\\Godot_v4.3-stable_win64.exe\\godot-compoent\\vue-antd'
+# 项目根目录（使用当前工作目录）
+PROJECT_DIR = os.getcwd()
 DIST_DIR = os.path.join(PROJECT_DIR, 'dist')
 # 远程仓库地址（可以根据需要修改）
 REMOTE_REPO_URL = 'git@github.com-seven-it-work:seven-it-work/temp_html.git'  # 默认远程仓库地址
