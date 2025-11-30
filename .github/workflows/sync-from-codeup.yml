@@ -1,0 +1,38 @@
+name: Sync Codeup to GitHub
+on:
+  # 1. 手动触发（在GitHub仓库Actions页面点「Run workflow」）
+  workflow_dispatch:
+  # 2. 定时触发（每小时同步一次，可调整：https://crontab.guru/）
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      # 步骤1：配置SSH（解决主机密钥验证、加载私钥）
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          # 创建SSH目录
+          mkdir -p ~/.ssh
+          # 写入私钥
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # 禁用主机密钥验证（避免首次连接弹窗）
+          echo "StrictHostKeyChecking no" > ~/.ssh/config
+          # 添加Codeup和GitHub的主机密钥（避免安全警告）
+          ssh-keyscan codeup.aliyun.com >> ~/.ssh/known_hosts
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      # 步骤2：拉取阿里云Codeup仓库（镜像模式，包含所有分支/标签）
+      - name: Clone Codeup repo
+        run: |
+          git clone --mirror git@codeup.aliyun.com:6901967c4da2f7c77e49f3f1/seven-it-work/godot-compoent.git codeup-mirror
+
+      # 步骤3：推送到GitHub仓库
+      - name: Push to GitHub
+        run: |
+          cd codeup-mirror
+          git push --mirror git@github.com:seven-it-work/godot-compoent.git
