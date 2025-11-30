@@ -181,8 +181,11 @@ const mapLegend = ref([
   { color: "#1890ff", text: "当前位置", icon: "👤" },
 ]);
 
+// 导入正确的Monster类型
+import type { Monster } from "../types/game";
+
 // 战斗开始函数
-const startBattle = (monster: any) => {
+const startBattle = (monster: Monster) => {
   console.log("开始战斗，设置当前怪物:", monster.name);
   // 直接调用gameStore的startBattle方法
   gameStore.startBattle(monster);

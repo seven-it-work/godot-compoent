@@ -8,6 +8,7 @@ import type {
   Monster,
   BattleAttributes,
   BattleLog,
+  SpiritRoot,
 } from "../types/game";
 
 // 扩展GameState类型
@@ -121,7 +122,7 @@ export const useGameStore = defineStore("game", {
 
     // 获取玩家拥有的灵根类型列表
     activeSpiritRoots: (state): SpiritRootType[] => {
-      return state.player.spiritRoots.map((root) => root.type);
+      return state.player.spiritRoots.map((root: SpiritRoot) => root.type);
     },
 
     // 检查是否可以升级
@@ -800,7 +801,7 @@ export const useGameStore = defineStore("game", {
       const currentLocation = this.player.currentLocation;
 
       // 找到对应的灵根
-      const root = spiritRoots.find((r) => r.type === spiritType);
+      const root = spiritRoots.find((r: SpiritRoot) => r.type === spiritType);
       if (!root) return;
 
       // 根据灵根等级计算吸收量
@@ -911,7 +912,9 @@ export const useGameStore = defineStore("game", {
 
     // 检查是否可以吸收特定类型的灵气
     canAbsorbSpiritQi(spiritType: SpiritRootType): boolean {
-      const root = this.player.spiritRoots.find((r) => r.type === spiritType);
+      const root = this.player.spiritRoots.find(
+        (r: SpiritRoot) => r.type === spiritType
+      );
       if (!root) return false;
 
       const playerMaxQi = this.player.spiritQi[
@@ -1042,7 +1045,9 @@ export const useGameStore = defineStore("game", {
 
     // 更新灵根等级
     updateSpiritRootLevel(type: SpiritRootType, level: number) {
-      const root = this.player.spiritRoots.find((r) => r.type === type);
+      const root = this.player.spiritRoots.find(
+        (r: SpiritRoot) => r.type === type
+      );
       if (root) {
         root.level = level;
       }

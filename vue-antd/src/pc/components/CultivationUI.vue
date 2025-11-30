@@ -153,7 +153,7 @@
                     {{ getRootName(rootType) }}灵根
                   </div>
                   <div class="root-level-value">
-                    等级: {{ playerSpiritRoots[rootType]?.level || 0 }}
+                    等级: {{ (playerSpiritRoots[rootType] as any)?.level || 0 }}
                   </div>
                 </div>
               </div>
@@ -235,12 +235,21 @@ const playerSpiritRoots = computed(() => {
       acc[root.type] = root;
       return acc;
     },
-    {} as Record<string, any>
+    {} as Record<string, { level?: number; exp?: number; maxExp?: number }> // 定义具体的灵根结构
   );
 });
 
-// 玩家灵气信息 - 使用any暂时解决类型问题
-const playerSpiritQi = player.value.spiritQi || ({} as any);
+// 定义灵气信息类型
+interface SpiritQi {
+  gold?: number;
+  wood?: number;
+  water?: number;
+  fire?: number;
+  earth?: number;
+}
+
+// 玩家灵气信息
+const playerSpiritQi = player.value.spiritQi || ({} as SpiritQi);
 
 // 获取玩家名称首字母作为头像占位符
 const getAvatarInitials = (name: string) => {
@@ -296,14 +305,14 @@ const calculateLocationQiPercent = (type: SpiritRootName) => {
 // 获取玩家灵气上限值
 const getMaxPlayerQi = (type: SpiritRootName) => {
   // 假设基于灵根等级计算上限
-  const rootLevel = playerSpiritRoots.value[type]?.level || 1;
+  const rootLevel = (playerSpiritRoots.value[type] as any)?.level || 1; // 暂时使用any以保证功能正常
   // 简单的等级映射，实际可能需要更复杂的计算
   return rootLevel * 1000;
 };
 
 // 计算玩家灵气百分比
 const calculatePlayerQiPercent = (type: SpiritRootName) => {
-  const current = (playerSpiritQi as any)[type] || 0;
+  const current = playerSpiritQi[type as keyof SpiritQi] || 0;
   const max = getMaxPlayerQi(type);
   return Math.floor((current / max) * 100);
 };

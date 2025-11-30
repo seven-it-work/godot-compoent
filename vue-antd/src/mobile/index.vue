@@ -19,7 +19,8 @@ const router = useRouter();
 const gameStore = useGameStore();
 
 // 映射路径到组件
-const pathToComponent: Record<string, any> = {
+import type { Component } from "vue";
+const pathToComponent: Record<string, Component> = {
   "/": StartGamePage,
   "/start": StartGamePage,
   "/training": TrainingPage,

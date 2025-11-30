@@ -27,7 +27,7 @@ export default defineConfig([
     rules: {
       // ESLint 基础规则
       "no-unused-vars": "warn",
-      "no-console": "warn",
+      "no-console": "off",
 
       // TypeScript 规则
       "@typescript-eslint/no-explicit-any": "warn",

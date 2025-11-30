@@ -155,8 +155,8 @@ const canLevelUp = computed(() => gameStore.canLevelUp);
 const isAutoAbsorbing = computed(() => gameStore.isAutoAbsorbing);
 
 // 处理自动吸收状态变化
-const handleAutoAbsorbChange = (e: any) => {
-  if (e.target.checked) {
+const handleAutoAbsorbChange = (e: Event) => {
+  if ((e.target as HTMLInputElement).checked) {
     gameStore.startAutoAbsorb();
   } else {
     gameStore.stopAutoAbsorb();
