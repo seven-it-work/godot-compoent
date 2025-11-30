@@ -482,6 +482,8 @@ const endBattleEscape = () => {
 
 const endBattle = () => {
   showResultModal.value = false;
+  
+  // 使用gameStore的endBattle方法结束战斗
   gameStore.endBattle();
   
   // 根据战斗结果进行不同处理
@@ -489,11 +491,12 @@ const endBattle = () => {
     // 战斗失败，重置玩家信息并重新开始游戏
     console.log('战斗失败，重置玩家信息并重新开始游戏');
     gameStore.resetPlayer();
-    router.push('/mobile/cultivation'); // 跳转到修炼页面作为重新开始
+    // 跳转到开始游戏页面
+    router.push('/mobile/'); 
   } else if (battleResult.value.title === '战斗胜利' || battleResult.value.title === '成功逃跑') {
-    // 战斗胜利或逃跑成功，返回地图
-    console.log('返回地图');
-    router.push('/mobile/explore'); // 跳转到探索（地图）页面
+    // 战斗胜利或逃跑成功，返回探索页面
+    console.log('返回探索页面');
+    router.push('/mobile/explore'); 
   }
 };
 
@@ -936,3 +939,4 @@ onMounted(() => {
   }
 }
 </style>
+

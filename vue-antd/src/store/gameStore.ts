@@ -439,6 +439,9 @@ export const useGameStore = defineStore("game", {
 
       // 切换到战斗系统
       this.currentSystem = "battle";
+      
+      // 触发全局事件，通知UI层需要跳转到战斗页面
+      window.dispatchEvent(new CustomEvent('start-battle'));
     },
 
     // 添加战斗日志

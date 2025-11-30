@@ -59,7 +59,7 @@ const mobileRoutes: RouteRecordRaw[] = [
       },
       {
         path: '', // 空路径作为默认子路由
-        redirect: 'training'
+        // 移除重定向，让index.vue组件自己处理默认显示
       }
     ],
   },
@@ -98,12 +98,13 @@ const redirectByScreenResolution = () => {
     if (currentDevice !== targetDevice) {
       // 提取功能路径并构建新路径
       const functionPath = currentPath.replace(`/${currentDevice}`, '');
-      const targetPath = `/${targetDevice}${functionPath || '/training'}`;
+      // 移动端重定向到根路径而不是训练页面
+      const targetPath = `/${targetDevice}${functionPath || '/'}`;
       router.replace(targetPath);
     }
   } else {
-    // 如果是根路径或其他非设备路径，直接重定向到对应设备的训练页面
-    const targetPath = isMobile ? '/mobile/training' : '/pc/training';
+    // 如果是根路径或其他非设备路径，重定向到对应设备的根路径
+    const targetPath = isMobile ? '/mobile/' : '/pc/training';
     router.replace(targetPath);
   }
 };
@@ -115,24 +116,36 @@ window.addEventListener('resize', redirectByScreenResolution);
 window.addEventListener('load', redirectByScreenResolution);
 
 // 路由守卫，简化为只检查是否需要重定向到正确的设备路径
+// 路由守卫，添加移动端游戏状态检查
 router.beforeEach((to, _from, next) => {
   const isMobile = window.innerWidth <= 768;
   const targetDevice = isMobile ? 'mobile' : 'pc';
   
-  // 如果访问的是根路径，直接重定向到对应设备的训练页面
+  // 如果访问的是根路径，根据设备类型决定重定向目标
   if (to.path === '/') {
-    next(`/${targetDevice}/training`);
+    next(`/${targetDevice}/`); // 移动端重定向到开始页面，PC端保持原逻辑
     return;
   }
   
-  // 如果访问的是设备特定路径，检查是否与实际设备类型匹配
+  // 移动端特殊处理：如果访问的是移动端非开始页面，需要确保游戏已初始化
+  if (to.path.startsWith('/mobile') && to.path !== '/mobile/' && to.path !== '/mobile/start') {
+    // 注意：在路由守卫中我们不能直接访问Pinia store
+    // 但我们可以在index.vue组件内部进行状态检查
+    // 这里只进行基本的路径重定向
+    next();
+    return;
+  }
+  
+  // 设备类型匹配检查
   if (to.path.startsWith('/mobile') || to.path.startsWith('/pc')) {
     const currentDevice = to.path.startsWith('/mobile') ? 'mobile' : 'pc';
     
     if (currentDevice !== targetDevice) {
-      // 重定向到正确设备的相同功能页面
+      // 重定向到正确设备的对应页面
       const functionPath = to.path.replace(`/${currentDevice}`, '');
-      next(`/${targetDevice}${functionPath}`);
+      // 移动端重定向到对应设备的根路径，而不是直接到训练页面
+      const targetPath = `/${targetDevice}${functionPath || '/'}`;
+      next(targetPath);
       return;
     }
   }
@@ -142,3 +155,6 @@ router.beforeEach((to, _from, next) => {
 });
 
 export default router;
+
+
+
