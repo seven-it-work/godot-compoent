@@ -235,6 +235,16 @@ const moveTo = async (targetX: number, targetY: number) => {
     
     // 逐格移动实现平滑动画效果
     for (const step of path) {
+      // 检查当前位置是否有怪物，如果有则停止移动并触发战斗
+      const currentStepLocation = gameStore.map.locations[step.y][step.x];
+      if (currentStepLocation.monster) {
+        console.log(`遭遇怪物: ${currentStepLocation.monster.name}`);
+        // 触发战斗
+        startBattle(currentStepLocation.monster);
+        // 立即终止函数执行，防止继续移动
+        return;
+      }
+      
       // 使用gameStore的switchLocation方法切换地点
       gameStore.switchLocation(step.x, step.y);
       
@@ -248,12 +258,7 @@ const moveTo = async (targetX: number, targetY: number) => {
       await new Promise(resolve => setTimeout(resolve, moveStepDelay));
     }
     
-    // 移动完成后检查目标位置是否有怪物
-    if (targetLocation.monster) {
-      console.log(`遭遇怪物: ${targetLocation.monster.name}`);
-      // 触发战斗
-      startBattle(targetLocation.monster);
-    }
+    // 跳转逻辑已在循环中处理，移除此处的重复检查
     
   } catch (error) {
     // 错误处理
@@ -424,7 +429,6 @@ const actions = ref([
   background-color: white;
   border: 1px solid #e8e8e8;
   border-radius: 2px;
-  flex: 0 0 70%;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -443,8 +447,6 @@ const actions = ref([
   padding: 6px;
   background-color: #fafafa;
   border-bottom: 1px solid #e8e8e8;
-  /* 确保容器有明确的高度限制，强制内容超出时显示滚动条 */
-  height: 400px;
   /* 增加滚动条样式优化 */
   scrollbar-width: thin;
   scrollbar-color: #d9d9d9 #f0f0f0;
