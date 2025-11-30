@@ -38,16 +38,6 @@ const mobileRoutes: RouteRecordRaw[] = [
     component: () => import('../mobile/index.vue'),
     children: [
       {
-        path: 'training',
-        component: () => import('../mobile/index.vue'),
-        name: 'MobileTraining',
-      },
-      {
-        path: 'outdoor',
-        component: () => import('../mobile/index.vue'),
-        name: 'MobileOutdoor',
-      },
-      {
         path: 'battle',
         component: () => import('../mobile/战斗.vue'),
         name: 'MobileBattle',
@@ -58,9 +48,10 @@ const mobileRoutes: RouteRecordRaw[] = [
         name: 'MobileExplore',
       },
       {
-        path: '', // 空路径作为默认子路由
-        // 移除重定向，让index.vue组件自己处理默认显示
-      }
+        path: 'player-detail',
+        component: () => import('../mobile/玩家详情.vue'),
+        name: 'MobilePlayerDetail',
+      },
     ],
   },
 ];

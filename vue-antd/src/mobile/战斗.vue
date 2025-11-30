@@ -494,9 +494,9 @@ const endBattle = () => {
     // 跳转到开始游戏页面
     router.push('/mobile/'); 
   } else if (battleResult.value.title === '战斗胜利' || battleResult.value.title === '成功逃跑') {
-    // 战斗胜利或逃跑成功，返回探索页面
-    console.log('返回探索页面');
-    router.push('/mobile/explore'); 
+    // 战斗胜利或逃跑成功，返回玩家详情页面
+    console.log('返回玩家详情页面');
+    router.push('/mobile/player-detail'); 
   }
 };
 

@@ -73,8 +73,8 @@ const startNewGame = () => {
   gameStore.resetPlayer();
   // 生成新地图
   gameStore.generateMap();
-  // 跳转到修炼页面
-  router.push('/mobile/training');
+  // 跳转到玩家详情页面
+  router.push('/mobile/player-detail');
 };
 
 // 继续游戏
@@ -82,7 +82,7 @@ const continueGame = () => {
   // 检查是否有存档
   // 如果没有存档，跳转到开始新游戏
   // 否则，继续游戏
-  router.push('/mobile/training');
+  router.push('/mobile/player-detail');
 };
 
 // 显示设置

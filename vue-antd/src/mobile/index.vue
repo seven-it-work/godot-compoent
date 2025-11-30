@@ -9,9 +9,10 @@ import { computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useGameStore } from '../store/gameStore';
 import StartGamePage from './开始游戏.vue';
-import TrainingPage from './修炼.vue';
+import TrainingPage from './playerDetail/Cultivation.vue';
 import ExplorationPage from './探索.vue';
 import BattlePage from './战斗.vue';
+import PlayerDetailPage from './玩家详情.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -24,7 +25,8 @@ const pathToComponent: Record<string, any> = {
   '/training': TrainingPage,
   '/outdoor': ExplorationPage,
   '/explore': ExplorationPage,
-  '/battle': BattlePage
+  '/battle': BattlePage,
+  '/player-detail': PlayerDetailPage
 };
 
 // 检查游戏是否已初始化

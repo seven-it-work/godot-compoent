@@ -354,9 +354,9 @@ const moveDirection = async (direction: 'up' | 'down' | 'left' | 'right') => {
 };
 
 const cultivation = () => {
-  // 跳转到修炼页面
-  console.log('跳转到修炼页面');
-  router.push('/mobile/修炼');
+  // 跳转到玩家详情页面
+  console.log('跳转到玩家详情页面');
+  router.push('/mobile/player-detail');
 };
 
 const showMapLegend = () => {
