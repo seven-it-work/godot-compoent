@@ -1319,9 +1319,8 @@ onUnmounted(() => {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 20px;
+  width: 40px;
   height: 20px;
-  border-radius: 50%;
   transition: left 0.1s linear;
   display: flex;
   align-items: center;
