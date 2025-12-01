@@ -513,83 +513,147 @@ const getHealth = (teammates: Teammate[], teammateId: string | undefined) => {
 
 // 执行攻击
 const performAttack = () => {
-  if (!currentActor.value) return;
+  console.log('\n=== performAttack 开始 ===');
+  
+  if (!currentActor.value) {
+    console.log('当前没有行动角色，退出攻击');
+    return;
+  }
+  
+  console.log('当前行动角色:', currentActor.value.id, '团队:', currentActor.value.team);
   
   // 找到当前行动的角色
   const attacker = actionQueue.value.find(char => char.id === currentActor.value?.id);
-  if (!attacker) return;
+  if (!attacker) {
+    console.log('找不到当前行动角色，退出攻击');
+    return;
+  }
+  
+  console.log('攻击者:', attacker.name, '攻击速度:', attacker.attackSpeed);
   
   // 确定攻击目标
   const targetTeam = attacker.team === "player" ? enemyTeam.value.allTeammates : playerTeam.value.allTeammates;
   const aliveTargets = targetTeam.filter(target => target.attributes.health > 0);
   
-  if (aliveTargets.length === 0) {
-    // 战斗结束
-    handleEndBattle(attacker.team === "player");
-    return;
-  }
+  console.log('目标团队:', attacker.team === "player" ? '敌人' : '玩家');
+  console.log('可攻击目标数量:', aliveTargets.length);
   
-  const targetIndex = Math.floor(Math.random() * aliveTargets.length);
-  const target = aliveTargets[targetIndex];
-  
-  if (target) {
-    // 计算伤害
-    const damage = Math.max(0, attacker.originalCharacter.attributes.attack - target.attributes.defense);
-    target.attributes.health = Math.max(0, target.attributes.health - damage);
+  if (aliveTargets.length > 0) {
+    const targetIndex = Math.floor(Math.random() * aliveTargets.length);
+    const target = aliveTargets[targetIndex];
     
-    // 记录战斗日志
-    battleLogs.value.push({
-      message: `${attacker.name} 对 ${target.name} 造成了 ${damage} 点伤害！`,
-      type: attacker.team
-    });
-  }
-  
-  // 检查战斗是否结束
-  const allEnemiesDead = enemyTeam.value.allTeammates.every(enemy => enemy.attributes.health <= 0);
-  const allPlayersDead = playerTeam.value.allTeammates.every(player => player.attributes.health <= 0);
-  
-  if (allEnemiesDead) {
-    handleEndBattle(true);
-  } else if (allPlayersDead) {
-    handleEndBattle(false);
+    if (target) {
+      console.log('攻击目标:', target.name, '当前生命值:', target.attributes.health);
+      
+      // 计算伤害
+      const damage = Math.max(0, attacker.originalCharacter.attributes.attack - target.attributes.defense);
+      console.log('计算伤害:', attacker.originalCharacter.attributes.attack, '-', target.attributes.defense, '=', damage);
+      
+      const oldHealth = target.attributes.health;
+      target.attributes.health = Math.max(0, target.attributes.health - damage);
+      console.log(target.name + ' 生命值变化:', oldHealth, '->', target.attributes.health);
+      
+      // 记录战斗日志
+      battleLogs.value.push({
+        message: `${attacker.name} 对 ${target.name} 造成了 ${damage} 点伤害！`,
+        type: attacker.team
+      });
+      
+      // 检查目标是否死亡
+      if (target.attributes.health <= 0) {
+        console.log(target.name + ' 已死亡！');
+      }
+    }
+  } else {
+    console.log('没有可攻击的目标');
   }
   
   // 重置攻击者的进度
   if (attacker) {
+    console.log('重置攻击者进度:', attacker.name, '从', attacker.progress.toFixed(1) + '% 到 0%');
     attacker.progress = 0;
   }
   
   // 结束当前行动
+  console.log('结束当前行动，重置状态');
   currentActor.value = null;
   isPaused.value = false;
+  
+  console.log('=== performAttack 结束 ===\n');
+  
+  // 战斗结束检查将在updateActionProgress中进行，无需在此重复检查
 };
 
 // 更新行动进度
 const updateActionProgress = () => {
   if (isPaused.value || battleEnded.value) return;
   
-  // 先检查战斗是否已经结束（玩家或敌人全部死亡）
-  const allEnemiesDead = enemyTeam.value.allTeammates.every(enemy => enemy.attributes.health <= 0);
-  const allPlayersDead = playerTeam.value.allTeammates.every(player => player.attributes.health <= 0);
-  
-  if (allEnemiesDead) {
-    handleEndBattle(true);
-    return;
-  } else if (allPlayersDead) {
-    handleEndBattle(false);
-    return;
-  }
+  console.log('=== updateActionProgress 开始 ===');
+  console.log('当前状态: isPaused=' + isPaused.value + ', battleEnded=' + battleEnded.value);
   
   // 更新所有角色的进度
   actionQueue.value.forEach(character => {
     // 只更新活着的角色
-    if (character.originalCharacter.attributes.health <= 0) return;
+    if (character.originalCharacter.attributes.health <= 0) {
+      console.log(character.name + ' 已死亡，跳过进度更新');
+      return;
+    }
     
+    const oldProgress = character.progress;
     character.progress += character.attackSpeed * 0.1;
+    console.log(character.name + ' 进度更新: ' + oldProgress.toFixed(1) + '% -> ' + character.progress.toFixed(1) + '%');
   });
+  
+  // 检查战斗是否已经结束（玩家或敌人全部死亡）
+  console.log('\n=== 检查战斗结束条件 ===');
+  
+  // 打印所有玩家和敌人的生命值
+  playerTeam.value.allTeammates.forEach(player => {
+    console.log('玩家 ' + player.name + ' 生命值: ' + player.attributes.health + '/' + player.attributes.maxHealth);
+  });
+  
+  enemyTeam.value.allTeammates.forEach(enemy => {
+    console.log('敌人 ' + enemy.name + ' 生命值: ' + enemy.attributes.health + '/' + enemy.attributes.maxHealth);
+  });
+  
+  // 只检查当前上阵的玩家，而不是所有队友
+  const deployedPlayers = playerTeam.value.allTeammates.filter(player => {
+    // 检查玩家是否在上阵位置上
+    for (const row of playerTeam.value.positions) {
+      for (const position of row) {
+        if (position.teammateId === player.id) {
+          return true;
+        }
+      }
+    }
+    return false;
+  });
+  
+  console.log('\n=== 战斗结束条件详细检查 ===');
+  console.log('所有敌人:', enemyTeam.value.allTeammates.length, '个');
+  console.log('当前上阵玩家:', deployedPlayers.length, '个');
+  console.log('上阵玩家列表:', deployedPlayers.map(p => p.name).join(', '));
+  
+  const allEnemiesDead = enemyTeam.value.allTeammates.every(enemy => enemy.attributes.health <= 0);
+  const allDeployedPlayersDead = deployedPlayers.every(player => player.attributes.health <= 0);
+  
+  console.log('allEnemiesDead:', allEnemiesDead, 'allDeployedPlayersDead:', allDeployedPlayersDead);
+  
+  if (allEnemiesDead) {
+    console.log('所有敌人已死亡，战斗胜利！');
+    handleEndBattle(true);
+    return;
+  } else if (allDeployedPlayersDead && deployedPlayers.length > 0) {
+    console.log('所有上阵玩家已死亡，战斗失败！');
+    handleEndBattle(false);
+    return;
+  }
+  
+  console.log('战斗继续...');
   
   // 检查是否有角色进度达到或超过100%
   const readyCharacters = actionQueue.value.filter(char => char.progress >= 100);
+  console.log('就绪角色数量:', readyCharacters.length);
   
   if (readyCharacters.length > 0) {
     // 随机选择一个就绪的角色
@@ -597,6 +661,7 @@ const updateActionProgress = () => {
     const actingCharacter = readyCharacters[randomIndex];
     
     if (actingCharacter) {
+      console.log('当前行动角色:', actingCharacter.name, '团队:', actingCharacter.team);
       // 开始行动
       isPaused.value = true;
       currentActor.value = { id: actingCharacter.id, team: actingCharacter.team };
@@ -609,18 +674,24 @@ const updateActionProgress = () => {
       // 根据角色类型执行不同操作
       if (actingCharacter.team === "enemy") {
         // 敌人角色自动执行攻击
+        console.log('敌人自动攻击，延迟1秒');
         setTimeout(() => {
           performAttack();
         }, 1000);
       } else if (autoBattle.value) {
         // 玩家角色开启自动战斗时自动执行攻击
+        console.log('玩家自动攻击，延迟0.5秒');
         setTimeout(() => {
           performAttack();
         }, 500);
+      } else {
+        console.log('等待玩家手动操作');
       }
       // 玩家角色未开启自动战斗时等待手动操作
     }
   }
+  
+  console.log('=== updateActionProgress 结束 ===\n');
 };
 
 // 战斗循环定时器
