@@ -6,9 +6,30 @@
         <a-row justify="center" :gutter="[8, 8]">
           <a-col :span="24" class="text-center">
             <div class="battle-title">战斗进行中</div>
-            <div class="battle-round">第 {{ currentRound }} 回合</div>
           </a-col>
         </a-row>
+      </compact-card>
+
+      <!-- 统一行动队列进度条 -->
+      <compact-card class="action-queue-card" :bordered="true" style="margin-top: 8px">
+        <div class="action-queue-title">行动队列</div>
+        <div class="action-queue-container">
+          <div class="action-queue-track">
+            <div 
+              v-for="character in actionQueue" 
+              :key="character.id" 
+              class="action-queue-character"
+              :class="{ 
+                'player-character': character.team === 'player',
+                'enemy-character': character.team === 'enemy',
+                'current-actor': character.id === currentActor?.id
+              }"
+              :style="{ left: `${character.progress}%` }"
+            >
+              <div class="character-name-tag">{{ character.name }}</div>
+            </div>
+          </div>
+        </div>
       </compact-card>
 
       <!-- 战斗区域 -->
@@ -48,15 +69,7 @@
                         {{ getTeammate(enemyTeam.allTeammates, position.teammateId)?.name || '未知' }}
                       </div>
                       <div class="character-level">Lv.{{ getTeammate(enemyTeam.allTeammates, position.teammateId)?.level || 1 }}</div>
-                      <!-- 攻击速度进度条 -->
-                      <div class="attack-speed-bar-container">
-                        <a-progress
-                          :percent="getAttackSpeedProgress(position.teammateId)"
-                          :show-info="false"
-                          :stroke-color="{ '0%': '#1890ff', '100%': '#52c41a' }"
-                          size="small"
-                        />
-                      </div>
+
                       <!-- 生命值条 -->
                       <div class="health-bar-container">
                         <div class="health-label">生命</div>
@@ -85,22 +98,7 @@
           </div>
         </div>
 
-        <!-- 战斗指示器 -->
-        <a-row justify="center" :gutter="[8, 8]">
-          <a-col :span="24" class="text-center">
-            <div class="battle-indicator">
-              <div
-                class="indicator-arrow"
-                :class="{
-                  'player-turn': currentTurn === 'player',
-                  'enemy-turn': currentTurn === 'enemy',
-                }"
-              >
-                {{ currentTurn === "player" ? "玩家回合" : "敌人回合" }}
-              </div>
-            </div>
-          </a-col>
-        </a-row>
+        <!-- 战斗回合指示器已移除，新系统不再有明确回合 -->
 
         <!-- 玩家队伍 -->
         <div class="team-section player-team">
@@ -133,15 +131,7 @@
                         {{ getTeammate(playerTeam.allTeammates, position.teammateId)?.name || '未知' }}
                       </div>
                       <div class="character-level">Lv.{{ getTeammate(playerTeam.allTeammates, position.teammateId)?.level || 1 }}</div>
-                      <!-- 攻击速度进度条 -->
-                      <div class="attack-speed-bar-container">
-                        <a-progress
-                          :percent="getAttackSpeedProgress(position.teammateId)"
-                          :show-info="false"
-                          :stroke-color="{ '0%': '#1890ff', '100%': '#52c41a' }"
-                          size="small"
-                        />
-                      </div>
+
                       <!-- 生命值条 -->
                       <div class="health-bar-container">
                         <div class="health-label">生命</div>
@@ -199,8 +189,7 @@
           <a-col :span="12">
             <a-button
               type="primary"
-              :disabled="currentTurn !== 'player'"
-              @click="() => {}"
+              @click="performAttack"
               size="small"
               block
             >
@@ -210,7 +199,6 @@
           <a-col :span="12">
             <a-button
               type="default"
-              :disabled="currentTurn !== 'player'"
               @click="useSkill"
               size="small"
               block
@@ -223,7 +211,6 @@
           <a-col :span="12">
             <a-button
               type="default"
-              :disabled="currentTurn !== 'player'"
               @click="useItem"
               size="small"
               block
@@ -234,7 +221,6 @@
           <a-col :span="12">
             <a-button
               type="default"
-              :disabled="currentTurn !== 'player'"
               @click="escapeBattle"
               size="small"
               block
@@ -304,7 +290,7 @@
           </div>
         </div>
         <template #footer>
-          <a-button type="primary" @click="endBattle">确定</a-button>
+          <a-button type="primary" block @click="handleResultModalClose">确定</a-button>
         </template>
       </a-modal>
     </a-layout-content>
@@ -352,14 +338,24 @@ const showResultModal = ref(false);
 const logRef = ref<HTMLElement | null>(null);
 
 // 战斗状态
-const currentRound = ref(1);
-const currentTurn = ref<"player" | "enemy">("player");
-
-// 攻击速度进度状态
-const attackSpeedProgress = ref<Map<string, number>>(new Map());
+const battleStarted = ref(false);
+const battleEnded = ref(false);
+const isPaused = ref(false);
 
 // 当前行动的角色
 const currentActor = ref<{ id: string; team: "player" | "enemy" } | null>(null);
+
+// 统一行动队列
+interface ActionQueueCharacter {
+  id: string;
+  name: string;
+  team: "player" | "enemy";
+  attackSpeed: number;
+  progress: number;
+  originalCharacter: Teammate;
+}
+
+const actionQueue = ref<ActionQueueCharacter[]>([]);
 
 // 战斗日志接口定义
 interface BattleLogEntry {
@@ -447,28 +443,44 @@ const enemyTeam = ref<Team>({
 //   },
 // }));
 
-// 初始化攻击速度进度
-const initializeAttackSpeedProgress = () => {
-  // 初始化玩家队伍的攻击速度进度
-  playerTeam.value.allTeammates.forEach(teammate => {
-    attackSpeedProgress.value.set(teammate.id, 0);
-  });
-  
-  // 初始化敌人队伍的攻击速度进度
-  enemyTeam.value.allTeammates.forEach((teammate: Teammate) => {
-    attackSpeedProgress.value.set(teammate.id, 0);
-  });
-};
-
 // 获取队友信息
 const getTeammate = (teammates: Teammate[], id: string) => {
   return teammates.find(t => t.id === id);
 };
 
-// 获取攻击速度进度
-const getAttackSpeedProgress = (teammateId: string | undefined) => {
-  if (!teammateId) return 0;
-  return attackSpeedProgress.value.get(teammateId) || 0;
+// 初始化统一行动队列
+const initializeActionQueue = () => {
+  const queue: ActionQueueCharacter[] = [];
+  
+  // 添加玩家队伍
+  playerTeam.value.allTeammates.forEach(teammate => {
+    if (teammate.attributes.health > 0) {
+      queue.push({
+        id: teammate.id,
+        name: teammate.name,
+        team: "player",
+        attackSpeed: teammate.attributes.attackSpeed || 100,
+        progress: 0,
+        originalCharacter: teammate
+      });
+    }
+  });
+  
+  // 添加敌人队伍
+  enemyTeam.value.allTeammates.forEach((teammate: Teammate) => {
+    if (teammate.attributes.health > 0) {
+      queue.push({
+        id: teammate.id,
+        name: teammate.name,
+        team: "enemy",
+        attackSpeed: teammate.attributes.attackSpeed || 100,
+        progress: 0,
+        originalCharacter: teammate
+      });
+    }
+  });
+  
+  actionQueue.value = queue;
 };
 
 // 获取生命值百分比
@@ -487,43 +499,87 @@ const getHealth = (teammates: Teammate[], teammateId: string | undefined) => {
   return `${teammate.attributes.health}/${teammate.attributes.maxHealth}`;
 };
 
-// 更新攻击速度进度
-const updateAttackSpeedProgress = () => {
-  // 更新玩家队伍
-  playerTeam.value.allTeammates.forEach(teammate => {
-    if (!teammate.attributes.health || teammate.attributes.health <= 0) return;
+// 执行攻击
+const performAttack = (attacker: ActionQueueCharacter) => {
+  // 确定攻击目标
+  const targetTeam = attacker.team === "player" ? enemyTeam.value.allTeammates : playerTeam.value.allTeammates;
+  const aliveTargets = targetTeam.filter(target => target.attributes.health > 0);
+  
+  if (aliveTargets.length === 0) {
+    // 战斗结束
+    handleEndBattle(attacker.team === "player");
+    return;
+  }
+  
+  const targetIndex = Math.floor(Math.random() * aliveTargets.length);
+  const target = aliveTargets[targetIndex];
+  
+  if (target) {
+    // 计算伤害
+    const damage = Math.max(0, attacker.originalCharacter.attributes.attack - target.attributes.defense);
+    target.attributes.health = Math.max(0, target.attributes.health - damage);
     
-    const currentProgress = attackSpeedProgress.value.get(teammate.id) || 0;
-    const attackSpeed = teammate.attributes.attackSpeed || 100;
-    const newProgress = Math.min(100, currentProgress + attackSpeed * 0.1);
+    // 记录战斗日志
+    battleLogs.value.push({
+      message: `${attacker.name} 对 ${target.name} 造成了 ${damage} 点伤害！`,
+      type: attacker.team
+    });
+  }
+  
+  // 检查战斗是否结束
+  const allEnemiesDead = enemyTeam.value.allTeammates.every(enemy => enemy.attributes.health <= 0);
+  const allPlayersDead = playerTeam.value.allTeammates.every(player => player.attributes.health <= 0);
+  
+  if (allEnemiesDead) {
+    handleEndBattle(true);
+  } else if (allPlayersDead) {
+    handleEndBattle(false);
+  }
+  
+  // 重置攻击者的进度
+  attacker.progress = 0;
+  
+  // 结束当前行动
+  currentActor.value = null;
+  isPaused.value = false;
+};
+
+// 更新行动进度
+const updateActionProgress = () => {
+  if (isPaused.value || battleEnded.value) return;
+  
+  // 更新所有角色的进度
+  actionQueue.value.forEach(character => {
+    // 只更新活着的角色
+    if (character.originalCharacter.attributes.health <= 0) return;
     
-    attackSpeedProgress.value.set(teammate.id, newProgress);
-    
-    // 如果进度满了，触发攻击
-    if (newProgress >= 100) {
-      attackSpeedProgress.value.set(teammate.id, 0);
-      currentActor.value = { id: teammate.id, team: "player" };
-      // 这里可以添加自动攻击逻辑
-    }
+    character.progress += character.attackSpeed * 0.1;
   });
   
-  // 更新敌人队伍
-  enemyTeam.value.allTeammates.forEach((teammate: Teammate) => {
-    if (!teammate.attributes.health || teammate.attributes.health <= 0) return;
+  // 检查是否有角色进度达到或超过100%
+  const readyCharacters = actionQueue.value.filter(char => char.progress >= 100);
+  
+  if (readyCharacters.length > 0) {
+    // 随机选择一个就绪的角色
+    const randomIndex = Math.floor(Math.random() * readyCharacters.length);
+    const actingCharacter = readyCharacters[randomIndex];
     
-    const currentProgress = attackSpeedProgress.value.get(teammate.id) || 0;
-    const attackSpeed = teammate.attributes.attackSpeed || 100;
-    const newProgress = Math.min(100, currentProgress + attackSpeed * 0.1);
-    
-    attackSpeedProgress.value.set(teammate.id, newProgress);
-    
-    // 如果进度满了，触发攻击
-    if (newProgress >= 100) {
-      attackSpeedProgress.value.set(teammate.id, 0);
-      currentActor.value = { id: teammate.id, team: "enemy" };
-      // 这里可以添加自动攻击逻辑
+    if (actingCharacter) {
+      // 开始行动
+      isPaused.value = true;
+      currentActor.value = { id: actingCharacter.id, team: actingCharacter.team };
+      
+      battleLogs.value.push({
+        message: `${actingCharacter.name} 发起攻击！`,
+        type: actingCharacter.team
+      });
+      
+      // 执行攻击
+      setTimeout(() => {
+        performAttack(actingCharacter);
+      }, 1000);
     }
-  });
+  }
 };
 
 // 战斗循环定时器
@@ -533,9 +589,36 @@ let battleLoopInterval: number | null = null;
 const startBattleLoop = () => {
   if (battleLoopInterval) return;
   
+  battleStarted.value = true;
+  initializeActionQueue();
+  
   battleLoopInterval = window.setInterval(() => {
-    updateAttackSpeedProgress();
+    updateActionProgress();
   }, 100);
+};
+
+// 结束战斗
+const handleEndBattle = (victory: boolean) => {
+  battleEnded.value = true;
+  stopBattleLoop();
+  
+  // 设置战斗结果
+  battleResult.value = {
+    title: victory ? "战斗胜利" : "战斗失败",
+    icon: victory ? "check-circle" : "close-circle",
+    message: victory ? "你成功击败了所有敌人！" : "你被敌人击败了！",
+    exp: victory ? 100 : 0,
+    items: victory ? ["治疗药水", "金币 x 50"] : []
+  };
+  
+  // 显示战斗结果
+  showResultModal.value = true;
+  
+  // 记录战斗日志
+  battleLogs.value.push({
+    message: victory ? "战斗胜利！" : "战斗失败！",
+    type: "system"
+  });
 };
 
 // 停止战斗循环
@@ -744,108 +827,40 @@ const enemyAttack = () => {
   addBattleLog(`回合 ${currentRound.value}，玩家的回合！`, "system");
 };*/
 
+// 使用技能函数 - 暂时禁用，因为我们正在实现新的战斗系统
 const useSkill = () => {
-  if (currentTurn.value !== "player") return;
-  showSkillModal.value = true;
+  // if (currentTurn.value !== "player") return;
+  // showSkillModal.value = true;
+  addBattleLog(`技能系统暂未开放！`, "system");
 };
 
 const selectSkill = () => {
-  showSkillModal.value = false;
+  // showSkillModal.value = false;
   // TODO: 实现技能使用逻辑
-  addBattleLog(`玩家使用了技能！`, "player");
-
-  // 切换到敌人回合
-  currentTurn.value = "enemy";
-  addBattleLog(`敌人的回合！`);
-
-  setTimeout(() => {
-    // enemyAttack();
-  }, 1000);
+  // addBattleLog(`玩家使用了技能！`, "player");
 };
 
 const useItem = () => {
-  if (currentTurn.value !== "player") return;
-  showItemModal.value = true;
+  // if (currentTurn.value !== "player") return;
+  // showItemModal.value = true;
+  addBattleLog(`道具系统暂未开放！`, "system");
 };
 
 const selectItem = () => {
-  showItemModal.value = false;
+  // showItemModal.value = false;
   // TODO: 实现道具使用逻辑
-  addBattleLog(`玩家使用了道具！`, "player");
-
-  // 切换到敌人回合
-  currentTurn.value = "enemy";
-  addBattleLog(`敌人的回合！`);
-
-  setTimeout(() => {
-    // enemyAttack();
-  }, 1000);
+  // addBattleLog(`玩家使用了道具！`, "player");
 };
 
 const escapeBattle = () => {
-  if (currentTurn.value !== "player") return;
-
-  // 逃跑成功率
-  const escapeChance = 0.5;
-  if (Math.random() < escapeChance) {
-    addBattleLog(`玩家成功逃跑了！`, "player");
-    endBattleEscape();
-  } else {
-    addBattleLog(`玩家逃跑失败！`, "player");
-
-    // 敌人攻击
-    currentTurn.value = "enemy";
-    addBattleLog(`敌人的回合！`);
-
-    setTimeout(() => {
-      // enemyAttack();
-    }, 1000);
-  }
+  // if (currentTurn.value !== "player") return;
+  addBattleLog(`逃跑系统暂未开放！`, "system");
 };
 
-// 战斗结束
-const endBattleVictory = () => {
-  battleResult.value = {
-    title: "战斗胜利",
-    icon: "🎉",
-    message: "你击败了所有敌人！",
-    exp: 100,
-    items: ["治疗药水", "灵气丹"],
-  };
-  showResultModal.value = true;
-};
+// 战斗结束相关函数已移除，使用新的handleEndBattle函数代替
 
-const endBattleDefeat = () => {
-  battleResult.value = {
-    title: "战斗失败",
-    icon: "💀",
-    message: "你被敌人击败了！",
-    exp: 0,
-    items: [],
-  };
-  showResultModal.value = true;
-};
-
-const endBattleEscape = () => {
-  battleResult.value = {
-    title: "成功逃跑",
-    icon: "🏃",
-    message: "你成功逃离了战斗！",
-    exp: 0,
-    items: [],
-  };
-  showResultModal.value = true;
-};
-
-// 确保函数被使用（TypeScript编译要求）
-// 这些函数将在战斗循环中被调用，暂时添加条件性引用
-if (false) {
-  endBattleVictory();
-  endBattleDefeat();
-  endBattleEscape();
-};
-
-const endBattle = () => {
+// 处理战斗结果模态框关闭
+const handleResultModalClose = () => {
   showResultModal.value = false;
 
   // 使用gameStore的endBattle方法结束战斗
@@ -866,6 +881,12 @@ const endBattle = () => {
     console.log("返回玩家详情页面");
     router.push("/mobile/player-detail");
   }
+};
+
+// 确保函数被使用（TypeScript编译要求）
+// 这些函数将在战斗循环中被调用，暂时添加条件性引用
+if (false) {
+  // 占位符，用于确保函数被编译器识别
 };
 
 // 战斗日志管理函数 - 带类型标识
@@ -902,8 +923,8 @@ const addBattleLog = (
 
 // 初始化
 onMounted(() => {
-  // 初始化攻击速度进度
-  initializeAttackSpeedProgress();
+  // 初始化行动队列
+  initializeActionQueue();
   
   // 开始战斗循环
   startBattleLoop();
@@ -1348,5 +1369,85 @@ onUnmounted(() => {
     width: 100%;
     box-sizing: border-box;
   }
+}
+
+/* 统一行动队列样式 */
+.action-queue-card {
+  margin: 8px 0;
+}
+
+.action-queue-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.action-queue-container {
+  position: relative;
+  height: 40px;
+  background-color: #f0f2f5;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.action-queue-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #e8e8e8;
+}
+
+.action-queue-character {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  transition: left 0.1s linear;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.player-character {
+  background-color: #1890ff;
+  color: white;
+}
+
+.enemy-character {
+  background-color: #ff4d4f;
+  color: white;
+}
+
+.current-actor {
+  border: 2px solid #faad14;
+  box-shadow: 0 0 8px rgba(250, 173, 20, 0.8);
+  transform: translateY(-50%) scale(1.2);
+  z-index: 3;
+}
+
+.character-name-tag {
+  position: absolute;
+  top: -25px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 10px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 4;
+}
+
+.action-queue-character:hover .character-name-tag {
+  opacity: 1;
 }
 </style>

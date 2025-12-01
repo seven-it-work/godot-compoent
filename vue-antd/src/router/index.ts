@@ -1,33 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
 import type { RouteRecordRaw } from "vue-router";
-import CultivationUI from "../pc/components/CultivationUI.vue";
-import OutdoorSystem from "../pc/components/OutdoorSystem.vue";
-import BattleComponent from "../pc/components/BattleComponent.vue";
 
 // PC端路由
 const pcRoutes: RouteRecordRaw[] = [
   {
     path: "/pc",
     // 添加组件支持，让 /pc 路径可以直接访问
-    component: { template: "<router-view />" },
-    redirect: "/pc/training",
-    children: [
-      {
-        path: "training",
-        component: CultivationUI,
-        name: "PCTraining",
-      },
-      {
-        path: "outdoor",
-        component: OutdoorSystem,
-        name: "PCOutdoor",
-      },
-      {
-        path: "battle",
-        component: BattleComponent,
-        name: "PCBattle",
-      },
-    ],
+    redirect: "/mobile",
   },
 ];
 
@@ -77,27 +56,28 @@ const router = createRouter({
 
 // 根据屏幕分辨率重定向路由
 const redirectByScreenResolution = () => {
-  const isMobile = window.innerWidth <= 768;
-  const currentPath = router.currentRoute.value.path;
+  return
+  // const isMobile = window.innerWidth <= 768;
+  // const currentPath = router.currentRoute.value.path;
 
-  // 检查当前路径是否已经是设备特定路径
-  if (currentPath.startsWith("/mobile") || currentPath.startsWith("/pc")) {
-    // 如果当前路径的设备类型与实际设备类型不匹配，则重定向
-    const currentDevice = currentPath.startsWith("/mobile") ? "mobile" : "pc";
-    const targetDevice = isMobile ? "mobile" : "pc";
+  // // 检查当前路径是否已经是设备特定路径
+  // if (currentPath.startsWith("/mobile") || currentPath.startsWith("/pc")) {
+  //   // 如果当前路径的设备类型与实际设备类型不匹配，则重定向
+  //   const currentDevice = currentPath.startsWith("/mobile") ? "mobile" : "pc";
+  //   const targetDevice = isMobile ? "mobile" : "pc";
 
-    if (currentDevice !== targetDevice) {
-      // 提取功能路径并构建新路径
-      const functionPath = currentPath.replace(`/${currentDevice}`, "");
-      // 移动端重定向到根路径而不是训练页面
-      const targetPath = `/${targetDevice}${functionPath || "/"}`;
-      router.replace(targetPath);
-    }
-  } else {
-    // 如果是根路径或其他非设备路径，重定向到对应设备的根路径
-    const targetPath = isMobile ? "/mobile/" : "/pc/training";
-    router.replace(targetPath);
-  }
+  //   if (currentDevice !== targetDevice) {
+  //     // 提取功能路径并构建新路径
+  //     const functionPath = currentPath.replace(`/${currentDevice}`, "");
+  //     // 移动端重定向到根路径而不是训练页面
+  //     const targetPath = `/${targetDevice}${functionPath || "/"}`;
+  //     router.replace(targetPath);
+  //   }
+  // } else {
+  //   // 如果是根路径或其他非设备路径，重定向到对应设备的根路径
+  //   const targetPath = isMobile ? "/mobile/" : "/pc/training";
+  //   router.replace(targetPath);
+  // }
 };
 
 // 监听窗口大小变化，实现响应式路由
