@@ -192,6 +192,7 @@
               @click="performAttack"
               size="small"
               block
+              :disabled="!currentActor || currentActor.team !== 'player'"
             >
               普通攻击
             </a-button>
@@ -202,6 +203,7 @@
               @click="useSkill"
               size="small"
               block
+              :disabled="!currentActor || currentActor.team !== 'player'"
             >
               使用技能
             </a-button>
@@ -214,6 +216,7 @@
               @click="useItem"
               size="small"
               block
+              :disabled="!currentActor || currentActor.team !== 'player'"
             >
               使用道具
             </a-button>
@@ -224,6 +227,7 @@
               @click="escapeBattle"
               size="small"
               block
+              :disabled="!currentActor || currentActor.team !== 'player'"
             >
               逃跑
             </a-button>
@@ -500,7 +504,13 @@ const getHealth = (teammates: Teammate[], teammateId: string | undefined) => {
 };
 
 // 执行攻击
-const performAttack = (attacker: ActionQueueCharacter) => {
+const performAttack = () => {
+  if (!currentActor.value) return;
+  
+  // 找到当前行动的角色
+  const attacker = actionQueue.value.find(char => char.id === currentActor.value?.id);
+  if (!attacker) return;
+  
   // 确定攻击目标
   const targetTeam = attacker.team === "player" ? enemyTeam.value.allTeammates : playerTeam.value.allTeammates;
   const aliveTargets = targetTeam.filter(target => target.attributes.health > 0);
@@ -537,7 +547,9 @@ const performAttack = (attacker: ActionQueueCharacter) => {
   }
   
   // 重置攻击者的进度
-  attacker.progress = 0;
+  if (attacker) {
+    attacker.progress = 0;
+  }
   
   // 结束当前行动
   currentActor.value = null;
@@ -570,14 +582,18 @@ const updateActionProgress = () => {
       currentActor.value = { id: actingCharacter.id, team: actingCharacter.team };
       
       battleLogs.value.push({
-        message: `${actingCharacter.name} 发起攻击！`,
+        message: `${actingCharacter.name} 准备行动！`,
         type: actingCharacter.team
       });
       
-      // 执行攻击
-      setTimeout(() => {
-        performAttack(actingCharacter);
-      }, 1000);
+      // 根据角色类型执行不同操作
+      if (actingCharacter.team === "enemy") {
+        // 敌人角色自动执行攻击
+        setTimeout(() => {
+          performAttack();
+        }, 1000);
+      }
+      // 玩家角色等待手动操作
     }
   }
 };
@@ -827,34 +843,75 @@ const enemyAttack = () => {
   addBattleLog(`回合 ${currentRound.value}，玩家的回合！`, "system");
 };*/
 
-// 使用技能函数 - 暂时禁用，因为我们正在实现新的战斗系统
+// 战斗操作按钮事件处理
 const useSkill = () => {
-  // if (currentTurn.value !== "player") return;
-  // showSkillModal.value = true;
-  addBattleLog(`技能系统暂未开放！`, "system");
-};
-
-const selectSkill = () => {
-  // showSkillModal.value = false;
-  // TODO: 实现技能使用逻辑
-  // addBattleLog(`玩家使用了技能！`, "player");
+  // 检查是否是玩家回合
+  if (currentActor.value?.team !== "player") return;
+  
+  showSkillModal.value = true;
 };
 
 const useItem = () => {
-  // if (currentTurn.value !== "player") return;
-  // showItemModal.value = true;
-  addBattleLog(`道具系统暂未开放！`, "system");
-};
-
-const selectItem = () => {
-  // showItemModal.value = false;
-  // TODO: 实现道具使用逻辑
-  // addBattleLog(`玩家使用了道具！`, "player");
+  // 检查是否是玩家回合
+  if (currentActor.value?.team !== "player") return;
+  
+  showItemModal.value = true;
 };
 
 const escapeBattle = () => {
-  // if (currentTurn.value !== "player") return;
-  addBattleLog(`逃跑系统暂未开放！`, "system");
+  // 检查是否是玩家回合
+  if (currentActor.value?.team !== "player") return;
+  
+  // 简单的逃跑逻辑
+  const escapeSuccess = Math.random() > 0.3; // 70% 逃跑成功率
+  
+  if (escapeSuccess) {
+    battleLogs.value.push({
+      message: "你成功逃跑了！",
+      type: "system"
+    });
+    stopBattleLoop();
+    setTimeout(() => {
+      router.push("/temp_html");
+    }, 1000);
+  } else {
+    battleLogs.value.push({
+      message: "逃跑失败！",
+      type: "system"
+    });
+    // 逃跑失败后继续战斗
+    performAttack();
+  }
+};
+
+const selectSkill = () => {
+  // 检查是否是玩家回合
+  if (!currentActor.value || currentActor.value.team !== "player") return;
+  
+  // 简单的技能选择逻辑
+  battleLogs.value.push({
+    message: "你使用了技能！",
+    type: "player"
+  });
+  showSkillModal.value = false;
+  
+  // 技能使用后继续战斗
+  performAttack();
+};
+
+const selectItem = () => {
+  // 检查是否是玩家回合
+  if (!currentActor.value || currentActor.value.team !== "player") return;
+  
+  // 简单的道具选择逻辑
+  battleLogs.value.push({
+    message: "你使用了道具！",
+    type: "player"
+  });
+  showItemModal.value = false;
+  
+  // 道具使用后继续战斗
+  performAttack();
 };
 
 // 战斗结束相关函数已移除，使用新的handleEndBattle函数代替

@@ -398,7 +398,81 @@ export const useGameStore = defineStore("game", {
           isCurrent: true,
         },
       };
-      console.log("玩家信息已重置到初始状态");
+      
+      // 重置队友数据到初始状态
+      this.team.allTeammates = [
+        {
+          id: "player-1",
+          name: "玩家",
+          level: 1,
+          attributes: {
+            attack: 10,
+            defense: 5,
+            health: 100,
+            maxHealth: 100,
+            dodge: 5,
+            block: 5,
+            critical: 5,
+            attackSpeed: 100,
+          },
+          description: "游戏主角",
+          isPlayer: true,
+        },
+        {
+          id: "teammate-1",
+          name: "剑灵",
+          level: 1,
+          attributes: {
+            attack: 12,
+            defense: 3,
+            health: 80,
+            maxHealth: 80,
+            dodge: 8,
+            block: 2,
+            critical: 10,
+            attackSpeed: 110,
+          },
+          description: "拥有强大攻击力的剑灵",
+          isPlayer: false,
+        },
+        {
+          id: "teammate-2",
+          name: "药童",
+          level: 1,
+          attributes: {
+            attack: 5,
+            defense: 8,
+            health: 120,
+            maxHealth: 120,
+            dodge: 3,
+            block: 10,
+            critical: 3,
+            attackSpeed: 90,
+          },
+          description: "拥有强大生命力的药童",
+          isPlayer: false,
+        },
+      ];
+      
+      // 重置队伍位置到初始状态
+      this.team.positions = Array(3).fill(null).map((_, rowIndex) => {
+        return Array(6).fill(null).map((_, colIndex) => {
+          return {
+            id: `position-${rowIndex}-${colIndex}`,
+            row: rowIndex,
+            column: colIndex,
+            teammateId: rowIndex === 0 && colIndex === 0 ? "player-1" : undefined,
+          };
+        });
+      });
+      
+      // 重置战斗状态
+      this.battleState.isInBattle = false;
+      this.battleState.currentMonster = undefined;
+      this.battleState.battleLogs = [];
+      this.battleState.battleResult = undefined;
+      
+      console.log("玩家信息、队伍数据和战斗状态已重置到初始状态");
     },
 
     // 生成地图
