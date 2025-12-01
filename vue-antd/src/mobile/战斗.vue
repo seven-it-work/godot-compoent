@@ -185,6 +185,13 @@
         :bordered="true"
         style="margin-top: 8px"
       >
+        <!-- 自动战斗开关 -->
+        <div style="margin-bottom: 4px; display: flex; align-items: center; justify-content: center;">
+          <a-checkbox v-model:checked="autoBattle" style="font-size: 12px;">
+            自动战斗
+          </a-checkbox>
+        </div>
+        
         <a-row :gutter="[8, 8]">
           <a-col :span="12">
             <a-button
@@ -345,6 +352,7 @@ const logRef = ref<HTMLElement | null>(null);
 const battleStarted = ref(false);
 const battleEnded = ref(false);
 const isPaused = ref(false);
+const autoBattle = ref(false); // 自动战斗开关
 
 // 当前行动的角色
 const currentActor = ref<{ id: string; team: "player" | "enemy" } | null>(null);
@@ -560,6 +568,18 @@ const performAttack = () => {
 const updateActionProgress = () => {
   if (isPaused.value || battleEnded.value) return;
   
+  // 先检查战斗是否已经结束（玩家或敌人全部死亡）
+  const allEnemiesDead = enemyTeam.value.allTeammates.every(enemy => enemy.attributes.health <= 0);
+  const allPlayersDead = playerTeam.value.allTeammates.every(player => player.attributes.health <= 0);
+  
+  if (allEnemiesDead) {
+    handleEndBattle(true);
+    return;
+  } else if (allPlayersDead) {
+    handleEndBattle(false);
+    return;
+  }
+  
   // 更新所有角色的进度
   actionQueue.value.forEach(character => {
     // 只更新活着的角色
@@ -592,8 +612,13 @@ const updateActionProgress = () => {
         setTimeout(() => {
           performAttack();
         }, 1000);
+      } else if (autoBattle.value) {
+        // 玩家角色开启自动战斗时自动执行攻击
+        setTimeout(() => {
+          performAttack();
+        }, 500);
       }
-      // 玩家角色等待手动操作
+      // 玩家角色未开启自动战斗时等待手动操作
     }
   }
 };
