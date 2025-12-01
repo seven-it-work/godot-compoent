@@ -1,5 +1,18 @@
 <template>
   <a-layout class="mobile-player-detail" :style="{ padding: 0, margin: 0 }">
+    <!-- Header区域，放置探索按钮 -->
+    <a-layout-header style="height: auto; padding: 0; background: #fff; border-bottom: 1px solid #f0f0f0;">
+      <div class="header-container">
+        <a-button
+          type="primary"
+          @click="goExplore"
+          block
+          style="padding: 12px; margin: 8px;"
+        >
+          探索
+        </a-button>
+      </div>
+    </a-layout-header>
     <a-layout-content :style="{ padding: 0, margin: 0 }">
       <!-- Tab页签区域 -->
       <div class="tabs-container">
@@ -47,9 +60,11 @@ import PlayerQuests from "./playerDetail/PlayerQuests.vue";
 import Team from "./playerDetail/Team.vue";
 // 导入现有的修炼组件
 import Cultivation from "./playerDetail/Cultivation.vue";
+import { useRouter } from "vue-router";
 import { useGameStore } from "../store/gameStore";
 
 const gameStore = useGameStore();
+const router = useRouter();
 
 // 响应式数据
 // 从gameStore中获取当前激活的tab
@@ -88,6 +103,12 @@ onMounted(() => {
 
 // 计算属性已移至PlayerAttributes.vue组件中
 
+// 探索功能
+const goExplore = () => {
+  console.log("goExplore");
+  router.push("/mobile/explore");
+};
+
 // 初始化日志
 console.log(
   '[玩家详情] 组件初始化完成，当前activeTab: "' + activeTab.value + '"'
@@ -103,6 +124,11 @@ console.log(
   box-sizing: border-box;
   background-color: #f0f2f5;
   overflow-y: auto;
+}
+
+.header-container {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .player-basic-info {
