@@ -1,5 +1,36 @@
 <template>
   <div class="attributes-container">
+    <!-- 顶部区域：头像和基本信息 -->
+    <a-row :gutter="[4, 4]" class="player-basic-info">
+      <!-- 头像区域 -->
+      <a-col :span="6">
+        <div class="avatar-card">
+          <div class="avatar-container">
+            <div class="avatar">
+              <div class="avatar-placeholder">修</div>
+            </div>
+            <div class="player-name">{{ player.name }}</div>
+            <div class="player-level">等级: {{ player.level }}</div>
+          </div>
+        </div>
+      </a-col>
+      <!-- 等级和经验区域 -->
+      <a-col :span="18">
+        <div class="level-card">
+          <div class="exp-bar-container">
+            <ExpLevelProgress
+              label="等级"
+              :level="player.level"
+              :current="player.exp"
+              :max="player.maxExp"
+              strokeColor="#52c41a"
+              height="24px"
+            />
+          </div>
+        </div>
+      </a-col>
+    </a-row>
+
     <!-- 基础属性 -->
     <div class="attribute-section">
       <h3 class="section-title">基础属性</h3>
@@ -81,10 +112,15 @@
 </template>
 
 <script setup lang="ts">
-// 移除未使用的import和gameStore变量
+import { computed } from "vue";
+import { useGameStore } from "../../store/gameStore";
+import ExpLevelProgress from "../components/ExpLevelProgress.vue";
+
+// 获取游戏状态
+const gameStore = useGameStore();
 
 // 计算属性
-// 移除未使用的player计算属性
+const player = computed(() => gameStore.player);
 
 // 计算综合评分
 const calculateOverallRating = () => {
@@ -120,6 +156,65 @@ const getRatingDescription = () => {
   flex-direction: column;
   gap: 16px;
   padding: 8px;
+}
+
+/* 玩家基本信息样式 */
+.player-basic-info {
+  margin-bottom: 8px;
+}
+
+.avatar-card {
+  height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #1890ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.avatar-placeholder {
+  font-size: 24px;
+  color: #fff;
+  font-weight: bold;
+}
+
+.player-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.player-level {
+  font-size: 12px;
+  color: #666;
+}
+
+.level-card {
+  height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.exp-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
 }
 
 .attribute-section {

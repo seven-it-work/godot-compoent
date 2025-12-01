@@ -1,37 +1,6 @@
 <template>
   <a-layout class="mobile-player-detail" :style="{ padding: 0, margin: 0 }">
     <a-layout-content :style="{ padding: 0, margin: 0 }">
-      <!-- 顶部区域：头像和基本信息 -->
-      <a-row :gutter="[4, 4]">
-        <!-- 头像区域 -->
-        <a-col :span="6">
-          <div class="avatar-card">
-            <div class="avatar-container">
-              <div class="avatar">
-                <div class="avatar-placeholder">修</div>
-              </div>
-              <div class="player-name">{{ player.name }}</div>
-              <div class="player-level">等级: {{ player.level }}</div>
-            </div>
-          </div>
-        </a-col>
-        <!-- 等级和经验区域 -->
-        <a-col :span="18">
-          <div class="level-card">
-            <div class="exp-bar-container">
-              <ExpLevelProgress
-                label="等级"
-                :level="player.level"
-                :current="player.exp"
-                :max="player.maxExp"
-                strokeColor="#52c41a"
-                height="24px"
-              />
-            </div>
-          </div>
-        </a-col>
-      </a-row>
-
       <!-- Tab页签区域 -->
       <div class="tabs-container">
         <a-tabs v-model:activeKey="activeTab" size="small">
@@ -59,6 +28,9 @@
           <a-tab-pane tab="任务" key="tasks">
             <PlayerQuests />
           </a-tab-pane>
+          <a-tab-pane tab="队伍" key="team">
+            <Team />
+          </a-tab-pane>
         </a-tabs>
       </div>
     </a-layout-content>
@@ -66,16 +38,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 // 导入独立组件
 import PlayerAttributes from "./playerDetail/PlayerAttributes.vue";
 import PlayerInventory from "./playerDetail/PlayerInventory.vue";
 import PlayerSkills from "./playerDetail/PlayerSkills.vue";
 import PlayerQuests from "./playerDetail/PlayerQuests.vue";
+import Team from "./playerDetail/Team.vue";
 // 导入现有的修炼组件
 import Cultivation from "./playerDetail/Cultivation.vue";
-// 导入进度条组件
-import ExpLevelProgress from "./components/ExpLevelProgress.vue";
 import { useGameStore } from "../store/gameStore";
 
 const gameStore = useGameStore();
@@ -115,8 +86,7 @@ onMounted(() => {
   }
 });
 
-// 计算属性
-const player = computed(() => gameStore.player);
+// 计算属性已移至PlayerAttributes.vue组件中
 
 // 初始化日志
 console.log(

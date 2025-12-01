@@ -10,6 +10,33 @@ export interface BattleAttributes {
   dodge: number; // 身法（躲避）
   block: number; // 灵力护盾（格挡）
   critical: number; // 灵眼（暴击）
+  attackSpeed: number; // 攻击速度（决定攻击顺序和频率）
+}
+
+// 队友数据模型
+export interface Teammate {
+  id: string; // 队友唯一标识
+  name: string; // 队友名称
+  level: number; // 队友等级
+  attributes: BattleAttributes; // 战斗属性
+  description: string; // 队友描述
+  image?: string; // 队友图片（可选）
+  isPlayer: boolean; // 是否是玩家自己
+}
+
+// 队伍位置数据模型
+export interface TeamPosition {
+  id: string; // 位置唯一标识
+  row: number; // 行索引
+  column: number; // 列索引
+  teammateId?: string; // 占位的队友ID
+}
+
+// 队伍数据模型
+export interface Team {
+  positions: TeamPosition[][]; // 队伍位置网格（3行6列）
+  allTeammates: Teammate[]; // 所有可用的队友
+  maxTeamSize: number; // 最大队伍成员数
 }
 
 // 灵根数据模型
@@ -126,4 +153,5 @@ export interface GameState {
   battleState: BattleState; // 战斗状态
   isAutoAbsorbing: boolean; // 是否自动吸收灵气
   autoAbsorbInterval: number | null; // 自动吸收定时器
+  team: Team; // 玩家队伍
 }

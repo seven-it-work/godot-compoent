@@ -9,6 +9,8 @@ import type {
   BattleAttributes,
   BattleLog,
   SpiritRoot,
+  Teammate,
+  TeamPosition,
 } from "../types/game";
 
 // 扩展GameState类型
@@ -20,95 +22,175 @@ interface ExtendedGameState extends GameState {
 }
 
 export const useGameStore = defineStore("game", {
-  state: (): ExtendedGameState => ({
-    // 从localStorage读取保存的tab状态，如果没有则使用默认值
-    uiState: {
-      playerDetailActiveTab:
-        localStorage.getItem("playerDetailActiveTab") || "attributes",
-    },
-    player: {
-      name: "玩家",
-      level: 1,
-      exp: 0,
-      maxExp: 100,
-      spiritRoots: [
-        { type: "gold", level: 1, name: "金灵根" },
-        { type: "wood", level: 1, name: "木灵根" },
-        { type: "water", level: 1, name: "水灵根" },
-        { type: "fire", level: 1, name: "火灵根" },
-        { type: "earth", level: 1, name: "土灵根" },
-      ],
-      spiritQi: {
-        gold: 0,
-        wood: 0,
-        water: 0,
-        fire: 0,
-        earth: 0,
-        maxGold: 100,
-        maxWood: 100,
-        maxWater: 100,
-        maxFire: 100,
-        maxEarth: 100,
+  state: (): ExtendedGameState => {
+    // 创建初始队伍位置（3行6列）
+    const initialPositions: TeamPosition[][] = Array(3).fill(null).map((_, rowIndex) => {
+      return Array(6).fill(null).map((_, colIndex) => {
+        return {
+          id: `position-${rowIndex}-${colIndex}`,
+          row: rowIndex,
+          column: colIndex,
+        };
+      });
+    });
+
+    // 初始队友数据
+    const initialTeammates: Teammate[] = [
+      {
+        id: "player-1",
+        name: "玩家",
+        level: 1,
+        attributes: {
+          attack: 10,
+          defense: 5,
+          health: 100,
+          maxHealth: 100,
+          dodge: 5,
+          block: 5,
+          critical: 5,
+          attackSpeed: 100,
+        },
+        description: "游戏主角",
+        isPlayer: true,
       },
-      attributes: {
-        attack: 10, // 灵力攻击
-        defense: 5, // 灵力防御
-        health: 100, // 神魂强度
-        maxHealth: 100, // 最大神魂强度
-        dodge: 5, // 身法
-        block: 5, // 灵力护盾
-        critical: 5, // 灵眼
+      {
+        id: "teammate-1",
+        name: "剑灵",
+        level: 1,
+        attributes: {
+          attack: 12,
+          defense: 3,
+          health: 80,
+          maxHealth: 80,
+          dodge: 8,
+          block: 2,
+          critical: 10,
+          attackSpeed: 110,
+        },
+        description: "拥有强大攻击力的剑灵",
+        isPlayer: false,
       },
-      absorbSpeed: 1.0,
-      cooldown: 1000, // 1秒冷却时间
-      isCooldown: false,
-      cooldownRemaining: 0,
-      currentLocation: {
-        id: "0-0",
-        x: 0,
-        y: 0,
-        name: "初始地点",
+      {
+        id: "teammate-2",
+        name: "药童",
+        level: 1,
+        attributes: {
+          attack: 5,
+          defense: 8,
+          health: 120,
+          maxHealth: 120,
+          dodge: 3,
+          block: 10,
+          critical: 3,
+          attackSpeed: 90,
+        },
+        description: "拥有强大生命力的药童",
+        isPlayer: false,
+      },
+    ];
+
+    // 设置玩家在队伍中的初始位置（第一行第一列）
+    if (initialPositions[0] && initialPositions[0][0]) {
+      initialPositions[0][0].teammateId = "player-1";
+    }
+
+    return {
+      // 从localStorage读取保存的tab状态，如果没有则使用默认值
+      uiState: {
+        playerDetailActiveTab:
+          localStorage.getItem("playerDetailActiveTab") || "attributes",
+      },
+      player: {
+        name: "玩家",
+        level: 1,
+        exp: 0,
+        maxExp: 100,
+        spiritRoots: [
+          { type: "gold", level: 1, name: "金灵根" },
+          { type: "wood", level: 1, name: "木灵根" },
+          { type: "water", level: 1, name: "水灵根" },
+          { type: "fire", level: 1, name: "火灵根" },
+          { type: "earth", level: 1, name: "土灵根" },
+        ],
         spiritQi: {
-          gold: 50,
-          wood: 50,
-          water: 50,
-          fire: 50,
-          earth: 50,
+          gold: 0,
+          wood: 0,
+          water: 0,
+          fire: 0,
+          earth: 0,
           maxGold: 100,
           maxWood: 100,
           maxWater: 100,
           maxFire: 100,
           maxEarth: 100,
         },
-        isCurrent: true,
+        attributes: {
+          attack: 10, // 灵力攻击
+          defense: 5, // 灵力防御
+          health: 100, // 神魂强度
+          maxHealth: 100, // 最大神魂强度
+          dodge: 5, // 身法
+          block: 5, // 灵力护盾
+          critical: 5, // 灵眼
+          attackSpeed: 100, // 攻击速度
+        },
+        absorbSpeed: 1.0,
+        cooldown: 1000, // 1秒冷却时间
+        isCooldown: false,
+        cooldownRemaining: 0,
+        currentLocation: {
+          id: "0-0",
+          x: 0,
+          y: 0,
+          name: "初始地点",
+          spiritQi: {
+            gold: 50,
+            wood: 50,
+            water: 50,
+            fire: 50,
+            earth: 50,
+            maxGold: 100,
+            maxWood: 100,
+            maxWater: 100,
+            maxFire: 100,
+            maxEarth: 100,
+          },
+          isCurrent: true,
+        },
       },
-    },
-    currentSystem: "outdoor",
-    map: {
-      width: 10,
-      height: 10,
-      locations: [],
-    },
-    gameTime: {
-      year: 1,
-      month: 1,
-      day: 1,
-      hour: 0,
-      minute: 0,
-      second: 0,
-      speed: 1,
-      isPaused: false,
-    },
-    timeInterval: null,
-    battleState: {
-      isInBattle: false,
-      battleLogs: [],
-      isPlayerTurn: true,
-    },
-    // 自动吸收灵气相关状态
-    isAutoAbsorbing: false,
-    autoAbsorbInterval: null,
-  }),
+      currentSystem: "outdoor",
+      map: {
+        width: 10,
+        height: 10,
+        locations: [],
+      },
+      gameTime: {
+        year: 1,
+        month: 1,
+        day: 1,
+        hour: 0,
+        minute: 0,
+        second: 0,
+        speed: 1,
+        isPaused: false,
+      },
+      timeInterval: null,
+      battleState: {
+        isInBattle: false,
+        battleLogs: [],
+        isPlayerTurn: true,
+      },
+      // 自动吸收灵气相关状态
+      isAutoAbsorbing: false,
+      autoAbsorbInterval: null,
+      // 队伍相关状态
+      team: {
+        positions: initialPositions,
+        allTeammates: initialTeammates,
+        maxTeamSize: 5, // 最大队伍成员数
+      },
+    };
+  },
 
   getters: {
     // 获取玩家详情页当前激活的tab
@@ -163,8 +245,60 @@ export const useGameStore = defineStore("game", {
     },
 
     // 获取战斗日志
-    battleLogs: (state): BattleLog[] => {
-      return state.battleState.battleLogs;
+  battleLogs: (state): BattleLog[] => {
+    return state.battleState.battleLogs;
+  },
+    // 队伍相关getter
+    // 获取已上阵的队友
+    deployedTeammates: (state) => {
+      const deployed: Teammate[] = [];
+      for (const row of state.team.positions) {
+        if (row) {
+          for (const position of row) {
+            if (position && position.teammateId) {
+              const teammate = state.team.allTeammates.find(t => t.id === position.teammateId);
+              if (teammate) {
+                deployed.push(teammate);
+              }
+            }
+          }
+        }
+      }
+      return deployed;
+    },
+    // 获取未上阵的队友
+    undeployedTeammates: (state) => {
+      const deployedIds = new Set<string>();
+      for (const row of state.team.positions) {
+        for (const position of row) {
+          if (position.teammateId) {
+            deployedIds.add(position.teammateId);
+          }
+        }
+      }
+      return state.team.allTeammates.filter(teammate => !deployedIds.has(teammate.id));
+    },
+    // 获取当前队伍人数
+    currentTeamSize: (state) => {
+      let count = 0;
+      for (const row of state.team.positions) {
+        for (const position of row) {
+          if (position.teammateId) {
+            count++;
+          }
+        }
+      }
+      return count;
+    },
+    // 获取队伍中某个位置的队友
+    getTeammateAtPosition: (state) => (row: number, column: number) => {
+      if (row >= 0 && row < state.team.positions.length) {
+        const position = state.team.positions[row]?.[column];
+        if (position && position.teammateId) {
+          return state.team.allTeammates.find(t => t.id === position.teammateId);
+        }
+      }
+      return null;
     },
   },
 
@@ -238,6 +372,7 @@ export const useGameStore = defineStore("game", {
           dodge: 5, // 身法
           block: 5, // 灵力护盾
           critical: 5, // 灵眼
+          attackSpeed: 100, // 攻击速度
         },
         absorbSpeed: 1.0,
         cooldown: 1000, // 1秒冷却时间
@@ -391,6 +526,7 @@ export const useGameStore = defineStore("game", {
       const baseDodge = 3 + level;
       const baseBlock = 3 + level;
       const baseCritical = 3 + level;
+      const baseAttackSpeed = 80 + level * 2;
 
       const attributes: BattleAttributes = {
         attack: baseAttack,
@@ -400,6 +536,7 @@ export const useGameStore = defineStore("game", {
         dodge: baseDodge,
         block: baseBlock,
         critical: baseCritical,
+        attackSpeed: baseAttackSpeed,
       };
 
       return {
@@ -1051,6 +1188,104 @@ export const useGameStore = defineStore("game", {
       if (root) {
         root.level = level;
       }
+    },
+    // 队伍相关action
+    // 上阵队友
+    deployTeammate(teammateId: string, row: number, column: number) {
+      // 检查位置是否有效
+      if (row < 0 || row >= this.team.positions.length || column < 0 || !this.team.positions[row] || column >= this.team.positions[row].length) {
+        return false;
+      }
+      
+      // 检查队伍人数是否已达上限
+      if (this.currentTeamSize >= this.team.maxTeamSize) {
+        return false;
+      }
+      
+      // 检查队友是否存在
+      const teammate = this.team.allTeammates.find(t => t.id === teammateId);
+      if (!teammate) {
+        return false;
+      }
+      
+      // 如果该队友已在其他位置，先下阵
+      this.undeployTeammate(teammateId);
+      
+      // 上阵到指定位置
+      const position = this.team.positions[row][column];
+      if (position) {
+        position.teammateId = teammateId;
+        return true;
+      }
+      return false;
+    },
+    // 下阵队友
+    undeployTeammate(teammateId: string) {
+      // 玩家不能下阵
+      const teammate = this.team.allTeammates.find(t => t.id === teammateId);
+      if (teammate?.isPlayer) {
+        return false;
+      }
+      
+      // 查找并移除队友
+      for (const row of this.team.positions) {
+        if (row) {
+          for (const position of row) {
+            if (position && position.teammateId === teammateId) {
+              position.teammateId = undefined;
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    },
+    // 切换两个位置的队友
+    swapTeammatePositions(pos1: { row: number, column: number }, pos2: { row: number, column: number }) {
+      // 检查位置有效性
+      if (
+        pos1.row < 0 || pos1.row >= this.team.positions.length || 
+        pos2.row < 0 || pos2.row >= this.team.positions.length
+      ) {
+        return false;
+      }
+      
+      const row1 = this.team.positions[pos1.row];
+      const row2 = this.team.positions[pos2.row];
+      
+      if (!row1 || !row2) {
+        return false;
+      }
+      
+      if (
+        pos1.column < 0 || pos1.column >= row1.length ||
+        pos2.column < 0 || pos2.column >= row2.length
+      ) {
+        return false;
+      }
+      
+      // 获取位置引用并确保不为undefined
+      const position1 = this.team.positions[pos1.row]?.[pos1.column];
+      const position2 = this.team.positions[pos2.row]?.[pos2.column];
+      
+      if (!position1 || !position2) {
+        return false;
+      }
+      
+      // 交换位置
+      const temp = position1.teammateId;
+      position1.teammateId = position2.teammateId;
+      position2.teammateId = temp;
+      return true;
+    },
+    // 添加新队友
+    addTeammate(teammate: Omit<Teammate, "id">) {
+      const newTeammate: Teammate = {
+        ...teammate,
+        id: `teammate-${Date.now()}`
+      };
+      this.team.allTeammates.push(newTeammate);
+      return newTeammate;
     },
   },
 });
