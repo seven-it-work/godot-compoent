@@ -670,6 +670,12 @@ const stopBattleLoop = () => {
   }
 };
 
+// 页面可见性变化处理函数 - 保持自动战斗在后台继续运行
+const handleVisibilityChange = () => {
+  // 保持自动战斗在后台继续运行，不暂停战斗循环
+  // 移除了暂停/恢复战斗的逻辑，确保战斗循环在页面不可见时仍然继续
+};
+
 // 计算属性 - 生命值百分比（为未来可能的需求保留）
 // const playerHealthPercentage = computed(() => {
 //   if (!player.value || !player.value.attributes) return 0;
@@ -1019,11 +1025,17 @@ onMounted(() => {
   enemyTeam.value.allTeammates.forEach((teammate: Teammate) => {
     addBattleLog(`${teammate.name} 加入战斗！`, "enemy");
   });
+  
+  // 添加页面可见性变化监听器
+  document.addEventListener('visibilitychange', handleVisibilityChange);
 });
 
 // 在组件销毁时停止战斗循环
 onUnmounted(() => {
   stopBattleLoop();
+  
+  // 移除页面可见性变化监听器
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
 });
 </script>
 
