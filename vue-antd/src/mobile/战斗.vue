@@ -61,31 +61,24 @@
                   }"
                 >
                   <div v-if="position.teammateId" class="teammate-info">
-                    <div class="character-avatar enemy-avatar">
-                      <span class="enemy-icon">👹</span>
-                    </div>
                     <div class="character-info">
                       <div class="character-name enemy-name">
                         {{ getTeammate(enemyTeam.allTeammates, position.teammateId)?.name || '未知' }}
                       </div>
-                      <div class="character-level">Lv.{{ getTeammate(enemyTeam.allTeammates, position.teammateId)?.level || 1 }}</div>
 
                       <!-- 生命值条 -->
-                      <div class="health-bar-container">
-                        <div class="health-label">生命</div>
-                        <a-progress
-                          :percent="getHealthPercent(enemyTeam.allTeammates, position.teammateId)"
-                          :show-info="false"
-                          :stroke-color="{ '0%': '#ff4d4f', '100%': '#52c41a' }"
-                          size="small"
-                        />
-                        <div class="health-text">
-                          {{ getHealth(enemyTeam.allTeammates, position.teammateId) }}
+                      <div class="health-progress-container">
+                        <div 
+                          class="health-progress-bar"
+                          :style="{
+                            width: `${getHealthPercent(enemyTeam.allTeammates, position.teammateId)}%`,
+                            backgroundColor: getHealthPercent(enemyTeam.allTeammates, position.teammateId) > 50 ? '#52c41a' : '#ff4d4f'
+                          }"
+                        >
+                          <div class="health-progress-text">
+                            {{ getHealth(enemyTeam.allTeammates, position.teammateId) }}
+                          </div>
                         </div>
-                      </div>
-                      <div class="character-stats">
-                        <span class="stat-item">攻: {{ getTeammate(enemyTeam.allTeammates, position.teammateId)?.attributes.attack || 0 }}</span>
-                        <span class="stat-item">防: {{ getTeammate(enemyTeam.allTeammates, position.teammateId)?.attributes.defense || 0 }}</span>
                       </div>
                     </div>
                   </div>
@@ -123,31 +116,24 @@
                   }"
                 >
                   <div v-if="position.teammateId" class="teammate-info">
-                    <div class="character-avatar player-avatar">
-                      <span class="player-icon">👤</span>
-                    </div>
                     <div class="character-info">
                       <div class="character-name player-name">
                         {{ getTeammate(playerTeam.allTeammates, position.teammateId)?.name || '未知' }}
                       </div>
-                      <div class="character-level">Lv.{{ getTeammate(playerTeam.allTeammates, position.teammateId)?.level || 1 }}</div>
 
                       <!-- 生命值条 -->
-                      <div class="health-bar-container">
-                        <div class="health-label">生命</div>
-                        <a-progress
-                          :percent="getHealthPercent(playerTeam.allTeammates, position.teammateId)"
-                          :show-info="false"
-                          :stroke-color="{ '0%': '#ff4d4f', '100%': '#52c41a' }"
-                          size="small"
-                        />
-                        <div class="health-text">
-                          {{ getHealth(playerTeam.allTeammates, position.teammateId) }}
+                      <div class="health-progress-container">
+                        <div 
+                          class="health-progress-bar"
+                          :style="{
+                            width: `${getHealthPercent(playerTeam.allTeammates, position.teammateId)}%`,
+                            backgroundColor: getHealthPercent(playerTeam.allTeammates, position.teammateId) > 50 ? '#52c41a' : '#ff4d4f'
+                          }"
+                        >
+                          <div class="health-progress-text">
+                            {{ getHealth(playerTeam.allTeammates, position.teammateId) }}
+                          </div>
                         </div>
-                      </div>
-                      <div class="character-stats">
-                        <span class="stat-item">攻: {{ getTeammate(playerTeam.allTeammates, position.teammateId)?.attributes.attack || 0 }}</span>
-                        <span class="stat-item">防: {{ getTeammate(playerTeam.allTeammates, position.teammateId)?.attributes.defense || 0 }}</span>
                       </div>
                     </div>
                   </div>
@@ -1115,7 +1101,6 @@ onUnmounted(() => {
   width: 100%;
   height: 100vh;
   padding: 4px;
-  box-sizing: border-box;
   background-color: #f0f2f5;
   overflow-y: auto;
 }
@@ -1145,58 +1130,104 @@ onUnmounted(() => {
   margin-bottom: 2px;
 }
 
-.character-card {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px;
+.team-formation {
+  margin-bottom: 20px;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 10px;
   background-color: #fafafa;
-  border-radius: 4px;
-  margin-bottom: 4px;
 }
 
-.enemy-card {
-  flex-direction: row;
+.formation-row {
+  margin-bottom: 8px;
 }
 
-.player-card {
-  flex-direction: row-reverse;
+.formation-column {
+  height: 60px;
+  width: 60px;
+  padding: 1px;
 }
 
-.character-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
+.formation-cell {
+  width: 60px;
+  height: 60px;
+  border: 2px solid #d9d9d9;
+  border-radius: 6px;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.formation-cell:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.formation-cell.occupied {
+  background-color: #e6f7ff;
+  border-color: #91d5ff;
+}
+
+.formation-cell.active {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.formation-cell.enemy-card.occupied {
+  background-color: #fff2e8;
+  border-color: #ffbb96;
+}
+
+.formation-cell.enemy-card.active {
+  border-color: #ff7875;
+  box-shadow: 0 0 0 2px rgba(255, 120, 117, 0.2);
+}
+
+.character-card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  padding: 6px;
+  background-color: transparent;
+  border-radius: 4px;
+  margin-bottom: 0;
 }
 
-.enemy-avatar {
-  background-color: #ffe58f;
-  border: 1px solid #ffc53d;
+.enemy-card,
+.player-card {
+  flex-direction: column;
 }
 
-.player-avatar {
-  background-color: #bae7ff;
-  border: 1px solid #69c0ff;
+.teammate-info {
+  text-align: center;
+  width: 100%;
+  padding: 5px;
 }
 
 .character-info {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  align-items: center;
+  width: 100%;
 }
 
 .character-name {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
   color: #333;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  width: 100%;
 }
 
 .enemy-name {
@@ -1207,42 +1238,45 @@ onUnmounted(() => {
   color: #1890ff;
 }
 
-.character-level {
-  font-size: 11px;
-  color: #666;
+.health-progress-container {
+  width: 100%;
+  height: 16px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #d9d9d9;
+  margin-top: 2px;
 }
 
-.health-bar-container {
+.health-progress-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  align-items: center;
+  justify-content: center;
 }
 
-.health-label {
+.health-progress-text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
   font-size: 9px;
-  color: #999;
-}
-
-.health-text {
-  font-size: 9px;
-  color: #999;
-  text-align: right;
+  font-weight: 500;
+  color: #fff;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+  z-index: 1;
+  line-height: 1;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.character-stats {
-  display: flex;
-  gap: 6px;
-  font-size: 9px;
-  color: #666;
-}
-
-.stat-item {
-  background-color: #ffffff;
-  padding: 1px 4px;
-  border-radius: 8px;
-  font-size: 8px;
-  white-space: nowrap;
+.empty-cell {
+  color: #bfbfbf;
+  font-size: 14px;
 }
 
 /* 战斗指示器 */
@@ -1383,14 +1417,9 @@ onUnmounted(() => {
   background: #555;
 }
 
-/* 战斗操作 */
-.battle-actions-card {
-  padding: 6px;
-}
 
 .battle-actions-card .ant-btn {
   font-size: 11px;
-  padding: 6px 0;
   height: auto;
 }
 
@@ -1406,7 +1435,6 @@ onUnmounted(() => {
 
 .skill-item,
 .item-item {
-  padding: 6px;
   background-color: #fafafa;
   border-radius: 4px;
   cursor: pointer;
@@ -1423,7 +1451,6 @@ onUnmounted(() => {
   font-size: 13px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1433,7 +1460,6 @@ onUnmounted(() => {
 .item-desc {
   font-size: 11px;
   color: #666;
-  margin-bottom: 2px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -1452,7 +1478,6 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 15px 0;
 }
 
 .result-icon {
@@ -1465,7 +1490,6 @@ onUnmounted(() => {
   color: #333;
   text-align: center;
   word-break: break-word;
-  padding: 0 8px;
 }
 
 .result-reward {
@@ -1474,67 +1498,13 @@ onUnmounted(() => {
   gap: 3px;
   font-size: 12px;
   color: #666;
-  padding: 0 8px;
 }
 
 .reward-item {
   background-color: #fafafa;
-  padding: 4px 8px;
   border-radius: 4px;
 }
 
-/* 响应式设计 */
-@media (max-width: 480px) {
-  .mobile-battle {
-    padding: 2px !important;
-  }
-
-  .battle-header-card,
-  .battle-area-card,
-  .battle-log-card,
-  .battle-actions-card {
-    margin-bottom: 2px !important;
-    padding: 0 !important;
-  }
-
-  .character-avatar {
-    width: 45px !important;
-    height: 45px !important;
-    font-size: 18px !important;
-  }
-
-  .character-card {
-    padding: 5px !important;
-    gap: 4px !important;
-  }
-
-  .battle-log-card {
-    height: 90px !important;
-  }
-
-  /* 确保所有元素不会溢出 */
-  * {
-    box-sizing: border-box;
-    max-width: 100%;
-  }
-
-  /* 防止文字溢出 */
-  .character-name,
-  .battle-title,
-  .skill-name,
-  .item-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  /* 确保按钮和卡片不会溢出屏幕 */
-  .compact-card,
-  .ant-btn {
-    width: 100%;
-    box-sizing: border-box;
-  }
-}
 
 /* 统一行动队列样式 */
 .action-queue-card {
