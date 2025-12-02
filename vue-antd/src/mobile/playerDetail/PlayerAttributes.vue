@@ -31,81 +31,38 @@
       </a-col>
     </a-row>
 
-    <!-- 基础属性 -->
-    <div class="attribute-section">
-      <h3 class="section-title">基础属性</h3>
-      <div class="attribute-grid">
-        <div class="attribute-item">
-          <span class="attribute-label">攻击</span>
-          <span class="attribute-value">{{ 0 }}</span>
-        </div>
-        <div class="attribute-item">
-          <span class="attribute-label">防御</span>
-          <span class="attribute-value">{{ 0 }}</span>
-        </div>
-        <div class="attribute-item">
-          <span class="attribute-label">生命值</span>
-          <span class="attribute-value">{{ 100 }}/{{ 100 }}</span>
-        </div>
-        <div class="attribute-item">
-          <span class="attribute-label">速度</span>
-          <span class="attribute-value">{{ 10 }}</span>
-        </div>
-      </div>
-    </div>
-
     <!-- 战斗属性 -->
     <div class="attribute-section">
       <h3 class="section-title">战斗属性</h3>
       <div class="attribute-grid">
         <div class="attribute-item">
-          <span class="attribute-label">暴击率</span>
-          <span class="attribute-value">{{ 5 }}%</span>
+          <span class="attribute-label">攻击</span>
+          <span class="attribute-value">{{ attackRange }}</span>
         </div>
         <div class="attribute-item">
-          <span class="attribute-label">暴击伤害</span>
-          <span class="attribute-value">{{ 150 }}%</span>
+          <span class="attribute-label">防御</span>
+          <span class="attribute-value">{{ defenseRange }}</span>
         </div>
         <div class="attribute-item">
-          <span class="attribute-label">命中</span>
-          <span class="attribute-value">{{ 95 }}%</span>
+          <span class="attribute-label">生命值</span>
+          <span class="attribute-value">{{ player.attributes.health }}/{{ player.attributes.maxHealth }}</span>
         </div>
         <div class="attribute-item">
-          <span class="attribute-label">闪避</span>
-          <span class="attribute-value">{{ 5 }}%</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 修炼属性 -->
-    <div class="attribute-section">
-      <h3 class="section-title">修炼属性</h3>
-      <div class="attribute-grid">
-        <div class="attribute-item">
-          <span class="attribute-label">灵气</span>
-          <span class="attribute-value">{{ 0 }}</span>
+          <span class="attribute-label">攻击速度</span>
+          <span class="attribute-value">{{ player.attributes.attackSpeed }}</span>
         </div>
         <div class="attribute-item">
-          <span class="attribute-label">道心</span>
-          <span class="attribute-value">{{ 0 }}</span>
-        </div>
-        <div class="attribute-item">
-          <span class="attribute-label">悟性</span>
-          <span class="attribute-value">{{ 0 }}</span>
-        </div>
-        <div class="attribute-item">
-          <span class="attribute-label">福缘</span>
-          <span class="attribute-value">{{ 0 }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 综合评分 -->
-    <div class="attribute-section">
-      <h3 class="section-title">综合评分</h3>
-      <div class="rating-container">
-        <div class="rating-score">{{ calculateOverallRating() }}</div>
-        <div class="rating-description">{{ getRatingDescription() }}</div>
+            <span class="attribute-label">闪避</span>
+            <span class="attribute-value">{{ dodgeRange }}</span>
+          </div>
+          <div class="attribute-item">
+            <span class="attribute-label">格挡</span>
+            <span class="attribute-value">{{ blockRange }}</span>
+          </div>
+          <div class="attribute-item">
+            <span class="attribute-label">暴击</span>
+            <span class="attribute-value">{{ criticalRange }}</span>
+          </div>
       </div>
     </div>
   </div>
@@ -115,6 +72,7 @@
 import { computed } from "vue";
 import { useGameStore } from "../../store/gameStore";
 import ExpLevelProgress from "../components/ExpLevelProgress.vue";
+import { RandomRangeGrowth } from "../../classes/growth";
 
 // 获取游戏状态
 const gameStore = useGameStore();
@@ -122,32 +80,99 @@ const gameStore = useGameStore();
 // 计算属性
 const player = computed(() => gameStore.player);
 
-// 计算综合评分
-const calculateOverallRating = () => {
-  // 使用默认值进行计算，避免TypeScript错误
-  const attack = 0;
-  const defense = 0;
-  const health = 100;
+// 计算攻击范围
+const attackRange = computed(() => {
+  const baseAttack = 5;
+  let minAttack = baseAttack;
+  let maxAttack = baseAttack + 2;
+  
+  // 根据等级计算攻击范围
+  for (let i = 1; i < player.value.level; i++) {
+    const growth = new RandomRangeGrowth(baseAttack, 1, 3, minAttack, maxAttack, false, true, 1);
+    growth.grow();
+    minAttack = Math.floor(growth.getMinValue());
+    maxAttack = Math.floor(growth.getMaxValue());
+  }
+  
+  return `${minAttack}~${maxAttack}`;
+});
 
-  // 简单的加权计算
-  const rating = Math.round((attack * 0.3 + defense * 0.2 + health * 0.5) / 10);
-  return Math.min(Math.max(rating, 1), 100); // 确保评分在1-100之间
-};
+// 计算防御范围
+const defenseRange = computed(() => {
+  const baseDefense = 3;
+  let minDefense = baseDefense;
+  let maxDefense = baseDefense + 1;
+  
+  // 根据等级计算防御范围
+  for (let i = 1; i < player.value.level; i++) {
+    const growth = new RandomRangeGrowth(baseDefense, 1, 2, minDefense, maxDefense, false, true, 1);
+    growth.grow();
+    minDefense = Math.floor(growth.getMinValue());
+    maxDefense = Math.floor(growth.getMaxValue());
+  }
+  
+  return `${minDefense}~${maxDefense}`;
+});
 
-// 获取评分描述
-const getRatingDescription = () => {
-  const rating = calculateOverallRating();
+// 计算闪避范围
+    const dodgeRange = computed(() => {
+      const level = player.value.level;
+      const baseDodge = 5;
+      // 模拟闪避成长过程
+      const dodgeGrowth = new RandomRangeGrowth(
+        baseDodge, 
+        0.5, 
+        1, 
+        1,
+        baseDodge - 0.5, 
+        baseDodge + 0.5,
+        true
+      );
+      for (let i = 1; i < level; i++) {
+        dodgeGrowth.grow();
+      }
+      return `${Math.floor(dodgeGrowth.minValue)}%~${Math.floor(dodgeGrowth.maxValue)}%`;
+    });
 
-  if (rating >= 90) return "天人合一";
-  if (rating >= 80) return "超凡脱俗";
-  if (rating >= 70) return "出类拔萃";
-  if (rating >= 60) return "技艺精湛";
-  if (rating >= 50) return "略有小成";
-  if (rating >= 40) return "初窥门径";
-  if (rating >= 30) return "初学乍练";
-  if (rating >= 20) return "资质平平";
-  return "有待提升";
-};
+    // 计算格挡范围
+    const blockRange = computed(() => {
+      const level = player.value.level;
+      const baseBlock = 3;
+      // 模拟格挡成长过程
+      const blockGrowth = new RandomRangeGrowth(
+        baseBlock, 
+        0.5, 
+        1, 
+        1,
+        baseBlock - 0.5, 
+        baseBlock + 0.5,
+        true
+      );
+      for (let i = 1; i < level; i++) {
+        blockGrowth.grow();
+      }
+      return `${Math.floor(blockGrowth.minValue)}%~${Math.floor(blockGrowth.maxValue)}%`;
+    });
+
+    // 计算暴击范围
+    const criticalRange = computed(() => {
+      const level = player.value.level;
+      const baseCritical = 4;
+      // 模拟暴击成长过程
+      const criticalGrowth = new RandomRangeGrowth(
+        baseCritical, 
+        0.5, 
+        1, 
+        1,
+        baseCritical - 0.5, 
+        baseCritical + 0.5,
+        true
+      );
+      for (let i = 1; i < level; i++) {
+        criticalGrowth.grow();
+      }
+      return `${Math.floor(criticalGrowth.minValue)}%~${Math.floor(criticalGrowth.maxValue)}%`;
+    });
 </script>
 
 <style scoped>

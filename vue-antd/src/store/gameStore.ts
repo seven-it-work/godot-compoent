@@ -13,7 +13,7 @@ import type {
   Teammate,
   TeamPosition,
 } from "../types/game";
-import { BaseGrowth, RangeGrowth, RandomRangeGrowth } from "../types/growth";
+import { BaseGrowth, RangeGrowth, RandomRangeGrowth } from "../classes/growth";
 
 // 扩展GameState类型
 interface ExtendedGameState extends GameState {
@@ -70,14 +70,38 @@ function generateAttributesByLevel(level: number): BattleAttributes {
     1
   );
 
-  // 闪避属性：基础成长
-  const dodgeGrowth = new BaseGrowth(baseDodge, 0.5, 1, 1);
+  // 闪避属性：随机范围成长
+  const dodgeGrowth = new RandomRangeGrowth(
+    baseDodge,
+    0.5,
+    1,
+    baseDodge - 0.5,
+    baseDodge + 0.5,
+    false,
+    true
+  );
 
-  // 格挡属性：基础成长
-  const blockGrowth = new BaseGrowth(baseBlock, 0.5, 1, 1);
+  // 格挡属性：随机范围成长
+  const blockGrowth = new RandomRangeGrowth(
+    baseBlock,
+    0.5,
+    1,
+    baseBlock - 0.5,
+    baseBlock + 0.5,
+    false,
+    true
+  );
 
-  // 暴击属性：基础成长
-  const criticalGrowth = new BaseGrowth(baseCritical, 0.5, 1, 1);
+  // 暴击属性：随机范围成长
+  const criticalGrowth = new RandomRangeGrowth(
+    baseCritical,
+    0.5,
+    1,
+    baseCritical - 0.5,
+    baseCritical + 0.5,
+    false,
+    true
+  );
 
   // 攻击速度：基础成长
   const attackSpeedGrowth = new BaseGrowth(baseAttackSpeed, 2, 5, 1);
@@ -104,6 +128,106 @@ function generateAttributesByLevel(level: number): BattleAttributes {
     critical: Math.floor(criticalGrowth.getCurrentValue()),
     attackSpeed: Math.floor(attackSpeedGrowth.getCurrentValue()),
   };
+}
+
+
+
+// 获取角色当前的随机攻击值
+function getCharacterCurrentAttack(character: { level: number }): number {
+  const baseAttack = 5;
+  let minAttack = baseAttack;
+  let maxAttack = baseAttack + 2;
+  
+  // 根据等级计算攻击范围
+  for (let i = 1; i < character.level; i++) {
+    const growth = new RandomRangeGrowth(baseAttack, 1, 3, minAttack, maxAttack, false, true, 1);
+    growth.grow();
+    minAttack = growth.getMinValue();
+    maxAttack = growth.getMaxValue();
+  }
+  
+  // 返回当前随机攻击值
+  const growth = new RandomRangeGrowth(baseAttack, 1, 3, minAttack, maxAttack, false, true, 1);
+  return Math.floor(growth.getCurrentValue());
+}
+
+// 获取角色当前的随机防御值
+function getCharacterCurrentDefense(character: { level: number }): number {
+  const baseDefense = 3;
+  let minDefense = baseDefense;
+  let maxDefense = baseDefense + 1;
+  
+  // 根据等级计算防御范围
+  for (let i = 1; i < character.level; i++) {
+    const growth = new RandomRangeGrowth(baseDefense, 1, 2, minDefense, maxDefense, false, true, 1);
+    growth.grow();
+    minDefense = growth.getMinValue();
+    maxDefense = growth.getMaxValue();
+  }
+  
+  // 返回当前随机防御值
+  const growth = new RandomRangeGrowth(baseDefense, 1, 2, minDefense, maxDefense, false, true, 1);
+  return Math.floor(growth.getCurrentValue());
+}
+
+// 获取角色当前的随机闪避值
+function getCharacterCurrentDodge(character: { level: number }): number {
+  const level = character.level;
+  const baseDodge = 2;
+  // 模拟闪避成长过程
+  const dodgeGrowth = new RandomRangeGrowth(
+    baseDodge, 
+    0.5, 
+    1,
+    baseDodge - 0.5, 
+    baseDodge + 0.5,
+    false, 
+    true
+  );
+  for (let i = 1; i < level; i++) {
+    dodgeGrowth.grow();
+  }
+  return Math.floor(dodgeGrowth.getCurrentValue());
+}
+
+// 获取角色当前的随机格挡值
+function getCharacterCurrentBlock(character: { level: number }): number {
+  const level = character.level;
+  const baseBlock = 2;
+  // 模拟格挡成长过程
+  const blockGrowth = new RandomRangeGrowth(
+    baseBlock, 
+    0.5, 
+    1,
+    baseBlock - 0.5, 
+    baseBlock + 0.5,
+    false, 
+    true
+  );
+  for (let i = 1; i < level; i++) {
+    blockGrowth.grow();
+  }
+  return Math.floor(blockGrowth.getCurrentValue());
+}
+
+// 获取角色当前的随机暴击值
+function getCharacterCurrentCritical(character: { level: number }): number {
+  const level = character.level;
+  const baseCritical = 2;
+  // 模拟暴击成长过程
+  const criticalGrowth = new RandomRangeGrowth(
+    baseCritical, 
+    0.5, 
+    1,
+    baseCritical - 0.5, 
+    baseCritical + 0.5,
+    false, 
+    true
+  );
+  for (let i = 1; i < level; i++) {
+    criticalGrowth.grow();
+  }
+  return Math.floor(criticalGrowth.getCurrentValue());
 }
 
 export const useGameStore = defineStore("game", {
@@ -747,12 +871,12 @@ export const useGameStore = defineStore("game", {
         });
       } else {
         // 检查是否暴击
-        const isCritical = Math.random() < player.attributes.critical / 100;
+        const isCritical = Math.random() < this.getPlayerCurrentCritical() / 100;
 
         // 计算伤害
         let damage = Math.max(
           1,
-          player.attributes.attack - monster.attributes.defense / 2
+          this.getPlayerCurrentAttack() - monster.attributes.defense / 2
         );
         if (isCritical) {
           damage = Math.floor(damage * 1.5);
@@ -818,8 +942,8 @@ export const useGameStore = defineStore("game", {
       const player = this.player;
 
       // 检查是否命中
-      const hitChance = 0.7 - player.attributes.dodge / 100;
-      const isHit = Math.random() < hitChance;
+        const hitChance = 0.7 - this.getPlayerCurrentDodge() / 100;
+        const isHit = Math.random() < hitChance;
 
       if (!isHit) {
         this.addBattleLog({
@@ -833,14 +957,14 @@ export const useGameStore = defineStore("game", {
         // 计算伤害
         let damage = Math.max(
           1,
-          monster.attributes.attack - player.attributes.defense / 2
+          monster.attributes.attack - this.getPlayerCurrentDefense() / 2
         );
         if (isCritical) {
           damage = Math.floor(damage * 1.5);
         }
 
         // 检查是否被格挡
-        const blockChance = player.attributes.block / 100;
+        const blockChance = this.getPlayerCurrentBlock() / 100;
         const isBlocked = Math.random() < blockChance;
 
         if (isBlocked) {
@@ -914,7 +1038,7 @@ export const useGameStore = defineStore("game", {
       }
 
       // 逃跑成功率基于身法
-      const escapeChance = 0.5 + this.player.attributes.dodge / 200;
+      const escapeChance = 0.5 + this.getPlayerCurrentDodge() / 200;
       const isEscaped = Math.random() < escapeChance;
 
       if (isEscaped) {
@@ -1265,6 +1389,26 @@ export const useGameStore = defineStore("game", {
         root.level = level;
       }
     },
+    // 获取玩家当前的随机攻击值
+     getPlayerCurrentAttack(character?: { level: number }): number {
+       return getCharacterCurrentAttack(character || this.player);
+     },
+     // 获取玩家当前的随机防御值
+     getPlayerCurrentDefense(character?: { level: number }): number {
+       return getCharacterCurrentDefense(character || this.player);
+     },
+     // 获取玩家当前的随机闪避值
+     getPlayerCurrentDodge(character?: { level: number }): number {
+       return getCharacterCurrentDodge(character || this.player);
+     },
+     // 获取玩家当前的随机格挡值
+     getPlayerCurrentBlock(character?: { level: number }): number {
+       return getCharacterCurrentBlock(character || this.player);
+     },
+     // 获取玩家当前的随机暴击值
+     getPlayerCurrentCritical(character?: { level: number }): number {
+       return getCharacterCurrentCritical(character || this.player);
+     },
     // 队伍相关action
     // 上阵队友
     deployTeammate(teammateId: string, row: number, column: number) {

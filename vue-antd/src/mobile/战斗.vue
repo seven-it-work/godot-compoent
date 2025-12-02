@@ -315,34 +315,12 @@ import { ref, computed, onMounted, nextTick, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useGameStore } from "../store/gameStore";
 import CompactCard from "./components/CompactCard.vue";
-// 临时类型定义，因为我们无法导入原始类型
-type Teammate = {
-  id: string;
-  name: string;
-  avatar?: string; // 将avatar设为可选属性
-  attributes: {
-    health: number;
-    maxHealth: number;
-    attack: number;
-    defense: number;
-    attackSpeed: number;
-    [key: string]: number;
-  };
-  [key: string]: any;
-};
-
-type Team = {
-  allTeammates: Teammate[];
-  [key: string]: any;
-};
+// 导入正确的类型定义
+import { Teammate, Team, Monster } from "../types/game";
 
 const gameStore = useGameStore();
 const router = useRouter();
 
-// 生命值条的引用
-// 移除未使用的DOM引用
-// const playerHealthBar = ref<HTMLElement | null>(null);
-// const currentEnemyHealthBar = ref<HTMLElement | null>(null);
 
 // 响应式数据
 const showSkillModal = ref(false);
@@ -452,19 +430,6 @@ const enemyTeam = ref<Team>({
   ],
   maxTeamSize: 18
 });
-
-// 移除未使用的计算属性
-// const player = computed(() => ({
-//   name: gameStore.player.name,
-//   level: gameStore.player.level,
-//   attributes: {
-//     health: gameStore.player.attributes.health,
-//     maxHealth: gameStore.player.attributes.maxHealth,
-//     attack: gameStore.player.attributes.attack,
-//     defense: gameStore.player.attributes.defense,
-//     attackSpeed: gameStore.player.attributes.attackSpeed || 100 // 确保有攻击速度属性
-//   },
-// }));
 
 // 获取队友信息
 const getTeammate = (teammates: Teammate[], id: string) => {
@@ -592,8 +557,22 @@ const performAttack = () => {
       console.log('战斗流程已暂停');
       
       // 计算伤害
-      const damage = Math.max(0, attacker.originalCharacter.attributes.attack - target.attributes.defense);
-      console.log('计算伤害:', attacker.originalCharacter.attributes.attack, '-', target.attributes.defense, '=', damage);
+      let attackValue: number;
+      let defenseValue: number;
+      
+      // 区分攻击方和目标的类型
+      if (attacker.team === 'player') {
+        // 玩家角色使用随机属性获取方法
+        attackValue = gameStore.getPlayerCurrentAttack(attacker.originalCharacter);
+        defenseValue = gameStore.getPlayerCurrentDefense(target);
+      } else {
+        // 敌人角色暂时使用固定属性值
+        attackValue = attacker.originalCharacter.attributes.attack;
+        defenseValue = target.attributes.defense;
+      }
+      
+      const damage = Math.max(0, attackValue - defenseValue);
+      console.log('计算伤害:', attackValue, '-', defenseValue, '=', damage);
       
       // 触发攻击动画
       const attackerTeam = attacker.team;
