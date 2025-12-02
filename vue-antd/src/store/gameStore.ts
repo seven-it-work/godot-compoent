@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { getRandomIcon } from "../config/locationIcons";
 import type {
   GameState,
   SpiritRootType,
@@ -156,6 +157,7 @@ export const useGameStore = defineStore("game", {
             maxEarth: 100,
           },
           isCurrent: true,
+          icon: "\uE8A4", // 默认使用山谷图标
         },
       },
       currentSystem: "outdoor",
@@ -396,6 +398,7 @@ export const useGameStore = defineStore("game", {
             maxEarth: 100,
           },
           isCurrent: true,
+          icon: "\uE8A4", // 默认使用山谷图标
         },
       };
       
@@ -503,9 +506,10 @@ export const useGameStore = defineStore("game", {
         const row: Location[] = [];
         for (let x = 0; x < width; x++) {
           // 随机生成地点名称
-          const randomName =
-            locationNames[Math.floor(Math.random() * locationNames.length)];
+          const randomName = locationNames[Math.floor(Math.random() * locationNames.length)] || "山谷"; // 默认使用山谷
           const locationName = `${randomName}(${x},${y})`;
+          // 获取随机图标
+          const locationIcon = getRandomIcon(randomName);
 
           // 随机生成灵气分布
           const spiritQi: SpiritQi = {
@@ -554,6 +558,7 @@ export const useGameStore = defineStore("game", {
             spiritVein,
             monster,
             isCurrent: x === 0 && y === 0, // 初始地点
+            icon: locationIcon,
           };
 
           row.push(location);

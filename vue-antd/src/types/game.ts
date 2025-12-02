@@ -89,6 +89,7 @@ export interface Location {
   spiritVein?: SpiritVein; // 灵脉（可选）
   monster?: Monster; // 怪物（可选）
   isCurrent: boolean; // 是否为当前地点
+  icon: string; // 地点图标
 }
 
 // 时间系统数据模型

@@ -35,16 +35,14 @@
                   @click="moveTo(x, y)"
                   :style="getCellStyle(location)"
                 >
+                  <!-- 地点图标 -->
+                  <span class="location-icon">{{ location.icon }}</span>
                   <!-- 玩家标记显示在当前玩家位置 -->
                   <span v-if="location.isCurrent" class="player-marker"
                     >👤</span
                   >
-                  <!-- 灵脉标记 -->
-                  <span v-else-if="location.spiritVein" class="cell-icon"
-                    >💎</span
-                  >
                   <!-- 怪物标记 -->
-                  <span v-else-if="location.monster" class="cell-icon">👹</span>
+                  <span v-if="location.monster" class="cell-icon">👹</span>
                 </div>
               </div>
             </div>
@@ -642,5 +640,32 @@ const actions = ref([{ label: "修炼", type: "primary", handler: cultivation }]
 
 :deep(.ant-col) {
   padding: 0;
+}
+</style>
+
+<!-- 阿里巴巴图标库 -->
+<style>
+/* 在线链接服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
+@font-face {
+  font-family: 'iconfont';  /* Project id 5078320 */
+  src: url('//at.alicdn.com/t/c/font_5078320_icsfgw3bjsk.woff2?t=1764641638226') format('woff2'),
+       url('//at.alicdn.com/t/c/font_5078320_icsfgw3bjsk.woff?t=1764641638226') format('woff'),
+       url('//at.alicdn.com/t/c/font_5078320_icsfgw3bjsk.ttf?t=1764641638226') format('truetype');
+}
+
+.iconfont {
+  font-family: 'iconfont' !important;
+  font-size: 18px; /* 调整图标大小以适应格子 */
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.location-icon {
+  font-family: 'iconfont' !important;
+  font-size: 22px; /* 地点图标稍大一些 */
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 </style>
