@@ -1,4 +1,4 @@
-import { Cultivator } from './character';
+import { Cultivator } from "./character";
 
 // 队伍位置类
 export class TeamPosition {
@@ -39,7 +39,7 @@ export class Team {
   constructor(maxTeamSize: number = 6) {
     this.maxTeamSize = maxTeamSize;
     this.allTeammates = [];
-    
+
     // 初始化3行6列的队伍位置网格
     this.positions = [];
     for (let row = 0; row < 3; row++) {
@@ -56,21 +56,21 @@ export class Team {
     if (this.allTeammates.length >= this.maxTeamSize) {
       return false; // 队伍已满
     }
-    
+
     this.allTeammates.push(teammate);
     return true;
   }
 
   // 移除队友
   removeTeammate(teammateId: string): boolean {
-    const index = this.allTeammates.findIndex(t => t.id === teammateId);
+    const index = this.allTeammates.findIndex((t) => t.id === teammateId);
     if (index === -1) {
       return false; // 队友不存在
     }
-    
+
     // 从位置上移除
     this.clearTeammateFromPositions(teammateId);
-    
+
     // 从队友列表中移除
     this.allTeammates.splice(index, 1);
     return true;
@@ -79,16 +79,21 @@ export class Team {
   // 将队友安排到指定位置
   placeTeammate(teammateId: string, row: number, column: number): boolean {
     // 检查位置是否有效
-    if (row < 0 || row >= this.positions.length || column < 0 || column >= this.positions[row]!.length) {
+    if (
+      row < 0 ||
+      row >= this.positions.length ||
+      column < 0 ||
+      column >= this.positions[row]!.length
+    ) {
       return false;
     }
-    
+
     // 检查队友是否存在
-    const teammate = this.allTeammates.find(t => t.id === teammateId);
+    const teammate = this.allTeammates.find((t) => t.id === teammateId);
     if (!teammate) {
       return false;
     }
-    
+
     // 设置位置
     const position = this.positions[row]![column]!;
     position.setTeammate(teammateId);
@@ -109,44 +114,53 @@ export class Team {
 
   // 获取指定位置的队友
   getTeammateAtPosition(row: number, column: number): Cultivator | undefined {
-    if (row < 0 || row >= this.positions.length || column < 0 || column >= this.positions[row]!.length) {
+    if (
+      row < 0 ||
+      row >= this.positions.length ||
+      column < 0 ||
+      column >= this.positions[row]!.length
+    ) {
       return undefined;
     }
-    
+
     const position = this.positions[row]![column]!;
     if (!position.hasTeammate()) {
       return undefined;
     }
-    
-    return this.allTeammates.find(t => t.id === position.teammateId);
+
+    return this.allTeammates.find((t) => t.id === position.teammateId);
   }
 
   // 获取所有在场上的队友（已安排位置的）
   getFieldTeammates(): Cultivator[] {
     const fieldTeammates: Cultivator[] = [];
-    
+
     for (let row = 0; row < this.positions.length; row++) {
       for (let col = 0; col < this.positions[row]!.length; col++) {
         const position = this.positions[row]![col]!;
         if (position.hasTeammate()) {
-          const teammate = this.allTeammates.find(t => t.id === position.teammateId);
+          const teammate = this.allTeammates.find(
+            (t) => t.id === position.teammateId
+          );
           if (teammate) {
             fieldTeammates.push(teammate);
           }
         }
       }
     }
-    
+
     return fieldTeammates;
   }
 
   // 获取所有不在场上的队友（未安排位置的）
   getBenchTeammates(): Cultivator[] {
     const fieldTeammateIds = new Set(
-      this.getFieldTeammates().map(teammate => teammate.id)
+      this.getFieldTeammates().map((teammate) => teammate.id)
     );
-    
-    return this.allTeammates.filter(teammate => !fieldTeammateIds.has(teammate.id));
+
+    return this.allTeammates.filter(
+      (teammate) => !fieldTeammateIds.has(teammate.id)
+    );
   }
 
   // 检查队伍是否已满

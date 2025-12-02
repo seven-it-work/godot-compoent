@@ -11,18 +11,22 @@
       </compact-card>
 
       <!-- 统一行动队列进度条 -->
-      <compact-card class="action-queue-card" :bordered="true" style="margin-top: 8px">
+      <compact-card
+        class="action-queue-card"
+        :bordered="true"
+        style="margin-top: 8px"
+      >
         <div class="action-queue-title">行动队列</div>
         <div class="action-queue-container">
           <div class="action-queue-track">
-            <div 
-              v-for="character in actionQueue" 
-              :key="character.id" 
+            <div
+              v-for="character in actionQueue"
+              :key="character.id"
               class="action-queue-character"
-              :class="{ 
+              :class="{
                 'player-character': character.team === 'player',
                 'enemy-character': character.team === 'enemy',
-                'current-actor': character.id === currentActor?.id
+                'current-actor': character.id === currentActor?.id,
               }"
               :style="{ left: `${character.progress}%` }"
             >
@@ -40,8 +44,8 @@
       >
         <!-- 攻击文本容器 -->
         <div class="attack-text-container">
-          <div 
-            v-for="attack in attackAnimations" 
+          <div
+            v-for="attack in attackAnimations"
             :key="attack.id"
             :id="attack.id"
             class="attack-text"
@@ -54,44 +58,64 @@
         <div class="team-section enemy-team">
           <div class="team-title">敌人队伍</div>
           <div class="team-formation">
-            <a-row 
-              v-for="(row, rowIndex) in enemyTeam.positions" 
-              :key="rowIndex" 
+            <a-row
+              v-for="(row, rowIndex) in enemyTeam.positions"
+              :key="rowIndex"
               class="formation-row"
             >
-              <a-col 
-                v-for="(position, colIndex) in row" 
-                :key="colIndex" 
-                :span="4" 
+              <a-col
+                v-for="(position, colIndex) in row"
+                :key="colIndex"
+                :span="4"
                 class="formation-column"
               >
-                <div 
+                <div
                   class="formation-cell character-card enemy-card"
                   :id="`enemy-card-${position.teammateId}`"
-                  style="width: 100%; height: 100%;"
+                  style="width: 100%; height: 100%"
                   :class="{
-                    'occupied': position.teammateId,
-                    'active': currentActor?.id === position.teammateId,
-                    'shake': shakingTargetId === position.teammateId
+                    occupied: position.teammateId,
+                    active: currentActor?.id === position.teammateId,
+                    shake: shakingTargetId === position.teammateId,
                   }"
                 >
-                  <div v-if="position.teammateId" class="teammate-info" style="width: 100%; height: 100%;">
+                  <div
+                    v-if="position.teammateId"
+                    class="teammate-info"
+                    style="width: 100%; height: 100%"
+                  >
                     <div class="character-info">
                       <div class="character-name enemy-name">
-                        {{ getTeammate(enemyTeam.allTeammates, position.teammateId)?.name || '未知' }}
+                        {{
+                          getTeammate(
+                            enemyTeam.allTeammates,
+                            position.teammateId
+                          )?.name || "未知"
+                        }}
                       </div>
 
                       <!-- 生命值条 -->
                       <div class="health-progress-container">
-                        <div 
+                        <div
                           class="health-progress-bar"
                           :style="{
                             width: `${getHealthPercent(enemyTeam.allTeammates, position.teammateId)}%`,
-                            backgroundColor: getHealthPercent(enemyTeam.allTeammates, position.teammateId) > 50 ? '#52c41a' : '#ff4d4f'
+                            backgroundColor:
+                              getHealthPercent(
+                                enemyTeam.allTeammates,
+                                position.teammateId
+                              ) > 50
+                                ? '#52c41a'
+                                : '#ff4d4f',
                           }"
                         ></div>
                         <div class="health-progress-text">
-                          {{ getHealth(enemyTeam.allTeammates, position.teammateId) }}
+                          {{
+                            getHealth(
+                              enemyTeam.allTeammates,
+                              position.teammateId
+                            )
+                          }}
                         </div>
                       </div>
                     </div>
@@ -111,44 +135,64 @@
         <div class="team-section player-team">
           <div class="team-title">玩家队伍</div>
           <div class="team-formation">
-            <a-row 
-              v-for="(row, rowIndex) in playerTeam.positions" 
-              :key="rowIndex" 
+            <a-row
+              v-for="(row, rowIndex) in playerTeam.positions"
+              :key="rowIndex"
               class="formation-row"
             >
-              <a-col 
-                v-for="(position, colIndex) in row" 
-                :key="colIndex" 
-                :span="4" 
+              <a-col
+                v-for="(position, colIndex) in row"
+                :key="colIndex"
+                :span="4"
                 class="formation-column"
               >
-                <div 
+                <div
                   class="formation-cell character-card player-card"
                   :id="`player-card-${position.teammateId}`"
-                  style="width: 100%; height: 100%;"
+                  style="width: 100%; height: 100%"
                   :class="{
-                    'occupied': position.teammateId,
-                    'active': currentActor?.id === position.teammateId,
-                    'shake': shakingTargetId === position.teammateId
+                    occupied: position.teammateId,
+                    active: currentActor?.id === position.teammateId,
+                    shake: shakingTargetId === position.teammateId,
                   }"
                 >
-                  <div v-if="position.teammateId" class="teammate-info" style="width: 100%; height: 100%;">
+                  <div
+                    v-if="position.teammateId"
+                    class="teammate-info"
+                    style="width: 100%; height: 100%"
+                  >
                     <div class="character-info">
                       <div class="character-name player-name">
-                        {{ getTeammate(playerTeam.allTeammates, position.teammateId)?.name || '未知' }}
+                        {{
+                          getTeammate(
+                            playerTeam.allTeammates,
+                            position.teammateId
+                          )?.name || "未知"
+                        }}
                       </div>
 
                       <!-- 生命值条 -->
                       <div class="health-progress-container">
-                        <div 
+                        <div
                           class="health-progress-bar"
                           :style="{
                             width: `${getHealthPercent(playerTeam.allTeammates, position.teammateId)}%`,
-                            backgroundColor: getHealthPercent(playerTeam.allTeammates, position.teammateId) > 50 ? '#52c41a' : '#ff4d4f'
+                            backgroundColor:
+                              getHealthPercent(
+                                playerTeam.allTeammates,
+                                position.teammateId
+                              ) > 50
+                                ? '#52c41a'
+                                : '#ff4d4f',
                           }"
                         ></div>
                         <div class="health-progress-text">
-                          {{ getHealth(playerTeam.allTeammates, position.teammateId) }}
+                          {{
+                            getHealth(
+                              playerTeam.allTeammates,
+                              position.teammateId
+                            )
+                          }}
                         </div>
                       </div>
                     </div>
@@ -188,12 +232,19 @@
         style="margin-top: 8px"
       >
         <!-- 自动战斗开关 -->
-        <div style="margin-bottom: 4px; display: flex; align-items: center; justify-content: center;">
-          <a-checkbox v-model:checked="autoBattle" style="font-size: 12px;">
+        <div
+          style="
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          "
+        >
+          <a-checkbox v-model:checked="autoBattle" style="font-size: 12px">
             自动战斗
           </a-checkbox>
         </div>
-        
+
         <a-row :gutter="[8, 8]">
           <a-col :span="12">
             <a-button
@@ -303,7 +354,9 @@
           </div>
         </div>
         <template #footer>
-          <a-button type="primary" block @click="handleResultModalClose">确定</a-button>
+          <a-button type="primary" block @click="handleResultModalClose"
+            >确定</a-button
+          >
         </template>
       </a-modal>
     </a-layout-content>
@@ -323,7 +376,6 @@ import { SpiritRoot } from "../classes/character";
 
 const gameStore = useGameStore();
 const router = useRouter();
-
 
 // 响应式数据
 const showSkillModal = ref(false);
@@ -401,7 +453,7 @@ const enemy1 = new Teammate({
     dodge: 5,
     block: 5,
     critical: 5,
-    attackSpeed: 100
+    attackSpeed: 100,
   }),
   description: "一个强大的敌人",
   isPlayer: false,
@@ -418,12 +470,12 @@ const enemy1 = new Teammate({
     maxWood: 100,
     maxWater: 100,
     maxFire: 100,
-    maxEarth: 100
+    maxEarth: 100,
   }),
   absorbSpeed: 1.0,
   cooldown: 1000,
   isCooldown: false,
-  cooldownRemaining: 0
+  cooldownRemaining: 0,
 });
 
 const enemy2 = new Teammate({
@@ -438,7 +490,7 @@ const enemy2 = new Teammate({
     dodge: 8,
     block: 3,
     critical: 7,
-    attackSpeed: 120
+    attackSpeed: 120,
   }),
   description: "一个快速的敌人",
   isPlayer: false,
@@ -455,12 +507,12 @@ const enemy2 = new Teammate({
     maxWood: 100,
     maxWater: 100,
     maxFire: 100,
-    maxEarth: 100
+    maxEarth: 100,
   }),
   absorbSpeed: 1.0,
   cooldown: 1000,
   isCooldown: false,
-  cooldownRemaining: 0
+  cooldownRemaining: 0,
 });
 
 // 添加敌人到队伍
@@ -473,15 +525,15 @@ enemyTeam.value.placeTeammate("enemy-2", 0, 1);
 
 // 获取队友信息
 const getTeammate = (teammates: Teammate[], id: string) => {
-  return teammates.find(t => t.id === id);
+  return teammates.find((t) => t.id === id);
 };
 
 // 初始化统一行动队列
 const initializeActionQueue = () => {
   const queue: ActionQueueCharacter[] = [];
-  
+
   // 添加玩家队伍（只添加上阵的玩家）
-  const deployedPlayers = playerTeam.value.allTeammates.filter(player => {
+  const deployedPlayers = playerTeam.value.allTeammates.filter((player) => {
     // 检查玩家是否在上阵位置上
     for (const row of playerTeam.value.positions) {
       for (const position of row) {
@@ -492,8 +544,8 @@ const initializeActionQueue = () => {
     }
     return false;
   });
-  
-  deployedPlayers.forEach(teammate => {
+
+  deployedPlayers.forEach((teammate) => {
     if (teammate.attributes.health > 0) {
       queue.push({
         id: teammate.id,
@@ -501,11 +553,11 @@ const initializeActionQueue = () => {
         team: "player",
         attackSpeed: teammate.attributes.attackSpeed || 100,
         progress: 0,
-        originalCharacter: teammate
+        originalCharacter: teammate,
       });
     }
   });
-  
+
   // 添加敌人队伍
   enemyTeam.value.allTeammates.forEach((teammate: Teammate) => {
     if (teammate.attributes.health > 0) {
@@ -515,16 +567,19 @@ const initializeActionQueue = () => {
         team: "enemy",
         attackSpeed: teammate.attributes.attackSpeed || 100,
         progress: 0,
-        originalCharacter: teammate
+        originalCharacter: teammate,
       });
     }
   });
-  
+
   actionQueue.value = queue;
 };
 
 // 获取生命值百分比
-const getHealthPercent = (teammates: Teammate[], teammateId: string | undefined) => {
+const getHealthPercent = (
+  teammates: Teammate[],
+  teammateId: string | undefined
+) => {
   if (!teammateId) return 0;
   const teammate = getTeammate(teammates, teammateId);
   if (!teammate) return 0;
@@ -541,24 +596,31 @@ const getHealth = (teammates: Teammate[], teammateId: string | undefined) => {
 
 // 执行攻击
 const performAttack = () => {
-  console.log('\n=== performAttack 开始 ===');
-  
+  console.log("\n=== performAttack 开始 ===");
+
   if (!currentActor.value) {
-    console.log('当前没有行动角色，退出攻击');
+    console.log("当前没有行动角色，退出攻击");
     return;
   }
-  
-  console.log('当前行动角色:', currentActor.value.id, '团队:', currentActor.value.team);
-  
+
+  console.log(
+    "当前行动角色:",
+    currentActor.value.id,
+    "团队:",
+    currentActor.value.team
+  );
+
   // 找到当前行动的角色
-  const attacker = actionQueue.value.find(char => char.id === currentActor.value?.id);
+  const attacker = actionQueue.value.find(
+    (char) => char.id === currentActor.value?.id
+  );
   if (!attacker) {
-    console.log('找不到当前行动角色，退出攻击');
+    console.log("找不到当前行动角色，退出攻击");
     return;
   }
-  
-  console.log('攻击者:', attacker.name, '攻击速度:', attacker.attackSpeed);
-  
+
+  console.log("攻击者:", attacker.name, "攻击速度:", attacker.attackSpeed);
+
   // 确定攻击目标
   let targetTeam;
   if (attacker.team === "player") {
@@ -566,7 +628,7 @@ const performAttack = () => {
     targetTeam = enemyTeam.value.allTeammates;
   } else {
     // 敌人攻击玩家，目标只能是当前上阵的玩家
-    const deployedPlayers = playerTeam.value.allTeammates.filter(player => {
+    const deployedPlayers = playerTeam.value.allTeammates.filter((player) => {
       // 检查玩家是否在上阵位置上
       for (const row of playerTeam.value.positions) {
         for (const position of row) {
@@ -579,169 +641,215 @@ const performAttack = () => {
     });
     targetTeam = deployedPlayers;
   }
-  const aliveTargets = targetTeam.filter(target => target.attributes.health > 0);
-  
-  console.log('目标团队:', attacker.team === "player" ? '敌人' : '上阵玩家');
-  console.log('可攻击目标数量:', aliveTargets.length);
-  console.log('可攻击目标列表:', aliveTargets.map(t => t.name).join(', '));
-  
+  const aliveTargets = targetTeam.filter(
+    (target) => target.attributes.health > 0
+  );
+
+  console.log("目标团队:", attacker.team === "player" ? "敌人" : "上阵玩家");
+  console.log("可攻击目标数量:", aliveTargets.length);
+  console.log("可攻击目标列表:", aliveTargets.map((t) => t.name).join(", "));
+
   if (aliveTargets.length > 0) {
     const targetIndex = Math.floor(Math.random() * aliveTargets.length);
     const target = aliveTargets[targetIndex];
-    
+
     if (target) {
-      console.log('攻击目标:', target.name, '当前生命值:', target.attributes.health);
-      
+      console.log(
+        "攻击目标:",
+        target.name,
+        "当前生命值:",
+        target.attributes.health
+      );
+
       // 暂停战斗流程
       isCombatPaused.value = true;
-      console.log('战斗流程已暂停');
-      
+      console.log("战斗流程已暂停");
+
       // 计算伤害
       let attackValue: number;
       let defenseValue: number;
-      
+
       // 区分攻击方和目标的类型
-      if (attacker.team === 'player') {
+      if (attacker.team === "player") {
         // 玩家角色使用随机属性获取方法
-        attackValue = gameStore.getPlayerCurrentAttack(attacker.originalCharacter);
+        attackValue = gameStore.getPlayerCurrentAttack(
+          attacker.originalCharacter
+        );
         defenseValue = gameStore.getPlayerCurrentDefense(target);
       } else {
         // 敌人角色暂时使用固定属性值
         attackValue = attacker.originalCharacter.attributes.attack;
         defenseValue = target.attributes.defense;
       }
-      
+
       const damage = Math.max(0, attackValue - defenseValue);
-      console.log('计算伤害:', attackValue, '-', defenseValue, '=', damage);
-      
+      console.log("计算伤害:", attackValue, "-", defenseValue, "=", damage);
+
       // 触发攻击动画
       const attackerTeam = attacker.team;
-      const targetTeam = attacker.team === 'player' ? 'enemy' : 'player';
-      triggerAttackAnimation(attacker.id, target.id, attackerTeam, targetTeam, damage, () => {
-        // 伤害动画完成后更新生命值
-        const oldHealth = target.attributes.health;
-        target.attributes.health = Math.max(0, target.attributes.health - damage);
-        console.log(target.name + ' 生命值变化:', oldHealth, '->', target.attributes.health);
-        
-        // 记录战斗日志
-        battleLogs.value.push({
-          message: `${attacker.name} 对 ${target.name} 造成了 ${damage} 点伤害！`,
-          type: attacker.team
-        });
-        
-        // 检查目标是否死亡
-        if (target.attributes.health <= 0) {
-          console.log(target.name + ' 已死亡！');
+      const targetTeam = attacker.team === "player" ? "enemy" : "player";
+      triggerAttackAnimation(
+        attacker.id,
+        target.id,
+        attackerTeam,
+        targetTeam,
+        damage,
+        () => {
+          // 伤害动画完成后更新生命值
+          const oldHealth = target.attributes.health;
+          target.attributes.health = Math.max(
+            0,
+            target.attributes.health - damage
+          );
+          console.log(
+            target.name + " 生命值变化:",
+            oldHealth,
+            "->",
+            target.attributes.health
+          );
+
+          // 记录战斗日志
+          battleLogs.value.push({
+            message: `${attacker.name} 对 ${target.name} 造成了 ${damage} 点伤害！`,
+            type: attacker.team,
+          });
+
+          // 检查目标是否死亡
+          if (target.attributes.health <= 0) {
+            console.log(target.name + " 已死亡！");
+          }
+
+          // 取消暂停
+          isCombatPaused.value = false;
+          console.log("战斗流程已恢复");
         }
-        
-        // 取消暂停
-        isCombatPaused.value = false;
-        console.log('战斗流程已恢复');
-      });
+      );
     }
   } else {
-    console.log('没有可攻击的目标');
+    console.log("没有可攻击的目标");
   }
-  
+
   // 重置攻击者的进度
   if (attacker) {
-    console.log('重置攻击者进度:', attacker.name, '从', attacker.progress.toFixed(1) + '% 到 0%');
+    console.log(
+      "重置攻击者进度:",
+      attacker.name,
+      "从",
+      attacker.progress.toFixed(1) + "% 到 0%"
+    );
     attacker.progress = 0;
   }
-  
+
   // 结束当前行动
-  console.log('结束当前行动，重置状态');
+  console.log("结束当前行动，重置状态");
   currentActor.value = null;
   isPaused.value = false;
-  
-  console.log('=== performAttack 结束 ===\n');
-  
+
+  console.log("=== performAttack 结束 ===\n");
+
   // 战斗结束检查将在updateActionProgress中进行，无需在此重复检查
 };
 
 // 触发攻击动画
-const triggerAttackAnimation = (attackerId: string, targetId: string, attackerTeam: 'player' | 'enemy', targetTeam: 'player' | 'enemy', damage: number, callback: () => void) => {
-  console.log('=== 开始攻击动画流程 ===');
-  
+const triggerAttackAnimation = (
+  attackerId: string,
+  targetId: string,
+  attackerTeam: "player" | "enemy",
+  targetTeam: "player" | "enemy",
+  damage: number,
+  callback: () => void
+) => {
+  console.log("=== 开始攻击动画流程 ===");
+
   // 获取攻击者和被攻击者的DOM元素
-  const attackerElement = document.getElementById(`${attackerTeam === 'player' ? 'player' : 'enemy'}-card-${attackerId}`);
-  const targetElement = document.getElementById(`${targetTeam === 'player' ? 'player' : 'enemy'}-card-${targetId}`);
-  
+  const attackerElement = document.getElementById(
+    `${attackerTeam === "player" ? "player" : "enemy"}-card-${attackerId}`
+  );
+  const targetElement = document.getElementById(
+    `${targetTeam === "player" ? "player" : "enemy"}-card-${targetId}`
+  );
+
   if (!attackerElement || !targetElement) {
-    console.log('无法找到攻击者或被攻击者的DOM元素');
+    console.log("无法找到攻击者或被攻击者的DOM元素");
     callback(); // 即使找不到元素也要调用回调，避免战斗流程卡住
     return;
   }
-  
-  console.log('攻击者元素:', attackerElement.id);
-  console.log('被攻击者元素:', targetElement.id);
-  
+
+  console.log("攻击者元素:", attackerElement.id);
+  console.log("被攻击者元素:", targetElement.id);
+
   // 计算攻击者和被攻击者的位置和尺寸
   const attackerRect = attackerElement.getBoundingClientRect();
   const targetRect = targetElement.getBoundingClientRect();
-  const battleAreaRect = document.querySelector('.battle-area-card')?.getBoundingClientRect();
-  
+  const battleAreaRect = document
+    .querySelector(".battle-area-card")
+    ?.getBoundingClientRect();
+
   if (!battleAreaRect) {
-    console.log('无法找到战斗区域的DOM元素');
+    console.log("无法找到战斗区域的DOM元素");
     callback(); // 即使找不到元素也要调用回调，避免战斗流程卡住
     return;
   }
-  
+
   // 计算攻击者和被攻击者的中心点（相对于战斗区域）
-  const attackerCenterX = attackerRect.left + attackerRect.width / 2 - battleAreaRect.left;
-  const attackerCenterY = attackerRect.top + attackerRect.height / 2 - battleAreaRect.top;
-  const targetCenterX = targetRect.left + targetRect.width / 2 - battleAreaRect.left;
-  const targetCenterY = targetRect.top + targetRect.height / 2 - battleAreaRect.top;
-  
-  console.log('攻击者中心点:', attackerCenterX, attackerCenterY);
-  console.log('被攻击者中心点:', targetCenterX, targetCenterY);
-  
+  const attackerCenterX =
+    attackerRect.left + attackerRect.width / 2 - battleAreaRect.left;
+  const attackerCenterY =
+    attackerRect.top + attackerRect.height / 2 - battleAreaRect.top;
+  const targetCenterX =
+    targetRect.left + targetRect.width / 2 - battleAreaRect.left;
+  const targetCenterY =
+    targetRect.top + targetRect.height / 2 - battleAreaRect.top;
+
+  console.log("攻击者中心点:", attackerCenterX, attackerCenterY);
+  console.log("被攻击者中心点:", targetCenterX, targetCenterY);
+
   // 1. 攻击者创建攻击文本
-  console.log('步骤1: 创建攻击文本');
+  console.log("步骤1: 创建攻击文本");
   const attackId = `attack-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const attackText = {
     id: attackId,
-    text: '攻击',
+    text: "攻击",
     style: {
       left: `${attackerCenterX}px`,
       top: `${attackerCenterY}px`,
       transform: `translate(-50%, -50%) scale(0)`,
-      opacity: '0',
-      transition: `all 0.3s ease-out`
-    }
+      opacity: "0",
+      transition: `all 0.3s ease-out`,
+    },
   };
-  
+
   attackAnimations.value.push(attackText);
-  
+
   // 触发攻击文本出现动画
   setTimeout(() => {
     const attackElement = document.getElementById(attackId);
     if (attackElement) {
       attackElement.style.transform = `translate(-50%, -50%) scale(1)`;
-      attackElement.style.opacity = '1';
+      attackElement.style.opacity = "1";
     }
   }, 10);
-  
+
   // 2. 移动攻击文本到被攻击者
   setTimeout(() => {
-    console.log('步骤2: 移动攻击文本到被攻击者');
+    console.log("步骤2: 移动攻击文本到被攻击者");
     const attackElement = document.getElementById(attackId);
     if (attackElement) {
       attackElement.style.left = `${targetCenterX}px`;
       attackElement.style.top = `${targetCenterY}px`;
     }
   }, 300);
-  
+
   // 3. 被攻击者抖动
   setTimeout(() => {
-    console.log('步骤3: 被攻击者抖动');
+    console.log("步骤3: 被攻击者抖动");
     shakingTargetId = targetId;
   }, 600);
-  
+
   // 4. 显示造成的伤害
   setTimeout(() => {
-    console.log('步骤4: 显示造成的伤害');
-    
+    console.log("步骤4: 显示造成的伤害");
+
     // 创建伤害文本
     const damageId = `damage-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const damageText = {
@@ -751,86 +859,102 @@ const triggerAttackAnimation = (attackerId: string, targetId: string, attackerTe
         left: `${targetCenterX}px`,
         top: `${targetCenterY - 50}px`, // 在被攻击者上方显示
         transform: `translate(-50%, -50%) scale(0)`,
-        opacity: '0',
-        color: '#ff4d4f',
-        fontSize: '20px',
-        fontWeight: 'bold',
-        textShadow: '0 0 10px rgba(255, 77, 79, 0.8)',
-        zIndex: '10000',
-        transition: `all 0.3s ease-out`
-      }
+        opacity: "0",
+        color: "#ff4d4f",
+        fontSize: "20px",
+        fontWeight: "bold",
+        textShadow: "0 0 10px rgba(255, 77, 79, 0.8)",
+        zIndex: "10000",
+        transition: `all 0.3s ease-out`,
+      },
     };
-    
+
     attackAnimations.value.push(damageText);
-    
+
     // 伤害文本出现动画
     setTimeout(() => {
       const damageElement = document.getElementById(damageId);
       if (damageElement) {
         damageElement.style.transform = `translate(-50%, -50%) scale(1)`;
-        damageElement.style.opacity = '1';
+        damageElement.style.opacity = "1";
       }
     }, 10);
-    
+
     // 伤害文本上升并消失
     setTimeout(() => {
       const damageElement = document.getElementById(damageId);
       if (damageElement) {
         damageElement.style.transform = `translate(-50%, -100px) scale(1)`;
-        damageElement.style.opacity = '0';
+        damageElement.style.opacity = "0";
       }
     }, 500);
-    
+
     // 清理伤害文本
     setTimeout(() => {
-      attackAnimations.value = attackAnimations.value.filter(a => a.id !== damageId);
+      attackAnimations.value = attackAnimations.value.filter(
+        (a) => a.id !== damageId
+      );
     }, 800);
-    
+
     // 停止被攻击者抖动
     setTimeout(() => {
       shakingTargetId = null;
     }, 300);
-    
+
     // 5. 执行回调函数 - 生命值计算等
     setTimeout(() => {
-      console.log('步骤5: 执行生命值计算');
+      console.log("步骤5: 执行生命值计算");
       callback();
     }, 600);
   }, 700);
-  
+
   // 清理攻击文本动画
   setTimeout(() => {
-    attackAnimations.value = attackAnimations.value.filter(a => a.id !== attackId);
+    attackAnimations.value = attackAnimations.value.filter(
+      (a) => a.id !== attackId
+    );
   }, 1000);
-  
-  console.log('=== 攻击动画流程启动完成 ===');
+
+  console.log("=== 攻击动画流程启动完成 ===");
 };
 
 // 更新行动进度
 const updateActionProgress = () => {
   if (isPaused.value || battleEnded.value || isCombatPaused.value) return;
-  
-  console.log('=== updateActionProgress 开始 ===');
-  console.log('当前状态: isPaused=' + isPaused.value + ', battleEnded=' + battleEnded.value);
-  
+
+  console.log("=== updateActionProgress 开始 ===");
+  console.log(
+    "当前状态: isPaused=" +
+      isPaused.value +
+      ", battleEnded=" +
+      battleEnded.value
+  );
+
   // 更新所有角色的进度
-  actionQueue.value.forEach(character => {
+  actionQueue.value.forEach((character) => {
     // 只更新活着的角色
     if (character.originalCharacter.attributes.health <= 0) {
-      console.log(character.name + ' 已死亡，跳过进度更新');
+      console.log(character.name + " 已死亡，跳过进度更新");
       return;
     }
-    
+
     const oldProgress = character.progress;
     character.progress += character.attackSpeed * 0.1;
-    console.log(character.name + ' 进度更新: ' + oldProgress.toFixed(1) + '% -> ' + character.progress.toFixed(1) + '%');
+    console.log(
+      character.name +
+        " 进度更新: " +
+        oldProgress.toFixed(1) +
+        "% -> " +
+        character.progress.toFixed(1) +
+        "%"
+    );
   });
-  
+
   // 检查战斗是否已经结束（玩家或敌人全部死亡）
-  console.log('\n=== 检查战斗结束条件 ===');
-  
+  console.log("\n=== 检查战斗结束条件 ===");
+
   // 只检查当前上阵的玩家，而不是所有队友
-  const deployedPlayers = playerTeam.value.allTeammates.filter(player => {
+  const deployedPlayers = playerTeam.value.allTeammates.filter((player) => {
     // 检查玩家是否在上阵位置上
     for (const row of playerTeam.value.positions) {
       for (const position of row) {
@@ -841,79 +965,112 @@ const updateActionProgress = () => {
     }
     return false;
   });
-  
+
   // 打印当前上阵玩家和所有敌人的生命值
-  deployedPlayers.forEach(player => {
-    console.log('玩家 ' + player.name + ' 生命值: ' + player.attributes.health + '/' + player.attributes.maxHealth);
+  deployedPlayers.forEach((player) => {
+    console.log(
+      "玩家 " +
+        player.name +
+        " 生命值: " +
+        player.attributes.health +
+        "/" +
+        player.attributes.maxHealth
+    );
   });
-  
-  enemyTeam.value.allTeammates.forEach(enemy => {
-    console.log('敌人 ' + enemy.name + ' 生命值: ' + enemy.attributes.health + '/' + enemy.attributes.maxHealth);
+
+  enemyTeam.value.allTeammates.forEach((enemy) => {
+    console.log(
+      "敌人 " +
+        enemy.name +
+        " 生命值: " +
+        enemy.attributes.health +
+        "/" +
+        enemy.attributes.maxHealth
+    );
   });
-  
-  console.log('\n=== 战斗结束条件详细检查 ===');
-  console.log('所有敌人:', enemyTeam.value.allTeammates.length, '个');
-  console.log('当前上阵玩家:', deployedPlayers.length, '个');
-  console.log('上阵玩家列表:', deployedPlayers.map(p => p.name).join(', '));
-  
-  const allEnemiesDead = enemyTeam.value.allTeammates.every(enemy => enemy.attributes.health <= 0);
-  const allDeployedPlayersDead = deployedPlayers.every(player => player.attributes.health <= 0);
-  
-  console.log('allEnemiesDead:', allEnemiesDead, 'allDeployedPlayersDead:', allDeployedPlayersDead);
-  
+
+  console.log("\n=== 战斗结束条件详细检查 ===");
+  console.log("所有敌人:", enemyTeam.value.allTeammates.length, "个");
+  console.log("当前上阵玩家:", deployedPlayers.length, "个");
+  console.log("上阵玩家列表:", deployedPlayers.map((p) => p.name).join(", "));
+
+  const allEnemiesDead = enemyTeam.value.allTeammates.every(
+    (enemy) => enemy.attributes.health <= 0
+  );
+  const allDeployedPlayersDead = deployedPlayers.every(
+    (player) => player.attributes.health <= 0
+  );
+
+  console.log(
+    "allEnemiesDead:",
+    allEnemiesDead,
+    "allDeployedPlayersDead:",
+    allDeployedPlayersDead
+  );
+
   if (allEnemiesDead) {
-    console.log('所有敌人已死亡，战斗胜利！');
+    console.log("所有敌人已死亡，战斗胜利！");
     handleEndBattle(true);
     return;
   } else if (allDeployedPlayersDead && deployedPlayers.length > 0) {
-    console.log('所有上阵玩家已死亡，战斗失败！');
+    console.log("所有上阵玩家已死亡，战斗失败！");
     handleEndBattle(false);
     return;
   }
-  
-  console.log('战斗继续...');
-  
+
+  console.log("战斗继续...");
+
   // 检查是否有角色进度达到或超过100%
-  const readyCharacters = actionQueue.value.filter(char => char.progress >= 100);
-  console.log('就绪角色数量:', readyCharacters.length);
-  
+  const readyCharacters = actionQueue.value.filter(
+    (char) => char.progress >= 100
+  );
+  console.log("就绪角色数量:", readyCharacters.length);
+
   if (readyCharacters.length > 0) {
     // 随机选择一个就绪的角色
     const randomIndex = Math.floor(Math.random() * readyCharacters.length);
     const actingCharacter = readyCharacters[randomIndex];
-    
+
     if (actingCharacter) {
-      console.log('当前行动角色:', actingCharacter.name, '团队:', actingCharacter.team);
+      console.log(
+        "当前行动角色:",
+        actingCharacter.name,
+        "团队:",
+        actingCharacter.team
+      );
       // 开始行动
       isPaused.value = true;
-      currentActor.value = { id: actingCharacter.id, team: actingCharacter.team };
-      
+      currentActor.value = {
+        id: actingCharacter.id,
+        team: actingCharacter.team,
+      };
+
       battleLogs.value.push({
         message: `${actingCharacter.name} 准备行动！`,
-        type: actingCharacter.team
+        type: actingCharacter.team,
       });
-      
+
       // 根据角色类型执行不同操作
       if (actingCharacter.team === "enemy") {
         // 敌人角色自动执行攻击
-        console.log('敌人自动攻击，延迟1秒');
+        console.log("敌人自动攻击，延迟1秒");
         setTimeout(() => {
           performAttack();
         }, 1000);
       } else if (autoBattle.value) {
         // 玩家角色开启自动战斗时自动执行攻击
-        console.log('玩家自动攻击，延迟0.5秒');
+        console.log("玩家自动攻击，延迟0.5秒");
         setTimeout(() => {
           performAttack();
         }, 500);
       } else {
-        console.log('等待玩家手动操作');
+        console.log("等待玩家手动操作");
       }
       // 玩家角色未开启自动战斗时等待手动操作
     }
   }
-  
-  console.log('=== updateActionProgress 结束 ===\n');
+
+  console.log("=== updateActionProgress 结束 ===\n");
 };
 
 // 战斗循环定时器
@@ -922,10 +1079,10 @@ let battleLoopInterval: number | null = null;
 // 开始战斗循环
 const startBattleLoop = () => {
   if (battleLoopInterval) return;
-  
+
   battleStarted.value = true;
   initializeActionQueue();
-  
+
   battleLoopInterval = window.setInterval(() => {
     updateActionProgress();
   }, 100);
@@ -935,23 +1092,23 @@ const startBattleLoop = () => {
 const handleEndBattle = (victory: boolean) => {
   battleEnded.value = true;
   stopBattleLoop();
-  
+
   // 设置战斗结果
   battleResult.value = {
     title: victory ? "战斗胜利" : "战斗失败",
     icon: victory ? "check-circle" : "close-circle",
     message: victory ? "你成功击败了所有敌人！" : "你被敌人击败了！",
     exp: victory ? 100 : 0,
-    items: victory ? ["治疗药水", "金币 x 50"] : []
+    items: victory ? ["治疗药水", "金币 x 50"] : [],
   };
-  
+
   // 显示战斗结果
   showResultModal.value = true;
-  
+
   // 记录战斗日志
   battleLogs.value.push({
     message: victory ? "战斗胜利！" : "战斗失败！",
-    type: "system"
+    type: "system",
   });
 };
 
@@ -973,28 +1130,28 @@ const handleVisibilityChange = () => {
 const useSkill = () => {
   // 检查是否是玩家回合
   if (currentActor.value?.team !== "player") return;
-  
+
   showSkillModal.value = true;
 };
 
 const useItem = () => {
   // 检查是否是玩家回合
   if (currentActor.value?.team !== "player") return;
-  
+
   showItemModal.value = true;
 };
 
 const escapeBattle = () => {
   // 检查是否是玩家回合
   if (currentActor.value?.team !== "player") return;
-  
+
   // 简单的逃跑逻辑
   const escapeSuccess = Math.random() > 0.3; // 70% 逃跑成功率
-  
+
   if (escapeSuccess) {
     battleLogs.value.push({
       message: "你成功逃跑了！",
-      type: "system"
+      type: "system",
     });
     stopBattleLoop();
     setTimeout(() => {
@@ -1003,7 +1160,7 @@ const escapeBattle = () => {
   } else {
     battleLogs.value.push({
       message: "逃跑失败！",
-      type: "system"
+      type: "system",
     });
     // 逃跑失败后继续战斗
     performAttack();
@@ -1013,14 +1170,14 @@ const escapeBattle = () => {
 const selectSkill = () => {
   // 检查是否是玩家回合
   if (!currentActor.value || currentActor.value.team !== "player") return;
-  
+
   // 简单的技能选择逻辑
   battleLogs.value.push({
     message: "你使用了技能！",
-    type: "player"
+    type: "player",
   });
   showSkillModal.value = false;
-  
+
   // 技能使用后继续战斗
   performAttack();
 };
@@ -1028,14 +1185,14 @@ const selectSkill = () => {
 const selectItem = () => {
   // 检查是否是玩家回合
   if (!currentActor.value || currentActor.value.team !== "player") return;
-  
+
   // 简单的道具选择逻辑
   battleLogs.value.push({
     message: "你使用了道具！",
-    type: "player"
+    type: "player",
   });
   showItemModal.value = false;
-  
+
   // 道具使用后继续战斗
   performAttack();
 };
@@ -1070,7 +1227,7 @@ const handleResultModalClose = () => {
 // 这些函数将在战斗循环中被调用，暂时添加条件性引用
 if (false) {
   // 占位符，用于确保函数被编译器识别
-};
+}
 
 // 战斗日志管理函数 - 带类型标识
 const addBattleLog = (
@@ -1108,29 +1265,29 @@ const addBattleLog = (
 onMounted(() => {
   // 初始化行动队列
   initializeActionQueue();
-  
+
   // 开始战斗循环
   startBattleLoop();
-  
+
   // 初始化战斗日志
   addBattleLog(`战斗开始！`, "system");
-  playerTeam.value.allTeammates.forEach(teammate => {
+  playerTeam.value.allTeammates.forEach((teammate) => {
     addBattleLog(`${teammate.name} 加入战斗！`, "player");
   });
   enemyTeam.value.allTeammates.forEach((teammate: Teammate) => {
     addBattleLog(`${teammate.name} 加入战斗！`, "enemy");
   });
-  
+
   // 添加页面可见性变化监听器
-  document.addEventListener('visibilitychange', handleVisibilityChange);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
 });
 
 // 在组件销毁时停止战斗循环
 onUnmounted(() => {
   stopBattleLoop();
-  
+
   // 移除页面可见性变化监听器
-  document.removeEventListener('visibilitychange', handleVisibilityChange);
+  document.removeEventListener("visibilitychange", handleVisibilityChange);
 });
 </script>
 
@@ -1243,7 +1400,6 @@ onUnmounted(() => {
 .player-card {
   flex-direction: column;
 }
-
 
 .enemy-name {
   color: #cf1322;
@@ -1433,7 +1589,6 @@ onUnmounted(() => {
   background: #555;
 }
 
-
 .battle-actions-card .ant-btn {
   font-size: 11px;
   height: auto;
@@ -1521,7 +1676,6 @@ onUnmounted(() => {
   border-radius: 4px;
 }
 
-
 /* 统一行动队列样式 */
 .action-queue-card {
   margin: 8px 0;
@@ -1585,7 +1739,8 @@ onUnmounted(() => {
 
 /* 被攻击者抖动效果 */
 @keyframes shake {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0);
     border-color: #ff4d4f;
     box-shadow: 0 0 5px #ff4d4f;

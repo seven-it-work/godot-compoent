@@ -1,8 +1,8 @@
-import { SpiritVein } from './battle';
-import type { Monster } from './battle';
-import type { SpiritRootType } from './character';
-import { getRandomIcon } from '../config/locationIcons';
-import { SpiritQi } from './resources';
+import { SpiritVein } from "./battle";
+import type { Monster } from "./battle";
+import type { SpiritRootType } from "./character";
+import { getRandomIcon } from "../config/locationIcons";
+import { SpiritQi } from "./resources";
 
 // 时间系统类
 export class GameTime {
@@ -40,26 +40,26 @@ export class GameTime {
     if (this.isPaused) return;
 
     // 计算实际流逝的秒数
-    const elapsedSeconds = deltaTime * this.speed / 1000;
+    const elapsedSeconds = (deltaTime * this.speed) / 1000;
     this.second += elapsedSeconds;
 
     // 处理时间进位
     while (this.second >= 60) {
       this.second -= 60;
       this.minute++;
-      
+
       while (this.minute >= 60) {
         this.minute -= 60;
         this.hour++;
-        
+
         while (this.hour >= 24) {
           this.hour -= 24;
           this.day++;
-          
+
           while (this.day > 30) {
             this.day -= 30;
             this.month++;
-            
+
             while (this.month > 12) {
               this.month -= 12;
               this.year++;
@@ -82,7 +82,7 @@ export class GameTime {
 
   // 获取格式化的时间字符串
   getFormattedTime(): string {
-    return `${this.year}年${this.month}月${this.day}日 ${Math.floor(this.hour).toString().padStart(2, '0')}:${Math.floor(this.minute).toString().padStart(2, '0')}:${Math.floor(this.second).toString().padStart(2, '0')}`;
+    return `${this.year}年${this.month}月${this.day}日 ${Math.floor(this.hour).toString().padStart(2, "0")}:${Math.floor(this.minute).toString().padStart(2, "0")}:${Math.floor(this.second).toString().padStart(2, "0")}`;
   }
 }
 
@@ -172,12 +172,12 @@ export class GameMap {
             maxWood: 100,
             maxWater: 100,
             maxFire: 100,
-            maxEarth: 100
+            maxEarth: 100,
           }),
           isCurrent: false,
           spiritVein: undefined,
           monster: undefined,
-          icon: getRandomIcon()
+          icon: getRandomIcon(),
         });
       }
     }
@@ -185,7 +185,12 @@ export class GameMap {
 
   // 设置地点
   setLocation(location: GameLocation): void {
-    if (location.x < 0 || location.x >= this.width || location.y < 0 || location.y >= this.height) {
+    if (
+      location.x < 0 ||
+      location.x >= this.width ||
+      location.y < 0 ||
+      location.y >= this.height
+    ) {
       throw new Error(`位置(${location.x}, ${location.y})超出地图范围`);
     }
     if (!this.locations[location.y]) {
@@ -196,7 +201,13 @@ export class GameMap {
 
   // 获取地点
   getLocation(x: number, y: number): GameLocation | undefined {
-    if (x >= 0 && x < this.width && y >= 0 && y < this.height && this.locations[y]) {
+    if (
+      x >= 0 &&
+      x < this.width &&
+      y >= 0 &&
+      y < this.height &&
+      this.locations[y]
+    ) {
       return this.locations[y][x];
     }
     return undefined;
@@ -211,10 +222,17 @@ export class GameMap {
 
       // 随机等级（1-5）
       const level = Math.floor(Math.random() * 5) + 1;
-      
+
       // 随机灵脉类型
-      const spiritRootTypes: SpiritRootType[] = ['fire', 'water', 'wood', 'gold', 'earth'];
-      const randomType = spiritRootTypes[Math.floor(Math.random() * spiritRootTypes.length)]!;
+      const spiritRootTypes: SpiritRootType[] = [
+        "fire",
+        "water",
+        "wood",
+        "gold",
+        "earth",
+      ];
+      const randomType =
+        spiritRootTypes[Math.floor(Math.random() * spiritRootTypes.length)]!;
 
       // 创建灵脉
       const spiritVein = new SpiritVein(
@@ -257,7 +275,7 @@ export class GameMap {
         }
       }
     }
-    
+
     // 设置新的当前地点
     const location = this.getLocation(x, y);
     if (location) {

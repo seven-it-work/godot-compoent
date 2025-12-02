@@ -12,7 +12,9 @@
                 <!-- 顶部信息行 -->
                 <div class="location-info-row">
                   <div class="location-cell location-name-cell">
-                    <div class="location-name">{{ currentLocation?.name || '未知地点' }}</div>
+                    <div class="location-name">
+                      {{ currentLocation?.name || "未知地点" }}
+                    </div>
                   </div>
                   <div class="location-cell vein-info-cell">
                     <div class="vein-info" v-if="currentLocation?.spiritVein">
@@ -37,7 +39,9 @@
                       <SpiritProgress
                         :label="typeMap[spiritType]"
                         :current="
-                          currentLocation?.spiritQi[spiritType as SpiritRootType] || 0
+                          currentLocation?.spiritQi[
+                            spiritType as SpiritRootType
+                          ] || 0
                         "
                         :max="
                           (currentLocation?.spiritQi[
@@ -119,8 +123,6 @@
             </a-checkbox>
           </a-col>
         </a-row>
-
-
       </div>
     </a-layout-content>
   </a-layout>
@@ -131,7 +133,7 @@ import { ref, computed } from "vue";
 import { useGameStore } from "../../store/gameStore";
 import type { SpiritRootType, SpiritQi } from "../../classes/character";
 import SpiritProgress from "../components/SpiritProgress.vue";
-import { resourceConfig } from '../../config/gameConfig';
+import { resourceConfig } from "../../config/gameConfig";
 
 const gameStore = useGameStore();
 
@@ -164,8 +166,12 @@ const spiritQiTypes = ref<SpiritRootType[]>([
   "fire",
   "earth",
 ]);
-const typeMap = ref<Record<SpiritRootType, string>>(resourceConfig.spiritQiTypeNames);
-const colorMap = ref<Record<SpiritRootType, string>>(resourceConfig.spiritQiColors);
+const typeMap = ref<Record<SpiritRootType, string>>(
+  resourceConfig.spiritQiTypeNames
+);
+const colorMap = ref<Record<SpiritRootType, string>>(
+  resourceConfig.spiritQiColors
+);
 
 // 按类型吸收灵气
 const absorbSpiritQiWithType = (spiritType: SpiritRootType) => {
@@ -179,8 +185,6 @@ const levelUp = () => {
     gameStore.levelUp();
   }
 };
-
-
 </script>
 
 <style scoped>

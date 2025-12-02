@@ -1,15 +1,17 @@
 <template>
   <a-layout class="mobile-player-detail" :style="{ padding: 0, margin: 0 }">
     <!-- Header区域，放置探索按钮 -->
-    <a-layout-header style="height: auto; padding: 0; background: #fff; border-bottom: 1px solid #f0f0f0;line-height: 0px;">
+    <a-layout-header
+      style="
+        height: auto;
+        padding: 0;
+        background: #fff;
+        border-bottom: 1px solid #f0f0f0;
+        line-height: 0px;
+      "
+    >
       <div class="header-container">
-        <a-button
-          type="primary"
-          @click="goExplore"
-          block
-        >
-          探索
-        </a-button>
+        <a-button type="primary" @click="goExplore" block> 探索 </a-button>
       </div>
     </a-layout-header>
     <a-layout-content :style="{ padding: 0, margin: 0 }">

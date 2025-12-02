@@ -1,6 +1,6 @@
 // 资源相关类，用于避免循环引用
 
-import type { SpiritRootType } from './character';
+import type { SpiritRootType } from "./character";
 
 // 灵气类
 export class SpiritQi {
@@ -42,7 +42,10 @@ export class SpiritQi {
   // 吸收灵气
   absorb(type: SpiritRootType, amount: number): void {
     const current = this[type];
-    const max = this[`max${type.charAt(0).toUpperCase() + type.slice(1)}` as keyof SpiritQi];
+    const max =
+      this[
+        `max${type.charAt(0).toUpperCase() + type.slice(1)}` as keyof SpiritQi
+      ];
     this[type] = Math.min(current + amount, max as number);
   }
 
@@ -58,11 +61,11 @@ export class SpiritQi {
   // 增加灵气上限
   increaseMax(type: SpiritRootType, amount: number): void {
     const maxKeyMap: Record<SpiritRootType, keyof SpiritQi> = {
-      gold: 'maxGold',
-      wood: 'maxWood',
-      water: 'maxWater',
-      fire: 'maxFire',
-      earth: 'maxEarth'
+      gold: "maxGold",
+      wood: "maxWood",
+      water: "maxWater",
+      fire: "maxFire",
+      earth: "maxEarth",
     };
     const maxKey = maxKeyMap[type];
     // 使用更明确的类型断言

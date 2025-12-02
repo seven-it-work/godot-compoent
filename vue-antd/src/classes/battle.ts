@@ -1,5 +1,5 @@
-import { BattleAttributes } from './character';
-import type { SpiritRootType } from './character';
+import { BattleAttributes } from "./character";
+import type { SpiritRootType } from "./character";
 
 // 怪物类
 export class Monster {
@@ -120,7 +120,12 @@ export class SpiritVein {
   level: number; // 灵脉等级
   name: string; // 灵脉名称
 
-  constructor(type: SpiritRootType, productionSpeed: number, level: number, name: string) {
+  constructor(
+    type: SpiritRootType,
+    productionSpeed: number,
+    level: number,
+    name: string
+  ) {
     this.type = type;
     this.productionSpeed = productionSpeed;
     this.level = level;

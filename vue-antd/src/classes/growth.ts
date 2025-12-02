@@ -7,7 +7,12 @@ class BaseGrowth {
   protected maxGrowth: number;
   protected growthMultiplier: number;
 
-  constructor(currentValue: number, minGrowth: number, maxGrowth: number, growthMultiplier: number = 1) {
+  constructor(
+    currentValue: number,
+    minGrowth: number,
+    maxGrowth: number,
+    growthMultiplier: number = 1
+  ) {
     this.currentValue = currentValue;
     this.minGrowth = minGrowth;
     this.maxGrowth = maxGrowth;
@@ -16,7 +21,8 @@ class BaseGrowth {
 
   // 生成随机成长值
   protected generateGrowthValue(): number {
-    const randomValue = Math.random() * (this.maxGrowth - this.minGrowth) + this.minGrowth;
+    const randomValue =
+      Math.random() * (this.maxGrowth - this.minGrowth) + this.minGrowth;
     return randomValue * this.growthMultiplier;
   }
 
@@ -83,30 +89,33 @@ class RangeGrowth extends BaseGrowth {
       // 如果成长当前值，调用父类方法
       const newValue = super.grow();
       // 确保当前值在范围内
-      this.currentValue = Math.max(this.minValue, Math.min(this.maxValue, newValue));
+      this.currentValue = Math.max(
+        this.minValue,
+        Math.min(this.maxValue, newValue)
+      );
       return this.currentValue;
     } else if (this.growMinValue) {
       // 如果成长最小值和最大值
       const growthValue = this.generateGrowthValue();
-      
+
       // 生成最小值的成长值，确保不超过最大值
       const minAdd = Math.random() * (growthValue / 2);
       const maxAdd = growthValue - minAdd;
-      
+
       // 更新最小值和最大值
       this.minValue += minAdd;
       this.maxValue += maxAdd;
-      
+
       // 确保最小值不超过最大值
       if (this.minValue > this.maxValue) {
         const temp = this.minValue;
         this.minValue = this.maxValue;
         this.maxValue = temp;
       }
-      
+
       return this.maxValue;
     }
-    
+
     return this.currentValue;
   }
 
@@ -151,4 +160,8 @@ class RandomRangeGrowth extends RangeGrowth {
 export { BaseGrowth, RangeGrowth, RandomRangeGrowth };
 
 // 导出类型
-export type { BaseGrowth as BaseGrowthType, RangeGrowth as RangeGrowthType, RandomRangeGrowth as RandomRangeGrowthType };
+export type {
+  BaseGrowth as BaseGrowthType,
+  RangeGrowth as RangeGrowthType,
+  RandomRangeGrowth as RandomRangeGrowthType,
+};

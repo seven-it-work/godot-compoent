@@ -1,16 +1,24 @@
 // 从world.ts导入GameLocation类型
-import type { GameLocation } from './world';
-export type { GameLocation } from './world';
+import type { GameLocation } from "./world";
+export type { GameLocation } from "./world";
 
 // 从resources.ts导入SpiritQi类型
-import type { SpiritQi } from './resources';
+import type { SpiritQi } from "./resources";
 
 // 灵根类型
 export type SpiritRootType = "gold" | "wood" | "water" | "fire" | "earth";
 
 // 战斗属性类
 // 定义战斗属性键类型，排除方法名
-export type BattleAttributeKey = "attack" | "defense" | "health" | "maxHealth" | "dodge" | "block" | "critical" | "attackSpeed";
+export type BattleAttributeKey =
+  | "attack"
+  | "defense"
+  | "health"
+  | "maxHealth"
+  | "dodge"
+  | "block"
+  | "critical"
+  | "attackSpeed";
 
 export class BattleAttributes {
   attack: number; // 灵力攻击（攻击）
@@ -77,7 +85,7 @@ export class SpiritRoot {
 }
 
 // 从resources.ts导入灵气类
-export { SpiritQi } from './resources';
+export { SpiritQi } from "./resources";
 
 // 修仙者类（基础角色类，包含Player和Teammate的共同属性）
 export class Cultivator {

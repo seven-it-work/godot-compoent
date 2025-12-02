@@ -68,13 +68,11 @@ const redirectByScreenResolution = () => {
   // 这段代码被注释掉了，因为它可能导致路由循环
   // const isMobile = window.innerWidth <= 768;
   // const currentPath = router.currentRoute.value.path;
-
   // // 检查当前路径是否已经是设备特定路径
   // if (currentPath.startsWith("/mobile") || currentPath.startsWith("/pc")) {
   //   // 如果当前路径的设备类型与实际设备类型不匹配，则重定向
   //   const currentDevice = currentPath.startsWith("/mobile") ? "mobile" : "pc";
   //   const targetDevice = isMobile ? "mobile" : "pc";
-
   //   if (currentDevice !== targetDevice) {
   //     // 提取功能路径并构建新路径
   //     const functionPath = currentPath.replace(`/${currentDevice}`, "");

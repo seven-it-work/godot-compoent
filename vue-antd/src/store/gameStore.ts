@@ -1,19 +1,18 @@
 import { defineStore } from "pinia";
-import { getRandomIcon } from "../config/locationIcons";
 import { GameState } from "../classes/game";
-import { Player, Teammate, BattleAttributes } from "../classes/character";
-import type {
-    SpiritRootType,
-  } from "../classes/character";
+import { Player, Teammate } from "../classes/character";
+import type { SpiritRootType } from "../classes/character";
 import { SpiritRoot } from "../classes/character";
 import { SpiritQi } from "../classes/resources";
 import { GameLocation, GameMap, GameTime } from "../classes/world";
-import { SpiritVein } from "../classes/battle";
-import { Monster, BattleState } from "../classes/battle";
-import type { BattleLog } from "../classes/battle";
 import { Team, TeamPosition } from "../classes/team";
-import { BaseGrowth, RangeGrowth, RandomRangeGrowth } from "../classes/growth";
 import { resourceConfig, balanceConfig } from "../config/gameConfig";
+import { AttributesGenerator } from "../classes/attributesGenerator";
+import { BattleManager } from "../classes/battleManager";
+import { MapManager } from "../classes/mapManager";
+import { MonsterGenerator } from "../classes/monsterGenerator";
+import { SpiritQiManager } from "../classes/spiritQiManager";
+import { LevelUpManager } from "../classes/levelUpManager";
 
 // 扩展GameState类型
 export class ExtendedGameState extends GameState {
@@ -27,7 +26,7 @@ export class ExtendedGameState extends GameState {
     currentSystem: "training" | "outdoor" | "battle";
     map: GameMap;
     gameTime: GameTime;
-    battleState: BattleState;
+    battleState: any;
     team: Team;
     uiState: {
       playerDetailActiveTab: string;
@@ -38,221 +37,22 @@ export class ExtendedGameState extends GameState {
   }
 }
 
-// 根据等级生成战斗属性
-function generateAttributesByLevel(level: number): BattleAttributes {
-  // 基础属性值
-  const baseAttack = 5;
-  const baseDefense = 3;
-  const baseHealth = 50;
-  const baseDodge = 2;
-  const baseBlock = 2;
-  const baseCritical = 2;
-  const baseAttackSpeed = 80;
-
-  // 攻击属性：随机范围成长
-  const attackGrowth = new RandomRangeGrowth(
-    baseAttack,
-    1,
-    3,
-    baseAttack,
-    baseAttack + 2,
-    false,
-    true,
-    1
-  );
-
-  // 防御属性：随机范围成长
-  const defenseGrowth = new RandomRangeGrowth(
-    baseDefense,
-    1,
-    2,
-    baseDefense,
-    baseDefense + 1,
-    false,
-    true,
-    1
-  );
-
-  // 生命值：范围成长
-  const healthGrowth = new RangeGrowth(
-    baseHealth,
-    10,
-    20,
-    baseHealth,
-    baseHealth + 10,
-    false,
-    true,
-    1
-  );
-
-  // 闪避属性：随机范围成长
-  const dodgeGrowth = new RandomRangeGrowth(
-    baseDodge,
-    0.5,
-    1,
-    baseDodge - 0.5,
-    baseDodge + 0.5,
-    false,
-    true
-  );
-
-  // 格挡属性：随机范围成长
-  const blockGrowth = new RandomRangeGrowth(
-    baseBlock,
-    0.5,
-    1,
-    baseBlock - 0.5,
-    baseBlock + 0.5,
-    false,
-    true
-  );
-
-  // 暴击属性：随机范围成长
-  const criticalGrowth = new RandomRangeGrowth(
-    baseCritical,
-    0.5,
-    1,
-    baseCritical - 0.5,
-    baseCritical + 0.5,
-    false,
-    true
-  );
-
-  // 攻击速度：基础成长
-  const attackSpeedGrowth = new BaseGrowth(baseAttackSpeed, 2, 5, 1);
-
-  // 根据等级成长
-  for (let i = 1; i < level; i++) {
-    attackGrowth.grow();
-    defenseGrowth.grow();
-    healthGrowth.grow();
-    dodgeGrowth.grow();
-    blockGrowth.grow();
-    criticalGrowth.grow();
-    attackSpeedGrowth.grow();
-  }
-
-  // 生成最终属性
-  return new BattleAttributes({
-    attack: Math.floor(attackGrowth.getCurrentValue()),
-    defense: Math.floor(defenseGrowth.getCurrentValue()),
-    health: Math.floor(healthGrowth.getMaxValue()),
-    maxHealth: Math.floor(healthGrowth.getMaxValue()),
-    dodge: Math.floor(dodgeGrowth.getCurrentValue()),
-    block: Math.floor(blockGrowth.getCurrentValue()),
-    critical: Math.floor(criticalGrowth.getCurrentValue()),
-    attackSpeed: Math.floor(attackSpeedGrowth.getCurrentValue()),
-  });
-}
-
-
-
-// 获取角色当前的随机攻击值
-function getCharacterCurrentAttack(character: { level: number }): number {
-  const baseAttack = 5;
-  let minAttack = baseAttack;
-  let maxAttack = baseAttack + 2;
-  
-  // 根据等级计算攻击范围
-  for (let i = 1; i < character.level; i++) {
-    const growth = new RandomRangeGrowth(baseAttack, 1, 3, minAttack, maxAttack, false, true, 1);
-    growth.grow();
-    minAttack = growth.getMinValue();
-    maxAttack = growth.getMaxValue();
-  }
-  
-  // 返回当前随机攻击值
-  const growth = new RandomRangeGrowth(baseAttack, 1, 3, minAttack, maxAttack, false, true, 1);
-  return Math.floor(growth.getCurrentValue());
-}
-
-// 获取角色当前的随机防御值
-function getCharacterCurrentDefense(character: { level: number }): number {
-  const baseDefense = 3;
-  let minDefense = baseDefense;
-  let maxDefense = baseDefense + 1;
-  
-  // 根据等级计算防御范围
-  for (let i = 1; i < character.level; i++) {
-    const growth = new RandomRangeGrowth(baseDefense, 1, 2, minDefense, maxDefense, false, true, 1);
-    growth.grow();
-    minDefense = growth.getMinValue();
-    maxDefense = growth.getMaxValue();
-  }
-  
-  // 返回当前随机防御值
-  const growth = new RandomRangeGrowth(baseDefense, 1, 2, minDefense, maxDefense, false, true, 1);
-  return Math.floor(growth.getCurrentValue());
-}
-
-// 获取角色当前的随机闪避值
-function getCharacterCurrentDodge(character: { level: number }): number {
-  const level = character.level;
-  const baseDodge = 2;
-  // 模拟闪避成长过程
-  const dodgeGrowth = new RandomRangeGrowth(
-    baseDodge, 
-    0.5, 
-    1,
-    baseDodge - 0.5, 
-    baseDodge + 0.5,
-    false, 
-    true
-  );
-  for (let i = 1; i < level; i++) {
-    dodgeGrowth.grow();
-  }
-  return Math.floor(dodgeGrowth.getCurrentValue());
-}
-
-// 获取角色当前的随机格挡值
-function getCharacterCurrentBlock(character: { level: number }): number {
-  const level = character.level;
-  const baseBlock = 2;
-  // 模拟格挡成长过程
-  const blockGrowth = new RandomRangeGrowth(
-    baseBlock, 
-    0.5, 
-    1,
-    baseBlock - 0.5, 
-    baseBlock + 0.5,
-    false, 
-    true
-  );
-  for (let i = 1; i < level; i++) {
-    blockGrowth.grow();
-  }
-  return Math.floor(blockGrowth.getCurrentValue());
-}
-
-// 获取角色当前的随机暴击值
-function getCharacterCurrentCritical(character: { level: number }): number {
-  const level = character.level;
-  const baseCritical = 2;
-  // 模拟暴击成长过程
-  const criticalGrowth = new RandomRangeGrowth(
-    baseCritical, 
-    0.5, 
-    1,
-    baseCritical - 0.5, 
-    baseCritical + 0.5,
-    false, 
-    true
-  );
-  for (let i = 1; i < level; i++) {
-    criticalGrowth.grow();
-  }
-  return Math.floor(criticalGrowth.getCurrentValue());
-}
-
 export const useGameStore = defineStore("game", {
   state: (): ExtendedGameState => {
     // 创建初始队伍位置（3行6列）
-    const initialPositions: TeamPosition[][] = Array(3).fill(null).map((_, rowIndex) => {
-      return Array(6).fill(null).map((_, colIndex) => {
-        return new TeamPosition(`position-${rowIndex}-${colIndex}`, rowIndex, colIndex);
+    const initialPositions: TeamPosition[][] = Array(3)
+      .fill(null)
+      .map((_, rowIndex) => {
+        return Array(6)
+          .fill(null)
+          .map((_, colIndex) => {
+            return new TeamPosition(
+              `position-${rowIndex}-${colIndex}`,
+              rowIndex,
+              colIndex
+            );
+          });
       });
-    });
 
     // 初始队友数据
     const initialTeammates: Teammate[] = [
@@ -260,7 +60,7 @@ export const useGameStore = defineStore("game", {
         id: "player-1",
         name: "玩家",
         level: 1,
-        attributes: generateAttributesByLevel(1),
+        attributes: AttributesGenerator.generateAttributesByLevel(1),
         description: "游戏主角",
         isPlayer: true,
         exp: 0,
@@ -321,7 +121,7 @@ export const useGameStore = defineStore("game", {
         maxFire: 100,
         maxEarth: 100,
       }),
-      attributes: generateAttributesByLevel(1),
+      attributes: AttributesGenerator.generateAttributesByLevel(1),
       absorbSpeed: 1.0,
       cooldown: 1000, // 1秒冷却时间
       isCooldown: false,
@@ -329,7 +129,7 @@ export const useGameStore = defineStore("game", {
       description: "游戏主角",
       isPlayer: true,
     });
-    
+
     const gameTime = new GameTime({
       year: 1,
       month: 1,
@@ -340,22 +140,24 @@ export const useGameStore = defineStore("game", {
       speed: 1,
       isPaused: false,
     });
-    
+
     const map = new GameMap(10, 10);
-    
-    const battleState = new BattleState({
+
+    const battleState = {
       isInBattle: false,
       battleLogs: [],
       isPlayerTurn: true,
-    });
-    
+      currentMonster: undefined,
+      battleResult: undefined,
+    };
+
     const team = (() => {
-      const team = new Team(5);
+      const team = new Team(18);
       // 添加初始队友
-      initialTeammates.forEach(teammate => team.addTeammate(teammate));
+      initialTeammates.forEach((teammate) => team.addTeammate(teammate));
       return team;
     })();
-    
+
     // 创建ExtendedGameState实例
     return new ExtendedGameState({
       player,
@@ -365,8 +167,9 @@ export const useGameStore = defineStore("game", {
       battleState,
       team,
       uiState: {
-        playerDetailActiveTab: localStorage.getItem("playerDetailActiveTab") || "attributes",
-      }
+        playerDetailActiveTab:
+          localStorage.getItem("playerDetailActiveTab") || "attributes",
+      },
     });
   },
 
@@ -382,29 +185,18 @@ export const useGameStore = defineStore("game", {
 
     // 获取玩家拥有的灵根类型列表
     activeSpiritRoots: (state): SpiritRootType[] => {
-      return state.player.spiritRoots.map((root: SpiritRoot) => root.type);
+      return state.player.spiritRoots.map((root: any) => root.type);
     },
 
     // 检查是否可以升级
     canLevelUp: (state): boolean => {
-      const { spiritQi } = state.player;
-      const activeRoots = state.player.spiritRoots;
-
-      // 检查每个活跃灵根对应的灵气是否达到上限
-      return activeRoots.every((root) => {
-        const currentQi = spiritQi[root.type];
-        const maxQi =
-          spiritQi[
-            `max${root.type.charAt(0).toUpperCase() + root.type.slice(1)}` as keyof SpiritQi
-          ];
-        return currentQi >= (maxQi as number);
-      });
+      return LevelUpManager.canLevelUp(state.player);
     },
 
     // 获取当前地点
-      getCurrentLocation: (state): GameLocation | undefined => {
-        return state.player.currentLocation;
-      },
+    getCurrentLocation: (state): GameLocation | undefined => {
+      return state.player.currentLocation;
+    },
 
     // 格式化时间显示
     formattedTime: (state): string => {
@@ -418,14 +210,14 @@ export const useGameStore = defineStore("game", {
     },
 
     // 获取当前怪物
-    currentMonster: (state): Monster | undefined => {
+    currentMonster: (state): any => {
       return state.battleState.currentMonster;
     },
 
     // 获取战斗日志
-  battleLogs: (state): BattleLog[] => {
-    return state.battleState.battleLogs;
-  },
+    battleLogs: (state): any[] => {
+      return state.battleState.battleLogs;
+    },
     // 队伍相关getter
     // 获取已上阵的队友
     deployedTeammates: (state) => {
@@ -434,7 +226,9 @@ export const useGameStore = defineStore("game", {
         if (row) {
           for (const position of row) {
             if (position && position.teammateId) {
-              const teammate = state.team.allTeammates.find(t => t.id === position.teammateId);
+              const teammate = state.team.allTeammates.find(
+                (t) => t.id === position.teammateId
+              );
               if (teammate) {
                 deployed.push(teammate);
               }
@@ -454,7 +248,9 @@ export const useGameStore = defineStore("game", {
           }
         }
       }
-      return state.team.allTeammates.filter(teammate => !deployedIds.has(teammate.id));
+      return state.team.allTeammates.filter(
+        (teammate) => !deployedIds.has(teammate.id)
+      );
     },
     // 获取当前队伍人数
     currentTeamSize: (state) => {
@@ -473,7 +269,9 @@ export const useGameStore = defineStore("game", {
       if (row >= 0 && row < state.team.positions.length) {
         const position = state.team.positions[row]?.[column];
         if (position && position.teammateId) {
-          return state.team.allTeammates.find(t => t.id === position.teammateId);
+          return state.team.allTeammates.find(
+            (t) => t.id === position.teammateId
+          );
         }
       }
       return null;
@@ -543,7 +341,7 @@ export const useGameStore = defineStore("game", {
           maxFire: 100,
           maxEarth: 100,
         }),
-        attributes: generateAttributesByLevel(1),
+        attributes: AttributesGenerator.generateAttributesByLevel(1),
         absorbSpeed: 1.0,
         cooldown: 1000, // 1秒冷却时间
         isCooldown: false,
@@ -568,17 +366,17 @@ export const useGameStore = defineStore("game", {
             maxEarth: 100,
           }),
           isCurrent: true,
-          icon: "\uE8A4", // 默认使用山谷图标
+          icon: "", // 默认使用山谷图标
         }),
       });
-      
+
       // 重置队友数据到初始状态
       this.team.allTeammates = [
         new Player({
           id: "player-1",
           name: "玩家",
           level: 1,
-          attributes: generateAttributesByLevel(1),
+          attributes: AttributesGenerator.generateAttributesByLevel(1),
           description: "游戏主角",
           isPlayer: true,
           exp: 0,
@@ -611,14 +409,12 @@ export const useGameStore = defineStore("game", {
           id: "teammate-1",
           name: "剑灵",
           level: 1,
-          attributes: generateAttributesByLevel(1),
+          attributes: AttributesGenerator.generateAttributesByLevel(1),
           description: "拥有强大攻击力的剑灵",
           isPlayer: false,
           exp: 0,
           maxExp: 100,
-          spiritRoots: [
-            new SpiritRoot("gold", 1, "金灵根"),
-          ],
+          spiritRoots: [new SpiritRoot("gold", 1, "金灵根")],
           spiritQi: new SpiritQi({
             gold: 0,
             wood: 0,
@@ -640,14 +436,12 @@ export const useGameStore = defineStore("game", {
           id: "teammate-2",
           name: "药童",
           level: 1,
-          attributes: generateAttributesByLevel(1),
+          attributes: AttributesGenerator.generateAttributesByLevel(1),
           description: "拥有强大生命力的药童",
           isPlayer: false,
           exp: 0,
           maxExp: 100,
-          spiritRoots: [
-            new SpiritRoot("wood", 1, "木灵根"),
-          ],
+          spiritRoots: [new SpiritRoot("wood", 1, "木灵根")],
           spiritQi: new SpiritQi({
             gold: 0,
             wood: 0,
@@ -666,229 +460,49 @@ export const useGameStore = defineStore("game", {
           cooldownRemaining: 0,
         }),
       ];
-      
+
       // 重置队伍位置到初始状态
-      this.team.positions = Array(3).fill(null).map((_, rowIndex) => {
-        return Array(6).fill(null).map((_, colIndex) => {
-          const teammateId = rowIndex === 0 && colIndex === 0 ? "player-1" : undefined;
-          return new TeamPosition(`position-${rowIndex}-${colIndex}`, rowIndex, colIndex, teammateId);
+      this.team.positions = Array(3)
+        .fill(null)
+        .map((_, rowIndex) => {
+          return Array(6)
+            .fill(null)
+            .map((_, colIndex) => {
+              const teammateId =
+                rowIndex === 0 && colIndex === 0 ? "player-1" : undefined;
+              return new TeamPosition(
+                `position-${rowIndex}-${colIndex}`,
+                rowIndex,
+                colIndex,
+                teammateId
+              );
+            });
         });
-      });
-      
+
       // 重置战斗状态
       this.battleState.isInBattle = false;
       this.battleState.currentMonster = undefined;
       this.battleState.battleLogs = [];
       this.battleState.battleResult = undefined;
-      
+
       console.log("玩家信息、队伍数据和战斗状态已重置到初始状态");
     },
 
     // 生成地图
     generateMap() {
-      const { width, height } = this.map;
-      const locations: GameLocation[][] = [];
-      const locationNames = [
-        "山谷",
-        "森林",
-        "湖泊",
-        "火山",
-        "平原",
-        "山脉",
-        "沙漠",
-        "沼泽",
-        "草原",
-        "洞穴",
-      ];
-      const spiritVeinTypes: SpiritRootType[] = [
-        "gold",
-        "wood",
-        "water",
-        "fire",
-        "earth",
-      ];
-
-      for (let y = 0; y < height; y++) {
-        const row: GameLocation[] = [];
-        for (let x = 0; x < width; x++) {
-          // 随机生成地点名称
-          const randomName = locationNames[Math.floor(Math.random() * locationNames.length)] || "山谷"; // 默认使用山谷
-          const locationName = `${randomName}(${x},${y})`;
-          // 获取随机图标
-          const locationIcon = getRandomIcon(randomName);
-
-          // 随机生成灵气分布
-          const spiritQi = new SpiritQi({
-            gold: Math.floor(Math.random() * resourceConfig.initialMaxSpiritQi),
-            wood: Math.floor(Math.random() * resourceConfig.initialMaxSpiritQi),
-            water: Math.floor(Math.random() * resourceConfig.initialMaxSpiritQi),
-            fire: Math.floor(Math.random() * resourceConfig.initialMaxSpiritQi),
-            earth: Math.floor(Math.random() * resourceConfig.initialMaxSpiritQi),
-            maxGold: resourceConfig.initialMaxSpiritQi,
-            maxWood: resourceConfig.initialMaxSpiritQi,
-            maxWater: resourceConfig.initialMaxSpiritQi,
-            maxFire: resourceConfig.initialMaxSpiritQi,
-            maxEarth: resourceConfig.initialMaxSpiritQi,
-          });
-
-          // 随机生成灵脉（30%概率）
-          let spiritVein: SpiritVein | undefined;
-          if (Math.random() < 0.3) {
-            const veinTypeIndex = Math.floor(
-              Math.random() * spiritVeinTypes.length
-            );
-            const veinType = spiritVeinTypes[veinTypeIndex] as SpiritRootType;
-            const veinLevel = Math.floor(Math.random() * 3) + 1; // 1-3级
-            const veinName = `${veinType === "gold" ? "金" : veinType === "wood" ? "木" : veinType === "water" ? "水" : veinType === "fire" ? "火" : "土"}灵脉`;
-            spiritVein = new SpiritVein(veinType, veinLevel * 5, veinLevel, veinName);
-          }
-
-          // 随机生成怪物（25%概率）
-          let monster: Monster | undefined;
-          if (Math.random() < 0.25 && !(x === 0 && y === 0)) {
-            // 初始地点没有怪物
-            monster = this.generateMonster(x, y);
-          }
-
-          // 创建地点
-          const location = new GameLocation({
-            id: `${x}-${y}`,
-            x,
-            y,
-            name: locationName,
-            spiritQi,
-            spiritVein,
-            monster,
-            isCurrent: x === 0 && y === 0, // 初始地点
-            icon: locationIcon,
-          });
-
-          row.push(location);
-        }
-        locations.push(row);
-      }
-
-      this.map.locations = locations;
-      // 确保locations[0][0]存在
-      if (locations[0] && locations[0][0]) {
-        this.player.currentLocation = locations[0][0];
-      }
-    },
-
-    // 生成怪物
-    generateMonster(x: number, y: number): Monster {
-      const monsterNames = [
-        "山妖",
-        "水怪",
-        "火灵",
-        "木精",
-        "土怪",
-        "风妖",
-        "雷怪",
-        "冰灵",
-        "毒蛊",
-        "血魔",
-      ];
-      const monsterDescriptions = [
-        "盘踞在此地的妖怪，吸收天地灵气修炼",
-        "诞生于灵气汇聚之处的精怪",
-        "作恶多端的邪修所化",
-        "上古遗留的妖物",
-        "被魔气侵蚀的生灵",
-      ];
-
-      const name = 
-        monsterNames[Math.floor(Math.random() * monsterNames.length)] ||
-        "神秘怪物";
-      const level = Math.floor(Math.random() * 3) + 1; // 1-3级
-      
-      // 使用属性生成函数生成怪物属性
-      const attributes = generateAttributesByLevel(level);
-
-      return new Monster({
-        id: `monster-${x}-${y}-${Date.now()}`,
-        name,
-        level,
-        attributes,
-        expReward: level * 20,
-        description: 
-          monsterDescriptions[
-            Math.floor(Math.random() * monsterDescriptions.length)
-          ] || "这是一个强大的怪物",
+      MapManager.generateMap(this.map, (location: GameLocation) => {
+        this.player.currentLocation = location;
       });
     },
 
-    // 切换地点
-    switchLocation(x: number, y: number) {
-      if (x < 0 || x >= this.map.width || y < 0 || y >= this.map.height) {
-        return; // 超出地图范围
-      }
-
-      // 取消当前地点的标记 - 只更新isCurrent状态，保留其他所有属性
-      const currentLoc = this.player.currentLocation;
-      if (
-        currentLoc &&
-        typeof currentLoc.y === "number" &&
-        typeof currentLoc.x === "number"
-      ) {
-        const row = this.map.locations[currentLoc.y];
-        if (row && row[currentLoc.x]) {
-          // 使用非空断言操作符确保TypeScript识别类型
-          row[currentLoc.x]!.isCurrent = false;
-        }
-      }
-
-      // 设置新地点 - 直接使用地图中存储的原始地点对象，避免属性丢失
-      const newRow = this.map.locations[y];
-      if (newRow && newRow[x]) {
-        // 确保使用地图中存储的原始地点对象
-        const mapLocation = newRow[x];
-
-        // 只更新isCurrent状态
-        mapLocation.isCurrent = true;
-
-        // 直接引用地图中的原始对象，而不是创建新对象
-        this.player.currentLocation = mapLocation;
-
-        // 检查是否有怪物，触发战斗
-        if (mapLocation.monster) {
-          this.startBattle(mapLocation.monster);
-        }
-      }
-    },
-
-    // 上下左右移动
-    move(direction: "up" | "down" | "left" | "right") {
-      const currentX = this.player.currentLocation!.x;
-      const currentY = this.player.currentLocation!.y;
-      let newX = currentX;
-      let newY = currentY;
-
-      switch (direction) {
-        case "up":
-          newY = currentY - 1;
-          break;
-        case "down":
-          newY = currentY + 1;
-          break;
-        case "left":
-          newX = currentX - 1;
-          break;
-        case "right":
-          newX = currentX + 1;
-          break;
-      }
-
-      this.switchLocation(newX, newY);
-    },
-
     // 开始战斗
-    startBattle(monster: Monster) {
+    startBattle(monster: any) {
       this.battleState.isInBattle = true;
-      this.battleState.currentMonster = new Monster({ ...monster }); // 使用构造函数创建深拷贝，保留类方法
+      this.battleState.currentMonster = monster;
       this.battleState.battleLogs = [];
       this.battleState.isPlayerTurn = true;
       this.battleState.battleResult = undefined;
+      this.currentSystem = "battle";
 
       // 添加战斗开始日志
       this.addBattleLog({
@@ -896,16 +510,13 @@ export const useGameStore = defineStore("game", {
         type: "system",
       });
 
-      // 切换到战斗系统
-      this.currentSystem = "battle";
-
       // 触发全局事件，通知UI层需要跳转到战斗页面
       window.dispatchEvent(new CustomEvent("start-battle"));
     },
 
     // 添加战斗日志
-    addBattleLog(log: Omit<BattleLog, "id" | "timestamp">) {
-      const newLog: BattleLog = {
+    addBattleLog(log: any) {
+      const newLog: any = {
         ...log,
         id: `log-${Date.now()}-${Math.random()}`,
         timestamp: Date.now(),
@@ -936,12 +547,13 @@ export const useGameStore = defineStore("game", {
         });
       } else {
         // 检查是否暴击
-        const isCritical = Math.random() < this.getPlayerCurrentCritical() / 100;
+        const isCritical =
+          Math.random() < this.player.attributes.critical / 100;
 
         // 计算伤害
         let damage = Math.max(
           1,
-          this.getPlayerCurrentAttack() - monster.attributes.defense / 2
+          this.player.attributes.attack - monster.attributes.defense / 2
         );
         if (isCritical) {
           damage = Math.floor(damage * 1.5);
@@ -987,7 +599,7 @@ export const useGameStore = defineStore("game", {
       // 切换到怪物回合
       this.battleState.isPlayerTurn = false;
 
-      // 延迟怪物攻击，让玩家有时间看到结果
+      // 延迟怪物攻击
       setTimeout(() => {
         this.monsterAttack();
       }, 1000);
@@ -1007,8 +619,8 @@ export const useGameStore = defineStore("game", {
       const player = this.player;
 
       // 检查是否命中
-        const hitChance = 0.7 - this.getPlayerCurrentDodge() / 100;
-        const isHit = Math.random() < hitChance;
+      const hitChance = 0.7 - player.attributes.dodge / 100;
+      const isHit = Math.random() < hitChance;
 
       if (!isHit) {
         this.addBattleLog({
@@ -1022,14 +634,14 @@ export const useGameStore = defineStore("game", {
         // 计算伤害
         let damage = Math.max(
           1,
-          monster.attributes.attack - this.getPlayerCurrentDefense() / 2
+          monster.attributes.attack - player.attributes.defense / 2
         );
         if (isCritical) {
           damage = Math.floor(damage * 1.5);
         }
 
         // 检查是否被格挡
-        const blockChance = this.getPlayerCurrentBlock() / 100;
+        const blockChance = player.attributes.block / 100;
         const isBlocked = Math.random() < blockChance;
 
         if (isBlocked) {
@@ -1103,7 +715,7 @@ export const useGameStore = defineStore("game", {
       }
 
       // 逃跑成功率基于身法
-      const escapeChance = 0.5 + this.getPlayerCurrentDodge() / 200;
+      const escapeChance = 0.5 + this.player.attributes.dodge / 200;
       const isEscaped = Math.random() < escapeChance;
 
       if (isEscaped) {
@@ -1129,7 +741,7 @@ export const useGameStore = defineStore("game", {
     },
 
     // 处理战斗胜利
-    handleBattleWin(monster: Monster) {
+    handleBattleWin(monster: any) {
       this.battleState.battleResult = "win";
 
       // 获得经验值
@@ -1184,8 +796,6 @@ export const useGameStore = defineStore("game", {
     // 处理战斗逃跑
     handleBattleEscape() {
       this.battleState.battleResult = "escape";
-
-      // 结束战斗
       this.endBattle();
     },
 
@@ -1197,163 +807,47 @@ export const useGameStore = defineStore("game", {
 
     // 吸收灵气（从当前地点）
     absorbSpiritQi(spiritType: SpiritRootType) {
-      if (this.player.isCooldown) return;
-
-      const { spiritRoots, absorbSpeed } = this.player;
-      const currentLocation = this.player.currentLocation;
-
-      // 找到对应的灵根
-      const root = spiritRoots.find((r: SpiritRoot) => r.type === spiritType);
-      if (!root) return;
-
-      // 根据灵根等级计算吸收量
-      const absorbAmount = Math.floor(balanceConfig.baseAbsorbAmount * root.level * absorbSpeed);
-      const playerMaxQi = this.player.spiritQi[
-        `max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi
-      ] as number;
-
-      // 计算实际可吸收的灵气量（不超过玩家上限和地点可用量）
-      const availableQi = currentLocation!.spiritQi[spiritType];
-      const playerAvailableSpace =
-        playerMaxQi - this.player.spiritQi[spiritType];
-      const actualAbsorbAmount = Math.min(
-        absorbAmount,
-        availableQi,
-        playerAvailableSpace
+      SpiritQiManager.absorbSpiritQi(
+        this.player,
+        spiritType,
+        this.player.currentLocation,
+        this.canLevelUp,
+        () => this.levelUp()
       );
-
-      if (actualAbsorbAmount <= 0) return;
-
-      // 更新玩家灵气
-      this.player.spiritQi[spiritType] += actualAbsorbAmount;
-
-      // 更新地点灵气
-      currentLocation!.spiritQi[spiritType] -= actualAbsorbAmount;
-
-      // 检查是否可以升级
-      if (this.canLevelUp) {
-        this.levelUp();
-      }
-
-      // 进入冷却状态
-      this.startCooldown();
     },
 
     // 灵脉生产灵气
     produceSpiritQi() {
-      // 遍历所有地点
-      this.map.locations.forEach((row) => {
-        row.forEach((location: GameLocation) => {
-          if (location.spiritVein) {
-            const { type, productionSpeed } = location.spiritVein;
-            const maxQi = location.spiritQi[
-              `max${type.charAt(0).toUpperCase() + type.slice(1)}` as keyof SpiritQi
-            ] as number;
-
-            // 生产灵气，不超过上限
-            location.spiritQi[type] = Math.min(
-              location.spiritQi[type] + productionSpeed,
-              maxQi
-            );
-          }
-        });
-      });
+      SpiritQiManager.produceSpiritQi(this.map);
     },
 
     // 升级
     levelUp() {
-      this.player.level++;
-
-      // 计算新的灵气上限（每级增加50%）
-      const rootTypes: SpiritRootType[] = [
-        "gold",
-        "wood",
-        "water",
-        "fire",
-        "earth",
-      ];
-      rootTypes.forEach((type) => {
-        const maxKey =
-          `max${type.charAt(0).toUpperCase() + type.slice(1)}` as keyof SpiritQi;
-        // 使用类型断言修复类型错误
-          (this.player.spiritQi as any)[maxKey] = Math.floor(
-            (this.player.spiritQi as any)[maxKey] * resourceConfig.spiritQiLevelUpFactor
-          );
-        // 重置灵气值
-        this.player.spiritQi[type] = 0;
-      });
-
-      // 增加经验值需求
-      this.player.maxExp = Math.floor(this.player.maxExp * balanceConfig.expLevelUpFactor);
-
-      // 提升战斗属性
-      this.player.attributes.attack += 3;
-      this.player.attributes.defense += 2;
-      this.player.attributes.maxHealth += 20;
-      this.player.attributes.health = this.player.attributes.maxHealth;
-      this.player.attributes.dodge += 1;
-      this.player.attributes.block += 1;
-      this.player.attributes.critical += 1;
+      LevelUpManager.levelUp(this.player);
     },
 
     // 开始冷却
     startCooldown() {
-      this.player.isCooldown = true;
-      this.player.cooldownRemaining = this.player.cooldown;
-
-      // 冷却倒计时
-      const timer = setInterval(() => {
-        if (this.player.cooldownRemaining <= 0) {
-          this.player.isCooldown = false;
-          this.player.cooldownRemaining = 0;
-          clearInterval(timer);
-        } else {
-          this.player.cooldownRemaining -= 100;
-        }
-      }, 100);
+      SpiritQiManager.startCooldown(this.player);
     },
 
     // 检查是否可以吸收特定类型的灵气
     canAbsorbSpiritQi(spiritType: SpiritRootType): boolean {
-      const root = this.player.spiritRoots.find(
-        (r: SpiritRoot) => r.type === spiritType
-      );
-      if (!root) return false;
-
-      const playerMaxQi = this.player.spiritQi[
-        `max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi
-      ] as number;
-
-      const playerAvailableSpace =
-        playerMaxQi - this.player.spiritQi[spiritType];
-      const availableQi = this.player.currentLocation!.spiritQi[spiritType];
-
-      return (
-        !this.player.isCooldown && playerAvailableSpace > 0 && availableQi > 0
+      return SpiritQiManager.canAbsorbSpiritQi(
+        this.player,
+        spiritType,
+        this.player.currentLocation
       );
     },
 
     // 尝试自动吸收灵气
     tryAutoAbsorb() {
-      // 检查是否在冷却中或不在修炼模式
-      if (this.player.isCooldown || this.currentSystem !== "outdoor") return;
-
-      // 尝试所有灵气类型
-      const spiritTypes: SpiritRootType[] = [
-        "gold",
-        "wood",
-        "water",
-        "fire",
-        "earth",
-      ];
-      for (const spiritType of spiritTypes) {
-        if (this.canAbsorbSpiritQi(spiritType)) {
-          this.absorbSpiritQi(spiritType);
-          return true;
-        }
-      }
-
-      return false;
+      return SpiritQiManager.tryAutoAbsorb(
+        this.player,
+        this.currentSystem,
+        (spiritType: SpiritRootType) => this.canAbsorbSpiritQi(spiritType),
+        (spiritType: SpiritRootType) => this.absorbSpiritQi(spiritType)
+      );
     },
 
     // 开始自动吸收灵气
@@ -1382,196 +876,194 @@ export const useGameStore = defineStore("game", {
       this.isAutoAbsorbing = false;
     },
 
-    // 开始时间流逝
-    startTimeFlow() {
-      if (this.timeInterval) return;
-
-      // 每秒更新一次游戏时间
-      this.timeInterval = window.setInterval(() => {
-        if (this.gameTime.isPaused) return;
-
-        // 更新时间
-        this.gameTime.second += 1 * this.gameTime.speed;
-
-        // 处理时间进位
-        if (this.gameTime.second >= 60) {
-          this.gameTime.second = 0;
-          this.gameTime.minute += 1;
-        }
-        if (this.gameTime.minute >= 60) {
-          this.gameTime.minute = 0;
-          this.gameTime.hour += 1;
-        }
-        if (this.gameTime.hour >= 24) {
-          this.gameTime.hour = 0;
-          this.gameTime.day += 1;
-        }
-        if (this.gameTime.day > 30) {
-          this.gameTime.day = 1;
-          this.gameTime.month += 1;
-        }
-        if (this.gameTime.month > 12) {
-          this.gameTime.month = 1;
-          this.gameTime.year += 1;
-        }
-
-        // 每小时生产一次灵气（游戏时间）
-        if (this.gameTime.minute === 0 && this.gameTime.second === 0) {
-          this.produceSpiritQi();
-        }
-      }, 1000);
-    },
-
-    // 暂停时间流逝
-    pauseTimeFlow() {
-      this.gameTime.isPaused = true;
-    },
-
-    // 继续时间流逝
-    resumeTimeFlow() {
-      this.gameTime.isPaused = false;
-    },
-
-    // 设置时间流速
-    setTimeSpeed(speed: number) {
-      this.gameTime.speed = speed;
-    },
-
-    // 切换游戏系统
-    switchSystem(system: "training" | "outdoor" | "battle") {
-      this.currentSystem = system;
-      // 初始化地图（如果是第一次进入外出系统）
-      if (system === "outdoor" && this.map.locations.length === 0) {
-        this.generateMap();
+    // 切换自动吸收灵气状态
+    toggleAutoAbsorb() {
+      if (this.isAutoAbsorbing) {
+        this.stopAutoAbsorb();
+      } else {
+        this.startAutoAbsorb();
       }
     },
 
-    // 更新灵根等级
-    updateSpiritRootLevel(type: SpiritRootType, level: number) {
-      const root = this.player.spiritRoots.find(
-        (r: SpiritRoot) => r.type === type
+    // 切换地点
+    switchLocation(x: number, y: number) {
+      MapManager.switchLocation(
+        this.map,
+        x,
+        y,
+        this.player.currentLocation,
+        (location: GameLocation) => {
+          this.player.currentLocation = location;
+        },
+        (monster: any) => {
+          this.startBattle(monster);
+        }
       );
-      if (root) {
-        root.level = level;
-      }
     },
-    // 获取玩家当前的随机攻击值
-     getPlayerCurrentAttack(character?: { level: number }): number {
-       return getCharacterCurrentAttack(character || this.player);
-     },
-     // 获取玩家当前的随机防御值
-     getPlayerCurrentDefense(character?: { level: number }): number {
-       return getCharacterCurrentDefense(character || this.player);
-     },
-     // 获取玩家当前的随机闪避值
-     getPlayerCurrentDodge(character?: { level: number }): number {
-       return getCharacterCurrentDodge(character || this.player);
-     },
-     // 获取玩家当前的随机格挡值
-     getPlayerCurrentBlock(character?: { level: number }): number {
-       return getCharacterCurrentBlock(character || this.player);
-     },
-     // 获取玩家当前的随机暴击值
-     getPlayerCurrentCritical(character?: { level: number }): number {
-       return getCharacterCurrentCritical(character || this.player);
-     },
-    // 队伍相关action
-    // 上阵队友
-    deployTeammate(teammateId: string, row: number, column: number) {
+
+    // 上下左右移动
+    move(direction: "up" | "down" | "left" | "right") {
+      MapManager.move(
+        direction,
+        this.player.currentLocation,
+        (x: number, y: number) => {
+          this.switchLocation(x, y);
+        }
+      );
+    },
+
+    // 部署队友到指定位置
+    deployTeammate(
+      teammateId: string,
+      row: number,
+      column: number
+    ): { success: boolean; reason: string } {
       // 检查位置是否有效
-      if (row < 0 || row >= this.team.positions.length || column < 0 || !this.team.positions[row] || column >= this.team.positions[row].length) {
-        return false;
+      if (
+        row < 0 ||
+        row >= this.team.positions.length ||
+        column < 0 ||
+        column >= this.team.positions[row]?.length
+      ) {
+        return { success: false, reason: "无效的位置" };
       }
-      
-      // 检查队伍人数是否已达上限
-      if (this.currentTeamSize >= this.team.maxTeamSize) {
-        return false;
-      }
-      
+
       // 检查队友是否存在
-      const teammate = this.team.allTeammates.find(t => t.id === teammateId);
+      const teammate = this.team.allTeammates.find((t) => t.id === teammateId);
       if (!teammate) {
-        return false;
+        return { success: false, reason: "队友不存在" };
       }
-      
-      // 如果该队友已在其他位置，先下阵
-      this.undeployTeammate(teammateId);
-      
-      // 上阵到指定位置
-      const position = this.team.positions[row][column];
-      if (position) {
-        position.teammateId = teammateId;
-        return true;
+
+      // 检查该位置是否已被占用
+      const targetPosition = this.team.positions[row]?.[column];
+      if (targetPosition && targetPosition.teammateId) {
+        return { success: false, reason: "该位置已被占用" };
       }
-      return false;
-    },
-    // 下阵队友
-    undeployTeammate(teammateId: string) {
-      // 玩家不能下阵
-      const teammate = this.team.allTeammates.find(t => t.id === teammateId);
-      if (teammate?.isPlayer) {
-        return false;
-      }
-      
-      // 查找并移除队友
-      for (const row of this.team.positions) {
-        if (row) {
-          for (const position of row) {
-            if (position && position.teammateId === teammateId) {
-              position.teammateId = undefined;
-              return true;
-            }
+
+      // 检查队友是否已经在其他位置
+      for (let r = 0; r < this.team.positions.length; r++) {
+        for (let c = 0; c < this.team.positions[r]?.length; c++) {
+          const position = this.team.positions[r]?.[c];
+          if (position && position.teammateId === teammateId) {
+            position.teammateId = undefined;
           }
         }
       }
-      return false;
+
+      // 部署队友到新位置
+      if (targetPosition) {
+        targetPosition.teammateId = teammateId;
+        return { success: true, reason: "部署成功" };
+      }
+
+      return { success: false, reason: "部署失败" };
     },
-    // 切换两个位置的队友
-    swapTeammatePositions(pos1: { row: number, column: number }, pos2: { row: number, column: number }) {
-      // 检查位置有效性
+
+    // 取消部署队友
+    undeployTeammate(teammateId: string): { success: boolean; reason: string } {
+      // 检查队友是否存在
+      const teammate = this.team.allTeammates.find((t) => t.id === teammateId);
+      if (!teammate) {
+        return { success: false, reason: "队友不存在" };
+      }
+
+      // 检查队友是否是玩家
+      if (teammate.isPlayer) {
+        return { success: false, reason: "玩家不能取消部署" };
+      }
+
+      // 从位置上移除队友
+      let found = false;
+      for (let row = 0; row < this.team.positions.length; row++) {
+        for (let col = 0; col < this.team.positions[row]?.length; col++) {
+          const position = this.team.positions[row]?.[col];
+          if (position && position.teammateId === teammateId) {
+            position.teammateId = undefined;
+            found = true;
+          }
+        }
+      }
+
+      if (found) {
+        return { success: true, reason: "取消部署成功" };
+      } else {
+        return { success: false, reason: "队友未部署" };
+      }
+    },
+
+    // 交换两个位置的队友
+    swapTeammates(
+      row1: number,
+      col1: number,
+      row2: number,
+      col2: number
+    ): { success: boolean; reason: string } {
+      // 检查位置是否有效
       if (
-        pos1.row < 0 || pos1.row >= this.team.positions.length || 
-        pos2.row < 0 || pos2.row >= this.team.positions.length
+        row1 < 0 ||
+        row1 >= this.team.positions.length ||
+        col1 < 0 ||
+        col1 >= this.team.positions[row1]?.length ||
+        row2 < 0 ||
+        row2 >= this.team.positions.length ||
+        col2 < 0 ||
+        col2 >= this.team.positions[row2]?.length
       ) {
-        return false;
+        return { success: false, reason: "无效的位置" };
       }
-      
-      const row1 = this.team.positions[pos1.row];
-      const row2 = this.team.positions[pos2.row];
-      
-      if (!row1 || !row2) {
-        return false;
-      }
-      
-      if (
-        pos1.column < 0 || pos1.column >= row1.length ||
-        pos2.column < 0 || pos2.column >= row2.length
-      ) {
-        return false;
-      }
-      
-      // 获取位置引用并确保不为undefined
-      const position1 = this.team.positions[pos1.row]?.[pos1.column];
-      const position2 = this.team.positions[pos2.row]?.[pos2.column];
-      
+
+      const position1 = this.team.positions[row1]?.[col1];
+      const position2 = this.team.positions[row2]?.[col2];
+
       if (!position1 || !position2) {
-        return false;
+        return { success: false, reason: "无效的位置" };
       }
-      
-      // 交换位置
+
+      // 交换队友ID
       const temp = position1.teammateId;
       position1.teammateId = position2.teammateId;
       position2.teammateId = temp;
-      return true;
+
+      return { success: true, reason: "交换成功" };
     },
-    // 添加新队友
-    addTeammate(teammate: Omit<Teammate, "id">) {
-      const newTeammate: Teammate = {
-        ...teammate,
-        id: `teammate-${Date.now()}`
-      };
-      this.team.allTeammates.push(newTeammate);
-      return newTeammate;
+
+    // 更新游戏时间
+    updateGameTime() {
+      if (this.gameTime.isPaused) return;
+      this.gameTime.tick(1000);
+    },
+
+    // 开始时间流动
+    startTimeFlow() {
+      if (this.timeInterval) return;
+      this.timeInterval = window.setInterval(() => {
+        this.updateGameTime();
+        this.produceSpiritQi();
+      }, 1000);
+    },
+
+    // 暂停时间流动
+    pauseTimeFlow() {
+      if (this.timeInterval) {
+        clearInterval(this.timeInterval);
+        this.timeInterval = null;
+      }
+      this.gameTime.isPaused = true;
+    },
+
+    // 恢复时间流动
+    resumeTimeFlow() {
+      this.gameTime.isPaused = false;
+      this.startTimeFlow();
+    },
+
+    // 切换时间流动状态
+    toggleTimeFlow() {
+      if (this.gameTime.isPaused) {
+        this.resumeTimeFlow();
+      } else {
+        this.pauseTimeFlow();
+      }
     },
   },
 });

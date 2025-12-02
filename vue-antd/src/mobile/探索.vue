@@ -179,15 +179,51 @@ const mapLegend = ref([
   { color: "#73d13d", text: "灵脉", icon: "💎" },
   { color: "#ff7875", text: "怪物", icon: "👹" },
   // 添加地点类别图例
-  { color: "#e6f7ff", text: "山谷", icon: locationIcons["山谷"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "森林", icon: locationIcons["森林"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "湖泊", icon: locationIcons["湖泊"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "火山", icon: locationIcons["火山"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "平原", icon: locationIcons["平原"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "山脉", icon: locationIcons["山脉"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "沙漠", icon: locationIcons["沙漠"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "沼泽", icon: locationIcons["沼泽"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "洞穴", icon: locationIcons["洞穴"]?.join(' ') || "" }
+  {
+    color: "#e6f7ff",
+    text: "山谷",
+    icon: locationIcons["山谷"]?.join(" ") || "",
+  },
+  {
+    color: "#e6f7ff",
+    text: "森林",
+    icon: locationIcons["森林"]?.join(" ") || "",
+  },
+  {
+    color: "#e6f7ff",
+    text: "湖泊",
+    icon: locationIcons["湖泊"]?.join(" ") || "",
+  },
+  {
+    color: "#e6f7ff",
+    text: "火山",
+    icon: locationIcons["火山"]?.join(" ") || "",
+  },
+  {
+    color: "#e6f7ff",
+    text: "平原",
+    icon: locationIcons["平原"]?.join(" ") || "",
+  },
+  {
+    color: "#e6f7ff",
+    text: "山脉",
+    icon: locationIcons["山脉"]?.join(" ") || "",
+  },
+  {
+    color: "#e6f7ff",
+    text: "沙漠",
+    icon: locationIcons["沙漠"]?.join(" ") || "",
+  },
+  {
+    color: "#e6f7ff",
+    text: "沼泽",
+    icon: locationIcons["沼泽"]?.join(" ") || "",
+  },
+  {
+    color: "#e6f7ff",
+    text: "洞穴",
+    icon: locationIcons["洞穴"]?.join(" ") || "",
+  },
 ]);
 
 // 导入正确的Monster类型
@@ -259,7 +295,8 @@ const moveTo = async (targetX: number, targetY: number) => {
   // 防止重复执行移动操作
   if (
     isMoving.value ||
-    (currentLocation.value?.x === targetX && currentLocation.value?.y === targetY)
+    (currentLocation.value?.x === targetX &&
+      currentLocation.value?.y === targetY)
   ) {
     return;
   }
@@ -625,7 +662,7 @@ const actions = ref([{ label: "修炼", type: "primary", handler: cultivation }]
 }
 
 .legend-icon {
-  font-family: 'iconfont' !important;
+  font-family: "iconfont" !important;
   font-size: 16px;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
@@ -662,14 +699,18 @@ const actions = ref([{ label: "修炼", type: "primary", handler: cultivation }]
 <style>
 /* 在线链接服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
 @font-face {
-  font-family: 'iconfont';  /* Project id 5078320 */
-  src: url('//at.alicdn.com/t/c/font_5078320_icsfgw3bjsk.woff2?t=1764641638226') format('woff2'),
-       url('//at.alicdn.com/t/c/font_5078320_icsfgw3bjsk.woff?t=1764641638226') format('woff'),
-       url('//at.alicdn.com/t/c/font_5078320_icsfgw3bjsk.ttf?t=1764641638226') format('truetype');
+  font-family: "iconfont"; /* Project id 5078320 */
+  src:
+    url("//at.alicdn.com/t/c/font_5078320_icsfgw3bjsk.woff2?t=1764641638226")
+      format("woff2"),
+    url("//at.alicdn.com/t/c/font_5078320_icsfgw3bjsk.woff?t=1764641638226")
+      format("woff"),
+    url("//at.alicdn.com/t/c/font_5078320_icsfgw3bjsk.ttf?t=1764641638226")
+      format("truetype");
 }
 
 .iconfont {
-  font-family: 'iconfont' !important;
+  font-family: "iconfont" !important;
   font-size: 18px; /* 调整图标大小以适应格子 */
   font-style: normal;
   -webkit-font-smoothing: antialiased;
@@ -677,7 +718,7 @@ const actions = ref([{ label: "修炼", type: "primary", handler: cultivation }]
 }
 
 .location-icon {
-  font-family: 'iconfont' !important;
+  font-family: "iconfont" !important;
   font-size: 22px; /* 地点图标稍大一些 */
   font-style: normal;
   -webkit-font-smoothing: antialiased;
