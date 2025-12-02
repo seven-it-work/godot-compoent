@@ -139,6 +139,7 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useGameStore } from "../store/gameStore";
+import { locationIcons } from "../config/locationIcons";
 import type { SpiritRootType, Location } from "../types/game";
 
 const gameStore = useGameStore();
@@ -173,10 +174,20 @@ const colorMap = ref<Record<string, string>>({
 
 // 地图图例数据
 const mapLegend = ref([
-  { color: "#e6f7ff", text: "普通地形", icon: "" },
+  { color: "#e6f7ff", text: "当前位置", icon: "👤" },
   { color: "#73d13d", text: "灵脉", icon: "💎" },
   { color: "#ff7875", text: "怪物", icon: "👹" },
-  { color: "#1890ff", text: "当前位置", icon: "👤" },
+  // 添加地点类别图例
+  { color: "#e6f7ff", text: "山谷", icon: locationIcons["山谷"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "森林", icon: locationIcons["森林"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "湖泊", icon: locationIcons["湖泊"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "火山", icon: locationIcons["火山"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "平原", icon: locationIcons["平原"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "山脉", icon: locationIcons["山脉"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "沙漠", icon: locationIcons["沙漠"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "沼泽", icon: locationIcons["沼泽"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "草原", icon: locationIcons["草原"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "洞穴", icon: locationIcons["洞穴"]?.join(' ') || "" },
 ]);
 
 // 导入正确的Monster类型
@@ -614,7 +625,11 @@ const actions = ref([{ label: "修炼", type: "primary", handler: cultivation }]
 }
 
 .legend-icon {
-  font-size: 14px;
+  font-family: 'iconfont' !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* 优化移动端触摸体验 */
