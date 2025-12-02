@@ -155,8 +155,10 @@ const moveStepDelay = 150; // 每步移动的延迟时间（毫秒）
 // 计算属性
 const currentLocation = computed(() => gameStore.getCurrentLocation);
 
-// 配置
+// 配置 - 从配置文件或集中管理的地方获取，提高可维护性
 const spiritQiTypes = ref<string[]>(["gold", "wood", "water", "fire", "earth"]);
+
+// 灵气类型映射和颜色配置 - 可以考虑移到单独的配置文件中
 const typeMap = ref<Record<string, string>>({
   gold: "金",
   wood: "木",
@@ -164,6 +166,7 @@ const typeMap = ref<Record<string, string>>({
   fire: "火",
   earth: "土",
 });
+
 const colorMap = ref<Record<string, string>>({
   gold: "#ffd700",
   wood: "#90ee90",
@@ -172,23 +175,39 @@ const colorMap = ref<Record<string, string>>({
   earth: "#deb887",
 });
 
-// 地图图例数据
-const mapLegend = ref([
-  { color: "#e6f7ff", text: "当前位置", icon: "👤" },
-  { color: "#73d13d", text: "灵脉", icon: "💎" },
-  { color: "#ff7875", text: "怪物", icon: "👹" },
-  // 添加地点类别图例
-  { color: "#e6f7ff", text: "山谷", icon: locationIcons["山谷"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "森林", icon: locationIcons["森林"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "湖泊", icon: locationIcons["湖泊"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "火山", icon: locationIcons["火山"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "平原", icon: locationIcons["平原"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "山脉", icon: locationIcons["山脉"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "沙漠", icon: locationIcons["沙漠"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "沼泽", icon: locationIcons["沼泽"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "草原", icon: locationIcons["草原"]?.join(' ') || "" },
-  { color: "#e6f7ff", text: "洞穴", icon: locationIcons["洞穴"]?.join(' ') || "" },
-]);
+// 单元格样式配置 - 集中管理单元格样式，便于扩展
+const cellStyleConfig = ref({
+  current: { backgroundColor: "#1890ff" }, // 当前位置蓝色
+  spiritVein: { backgroundColor: "#73d13d" }, // 灵脉绿色
+  monster: { backgroundColor: "#ff7875" }, // 怪物红色
+  default: { backgroundColor: "#e6f7ff" }, // 普通地形浅蓝色
+});
+
+// 单元格大小配置 - 集中管理单元格大小，便于统一修改
+const cellSize = ref(48); // 单元格大小，单位：像素
+
+// 自动生成地图图例数据 - 动态生成图例，无需手动添加新地点类型
+const mapLegend = computed(() => {
+  const legendItems = [
+    { color: cellStyleConfig.value.current.backgroundColor, text: "当前位置", icon: "👤" },
+    { color: cellStyleConfig.value.spiritVein.backgroundColor, text: "灵脉", icon: "💎" },
+    { color: cellStyleConfig.value.monster.backgroundColor, text: "怪物", icon: "👹" },
+  ];
+  
+  // 自动从locationIcons中生成所有地点类别的图例项
+  for (const locationType in locationIcons) {
+    if (locationIcons.hasOwnProperty(locationType)) {
+      const icons = locationIcons[locationType];
+      legendItems.push({
+        color: cellStyleConfig.value.default.backgroundColor,
+        text: locationType,
+        icon: icons?.join(' ') || "",
+      });
+    }
+  }
+  
+  return legendItems;
+});
 
 // 导入正确的Monster类型
 import type { Monster } from "../types/game";
@@ -219,13 +238,13 @@ const getCellClass = (location: Location) => {
 
 const getCellStyle = (location: Location) => {
   if (location.isCurrent) {
-    return { backgroundColor: "#1890ff" }; // 当前位置蓝色
+    return cellStyleConfig.value.current;
   } else if (location.spiritVein) {
-    return { backgroundColor: "#73d13d" }; // 灵脉绿色
+    return cellStyleConfig.value.spiritVein;
   } else if (location.monster) {
-    return { backgroundColor: "#ff7875" }; // 怪物红色
+    return cellStyleConfig.value.monster;
   } else {
-    return { backgroundColor: "#e6f7ff" }; // 普通地形浅蓝色
+    return cellStyleConfig.value.default;
   }
 };
 
@@ -318,9 +337,8 @@ const moveTo = async (targetX: number, targetY: number) => {
 // 滚动到玩家位置
 const scrollToPlayer = () => {
   if (mapRef.value) {
-    const cellSize = 48; // 单元格大小
-    const playerX = currentLocation.value.x * cellSize;
-    const playerY = currentLocation.value.y * cellSize;
+    const playerX = currentLocation.value.x * cellSize.value;
+    const playerY = currentLocation.value.y * cellSize.value;
     mapRef.value.scrollTo({
       left: playerX - mapRef.value.clientWidth / 2,
       top: playerY - mapRef.value.clientHeight / 2,
@@ -488,8 +506,8 @@ const actions = ref([{ label: "修炼", type: "primary", handler: cultivation }]
 
 /* 固定大小的地图单元格 */
 .map-cell {
-  width: 48px;
-  height: 48px;
+  width: v-bind('cellSize + "px"');
+  height: v-bind('cellSize + "px"');
   border: 1px solid rgba(0, 0, 0, 0.1);
   cursor: pointer;
   display: flex;
