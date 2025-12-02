@@ -12,13 +12,13 @@
                 <!-- 顶部信息行 -->
                 <div class="location-info-row">
                   <div class="location-cell location-name-cell">
-                    <div class="location-name">{{ currentLocation.name }}</div>
+                    <div class="location-name">{{ currentLocation?.name || '未知地点' }}</div>
                   </div>
                   <div class="location-cell vein-info-cell">
-                    <div class="vein-info" v-if="currentLocation.spiritVein">
+                    <div class="vein-info" v-if="currentLocation?.spiritVein">
                       <div>
-                        {{ currentLocation.spiritVein.name }} ({{
-                          currentLocation.spiritVein.level
+                        {{ currentLocation.spiritVein?.name }} ({{
+                          currentLocation.spiritVein?.level
                         }}级)
                       </div>
                     </div>
@@ -37,12 +37,12 @@
                       <SpiritProgress
                         :label="typeMap[spiritType]"
                         :current="
-                          currentLocation.spiritQi[spiritType as SpiritRootType]
+                          currentLocation?.spiritQi[spiritType as SpiritRootType] || 0
                         "
                         :max="
-                          currentLocation.spiritQi[
+                          (currentLocation?.spiritQi[
                             `max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi
-                          ]
+                          ] as number) || 100
                         "
                         :stroke-color="colorMap[spiritType]"
                         :is-cooldown="player.isCooldown"
@@ -71,9 +71,9 @@
                       :label="getSpiritRootLabel(spiritType)"
                       :current="player.spiritQi[spiritType as SpiritRootType]"
                       :max="
-                        player.spiritQi[
+                        (player.spiritQi[
                           `max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi
-                        ]
+                        ] as number) || 100
                       "
                       :stroke-color="colorMap[spiritType]"
                       :is-cooldown="player.isCooldown"
@@ -120,19 +120,7 @@
           </a-col>
         </a-row>
 
-        <!-- 探索按钮 -->
-        <a-row :gutter="[0, 0]" style="margin-top: 4px !important">
-          <a-col :span="24">
-            <a-button
-              type="primary"
-              @click="goExplore"
-              block
-              style="padding: 0; margin: 0"
-            >
-              探索
-            </a-button>
-          </a-col>
-        </a-row>
+
       </div>
     </a-layout-content>
   </a-layout>
@@ -140,13 +128,11 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
 import { useGameStore } from "../../store/gameStore";
-import type { SpiritRootType, SpiritQi } from "../../types/game";
+import type { SpiritRootType, SpiritQi } from "../../classes/character";
 import SpiritProgress from "../components/SpiritProgress.vue";
 
 const gameStore = useGameStore();
-const router = useRouter();
 
 // 计算属性
 const player = computed(() => gameStore.player);
@@ -205,11 +191,7 @@ const levelUp = () => {
   }
 };
 
-// 探索
-const goExplore = () => {
-  console.log("goExplore");
-  router.push("/mobile/explore");
-};
+
 </script>
 
 <style scoped>

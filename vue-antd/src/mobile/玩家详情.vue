@@ -1,37 +1,18 @@
 <template>
   <a-layout class="mobile-player-detail" :style="{ padding: 0, margin: 0 }">
+    <!-- Header区域，放置探索按钮 -->
+    <a-layout-header style="height: auto; padding: 0; background: #fff; border-bottom: 1px solid #f0f0f0;line-height: 0px;">
+      <div class="header-container">
+        <a-button
+          type="primary"
+          @click="goExplore"
+          block
+        >
+          探索
+        </a-button>
+      </div>
+    </a-layout-header>
     <a-layout-content :style="{ padding: 0, margin: 0 }">
-      <!-- 顶部区域：头像和基本信息 -->
-      <a-row :gutter="[4, 4]">
-        <!-- 头像区域 -->
-        <a-col :span="6">
-          <div class="avatar-card">
-            <div class="avatar-container">
-              <div class="avatar">
-                <div class="avatar-placeholder">修</div>
-              </div>
-              <div class="player-name">{{ player.name }}</div>
-              <div class="player-level">等级: {{ player.level }}</div>
-            </div>
-          </div>
-        </a-col>
-        <!-- 等级和经验区域 -->
-        <a-col :span="18">
-          <div class="level-card">
-            <div class="exp-bar-container">
-              <ExpLevelProgress
-                label="等级"
-                :level="player.level"
-                :current="player.exp"
-                :max="player.maxExp"
-                strokeColor="#52c41a"
-                height="24px"
-              />
-            </div>
-          </div>
-        </a-col>
-      </a-row>
-
       <!-- Tab页签区域 -->
       <div class="tabs-container">
         <a-tabs v-model:activeKey="activeTab" size="small">
@@ -59,6 +40,9 @@
           <a-tab-pane tab="任务" key="tasks">
             <PlayerQuests />
           </a-tab-pane>
+          <a-tab-pane tab="队伍" key="team">
+            <Team />
+          </a-tab-pane>
         </a-tabs>
       </div>
     </a-layout-content>
@@ -66,19 +50,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 // 导入独立组件
 import PlayerAttributes from "./playerDetail/PlayerAttributes.vue";
 import PlayerInventory from "./playerDetail/PlayerInventory.vue";
 import PlayerSkills from "./playerDetail/PlayerSkills.vue";
 import PlayerQuests from "./playerDetail/PlayerQuests.vue";
+import Team from "./playerDetail/Team.vue";
 // 导入现有的修炼组件
 import Cultivation from "./playerDetail/Cultivation.vue";
-// 导入进度条组件
-import ExpLevelProgress from "./components/ExpLevelProgress.vue";
+import { useRouter } from "vue-router";
 import { useGameStore } from "../store/gameStore";
 
 const gameStore = useGameStore();
+const router = useRouter();
 
 // 响应式数据
 // 从gameStore中获取当前激活的tab
@@ -115,8 +100,13 @@ onMounted(() => {
   }
 });
 
-// 计算属性
-const player = computed(() => gameStore.player);
+// 计算属性已移至PlayerAttributes.vue组件中
+
+// 探索功能
+const goExplore = () => {
+  console.log("goExplore");
+  router.push("/mobile/explore");
+};
 
 // 初始化日志
 console.log(
@@ -133,6 +123,11 @@ console.log(
   box-sizing: border-box;
   background-color: #f0f2f5;
   overflow-y: auto;
+}
+
+.header-container {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .player-basic-info {
@@ -549,7 +544,6 @@ console.log(
 .skill-description {
   font-size: 12px;
   color: #666;
-  line-height: 1.4;
   margin-bottom: 8px;
   padding: 8px;
   background: #fafafa;
@@ -616,7 +610,6 @@ console.log(
 .quest-description {
   font-size: 12px;
   color: #666;
-  line-height: 1.4;
   margin-bottom: 8px;
 }
 

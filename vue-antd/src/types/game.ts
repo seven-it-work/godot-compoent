@@ -10,6 +10,33 @@ export interface BattleAttributes {
   dodge: number; // 身法（躲避）
   block: number; // 灵力护盾（格挡）
   critical: number; // 灵眼（暴击）
+  attackSpeed: number; // 攻击速度（决定攻击顺序和频率）
+}
+
+// 队友数据模型
+export interface Teammate {
+  id: string; // 队友唯一标识
+  name: string; // 队友名称
+  level: number; // 队友等级
+  attributes: BattleAttributes; // 战斗属性
+  description: string; // 队友描述
+  image?: string; // 队友图片（可选）
+  isPlayer: boolean; // 是否是玩家自己
+}
+
+// 队伍位置数据模型
+export interface TeamPosition {
+  id: string; // 位置唯一标识
+  row: number; // 行索引
+  column: number; // 列索引
+  teammateId?: string; // 占位的队友ID
+}
+
+// 队伍数据模型
+export interface Team {
+  positions: TeamPosition[][]; // 队伍位置网格（3行6列）
+  allTeammates: Teammate[]; // 所有可用的队友
+  maxTeamSize: number; // 最大队伍成员数
 }
 
 // 灵根数据模型
@@ -53,7 +80,7 @@ export interface Monster {
 }
 
 // 地点数据模型
-export interface Location {
+export interface GameLocation {
   id: string; // 地点唯一标识
   x: number; // 横坐标
   y: number; // 纵坐标
@@ -62,6 +89,7 @@ export interface Location {
   spiritVein?: SpiritVein; // 灵脉（可选）
   monster?: Monster; // 怪物（可选）
   isCurrent: boolean; // 是否为当前地点
+  icon: string; // 地点图标
 }
 
 // 时间系统数据模型
@@ -97,7 +125,7 @@ export interface BattleState {
 export interface GameMap {
   width: number; // 地图宽度（网格数）
   height: number; // 地图高度（网格数）
-  locations: Location[][]; // 二维网格地点
+  locations: GameLocation[][]; // 二维网格地点
 }
 
 // 玩家数据模型
@@ -113,7 +141,7 @@ export interface Player {
   cooldown: number; // 冷却时间（毫秒）
   isCooldown: boolean; // 是否处于冷却中
   cooldownRemaining: number; // 剩余冷却时间（毫秒）
-  currentLocation: Location; // 当前所在地点
+  currentLocation: GameLocation; // 当前所在地点
 }
 
 // 游戏状态
@@ -126,4 +154,5 @@ export interface GameState {
   battleState: BattleState; // 战斗状态
   isAutoAbsorbing: boolean; // 是否自动吸收灵气
   autoAbsorbInterval: number | null; // 自动吸收定时器
+  team: Team; // 玩家队伍
 }

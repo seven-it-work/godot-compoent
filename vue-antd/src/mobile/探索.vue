@@ -4,9 +4,9 @@
       <!-- 顶部信息栏 -->
       <div class="top-info-container">
         <div class="location-info">
-          <div class="location-name">{{ currentLocation.name }}</div>
+          <div class="location-name">{{ currentLocation?.name }}</div>
           <div class="location-coords">
-            坐标: {{ currentLocation.x }}, {{ currentLocation.y }}
+            坐标: {{ currentLocation?.x }}, {{ currentLocation?.y }}
           </div>
         </div>
         <div class="map-controls">
@@ -35,16 +35,14 @@
                   @click="moveTo(x, y)"
                   :style="getCellStyle(location)"
                 >
+                  <!-- 地点图标 -->
+                  <span class="location-icon">{{ location.icon }}</span>
                   <!-- 玩家标记显示在当前玩家位置 -->
                   <span v-if="location.isCurrent" class="player-marker"
                     >👤</span
                   >
-                  <!-- 灵脉标记 -->
-                  <span v-else-if="location.spiritVein" class="cell-icon"
-                    >💎</span
-                  >
                   <!-- 怪物标记 -->
-                  <span v-else-if="location.monster" class="cell-icon">👹</span>
+                  <span v-if="location.monster" class="cell-icon">👹</span>
                 </div>
               </div>
             </div>
@@ -57,19 +55,19 @@
       <div class="location-details-container">
         <div class="section-title">当前地点</div>
         <div class="details-content">
-          <div class="detail-row" v-if="currentLocation.spiritVein">
+          <div class="detail-row" v-if="currentLocation?.spiritVein">
             <div class="detail-label">灵脉:</div>
             <div class="detail-value">
-              {{ currentLocation.spiritVein.name }} ({{
-                currentLocation.spiritVein.level
+              {{ currentLocation.spiritVein?.name }} ({{
+                currentLocation.spiritVein?.level
               }}级)
             </div>
           </div>
-          <div class="detail-row" v-if="currentLocation.monster">
+          <div class="detail-row" v-if="currentLocation?.monster">
             <div class="detail-label">怪物:</div>
             <div class="detail-value">
-              {{ currentLocation.monster.name }} ({{
-                currentLocation.monster.level
+              {{ currentLocation.monster?.name }} ({{
+                currentLocation.monster?.level
               }}级)
             </div>
           </div>
@@ -81,7 +79,7 @@
                 :key="spiritType"
                 class="spirit-qi-dot"
                 :style="{ backgroundColor: colorMap[spiritType] }"
-                :title="`${typeMap[spiritType]}: ${currentLocation.spiritQi[spiritType as SpiritRootType]}/${currentLocation.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof typeof currentLocation.spiritQi]}`"
+                :title="`${typeMap[spiritType]}: ${currentLocation?.spiritQi[spiritType as SpiritRootType] || 0}/${(currentLocation?.spiritQi as any)['max' + spiritType.charAt(0).toUpperCase() + spiritType.slice(1)] || 100}`"
               ></div>
             </div>
           </div>
@@ -141,7 +139,9 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useGameStore } from "../store/gameStore";
-import type { SpiritRootType, Location } from "../types/game";
+import { locationIcons } from "../config/locationIcons";
+import type { SpiritRootType } from "../classes/character";
+import type { GameLocation } from "../classes/world";
 
 const gameStore = useGameStore();
 const router = useRouter();
@@ -175,14 +175,23 @@ const colorMap = ref<Record<string, string>>({
 
 // 地图图例数据
 const mapLegend = ref([
-  { color: "#e6f7ff", text: "普通地形", icon: "" },
+  { color: "#e6f7ff", text: "当前位置", icon: "👤" },
   { color: "#73d13d", text: "灵脉", icon: "💎" },
   { color: "#ff7875", text: "怪物", icon: "👹" },
-  { color: "#1890ff", text: "当前位置", icon: "👤" },
+  // 添加地点类别图例
+  { color: "#e6f7ff", text: "山谷", icon: locationIcons["山谷"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "森林", icon: locationIcons["森林"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "湖泊", icon: locationIcons["湖泊"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "火山", icon: locationIcons["火山"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "平原", icon: locationIcons["平原"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "山脉", icon: locationIcons["山脉"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "沙漠", icon: locationIcons["沙漠"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "沼泽", icon: locationIcons["沼泽"]?.join(' ') || "" },
+  { color: "#e6f7ff", text: "洞穴", icon: locationIcons["洞穴"]?.join(' ') || "" }
 ]);
 
 // 导入正确的Monster类型
-import type { Monster } from "../types/game";
+import type { Monster } from "../classes/battle";
 
 // 战斗开始函数
 const startBattle = (monster: Monster) => {
@@ -194,7 +203,7 @@ const startBattle = (monster: Monster) => {
 };
 
 // 地图相关方法
-const getCellClass = (location: Location) => {
+const getCellClass = (location: GameLocation) => {
   const classes: string[] = [];
   if (location.isCurrent) {
     classes.push("cell-current");
@@ -208,7 +217,7 @@ const getCellClass = (location: Location) => {
   return classes;
 };
 
-const getCellStyle = (location: Location) => {
+const getCellStyle = (location: GameLocation) => {
   if (location.isCurrent) {
     return { backgroundColor: "#1890ff" }; // 当前位置蓝色
   } else if (location.spiritVein) {
@@ -250,7 +259,7 @@ const moveTo = async (targetX: number, targetY: number) => {
   // 防止重复执行移动操作
   if (
     isMoving.value ||
-    (currentLocation.value.x === targetX && currentLocation.value.y === targetY)
+    (currentLocation.value?.x === targetX && currentLocation.value?.y === targetY)
   ) {
     return;
   }
@@ -261,8 +270,8 @@ const moveTo = async (targetX: number, targetY: number) => {
   try {
     // 计算从当前位置到目标位置的路径
     const path = calculatePath(
-      currentLocation.value.x,
-      currentLocation.value.y,
+      currentLocation.value?.x || 0,
+      currentLocation.value?.y || 0,
       targetX,
       targetY
     );
@@ -310,8 +319,8 @@ const moveTo = async (targetX: number, targetY: number) => {
 const scrollToPlayer = () => {
   if (mapRef.value) {
     const cellSize = 48; // 单元格大小
-    const playerX = currentLocation.value.x * cellSize;
-    const playerY = currentLocation.value.y * cellSize;
+    const playerX = (currentLocation.value?.x || 0) * cellSize;
+    const playerY = (currentLocation.value?.y || 0) * cellSize;
     mapRef.value.scrollTo({
       left: playerX - mapRef.value.clientWidth / 2,
       top: playerY - mapRef.value.clientHeight / 2,
@@ -616,7 +625,11 @@ const actions = ref([{ label: "修炼", type: "primary", handler: cultivation }]
 }
 
 .legend-icon {
-  font-size: 14px;
+  font-family: 'iconfont' !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* 优化移动端触摸体验 */
@@ -642,5 +655,32 @@ const actions = ref([{ label: "修炼", type: "primary", handler: cultivation }]
 
 :deep(.ant-col) {
   padding: 0;
+}
+</style>
+
+<!-- 阿里巴巴图标库 -->
+<style>
+/* 在线链接服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
+@font-face {
+  font-family: 'iconfont';  /* Project id 5078320 */
+  src: url('//at.alicdn.com/t/c/font_5078320_icsfgw3bjsk.woff2?t=1764641638226') format('woff2'),
+       url('//at.alicdn.com/t/c/font_5078320_icsfgw3bjsk.woff?t=1764641638226') format('woff'),
+       url('//at.alicdn.com/t/c/font_5078320_icsfgw3bjsk.ttf?t=1764641638226') format('truetype');
+}
+
+.iconfont {
+  font-family: 'iconfont' !important;
+  font-size: 18px; /* 调整图标大小以适应格子 */
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.location-icon {
+  font-family: 'iconfont' !important;
+  font-size: 22px; /* 地点图标稍大一些 */
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 </style>
