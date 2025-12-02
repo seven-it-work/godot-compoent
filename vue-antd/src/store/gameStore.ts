@@ -13,12 +13,96 @@ import type {
   Teammate,
   TeamPosition,
 } from "../types/game";
+import { BaseGrowth, RangeGrowth, RandomRangeGrowth } from "../types/growth";
 
 // 扩展GameState类型
 interface ExtendedGameState extends GameState {
   // 用户界面相关状态
   uiState: {
     playerDetailActiveTab: string;
+  };
+}
+
+// 根据等级生成战斗属性
+function generateAttributesByLevel(level: number): BattleAttributes {
+  // 基础属性值
+  const baseAttack = 5;
+  const baseDefense = 3;
+  const baseHealth = 50;
+  const baseDodge = 2;
+  const baseBlock = 2;
+  const baseCritical = 2;
+  const baseAttackSpeed = 80;
+
+  // 攻击属性：随机范围成长
+  const attackGrowth = new RandomRangeGrowth(
+    baseAttack,
+    1,
+    3,
+    baseAttack,
+    baseAttack + 2,
+    false,
+    true,
+    1
+  );
+
+  // 防御属性：随机范围成长
+  const defenseGrowth = new RandomRangeGrowth(
+    baseDefense,
+    1,
+    2,
+    baseDefense,
+    baseDefense + 1,
+    false,
+    true,
+    1
+  );
+
+  // 生命值：范围成长
+  const healthGrowth = new RangeGrowth(
+    baseHealth,
+    10,
+    20,
+    baseHealth,
+    baseHealth + 10,
+    false,
+    true,
+    1
+  );
+
+  // 闪避属性：基础成长
+  const dodgeGrowth = new BaseGrowth(baseDodge, 0.5, 1, 1);
+
+  // 格挡属性：基础成长
+  const blockGrowth = new BaseGrowth(baseBlock, 0.5, 1, 1);
+
+  // 暴击属性：基础成长
+  const criticalGrowth = new BaseGrowth(baseCritical, 0.5, 1, 1);
+
+  // 攻击速度：基础成长
+  const attackSpeedGrowth = new BaseGrowth(baseAttackSpeed, 2, 5, 1);
+
+  // 根据等级成长
+  for (let i = 1; i < level; i++) {
+    attackGrowth.grow();
+    defenseGrowth.grow();
+    healthGrowth.grow();
+    dodgeGrowth.grow();
+    blockGrowth.grow();
+    criticalGrowth.grow();
+    attackSpeedGrowth.grow();
+  }
+
+  // 生成最终属性
+  return {
+    attack: Math.floor(attackGrowth.getCurrentValue()),
+    defense: Math.floor(defenseGrowth.getCurrentValue()),
+    health: Math.floor(healthGrowth.getMaxValue()),
+    maxHealth: Math.floor(healthGrowth.getMaxValue()),
+    dodge: Math.floor(dodgeGrowth.getCurrentValue()),
+    block: Math.floor(blockGrowth.getCurrentValue()),
+    critical: Math.floor(criticalGrowth.getCurrentValue()),
+    attackSpeed: Math.floor(attackSpeedGrowth.getCurrentValue()),
   };
 }
 
@@ -41,16 +125,7 @@ export const useGameStore = defineStore("game", {
         id: "player-1",
         name: "玩家",
         level: 1,
-        attributes: {
-          attack: 10,
-          defense: 5,
-          health: 100,
-          maxHealth: 100,
-          dodge: 5,
-          block: 5,
-          critical: 5,
-          attackSpeed: 100,
-        },
+        attributes: generateAttributesByLevel(1),
         description: "游戏主角",
         isPlayer: true,
       },
@@ -58,16 +133,7 @@ export const useGameStore = defineStore("game", {
         id: "teammate-1",
         name: "剑灵",
         level: 1,
-        attributes: {
-          attack: 12,
-          defense: 3,
-          health: 80,
-          maxHealth: 80,
-          dodge: 8,
-          block: 2,
-          critical: 10,
-          attackSpeed: 110,
-        },
+        attributes: generateAttributesByLevel(1),
         description: "拥有强大攻击力的剑灵",
         isPlayer: false,
       },
@@ -75,16 +141,7 @@ export const useGameStore = defineStore("game", {
         id: "teammate-2",
         name: "药童",
         level: 1,
-        attributes: {
-          attack: 5,
-          defense: 8,
-          health: 120,
-          maxHealth: 120,
-          dodge: 3,
-          block: 10,
-          critical: 3,
-          attackSpeed: 90,
-        },
+        attributes: generateAttributesByLevel(1),
         description: "拥有强大生命力的药童",
         isPlayer: false,
       },
@@ -125,16 +182,7 @@ export const useGameStore = defineStore("game", {
           maxFire: 100,
           maxEarth: 100,
         },
-        attributes: {
-          attack: 10, // 灵力攻击
-          defense: 5, // 灵力防御
-          health: 100, // 神魂强度
-          maxHealth: 100, // 最大神魂强度
-          dodge: 5, // 身法
-          block: 5, // 灵力护盾
-          critical: 5, // 灵眼
-          attackSpeed: 100, // 攻击速度
-        },
+        attributes: generateAttributesByLevel(1),
         absorbSpeed: 1.0,
         cooldown: 1000, // 1秒冷却时间
         isCooldown: false,
@@ -366,16 +414,7 @@ export const useGameStore = defineStore("game", {
           maxFire: 100,
           maxEarth: 100,
         },
-        attributes: {
-          attack: 10, // 灵力攻击
-          defense: 5, // 灵力防御
-          health: 100, // 神魂强度
-          maxHealth: 100, // 最大神魂强度
-          dodge: 5, // 身法
-          block: 5, // 灵力护盾
-          critical: 5, // 灵眼
-          attackSpeed: 100, // 攻击速度
-        },
+        attributes: generateAttributesByLevel(1),
         absorbSpeed: 1.0,
         cooldown: 1000, // 1秒冷却时间
         isCooldown: false,
@@ -408,16 +447,7 @@ export const useGameStore = defineStore("game", {
           id: "player-1",
           name: "玩家",
           level: 1,
-          attributes: {
-            attack: 10,
-            defense: 5,
-            health: 100,
-            maxHealth: 100,
-            dodge: 5,
-            block: 5,
-            critical: 5,
-            attackSpeed: 100,
-          },
+          attributes: generateAttributesByLevel(1),
           description: "游戏主角",
           isPlayer: true,
         },
@@ -425,16 +455,7 @@ export const useGameStore = defineStore("game", {
           id: "teammate-1",
           name: "剑灵",
           level: 1,
-          attributes: {
-            attack: 12,
-            defense: 3,
-            health: 80,
-            maxHealth: 80,
-            dodge: 8,
-            block: 2,
-            critical: 10,
-            attackSpeed: 110,
-          },
+          attributes: generateAttributesByLevel(1),
           description: "拥有强大攻击力的剑灵",
           isPlayer: false,
         },
@@ -442,16 +463,7 @@ export const useGameStore = defineStore("game", {
           id: "teammate-2",
           name: "药童",
           level: 1,
-          attributes: {
-            attack: 5,
-            defense: 8,
-            health: 120,
-            maxHealth: 120,
-            dodge: 3,
-            block: 10,
-            critical: 3,
-            attackSpeed: 90,
-          },
+          attributes: generateAttributesByLevel(1),
           description: "拥有强大生命力的药童",
           isPlayer: false,
         },
@@ -595,28 +607,13 @@ export const useGameStore = defineStore("game", {
         "被魔气侵蚀的生灵",
       ];
 
-      const name =
+      const name = 
         monsterNames[Math.floor(Math.random() * monsterNames.length)] ||
         "神秘怪物";
       const level = Math.floor(Math.random() * 3) + 1; // 1-3级
-      const baseAttack = 5 + level * 3;
-      const baseDefense = 2 + level * 2;
-      const baseHealth = 50 + level * 20;
-      const baseDodge = 3 + level;
-      const baseBlock = 3 + level;
-      const baseCritical = 3 + level;
-      const baseAttackSpeed = 80 + level * 2;
-
-      const attributes: BattleAttributes = {
-        attack: baseAttack,
-        defense: baseDefense,
-        health: baseHealth,
-        maxHealth: baseHealth,
-        dodge: baseDodge,
-        block: baseBlock,
-        critical: baseCritical,
-        attackSpeed: baseAttackSpeed,
-      };
+      
+      // 使用属性生成函数生成怪物属性
+      const attributes = generateAttributesByLevel(level);
 
       return {
         id: `monster-${x}-${y}-${Date.now()}`,
@@ -624,7 +621,7 @@ export const useGameStore = defineStore("game", {
         level,
         attributes,
         expReward: level * 20,
-        description:
+        description: 
           monsterDescriptions[
             Math.floor(Math.random() * monsterDescriptions.length)
           ] || "这是一个强大的怪物",
