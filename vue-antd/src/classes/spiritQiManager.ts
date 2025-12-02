@@ -1,7 +1,7 @@
 import { Player } from "./character";
 import type { SpiritRootType } from "./character";
 import { SpiritQi } from "./resources";
-import { GameLocation } from "./world";
+import { GameLocation, GameMap } from "./world";
 import { balanceConfig } from "../config/gameConfig";
 
 export class SpiritQiManager {
@@ -58,9 +58,9 @@ export class SpiritQiManager {
   }
 
   // 灵脉生产灵气
-  static produceSpiritQi(map: any): void {
+  static produceSpiritQi(map: GameMap): void {
     // 遍历所有地点
-    map.locations.forEach((row: any) => {
+    map.locations.forEach((row: GameLocation[]) => {
       row.forEach((location: GameLocation) => {
         if (location.spiritVein) {
           const { type, productionSpeed } = location.spiritVein;

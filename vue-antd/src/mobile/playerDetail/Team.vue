@@ -336,8 +336,8 @@ const handleFormationCellClick = (row: number, column: number) => {
     });
 
     // 直接操作位置数据，确保玩家也能正确交换位置
-    const sourcePosition = gameStore.team.positions[sourceRow][sourceCol];
-    const targetPosition = gameStore.team.positions[row][column];
+    const sourcePosition = gameStore.team.positions[sourceRow]?.[sourceCol];
+    const targetPosition = gameStore.team.positions[row]?.[column];
 
     if (sourcePosition && targetPosition) {
       // 保存原始位置的队友ID

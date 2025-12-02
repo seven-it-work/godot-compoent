@@ -13,6 +13,17 @@ import { MapManager } from "../classes/mapManager";
 import { MonsterGenerator } from "../classes/monsterGenerator";
 import { SpiritQiManager } from "../classes/spiritQiManager";
 import { LevelUpManager } from "../classes/levelUpManager";
+import { Monster } from "../classes/battle";
+import type { BattleLog } from "../classes/battle";
+
+// 战斗状态类型
+interface BattleState {
+  isInBattle: boolean;
+  battleLogs: BattleLog[];
+  isPlayerTurn: boolean;
+  currentMonster?: Monster;
+  battleResult?: "win" | "lose" | "escape";
+}
 
 // 扩展GameState类型
 export class ExtendedGameState extends GameState {
@@ -26,7 +37,7 @@ export class ExtendedGameState extends GameState {
     currentSystem: "training" | "outdoor" | "battle";
     map: GameMap;
     gameTime: GameTime;
-    battleState: any;
+    battleState: BattleState;
     team: Team;
     uiState: {
       playerDetailActiveTab: string;
@@ -143,7 +154,7 @@ export const useGameStore = defineStore("game", {
 
     const map = new GameMap(10, 10);
 
-    const battleState = {
+    const battleState: BattleState = {
       isInBattle: false,
       battleLogs: [],
       isPlayerTurn: true,
@@ -185,7 +196,7 @@ export const useGameStore = defineStore("game", {
 
     // 获取玩家拥有的灵根类型列表
     activeSpiritRoots: (state): SpiritRootType[] => {
-      return state.player.spiritRoots.map((root: any) => root.type);
+      return state.player.spiritRoots.map((root) => root.type);
     },
 
     // 检查是否可以升级
@@ -210,12 +221,12 @@ export const useGameStore = defineStore("game", {
     },
 
     // 获取当前怪物
-    currentMonster: (state): any => {
+    currentMonster: (state): Monster | undefined => {
       return state.battleState.currentMonster;
     },
 
     // 获取战斗日志
-    battleLogs: (state): any[] => {
+    battleLogs: (state): BattleLog[] => {
       return state.battleState.battleLogs;
     },
     // 队伍相关getter
@@ -283,10 +294,10 @@ export const useGameStore = defineStore("game", {
     setPlayerDetailActiveTab(tab: string): void {
       console.log(
         '[gameStore] 设置激活的tab: 从 "' +
-          this.uiState.playerDetailActiveTab +
-          '" 到 "' +
-          tab +
-          '"'
+        this.uiState.playerDetailActiveTab +
+        '" 到 "' +
+        tab +
+        '"'
       );
       this.uiState.playerDetailActiveTab = tab;
 
@@ -496,7 +507,7 @@ export const useGameStore = defineStore("game", {
     },
 
     // 开始战斗
-    startBattle(monster: any) {
+    startBattle(monster: Monster) {
       this.battleState.isInBattle = true;
       this.battleState.currentMonster = monster;
       this.battleState.battleLogs = [];
@@ -515,8 +526,8 @@ export const useGameStore = defineStore("game", {
     },
 
     // 添加战斗日志
-    addBattleLog(log: any) {
-      const newLog: any = {
+    addBattleLog(log: Omit<BattleLog, "id" | "timestamp">) {
+      const newLog: BattleLog = {
         ...log,
         id: `log-${Date.now()}-${Math.random()}`,
         timestamp: Date.now(),
@@ -741,7 +752,7 @@ export const useGameStore = defineStore("game", {
     },
 
     // 处理战斗胜利
-    handleBattleWin(monster: any) {
+    handleBattleWin(monster: Monster) {
       this.battleState.battleResult = "win";
 
       // 获得经验值
@@ -806,8 +817,8 @@ export const useGameStore = defineStore("game", {
     },
 
     // 吸收灵气（从当前地点）
-    absorbSpiritQi(spiritType: SpiritRootType) {
-      SpiritQiManager.absorbSpiritQi(
+    absorbSpiritQi(spiritType: SpiritRootType): boolean {
+      return SpiritQiManager.absorbSpiritQi(
         this.player,
         spiritType,
         this.player.currentLocation,
@@ -895,7 +906,7 @@ export const useGameStore = defineStore("game", {
         (location: GameLocation) => {
           this.player.currentLocation = location;
         },
-        (monster: any) => {
+        (monster: Monster) => {
           this.startBattle(monster);
         }
       );
@@ -923,7 +934,8 @@ export const useGameStore = defineStore("game", {
         row < 0 ||
         row >= this.team.positions.length ||
         column < 0 ||
-        column >= this.team.positions[row]?.length
+        !this.team.positions[row] ||
+        column >= this.team.positions[row].length
       ) {
         return { success: false, reason: "无效的位置" };
       }
@@ -942,10 +954,13 @@ export const useGameStore = defineStore("game", {
 
       // 检查队友是否已经在其他位置
       for (let r = 0; r < this.team.positions.length; r++) {
-        for (let c = 0; c < this.team.positions[r]?.length; c++) {
-          const position = this.team.positions[r]?.[c];
-          if (position && position.teammateId === teammateId) {
-            position.teammateId = undefined;
+        const row = this.team.positions[r];
+        if (row) {
+          for (let c = 0; c < row.length; c++) {
+            const position = row[c];
+            if (position && position.teammateId === teammateId) {
+              position.teammateId = undefined;
+            }
           }
         }
       }
@@ -975,11 +990,14 @@ export const useGameStore = defineStore("game", {
       // 从位置上移除队友
       let found = false;
       for (let row = 0; row < this.team.positions.length; row++) {
-        for (let col = 0; col < this.team.positions[row]?.length; col++) {
-          const position = this.team.positions[row]?.[col];
-          if (position && position.teammateId === teammateId) {
-            position.teammateId = undefined;
-            found = true;
+        const currentRow = this.team.positions[row];
+        if (currentRow) {
+          for (let col = 0; col < currentRow.length; col++) {
+            const position = currentRow[col];
+            if (position && position.teammateId === teammateId) {
+              position.teammateId = undefined;
+              found = true;
+            }
           }
         }
       }
@@ -1003,11 +1021,13 @@ export const useGameStore = defineStore("game", {
         row1 < 0 ||
         row1 >= this.team.positions.length ||
         col1 < 0 ||
-        col1 >= this.team.positions[row1]?.length ||
+        !this.team.positions[row1] ||
+        col1 >= this.team.positions[row1].length ||
         row2 < 0 ||
         row2 >= this.team.positions.length ||
         col2 < 0 ||
-        col2 >= this.team.positions[row2]?.length
+        !this.team.positions[row2] ||
+        col2 >= this.team.positions[row2].length
       ) {
         return { success: false, reason: "无效的位置" };
       }
