@@ -8,13 +8,12 @@ import { GameLocation, GameMap, GameTime } from "../classes/world";
 import { Team, TeamPosition } from "../classes/team";
 import { resourceConfig, balanceConfig } from "../config/gameConfig";
 import { AttributesGenerator } from "../classes/attributesGenerator";
-import { BattleManager } from "../classes/battleManager";
 import { MapManager } from "../classes/mapManager";
-import { MonsterGenerator } from "../classes/monsterGenerator";
 import { SpiritQiManager } from "../classes/spiritQiManager";
 import { LevelUpManager } from "../classes/levelUpManager";
 import { Monster } from "../classes/battle";
 import type { BattleLog } from "../classes/battle";
+import { GameLifecycleManager } from "../classes/lifecycle";
 
 // 战斗状态类型
 interface BattleState {
@@ -31,6 +30,8 @@ export class ExtendedGameState extends GameState {
   uiState: {
     playerDetailActiveTab: string;
   };
+  // 游戏生命周期管理器实例
+  lifecycleManager: GameLifecycleManager | null;
 
   constructor(initialState: {
     player: Player;
@@ -45,6 +46,7 @@ export class ExtendedGameState extends GameState {
   }) {
     super(initialState);
     this.uiState = initialState.uiState;
+    this.lifecycleManager = null;
   }
 }
 
@@ -321,182 +323,49 @@ export const useGameStore = defineStore("game", {
     },
     // 初始化游戏
     initGame() {
-      this.generateMap();
-      this.startTimeFlow();
+      console.log("[gameStore] 开始按照生命周期初始化游戏");
+      
+      // 确保只创建一个生命周期管理器实例
+      if (!this.lifecycleManager) {
+        console.log("[gameStore] 创建 GameLifecycleManager 实例");
+        this.lifecycleManager = new GameLifecycleManager({
+          onInitializing: () => {
+            console.log("[gameStore] 游戏初始化中...");
+          },
+          onReady: () => {
+            console.log("[gameStore] 游戏准备就绪");
+          },
+          onGameStart: () => {
+            console.log("[gameStore] 游戏开始运行");
+          },
+          onPhaseChange: (phase) => {
+            console.log(`[gameStore] 游戏阶段变化: ${phase}`);
+          }
+        });
+      }
+
+      // 使用生命周期管理器初始化游戏
+      this.lifecycleManager.initialize(this);
+      
+      // 开始游戏
+      this.lifecycleManager.startGame();
+      
+      console.log("[gameStore] 游戏生命周期初始化完成");
     },
 
     // 重置玩家信息到初始状态
     resetPlayer() {
-      this.player = new Player({
-        id: "player-1",
-        name: "玩家",
-        level: 1,
-        exp: 0,
-        maxExp: 100,
-        spiritRoots: [
-          new SpiritRoot("gold", 1, "金灵根"),
-          new SpiritRoot("wood", 1, "木灵根"),
-          new SpiritRoot("water", 1, "水灵根"),
-          new SpiritRoot("fire", 1, "火灵根"),
-          new SpiritRoot("earth", 1, "土灵根"),
-        ],
-        spiritQi: new SpiritQi({
-          gold: 0,
-          wood: 0,
-          water: 0,
-          fire: 0,
-          earth: 0,
-          maxGold: 100,
-          maxWood: 100,
-          maxWater: 100,
-          maxFire: 100,
-          maxEarth: 100,
-        }),
-        attributes: AttributesGenerator.generateAttributesByLevel(1),
-        absorbSpeed: 1.0,
-        cooldown: 1000, // 1秒冷却时间
-        isCooldown: false,
-        cooldownRemaining: 0,
-        description: "游戏主角",
-        isPlayer: true,
-        currentLocation: new GameLocation({
-          id: "0-0",
-          x: 0,
-          y: 0,
-          name: "初始地点",
-          spiritQi: new SpiritQi({
-            gold: 50,
-            wood: 50,
-            water: 50,
-            fire: 50,
-            earth: 50,
-            maxGold: 100,
-            maxWood: 100,
-            maxWater: 100,
-            maxFire: 100,
-            maxEarth: 100,
-          }),
-          isCurrent: true,
-          icon: "", // 默认使用山谷图标
-        }),
-      });
-
-      // 重置队友数据到初始状态
-      this.team.allTeammates = [
-        new Player({
-          id: "player-1",
-          name: "玩家",
-          level: 1,
-          attributes: AttributesGenerator.generateAttributesByLevel(1),
-          description: "游戏主角",
-          isPlayer: true,
-          exp: 0,
-          maxExp: 100,
-          spiritRoots: [
-            new SpiritRoot("gold", 1, "金灵根"),
-            new SpiritRoot("wood", 1, "木灵根"),
-            new SpiritRoot("water", 1, "水灵根"),
-            new SpiritRoot("fire", 1, "火灵根"),
-            new SpiritRoot("earth", 1, "土灵根"),
-          ],
-          spiritQi: new SpiritQi({
-            gold: 0,
-            wood: 0,
-            water: 0,
-            fire: 0,
-            earth: 0,
-            maxGold: 100,
-            maxWood: 100,
-            maxWater: 100,
-            maxFire: 100,
-            maxEarth: 100,
-          }),
-          absorbSpeed: 1.0,
-          cooldown: 1000,
-          isCooldown: false,
-          cooldownRemaining: 0,
-        }),
-        new Teammate({
-          id: "teammate-1",
-          name: "剑灵",
-          level: 1,
-          attributes: AttributesGenerator.generateAttributesByLevel(1),
-          description: "拥有强大攻击力的剑灵",
-          isPlayer: false,
-          exp: 0,
-          maxExp: 100,
-          spiritRoots: [new SpiritRoot("gold", 1, "金灵根")],
-          spiritQi: new SpiritQi({
-            gold: 0,
-            wood: 0,
-            water: 0,
-            fire: 0,
-            earth: 0,
-            maxGold: 100,
-            maxWood: 100,
-            maxWater: 100,
-            maxFire: 100,
-            maxEarth: 100,
-          }),
-          absorbSpeed: 1.0,
-          cooldown: 1000,
-          isCooldown: false,
-          cooldownRemaining: 0,
-        }),
-        new Teammate({
-          id: "teammate-2",
-          name: "药童",
-          level: 1,
-          attributes: AttributesGenerator.generateAttributesByLevel(1),
-          description: "拥有强大生命力的药童",
-          isPlayer: false,
-          exp: 0,
-          maxExp: 100,
-          spiritRoots: [new SpiritRoot("wood", 1, "木灵根")],
-          spiritQi: new SpiritQi({
-            gold: 0,
-            wood: 0,
-            water: 0,
-            fire: 0,
-            earth: 0,
-            maxGold: 100,
-            maxWood: 100,
-            maxWater: 100,
-            maxFire: 100,
-            maxEarth: 100,
-          }),
-          absorbSpeed: 1.0,
-          cooldown: 1000,
-          isCooldown: false,
-          cooldownRemaining: 0,
-        }),
-      ];
-
-      // 重置队伍位置到初始状态
-      this.team.positions = Array(3)
-        .fill(null)
-        .map((_, rowIndex) => {
-          return Array(6)
-            .fill(null)
-            .map((_, colIndex) => {
-              const teammateId =
-                rowIndex === 0 && colIndex === 0 ? "player-1" : undefined;
-              return new TeamPosition(
-                `position-${rowIndex}-${colIndex}`,
-                rowIndex,
-                colIndex,
-                teammateId
-              );
-            });
-        });
-
-      // 重置战斗状态
-      this.battleState.isInBattle = false;
-      this.battleState.currentMonster = undefined;
-      this.battleState.battleLogs = [];
-      this.battleState.battleResult = undefined;
-
-      console.log("玩家信息、队伍数据和战斗状态已重置到初始状态");
+      console.log("[gameStore] 调用生命周期管理器重置游戏数据");
+      
+      if (this.lifecycleManager) {
+        console.log("[gameStore] 生命周期管理器存在，调用 resetGame() 方法");
+        this.lifecycleManager.resetGame();
+        console.log("[gameStore] 游戏数据重置完成");
+      } else {
+        console.warn("[gameStore] 生命周期管理器未初始化，无法重置游戏数据");
+        // 如果生命周期管理器不存在，创建一个新的实例并初始化
+        this.initGame();
+      }
     },
 
     // 生成地图
