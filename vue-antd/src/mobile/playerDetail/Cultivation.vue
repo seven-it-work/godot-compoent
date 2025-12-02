@@ -131,6 +131,7 @@ import { ref, computed } from "vue";
 import { useGameStore } from "../../store/gameStore";
 import type { SpiritRootType, SpiritQi } from "../../classes/character";
 import SpiritProgress from "../components/SpiritProgress.vue";
+import { resourceConfig } from '../../config/gameConfig';
 
 const gameStore = useGameStore();
 
@@ -163,20 +164,8 @@ const spiritQiTypes = ref<SpiritRootType[]>([
   "fire",
   "earth",
 ]);
-const typeMap = ref<Record<SpiritRootType, string>>({
-  gold: "金",
-  wood: "木",
-  water: "水",
-  fire: "火",
-  earth: "土",
-});
-const colorMap = ref<Record<SpiritRootType, string>>({
-  gold: "#ffd700",
-  wood: "#90ee90",
-  water: "#87ceeb",
-  fire: "#ff6347",
-  earth: "#deb887",
-});
+const typeMap = ref<Record<SpiritRootType, string>>(resourceConfig.spiritQiTypeNames);
+const colorMap = ref<Record<SpiritRootType, string>>(resourceConfig.spiritQiColors);
 
 // 按类型吸收灵气
 const absorbSpiritQiWithType = (spiritType: SpiritRootType) => {

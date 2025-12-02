@@ -13,6 +13,7 @@ import { Monster, BattleState } from "../classes/battle";
 import type { BattleLog } from "../classes/battle";
 import { Team, TeamPosition } from "../classes/team";
 import { BaseGrowth, RangeGrowth, RandomRangeGrowth } from "../classes/growth";
+import { resourceConfig, balanceConfig } from "../config/gameConfig";
 
 // 扩展GameState类型
 export class ExtendedGameState extends GameState {
@@ -263,13 +264,13 @@ export const useGameStore = defineStore("game", {
         description: "游戏主角",
         isPlayer: true,
         exp: 0,
-        maxExp: 100,
+        maxExp: balanceConfig.initialMaxExp,
         spiritRoots: [
           new SpiritRoot("gold", 1, "金灵根"),
           new SpiritRoot("wood", 1, "木灵根"),
-          new SpiritRoot("water", 1, "水灵根"),
-          new SpiritRoot("fire", 1, "火灵根"),
-          new SpiritRoot("earth", 1, "土灵根"),
+          new SpiritRoot("water", 1, resourceConfig.spiritRootNames.water),
+          new SpiritRoot("fire", 1, resourceConfig.spiritRootNames.fire),
+          new SpiritRoot("earth", 1, resourceConfig.spiritRootNames.earth),
         ],
         spiritQi: new SpiritQi({
           gold: 0,
@@ -277,72 +278,14 @@ export const useGameStore = defineStore("game", {
           water: 0,
           fire: 0,
           earth: 0,
-          maxGold: 100,
-          maxWood: 100,
-          maxWater: 100,
-          maxFire: 100,
-          maxEarth: 100,
+          maxGold: resourceConfig.initialMaxSpiritQi,
+          maxWood: resourceConfig.initialMaxSpiritQi,
+          maxWater: resourceConfig.initialMaxSpiritQi,
+          maxFire: resourceConfig.initialMaxSpiritQi,
+          maxEarth: resourceConfig.initialMaxSpiritQi,
         }),
-        absorbSpeed: 1.0,
-        cooldown: 1000,
-        isCooldown: false,
-        cooldownRemaining: 0,
-      }),
-      new Teammate({
-        id: "teammate-1",
-        name: "剑灵",
-        level: 1,
-        attributes: generateAttributesByLevel(1),
-        description: "拥有强大攻击力的剑灵",
-        isPlayer: false,
-        exp: 0,
-        maxExp: 100,
-        spiritRoots: [
-          new SpiritRoot("gold", 1, "金灵根"),
-        ],
-        spiritQi: new SpiritQi({
-          gold: 0,
-          wood: 0,
-          water: 0,
-          fire: 0,
-          earth: 0,
-          maxGold: 100,
-          maxWood: 100,
-          maxWater: 100,
-          maxFire: 100,
-          maxEarth: 100,
-        }),
-        absorbSpeed: 1.0,
-        cooldown: 1000,
-        isCooldown: false,
-        cooldownRemaining: 0,
-      }),
-      new Teammate({
-        id: "teammate-2",
-        name: "药童",
-        level: 1,
-        attributes: generateAttributesByLevel(1),
-        description: "拥有强大生命力的药童",
-        isPlayer: false,
-        exp: 0,
-        maxExp: 100,
-        spiritRoots: [
-          new SpiritRoot("wood", 1, "木灵根"),
-        ],
-        spiritQi: new SpiritQi({
-          gold: 0,
-          wood: 0,
-          water: 0,
-          fire: 0,
-          earth: 0,
-          maxGold: 100,
-          maxWood: 100,
-          maxWater: 100,
-          maxFire: 100,
-          maxEarth: 100,
-        }),
-        absorbSpeed: 1.0,
-        cooldown: 1000,
+        absorbSpeed: balanceConfig.initialAbsorbSpeed,
+        cooldown: balanceConfig.initialCooldown,
         isCooldown: false,
         cooldownRemaining: 0,
       }),
@@ -776,16 +719,16 @@ export const useGameStore = defineStore("game", {
 
           // 随机生成灵气分布
           const spiritQi = new SpiritQi({
-            gold: Math.floor(Math.random() * 100),
-            wood: Math.floor(Math.random() * 100),
-            water: Math.floor(Math.random() * 100),
-            fire: Math.floor(Math.random() * 100),
-            earth: Math.floor(Math.random() * 100),
-            maxGold: 100,
-            maxWood: 100,
-            maxWater: 100,
-            maxFire: 100,
-            maxEarth: 100,
+            gold: Math.floor(Math.random() * resourceConfig.initialMaxSpiritQi),
+            wood: Math.floor(Math.random() * resourceConfig.initialMaxSpiritQi),
+            water: Math.floor(Math.random() * resourceConfig.initialMaxSpiritQi),
+            fire: Math.floor(Math.random() * resourceConfig.initialMaxSpiritQi),
+            earth: Math.floor(Math.random() * resourceConfig.initialMaxSpiritQi),
+            maxGold: resourceConfig.initialMaxSpiritQi,
+            maxWood: resourceConfig.initialMaxSpiritQi,
+            maxWater: resourceConfig.initialMaxSpiritQi,
+            maxFire: resourceConfig.initialMaxSpiritQi,
+            maxEarth: resourceConfig.initialMaxSpiritQi,
           });
 
           // 随机生成灵脉（30%概率）
@@ -1264,7 +1207,7 @@ export const useGameStore = defineStore("game", {
       if (!root) return;
 
       // 根据灵根等级计算吸收量
-      const absorbAmount = Math.floor(10 * root.level * absorbSpeed);
+      const absorbAmount = Math.floor(balanceConfig.baseAbsorbAmount * root.level * absorbSpeed);
       const playerMaxQi = this.player.spiritQi[
         `max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof SpiritQi
       ] as number;
@@ -1333,15 +1276,15 @@ export const useGameStore = defineStore("game", {
         const maxKey =
           `max${type.charAt(0).toUpperCase() + type.slice(1)}` as keyof SpiritQi;
         // 使用类型断言修复类型错误
-        (this.player.spiritQi as any)[maxKey] = Math.floor(
-          (this.player.spiritQi as any)[maxKey] * 1.5
-        );
+          (this.player.spiritQi as any)[maxKey] = Math.floor(
+            (this.player.spiritQi as any)[maxKey] * resourceConfig.spiritQiLevelUpFactor
+          );
         // 重置灵气值
         this.player.spiritQi[type] = 0;
       });
 
       // 增加经验值需求
-      this.player.maxExp = Math.floor(this.player.maxExp * 1.5);
+      this.player.maxExp = Math.floor(this.player.maxExp * balanceConfig.expLevelUpFactor);
 
       // 提升战斗属性
       this.player.attributes.attack += 3;
