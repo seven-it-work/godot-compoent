@@ -123,15 +123,15 @@ const defenseRange = computed(() => {
         baseDodge, 
         0.5, 
         1, 
-        1,
         baseDodge - 0.5, 
         baseDodge + 0.5,
+        false,
         true
       );
       for (let i = 1; i < level; i++) {
         dodgeGrowth.grow();
       }
-      return `${Math.floor(dodgeGrowth.minValue)}%~${Math.floor(dodgeGrowth.maxValue)}%`;
+      return `${Math.floor(dodgeGrowth.getMinValue())}%~${Math.floor(dodgeGrowth.getMaxValue())}%`;
     });
 
     // 计算格挡范围
@@ -143,15 +143,15 @@ const defenseRange = computed(() => {
         baseBlock, 
         0.5, 
         1, 
-        1,
         baseBlock - 0.5, 
         baseBlock + 0.5,
+        false,
         true
       );
       for (let i = 1; i < level; i++) {
         blockGrowth.grow();
       }
-      return `${Math.floor(blockGrowth.minValue)}%~${Math.floor(blockGrowth.maxValue)}%`;
+      return `${Math.floor(blockGrowth.getMinValue())}%~${Math.floor(blockGrowth.getMaxValue())}%`;
     });
 
     // 计算暴击范围
@@ -163,15 +163,15 @@ const defenseRange = computed(() => {
         baseCritical, 
         0.5, 
         1, 
-        1,
         baseCritical - 0.5, 
         baseCritical + 0.5,
+        false,
         true
       );
       for (let i = 1; i < level; i++) {
         criticalGrowth.grow();
       }
-      return `${Math.floor(criticalGrowth.minValue)}%~${Math.floor(criticalGrowth.maxValue)}%`;
+      return `${Math.floor(criticalGrowth.getMinValue())}%~${Math.floor(criticalGrowth.getMaxValue())}%`;
     });
 </script>
 

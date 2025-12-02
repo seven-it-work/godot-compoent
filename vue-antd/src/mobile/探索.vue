@@ -4,9 +4,9 @@
       <!-- 顶部信息栏 -->
       <div class="top-info-container">
         <div class="location-info">
-          <div class="location-name">{{ currentLocation.name }}</div>
+          <div class="location-name">{{ currentLocation?.name }}</div>
           <div class="location-coords">
-            坐标: {{ currentLocation.x }}, {{ currentLocation.y }}
+            坐标: {{ currentLocation?.x }}, {{ currentLocation?.y }}
           </div>
         </div>
         <div class="map-controls">
@@ -55,19 +55,19 @@
       <div class="location-details-container">
         <div class="section-title">当前地点</div>
         <div class="details-content">
-          <div class="detail-row" v-if="currentLocation.spiritVein">
+          <div class="detail-row" v-if="currentLocation?.spiritVein">
             <div class="detail-label">灵脉:</div>
             <div class="detail-value">
-              {{ currentLocation.spiritVein.name }} ({{
-                currentLocation.spiritVein.level
+              {{ currentLocation.spiritVein?.name }} ({{
+                currentLocation.spiritVein?.level
               }}级)
             </div>
           </div>
-          <div class="detail-row" v-if="currentLocation.monster">
+          <div class="detail-row" v-if="currentLocation?.monster">
             <div class="detail-label">怪物:</div>
             <div class="detail-value">
-              {{ currentLocation.monster.name }} ({{
-                currentLocation.monster.level
+              {{ currentLocation.monster?.name }} ({{
+                currentLocation.monster?.level
               }}级)
             </div>
           </div>
@@ -79,7 +79,7 @@
                 :key="spiritType"
                 class="spirit-qi-dot"
                 :style="{ backgroundColor: colorMap[spiritType] }"
-                :title="`${typeMap[spiritType]}: ${currentLocation.spiritQi[spiritType as SpiritRootType]}/${currentLocation.spiritQi[`max${spiritType.charAt(0).toUpperCase() + spiritType.slice(1)}` as keyof typeof currentLocation.spiritQi]}`"
+                :title="`${typeMap[spiritType]}: ${currentLocation?.spiritQi[spiritType as SpiritRootType] || 0}/${(currentLocation?.spiritQi as any)['max' + spiritType.charAt(0).toUpperCase() + spiritType.slice(1)] || 100}`"
               ></div>
             </div>
           </div>
@@ -140,7 +140,8 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useGameStore } from "../store/gameStore";
 import { locationIcons } from "../config/locationIcons";
-import type { SpiritRootType, Location } from "../types/game";
+import type { SpiritRootType } from "../classes/character";
+import type { GameLocation } from "../classes/world";
 
 const gameStore = useGameStore();
 const router = useRouter();
@@ -190,7 +191,7 @@ const mapLegend = ref([
 ]);
 
 // 导入正确的Monster类型
-import type { Monster } from "../types/game";
+import type { Monster } from "../classes/battle";
 
 // 战斗开始函数
 const startBattle = (monster: Monster) => {
@@ -202,7 +203,7 @@ const startBattle = (monster: Monster) => {
 };
 
 // 地图相关方法
-const getCellClass = (location: Location) => {
+const getCellClass = (location: GameLocation) => {
   const classes: string[] = [];
   if (location.isCurrent) {
     classes.push("cell-current");
@@ -216,7 +217,7 @@ const getCellClass = (location: Location) => {
   return classes;
 };
 
-const getCellStyle = (location: Location) => {
+const getCellStyle = (location: GameLocation) => {
   if (location.isCurrent) {
     return { backgroundColor: "#1890ff" }; // 当前位置蓝色
   } else if (location.spiritVein) {
@@ -258,7 +259,7 @@ const moveTo = async (targetX: number, targetY: number) => {
   // 防止重复执行移动操作
   if (
     isMoving.value ||
-    (currentLocation.value.x === targetX && currentLocation.value.y === targetY)
+    (currentLocation.value?.x === targetX && currentLocation.value?.y === targetY)
   ) {
     return;
   }
@@ -269,8 +270,8 @@ const moveTo = async (targetX: number, targetY: number) => {
   try {
     // 计算从当前位置到目标位置的路径
     const path = calculatePath(
-      currentLocation.value.x,
-      currentLocation.value.y,
+      currentLocation.value?.x || 0,
+      currentLocation.value?.y || 0,
       targetX,
       targetY
     );
@@ -318,8 +319,8 @@ const moveTo = async (targetX: number, targetY: number) => {
 const scrollToPlayer = () => {
   if (mapRef.value) {
     const cellSize = 48; // 单元格大小
-    const playerX = currentLocation.value.x * cellSize;
-    const playerY = currentLocation.value.y * cellSize;
+    const playerX = (currentLocation.value?.x || 0) * cellSize;
+    const playerY = (currentLocation.value?.y || 0) * cellSize;
     mapRef.value.scrollTo({
       left: playerX - mapRef.value.clientWidth / 2,
       top: playerY - mapRef.value.clientHeight / 2,

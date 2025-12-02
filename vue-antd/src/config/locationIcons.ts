@@ -14,10 +14,19 @@ export const locationIcons: Record<string, string[]> = {
 };
 
 // 获取随机图标
-export const getRandomIcon = (locationName: string): string => {
-  const icons = locationIcons[locationName] || [];
-  if (icons.length === 0) return "\uE61D"; // 默认图标为森林
-  
-  const randomIndex = Math.floor(Math.random() * icons.length);
-  return icons[randomIndex] || "\uE61D"; // 确保返回值不是undefined
+export const getRandomIcon = (locationName?: string): string => {
+  if (locationName) {
+    const icons = locationIcons[locationName] || [];
+    if (icons.length === 0) return "\uE61D"; // 默认图标为森林
+    
+    const randomIndex = Math.floor(Math.random() * icons.length);
+    return icons[randomIndex] || "\uE61D"; // 确保返回值不是undefined
+  } else {
+    // 如果没有提供locationName，从所有图标中随机选择
+    const allIcons = Object.values(locationIcons).flat();
+    if (allIcons.length === 0) return "\uE61D"; // 默认图标为森林
+    
+    const randomIndex = Math.floor(Math.random() * allIcons.length);
+    return allIcons[randomIndex] || "\uE61D"; // 确保返回值不是undefined
+  }
 };

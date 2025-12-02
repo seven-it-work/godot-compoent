@@ -316,7 +316,10 @@ import { useRouter } from "vue-router";
 import { useGameStore } from "../store/gameStore";
 import CompactCard from "./components/CompactCard.vue";
 // 导入正确的类型定义
-import { Teammate, Team, Monster } from "../types/game";
+import { Teammate, BattleAttributes } from "../classes/character";
+import { Team } from "../classes/team";
+import { SpiritQi } from "../classes/resources";
+import { SpiritRoot } from "../classes/character";
 
 const gameStore = useGameStore();
 const router = useRouter();
@@ -382,54 +385,91 @@ const battleResult = ref({
 // 玩家队伍（使用gameStore中的队伍）
 const playerTeam = computed(() => gameStore.team);
 
-// 敌人队伍（模拟数据）
-const enemyTeam = ref<Team>({
-  positions: Array(3).fill(null).map((_, rowIndex) => 
-    Array(6).fill(null).map((_, colIndex) => ({
-      id: `enemy-pos-${rowIndex}-${colIndex}`,
-      row: rowIndex,
-      column: colIndex,
-      teammateId: rowIndex === 0 && colIndex < 2 ? `enemy-${colIndex + 1}` : undefined
-    }))
-  ),
-  allTeammates: [
-    {
-      id: "enemy-1",
-      name: "敌人1",
-      level: 5,
-      attributes: {
-        attack: 20,
-        defense: 10,
-        health: 150,
-        maxHealth: 150,
-        dodge: 5,
-        block: 5,
-        critical: 5,
-        attackSpeed: 100 // 添加攻击速度属性
-      },
-      description: "一个强大的敌人",
-      isPlayer: false
-    },
-    {
-      id: "enemy-2",
-      name: "敌人2",
-      level: 4,
-      attributes: {
-        attack: 18,
-        defense: 8,
-        health: 120,
-        maxHealth: 120,
-        dodge: 8,
-        block: 3,
-        critical: 7,
-        attackSpeed: 120 // 添加攻击速度属性
-      },
-      description: "一个快速的敌人",
-      isPlayer: false
-    }
-  ],
-  maxTeamSize: 18
+// 创建敌人队伍
+const enemyTeam = ref<Team>(new Team(18));
+
+// 创建敌人队友
+const enemy1 = new Teammate({
+  id: "enemy-1",
+  name: "敌人1",
+  level: 5,
+  attributes: new BattleAttributes({
+    attack: 20,
+    defense: 10,
+    health: 150,
+    maxHealth: 150,
+    dodge: 5,
+    block: 5,
+    critical: 5,
+    attackSpeed: 100
+  }),
+  description: "一个强大的敌人",
+  isPlayer: false,
+  exp: 0,
+  maxExp: 100,
+  spiritRoots: [new SpiritRoot("fire", 1, "火灵根")],
+  spiritQi: new SpiritQi({
+    gold: 0,
+    wood: 0,
+    water: 0,
+    fire: 0,
+    earth: 0,
+    maxGold: 100,
+    maxWood: 100,
+    maxWater: 100,
+    maxFire: 100,
+    maxEarth: 100
+  }),
+  absorbSpeed: 1.0,
+  cooldown: 1000,
+  isCooldown: false,
+  cooldownRemaining: 0
 });
+
+const enemy2 = new Teammate({
+  id: "enemy-2",
+  name: "敌人2",
+  level: 4,
+  attributes: new BattleAttributes({
+    attack: 18,
+    defense: 8,
+    health: 120,
+    maxHealth: 120,
+    dodge: 8,
+    block: 3,
+    critical: 7,
+    attackSpeed: 120
+  }),
+  description: "一个快速的敌人",
+  isPlayer: false,
+  exp: 0,
+  maxExp: 100,
+  spiritRoots: [new SpiritRoot("water", 1, "水灵根")],
+  spiritQi: new SpiritQi({
+    gold: 0,
+    wood: 0,
+    water: 0,
+    fire: 0,
+    earth: 0,
+    maxGold: 100,
+    maxWood: 100,
+    maxWater: 100,
+    maxFire: 100,
+    maxEarth: 100
+  }),
+  absorbSpeed: 1.0,
+  cooldown: 1000,
+  isCooldown: false,
+  cooldownRemaining: 0
+});
+
+// 添加敌人到队伍
+enemyTeam.value.addTeammate(enemy1);
+enemyTeam.value.addTeammate(enemy2);
+
+// 放置敌人到指定位置
+enemyTeam.value.placeTeammate("enemy-1", 0, 0);
+enemyTeam.value.placeTeammate("enemy-2", 0, 1);
 
 // 获取队友信息
 const getTeammate = (teammates: Teammate[], id: string) => {

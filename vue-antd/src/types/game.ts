@@ -80,7 +80,7 @@ export interface Monster {
 }
 
 // 地点数据模型
-export interface Location {
+export interface GameLocation {
   id: string; // 地点唯一标识
   x: number; // 横坐标
   y: number; // 纵坐标
@@ -125,7 +125,7 @@ export interface BattleState {
 export interface GameMap {
   width: number; // 地图宽度（网格数）
   height: number; // 地图高度（网格数）
-  locations: Location[][]; // 二维网格地点
+  locations: GameLocation[][]; // 二维网格地点
 }
 
 // 玩家数据模型
@@ -141,7 +141,7 @@ export interface Player {
   cooldown: number; // 冷却时间（毫秒）
   isCooldown: boolean; // 是否处于冷却中
   cooldownRemaining: number; // 剩余冷却时间（毫秒）
-  currentLocation: Location; // 当前所在地点
+  currentLocation: GameLocation; // 当前所在地点
 }
 
 // 游戏状态

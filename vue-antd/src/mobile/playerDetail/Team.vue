@@ -77,7 +77,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useGameStore } from '../../store/gameStore';
-import type { Teammate } from '../../types/game';
+import type { Teammate } from '../../classes/character';
 
 const gameStore = useGameStore();
 
