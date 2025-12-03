@@ -1,7 +1,7 @@
 import Random from 'random-js';
 
 // @ts-ignore
-const random = new Random(); 
+const random:Random = new Random(); 
 
 // 随机整数
 function randomInt(min: number, max: number): number {
@@ -16,5 +16,6 @@ function randomId(len: number = 16): string {
 const RandomUtils = {
     randomInt,
     randomId,
+    random,
 }
 export default RandomUtils;

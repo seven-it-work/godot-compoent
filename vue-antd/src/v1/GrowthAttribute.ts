@@ -145,6 +145,14 @@ export class BasicRangeGrowthAttribute extends BasicGrowthAttribute implements R
             this.maxRange += growthRandomValue;
         }
     }
+
+    /**
+     * 当前值是否超过最大范围
+     * @returns 当前值是否超过最大范围
+     */
+    currentIsOverMax(): boolean {
+        return this.currentValue > this.maxRange;
+    }
 }
 
 /**
