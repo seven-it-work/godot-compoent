@@ -210,4 +210,12 @@ export class CultivatorClass implements Cultivator {
         const canUpgrade = this.spiritRoots.every((spiritRoot) => spiritRoot.isFullSpirit());
         return canUpgrade;
     }
+
+    // 静态方法 随机生成人物
+    static 随机生成人物(): CultivatorClass {
+        return new CultivatorClass({
+            name: RandomUtils.random.pickone(["张三", "李四", "王五", "赵六", "钱七"]),
+            gender: RandomUtils.random.pickone(["男", "女"]),
+        });
+    }
 }
