@@ -86,6 +86,14 @@ export class BasicGrowthAttribute implements GrowthAttribute {
     getCurrentValue(): number {
         return this.currentValue;
     }
+
+    /**
+     * 设置当前值
+     * @param value 要设置的当前值
+     */
+    setCurrentValue(value: number): void {
+        this.currentValue = value;
+    }
 }
 
 /**
@@ -151,7 +159,23 @@ export class BasicRangeGrowthAttribute extends BasicGrowthAttribute implements R
      * @returns 当前值是否超过最大范围
      */
     currentIsOverMax(): boolean {
-        return this.currentValue > this.maxRange;
+        return this.currentValue >= this.maxRange;
+    }
+
+    /**
+     * 设置当前值
+     * @param value 要设置的当前值
+     */
+    setCurrentValue(value: number): void {
+        super.setCurrentValue(value);
+        // 确保当前值不超过最大范围
+        if (this.currentValue > this.maxRange) {
+            this.currentValue = this.maxRange;
+        }
+        // 确保当前值不低于最小范围
+        if (this.currentValue < this.minRange) {
+            this.currentValue = this.minRange;
+        }
     }
 }
 
