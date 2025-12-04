@@ -1,4 +1,4 @@
-import RandomUtils from "./RandomUtils";
+import RandomUtils from "./utils/RandomUtils";
 
 export interface GrowthAttribute {
     // 属性名称

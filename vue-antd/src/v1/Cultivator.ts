@@ -1,5 +1,5 @@
 import { BasicGrowthAttribute, BasicRangeGrowthAttribute, BasicRangeRandomGrowthAttribute } from "./GrowthAttribute";
-import RandomUtils from "./RandomUtils";
+import RandomUtils from "./utils/RandomUtils";
 
 /**
  * 修仙者接口
@@ -213,9 +213,13 @@ export class CultivatorClass implements Cultivator {
 
     // 静态方法 随机生成人物
     static 随机生成人物(): CultivatorClass {
+        // 随机生成性别
+        const gender = RandomUtils.random.pickone(["男", "女"]);
+        // 随机生成姓名
+        const name = RandomUtils.randomCultivatorName(gender)[0];
         return new CultivatorClass({
-            name: RandomUtils.random.pickone(["张三", "李四", "王五", "赵六", "钱七"]),
-            gender: RandomUtils.random.pickone(["男", "女"]),
+            name: name,
+            gender: gender,
         });
     }
 }

@@ -1,4 +1,5 @@
 import Random from 'random-js';
+import { randomCultivatorName } from './NameGenerator';
 
 // @ts-ignore
 const random:Random = new Random(); 
@@ -17,5 +18,7 @@ const RandomUtils = {
     randomInt,
     randomId,
     random,
+    randomCultivatorName
 }
 export default RandomUtils;
+
