@@ -34,7 +34,7 @@ export class SpiritRootClass implements SpiritRoot {
         // 循环num次，每次随机选择一个灵根类型进行分配
         for (let i = 0; i < num; i++) {
             // 随机选择一个灵根类型
-            const randomType = RandomUtils.random.pickone(SPIRIT_ROOT_TYPES) as SpiritRootType;
+            const randomType = RandomUtils.pickone(SPIRIT_ROOT_TYPES) as SpiritRootType;
             
             if (existingRoots.has(randomType)) {
                 // 如果该灵根已存在，调用grow()方法增长

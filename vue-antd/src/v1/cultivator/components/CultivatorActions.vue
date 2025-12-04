@@ -1,48 +1,51 @@
 <template>
   <div class="cultivator-actions">
-    <h3>修仙者操作</h3>
+    <h3>{{ title }}</h3>
     <div class="action-buttons">
+      <!-- 升级按钮 -->
       <button 
+        v-if="showUpgrade"
         @click="handleUpgrade" 
         :disabled="!cultivator.canUpgrade()"
         class="action-button upgrade"
+        :class="buttonClassPrefix + '-upgrade'"
       >
-        升级 ({{ cultivator.realmLevel.getCurrentValue() }} → {{ cultivator.realmLevel.getCurrentValue() + 1 }})
+        {{ upgradeButtonText }}
       </button>
       
+      <!-- 突破按钮 -->
       <button 
+        v-if="showBreakthrough"
         @click="handleBreakthrough" 
         :disabled="!cultivator.canBreakthrough()"
         class="action-button breakthrough"
+        :class="buttonClassPrefix + '-breakthrough'"
       >
-        突破 ({{ cultivator.getCultivationLevelName() }})
+        {{ breakthroughButtonText }}
       </button>
       
+      <!-- 攻击训练按钮 -->
       <button 
+        v-if="showAttack"
         @click="handleAttack"
         class="action-button attack"
+        :class="buttonClassPrefix + '-attack'"
       >
-        攻击训练
+        {{ attackButtonText }}
       </button>
       
+      <!-- 恢复按钮 -->
       <button 
+        v-if="showRecover"
         @click="handleRecover"
         class="action-button recover"
+        :class="buttonClassPrefix + '-recover'"
       >
-        恢复
+        {{ recoverButtonText }}
       </button>
       
-      <button 
-        @click="handleRandomGenerate"
-        class="action-button generate"
-      >
-        随机生成修仙者
-      </button>
-    </div>
-    
-    <div class="action-result" v-if="result">
-      <h4>操作结果</h4>
-      <p>{{ result }}</p>
+      <!-- 自定义操作按钮插槽 -->
+      <slot name="custom-actions"></slot>
     </div>
   </div>
 </template>
@@ -50,56 +53,113 @@
 <script setup lang="ts">
 import { CultivatorClass } from '../impl';
 import type { DamageResult } from '@/v1/damageResult';
-import { ref } from 'vue';
 
-const props = defineProps<{
+// 定义组件属性
+const props = withDefaults(defineProps<{
+  // 修仙者实例
   cultivator: CultivatorClass;
-}>();
+  
+  // 组件标题
+  title?: string;
+  
+  // 按钮显示配置
+  showUpgrade?: boolean;
+  showBreakthrough?: boolean;
+  showAttack?: boolean;
+  showRecover?: boolean;
+  
+  // 按钮文本配置
+  upgradeButtonText?: string;
+  breakthroughButtonText?: string;
+  attackButtonText?: string;
+  recoverButtonText?: string;
+  
+  // 恢复值配置
+  recoverQiBloodValue?: number;
+  recoverSpiritPowerValue?: number;
+  
+  // 攻击目标配置
+  attackTarget?: CultivatorClass | null;
+  
+  // 自定义按钮类前缀
+  buttonClassPrefix?: string;
+}>(), {
+  // 默认值
+  title: '修仙者操作',
+  showUpgrade: true,
+  showBreakthrough: true,
+  showAttack: true,
+  showRecover: true,
+  upgradeButtonText: (props) => `升级 (${props.cultivator.realmLevel.getCurrentValue()} → ${props.cultivator.realmLevel.getCurrentValue() + 1})`,
+  breakthroughButtonText: (props) => `突破 (${props.cultivator.getCultivationLevelName()})`,
+  attackButtonText: '攻击训练',
+  recoverButtonText: '恢复',
+  recoverQiBloodValue: 100,
+  recoverSpiritPowerValue: 50,
+  attackTarget: null,
+  buttonClassPrefix: 'cultivator-action'
+});
 
+// 定义事件
 const emit = defineEmits<{
+  // 更新修仙者
   update: [cultivator: CultivatorClass];
+  
+  // 攻击事件
   attack: [damage: DamageResult];
+  
+  // 操作结果事件
+  result: [message: string, type: 'success' | 'error' | 'info'];
+  
+  // 按钮点击事件
+  buttonClick: [buttonType: 'upgrade' | 'breakthrough' | 'attack' | 'recover'];
 }>();
 
-const result = ref<string>('');
-
+// 处理升级
 const handleUpgrade = () => {
   if (props.cultivator.canUpgrade()) {
     props.cultivator.upgrade();
-    result.value = `升级成功！当前等级: ${props.cultivator.realmLevel.getCurrentValue()}`;
     emit('update', props.cultivator);
+    emit('result', `升级成功！当前等级: ${props.cultivator.realmLevel.getCurrentValue()}`, 'success');
+    emit('buttonClick', 'upgrade');
+  } else {
+    emit('result', '升级失败！条件不满足。', 'error');
   }
 };
 
+// 处理突破
 const handleBreakthrough = () => {
   if (props.cultivator.canBreakthrough()) {
     const success = props.cultivator.breakthrough();
-    result.value = success ? 
-      `突破成功！当前境界: ${props.cultivator.getCultivationLevelName()}` : 
-      `突破失败！请继续努力。`;
     emit('update', props.cultivator);
+    if (success) {
+      emit('result', `突破成功！当前境界: ${props.cultivator.getCultivationLevelName()}`, 'success');
+    } else {
+      emit('result', '突破失败！请继续努力。', 'error');
+    }
+    emit('buttonClick', 'breakthrough');
+  } else {
+    emit('result', '突破失败！条件不满足。', 'error');
   }
 };
 
+// 处理攻击
 const handleAttack = () => {
-  // 创建一个临时目标进行攻击训练
-  const tempTarget = new CultivatorClass();
-  const damageResult = props.cultivator.attackTarget(tempTarget);
-  result.value = `攻击训练完成！造成伤害: ${damageResult.actualDamage}`;
+  // 使用传入的目标或创建临时目标
+  const target = props.attackTarget || new CultivatorClass();
+  const damageResult = props.cultivator.attackTarget(target);
   emit('attack', damageResult);
+  emit('result', `攻击训练完成！造成伤害: ${damageResult.actualDamage}`, 'info');
+  emit('buttonClick', 'attack');
 };
 
+// 处理恢复
 const handleRecover = () => {
-  props.cultivator.recoverQiBlood(100);
-  props.cultivator.recoverSpiritPower(50);
-  result.value = `恢复完成！当前气血: ${props.cultivator.qiBlood.getCurrentValue()}, 当前灵力: ${props.cultivator.spiritPower.getCurrentValue()}`;
+  props.cultivator.recoverQiBlood(props.recoverQiBloodValue);
+  props.cultivator.recoverSpiritPower(props.recoverSpiritPowerValue);
   emit('update', props.cultivator);
-};
-
-const handleRandomGenerate = () => {
-  const newCultivator = CultivatorClass.随机生成人物();
-  emit('update', newCultivator);
-  result.value = `随机生成成功！新修仙者: ${newCultivator.name}`;
+  emit('result', `恢复完成！当前气血: ${props.cultivator.qiBlood.getCurrentValue()}, 当前灵力: ${props.cultivator.spiritPower.getCurrentValue()}`, 'success');
+  emit('buttonClick', 'recover');
 };
 </script>
 
@@ -123,7 +183,7 @@ const handleRandomGenerate = () => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
 
 .action-button {
@@ -133,17 +193,20 @@ const handleRandomGenerate = () => {
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
 }
 
 .action-button:hover:not(:disabled) {
   opacity: 0.9;
   transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .action-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .action-button.upgrade {
@@ -166,26 +229,16 @@ const handleRandomGenerate = () => {
   color: white;
 }
 
-.action-button.generate {
-  background-color: #f39c12;
-  color: white;
-}
-
-.action-result {
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 12px;
-  background-color: white;
-}
-
-.action-result h4 {
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  color: #333;
-}
-
-.action-result p {
-  margin: 0;
-  color: #555;
+/* 响应式设计 */
+@media (min-width: 768px) {
+  .action-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .action-button {
+    flex: 1;
+    min-width: 120px;
+  }
 }
 </style>

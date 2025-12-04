@@ -1,7 +1,11 @@
-import Random from 'random-js';
+import { Random } from 'random-js';
 
-// @ts-ignore
-const random: Random = new Random();
+const random = new Random();
+
+// 辅助函数：从数组中随机选择一个元素
+function pickone<T>(array: T[]): T {
+    return array[random.integer(0, array.length - 1)]!;
+}
 
 // 姓氏列表（包含单姓和复姓）
 const surnames = [
@@ -94,18 +98,18 @@ export function randomCultivatorName(gender: 'male' | 'female', count: number = 
     if (allowDuplicate) {
         // 允许重复，直接生成指定数量的名字
         for (let i = 0; i < count; i++) {
-            const surname = random.pickone(surnames);
+            const surname = pickone(surnames);
             const nameLength = random.bool(0.7) ? 2 : 1; // 70%概率2个字，30%概率1个字
             
             if (nameLength === 1) {
                 // 1个字名字
-                const name = random.pickone(nameLibrary);
+                const name = pickone(nameLibrary);
                 names.push(`${surname}${name}`);
             } else {
                 // 2个字名字
                 // 确保第一个字和第二个字来自不同的部分（避免重复）
-                const firstName = random.pickone(nameLibrary.slice(0, 50)); // 前50个是第一个字常用
-                const secondName = random.pickone(nameLibrary.slice(50)); // 后50个是第二个字常用
+                const firstName = pickone(nameLibrary.slice(0, 50)); // 前50个是第一个字常用
+                const secondName = pickone(nameLibrary.slice(50)); // 后50个是第二个字常用
                 names.push(`${surname}${firstName}${secondName}`);
             }
         }
@@ -129,8 +133,8 @@ export function randomCultivatorName(gender: 'male' | 'female', count: number = 
         let generatedOneCharNames = 0;
         
         while (generatedOneCharNames < actualOneCharNames) {
-            const surname = random.pickone(surnames);
-            const singleName = random.pickone(nameLibrary);
+            const surname = pickone(surnames);
+            const singleName = pickone(nameLibrary);
             const name = `${surname}${singleName}`;
             const combinationKey = `${surname}-${singleName}`;
             
@@ -148,9 +152,9 @@ export function randomCultivatorName(gender: 'male' | 'female', count: number = 
         let generatedTwoCharNames = 0;
         
         while (generatedTwoCharNames < actualTwoCharNames) {
-            const surname = random.pickone(surnames);
-            const firstName = random.pickone(firstNamePart);
-            const secondName = random.pickone(secondNamePart);
+            const surname = pickone(surnames);
+            const firstName = pickone(firstNamePart);
+            const secondName = pickone(secondNamePart);
             const name = `${surname}${firstName}${secondName}`;
             const combinationKey = `${surname}-${firstName}-${secondName}`;
             

@@ -9,13 +9,10 @@
 
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useGameStore } from "./store/gameStore";
 
-const gameStore = useGameStore();
-
-// 初始化游戏
+// 简单的初始化
 onMounted(() => {
-  gameStore.initGame();
+  console.log('应用已初始化');
 });
 </script>
 

@@ -394,9 +394,10 @@ export class CultivatorClass implements Cultivator {
     // 静态方法 随机生成人物
     static 随机生成人物(): CultivatorClass {
         // 随机生成性别
-        const gender = RandomUtils.random.pickone(["男", "女"]);
-        // 随机生成姓名
-        const name = RandomUtils.randomCultivatorName(gender)[0];
+        const gender: Gender = RandomUtils.pickone(["男", "女"]);
+        // 随机生成姓名 - 将Gender类型转换为randomCultivatorName需要的类型
+        const genderForName = gender === "男" ? "male" : "female";
+        const name = RandomUtils.randomCultivatorName(genderForName)[0];
         return new CultivatorClass({
             name: name,
             gender: gender,
