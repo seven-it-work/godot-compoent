@@ -2,6 +2,31 @@ import { BasicGrowthAttribute, BasicRangeGrowthAttribute, BasicRangeRandomGrowth
 import RandomUtils from "./utils/RandomUtils";
 
 /**
+ * 伤害结果类型
+ * 用于返回详细的伤害计算信息
+ */
+export interface DamageResult {
+    // 攻击者名称
+    attackerName: string;
+    // 目标名称
+    targetName: string;
+    // 基础伤害（未考虑暴击和闪避）
+    baseDamage: number;
+    // 实际造成的伤害
+    actualDamage: number;
+    // 是否触发暴击
+    isCritical: boolean;
+    // 暴击伤害倍率
+    criticalMultiplier: number;
+    // 是否闪避
+    isDodged: boolean;
+    // 最终伤害结果（是否击败目标）
+    isDefeated: boolean;
+    // 目标剩余生命值
+    targetRemainingHealth: number;
+}
+
+/**
  * 修仙者接口
  * 定义修仙者的基本属性和能力
  */
@@ -231,6 +256,10 @@ export class CultivatorClass implements Cultivator {
         name: "暴击率",
         minGrowth: 1,
         maxGrowth: 3,
+        minRange: 0,
+        maxRange: 1,
+        growMinRange: true,
+        growCurrentValue: false,
         growthRate: 1.1,
         fixedGrowth: 0,
     });
@@ -239,6 +268,10 @@ export class CultivatorClass implements Cultivator {
         name: "暴击伤害",
         minGrowth: 10,
         maxGrowth: 20,
+        minRange: 0,
+        maxRange: 1,
+        growMinRange: true,
+        growCurrentValue: false,
         growthRate: 1.1,
         fixedGrowth: 0,
     });
@@ -247,6 +280,10 @@ export class CultivatorClass implements Cultivator {
         name: "闪避率",
         minGrowth: 1,
         maxGrowth: 3,
+        minRange: 0,
+        maxRange: 1,
+        growMinRange: true,
+        growCurrentValue: false,
         growthRate: 1.1,
         fixedGrowth: 0,
     });
@@ -432,6 +469,124 @@ export class CultivatorClass implements Cultivator {
         return false;
     }
 
+    /**
+     * 计算对目标造成的伤害
+     * @param target 攻击目标
+     * @returns 详细的伤害计算结果
+     */
+    calculateDamage(target: CultivatorClass): DamageResult {
+        // 获取当前攻击力
+        const attackValue = this.attack.getCurrentValue();
+        // 获取目标防御力
+        const defenseValue = target.defense.getCurrentValue();
+        // 基础伤害 = 攻击力 - 防御力/2（防御力可以抵消部分伤害）
+        const baseDamage = Math.max(1, attackValue - defenseValue / 2);
+        
+        // 检查是否触发暴击
+        const isCritical = Math.random() < this.criticalRate.getCurrentValue() / 100;
+        const criticalMultiplier = isCritical ? (1 + this.criticalDamage.getCurrentValue() / 100) : 1;
+        // 计算实际伤害
+        const actualDamage = Math.floor(baseDamage * criticalMultiplier);
+        return {
+            attackerName: this.name,
+            targetName: target.name,
+            baseDamage,
+            actualDamage,
+            isCritical,
+            criticalMultiplier,
+            isDodged: false, // 默认值，在takeDamage方法中实际计算
+            isDefeated: false, // 默认值，在takeDamage方法中实际计算
+            targetRemainingHealth: target.health.currentValue // 初始剩余生命值
+        };
+    }
+    
+    /**
+     * 承受伤害
+     * @param damageInfo 伤害信息
+     * @returns 详细的伤害结果
+     */
+    takeDamage(damageInfo: DamageResult): DamageResult {
+        // 检查是否闪避
+        const isDodged = Math.random() < this.dodgeRate.getCurrentValue() / 100;
+        
+        if (isDodged) {
+            console.log(`${this.name} 闪避了攻击！`);
+            return {
+                ...damageInfo,
+                isDodged: true,
+                isDefeated: false,
+                targetRemainingHealth: this.health.currentValue,
+                actualDamage: 0
+            };
+        }
+        
+        // 减少生命值
+        this.health.currentValue -= damageInfo.actualDamage;
+        
+        // 确保生命值不会低于0
+        if (this.health.currentValue < 0) {
+            this.health.currentValue = 0;
+        }
+        
+        // 检查是否被击败
+        const isDefeated = !this.isAlive();
+        
+        console.log(`${this.name} 受到了 ${damageInfo.actualDamage} 点伤害，剩余生命值: ${this.health.currentValue}`);
+        
+        return {
+            ...damageInfo,
+            isDodged: false,
+            isDefeated,
+            targetRemainingHealth: this.health.currentValue
+        };
+    }
+    
+    /**
+     * 攻击目标
+     * @param target 攻击目标
+     * @returns 详细的攻击结果
+     */
+    attackTarget(target: CultivatorClass): DamageResult {
+        // 计算伤害
+        const damageInfo = this.calculateDamage(target);
+        
+        // 目标承受伤害
+        const damageResult = target.takeDamage(damageInfo);
+        
+        // 如果目标被击败
+        if (damageResult.isDefeated) {
+            console.log(`${target.name} 被击败了！`);
+        }
+        
+        return damageResult;
+    }
+    
+    /**
+     * 判断是否存活
+     * @returns 是否存活
+     */
+    isAlive(): boolean {
+        return this.health.currentValue > 0;
+    }
+    
+    /**
+     * 恢复生命值
+     * @param amount 恢复量
+     */
+    heal(amount: number): void {
+        this.health.setCurrentValue(this.health.currentValue + amount);
+        console.log(`${this.name} 恢复了 ${amount} 点生命值，当前生命值: ${this.health.currentValue}`);
+    }
+    
+    /**
+     * 恢复灵力
+     * @param amount 恢复量
+     */
+    recoverSpiritPower(amount: number): void {
+        this.spiritPower.setCurrentValue(this.spiritPower.currentValue + amount);
+        console.log(`${this.name} 恢复了 ${amount} 点灵力，当前灵力: ${this.spiritPower.currentValue}`);
+    }
+    
     // 静态方法 随机生成人物
     static 随机生成人物(): CultivatorClass {
         // 随机生成性别
