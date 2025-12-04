@@ -11,18 +11,9 @@ import { AttributesGenerator } from "../classes/attributesGenerator";
 import { MapManager } from "../classes/mapManager";
 import { SpiritQiManager } from "../classes/spiritQiManager";
 import { LevelUpManager } from "../classes/levelUpManager";
-import { Monster } from "../classes/battle";
+import { Monster, BattleState } from "../classes/battle";
 import type { BattleLog } from "../classes/battle";
 import { GameLifecycleManager } from "../classes/lifecycle";
-
-// 战斗状态类型
-interface BattleState {
-  isInBattle: boolean;
-  battleLogs: BattleLog[];
-  isPlayerTurn: boolean;
-  currentMonster?: Monster;
-  battleResult?: "win" | "lose" | "escape";
-}
 
 // 扩展GameState类型
 export class ExtendedGameState extends GameState {
@@ -156,13 +147,13 @@ export const useGameStore = defineStore("game", {
 
     const map = new GameMap(10, 10);
 
-    const battleState: BattleState = {
+    const battleState: BattleState = new BattleState({
       isInBattle: false,
       battleLogs: [],
       isPlayerTurn: true,
       currentMonster: undefined,
       battleResult: undefined,
-    };
+    });
 
     const team = (() => {
       const team = new Team(18);
@@ -288,6 +279,20 @@ export const useGameStore = defineStore("game", {
         }
       }
       return null;
+    },
+    // 获取玩家当前攻击值
+    getPlayerCurrentAttack: (state) => (target?: Teammate) => {
+      if (target) {
+        return target.attributes.attack;
+      }
+      return state.player.attributes.attack;
+    },
+    // 获取玩家当前防御值
+    getPlayerCurrentDefense: (state) => (target?: Teammate) => {
+      if (target) {
+        return target.attributes.defense;
+      }
+      return state.player.attributes.defense;
     },
   },
 

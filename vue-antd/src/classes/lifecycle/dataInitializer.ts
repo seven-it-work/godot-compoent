@@ -2,8 +2,7 @@ import { Player, Teammate } from "../character";
 import { SpiritRoot } from "../character";
 import { SpiritQi } from "../resources";
 import { GameLocation, GameMap, GameTime } from "../world";
-import { Team, TeamPosition } from "../team";
-import { resourceConfig, balanceConfig } from "../../config/gameConfig";
+import { TeamPosition } from "../team";
 import { AttributesGenerator } from "../attributesGenerator";
 
 // 初始化数据类型定义
@@ -191,7 +190,7 @@ export class DataInitializer {
           });
       });
     
-    console.log("[DataInitializer] 队伍位置初始化完成，尺寸:", positions.length, "x", positions[0].length);
+    console.log("[DataInitializer] 队伍位置初始化完成，尺寸:", positions.length, "x", (positions[0]?.length || 0));
     return positions;
   }
 

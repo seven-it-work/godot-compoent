@@ -2,7 +2,7 @@ import { Monster } from "./battle";
 import { Player } from "./character";
 import { GameLocation } from "./world";
 import { BattleLog } from "./battle";
-import { AttributesGenerator } from "./attributesGenerator";
+
 
 export class BattleManager {
   // 开始战斗
@@ -10,13 +10,12 @@ export class BattleManager {
     player: Player,
     monster: Monster,
     battleLogs: BattleLog[],
-    isPlayerTurn: boolean,
-    currentSystem: string,
+
     setCurrentSystem: (system: string) => void,
     dispatchStartBattle: () => void
   ): void {
     battleLogs.length = 0;
-    isPlayerTurn = true;
+    // 不需要在方法内部设置isPlayerTurn，由外部状态管理
     setCurrentSystem("battle");
 
     // 添加战斗开始日志

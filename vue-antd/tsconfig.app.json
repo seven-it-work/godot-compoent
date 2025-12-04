@@ -5,7 +5,11 @@
     "types": ["vite/client"],
     "lib": ["ES2019", "DOM", "DOM.Iterable"],
     "target": "ES2019",
-
+    /* 绝对路径配置 */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     /* Linting */
     "strict": true,
     "noImplicitAny": true,
