@@ -22,8 +22,8 @@ export interface DamageResult {
     isDodged: boolean;
     // 最终伤害结果（是否击败目标）
     isDefeated: boolean;
-    // 目标剩余生命值
-    targetRemainingHealth: number;
+    // 目标剩余气血
+    targetRemainingQiBlood: number;
 }
 
 /**
@@ -39,12 +39,12 @@ export interface Cultivator {
     attack: BasicRangeRandomGrowthAttribute;
     // 防御力：减少修仙者受到的物理和法术伤害
     defense: BasicRangeRandomGrowthAttribute;
-    // 生命值：修仙者的生命总量，归零则死亡
-    health: BasicRangeGrowthAttribute;
+    // 气血：修仙者的生命总量，归零则死亡
+    qiBlood: BasicRangeGrowthAttribute;
     // 灵根数组：修仙者拥有的灵根，影响修炼速度和属性成长
     spiritRoots: SpiritRoot[];
-    // 等级：修仙者的当前等级（修为境界），影响各项属性的基础值
-    level: BasicGrowthAttribute;
+    // 境界等级：修仙者的当前境界，影响各项属性的基础值
+    realmLevel: BasicGrowthAttribute;
     // 性别：修仙者的性别，影响角色外观和部分剧情
     gender: Gender;
     // 暴击率：攻击时触发暴击的概率
@@ -55,10 +55,10 @@ export interface Cultivator {
     dodgeRate: BasicRangeRandomGrowthAttribute;
     // 灵力：用于释放技能和法术的能量，可通过休息恢复
     spiritPower: BasicRangeGrowthAttribute;
-    // 技能列表：修仙者已经学会的技能名称集合 （todo 设计技能系统）
-    skills: string[];
+    // 功法列表：修仙者已经学会的功法名称集合 （todo 设计功法系统）
+    cultivationMethods: string[];
     // 境界突破概率 最大100%级100
-    breakthroughRate: BasicRangeRandomGrowthAttribute;
+    breakthroughChance: BasicRangeRandomGrowthAttribute;
 }
 
 /**
@@ -229,9 +229,9 @@ export class CultivatorClass implements Cultivator {
         growthRate: 1.2,
         fixedGrowth: 0,
     });
-    // 生命值：修仙者的生命总量，当生命值降至0时，修仙者死亡
-    health: BasicRangeGrowthAttribute = new BasicRangeGrowthAttribute({
-        name: "生命值",
+    // 气血：修仙者的生命总量，当气血降至0时，修仙者死亡
+    qiBlood: BasicRangeGrowthAttribute = new BasicRangeGrowthAttribute({
+        name: "气血",
         minGrowth: 0,
         maxGrowth: 100,
         minRange: 0,
@@ -243,9 +243,9 @@ export class CultivatorClass implements Cultivator {
     });
     // 灵根数组：修仙者拥有的灵根，每种灵根对应不同的元素属性，影响修炼速度和属性成长
     spiritRoots: SpiritRootClass[] = SpiritRootClass.随机生成灵根(5);
-    // 等级：修仙者的当前等级，影响各项属性的基础值和成长潜力
-    level: BasicGrowthAttribute = new BasicGrowthAttribute({
-        name: "等级",
+    // 境界等级：修仙者的当前境界，影响各项属性的基础值和成长潜力
+    realmLevel: BasicGrowthAttribute = new BasicGrowthAttribute({
+        name: "境界等级",
         growthRate: 0,
         fixedGrowth: 1,
     });
@@ -299,10 +299,10 @@ export class CultivatorClass implements Cultivator {
         growthRate: 1,
         fixedGrowth: 0,
     });
-    // 技能列表：修仙者已经学会的技能名称集合，可在战斗或修炼中使用
-    skills: string[] = [];
+    // 功法列表：修仙者已经学会的功法名称集合，可在战斗或修炼中使用
+    cultivationMethods: string[] = [];
     // 境界突破概率 最大100%级100
-    breakthroughRate: BasicRangeRandomGrowthAttribute = new BasicRangeRandomGrowthAttribute({
+    breakthroughChance: BasicRangeRandomGrowthAttribute = new BasicRangeRandomGrowthAttribute({
         name: "境界突破概率",
         minGrowth: 0,
         maxGrowth: 0,
@@ -330,8 +330,8 @@ export class CultivatorClass implements Cultivator {
         if (!this.canUpgrade() && !是否强制升级) {
             return;
         }
-        // 升级等级
-        this.level.grow();
+        // 升级境界等级
+        this.realmLevel.grow();
         // 所有灵根的经验
         this._属性成长();
         // 升级后灵根的经验重置为0
@@ -341,7 +341,7 @@ export class CultivatorClass implements Cultivator {
     _属性成长():void{
         const spiritRootsExp = this.spiritRoots.map((spiritRoot) => spiritRoot.spiritValue);
         // 待升级的属性
-        const upgradeAttributes = [this.attack, this.defense, this.health, this.criticalRate, this.criticalDamage, 
+        const upgradeAttributes = [this.attack, this.defense, this.qiBlood, this.criticalRate, this.criticalDamage, 
                                 this.dodgeRate, this.spiritPower, ...spiritRootsExp];
         // 遍历待升级的属性，成长随机值
         for (const attribute of upgradeAttributes) {
@@ -377,7 +377,7 @@ export class CultivatorClass implements Cultivator {
      * 返回结果：凡人1层、元婴初期8层、仙人1层、仙人999层
      */
     getCultivationLevelName(): string {
-        const level = this.level.currentValue;
+        const level = this.realmLevel.currentValue;
         
         // 查找当前等级对应的境界配置
         const config = realmConfigs.find((config) => level >= config.minLevel && level <= config.maxLevel);
@@ -413,7 +413,7 @@ export class CultivatorClass implements Cultivator {
         }
         
         // 获取当前等级
-        const level = this.level.currentValue;
+        const level = this.realmLevel.currentValue;
         
         // 查找当前等级对应的境界配置
         const config = realmConfigs.find((config) => level >= config.minLevel && level <= config.maxLevel);
@@ -435,8 +435,8 @@ export class CultivatorClass implements Cultivator {
     breakthrough(是否强制突破: boolean = false): boolean {
         // 检查是否可以突破
         // 突破概率
-        const breakthroughRate = this.breakthroughRate.getCurrentValue();
-        const 是否成功突破 = Math.random() < breakthroughRate/100;
+        const breakthroughChance = this.breakthroughChance.getCurrentValue();
+        const 是否成功突破 = Math.random() < breakthroughChance/100;
         if (!this.canBreakthrough() && !是否强制突破 && !是否成功突破) {
             return false;
         }
@@ -450,23 +450,26 @@ export class CultivatorClass implements Cultivator {
     }
 
     /**
-     * 学习技能
+     * 学习功法
+     * @param cultivationMethodId 功法ID
      */
-    learnSkill(skillName: string): void {
-        if (!this.skills.includes(skillName)) {
-            this.skills.push(skillName);
+    learnCultivationMethod(cultivationMethodId: string): void {
+        if (!this.cultivationMethods.includes(cultivationMethodId)) {
+            this.cultivationMethods.push(cultivationMethodId);
         }
     }
 
     /**
-     * 使用技能
+     * 使用功法
+     * @param cultivationMethodId 功法ID
      */
-    useSkill(skillName: string, cost: number): boolean {
-        if (this.skills.includes(skillName) && this.spiritPower.currentValue >= cost) {
-            this.spiritPower.currentValue -= cost;
-            return true;
+    useCultivationMethod(cultivationMethodId: string): void {
+        if (!this.cultivationMethods.includes(cultivationMethodId)) {
+            console.log(`${this.name} 尚未学习 ${cultivationMethodId} 功法`);
+            return;
         }
-        return false;
+        // 实际使用功法的逻辑
+        console.log(`${this.name} 使用了 ${cultivationMethodId} 功法`);
     }
 
     /**
@@ -496,7 +499,7 @@ export class CultivatorClass implements Cultivator {
             criticalMultiplier,
             isDodged: false, // 默认值，在takeDamage方法中实际计算
             isDefeated: false, // 默认值，在takeDamage方法中实际计算
-            targetRemainingHealth: target.health.currentValue // 初始剩余生命值
+            targetRemainingQiBlood: target.qiBlood.currentValue // 初始剩余气血
         };
     }
     
@@ -515,29 +518,29 @@ export class CultivatorClass implements Cultivator {
                 ...damageInfo,
                 isDodged: true,
                 isDefeated: false,
-                targetRemainingHealth: this.health.currentValue,
+                targetRemainingQiBlood: this.qiBlood.currentValue,
                 actualDamage: 0
             };
         }
         
-        // 减少生命值
-        this.health.currentValue -= damageInfo.actualDamage;
+        // 减少气血
+        this.qiBlood.currentValue -= damageInfo.actualDamage;
         
-        // 确保生命值不会低于0
-        if (this.health.currentValue < 0) {
-            this.health.currentValue = 0;
+        // 确保气血不会低于0
+        if (this.qiBlood.currentValue < 0) {
+            this.qiBlood.currentValue = 0;
         }
         
         // 检查是否被击败
         const isDefeated = !this.isAlive();
         
-        console.log(`${this.name} 受到了 ${damageInfo.actualDamage} 点伤害，剩余生命值: ${this.health.currentValue}`);
+        console.log(`${this.name} 受到了 ${damageInfo.actualDamage} 点伤害，剩余气血: ${this.qiBlood.currentValue}`);
         
         return {
             ...damageInfo,
             isDodged: false,
             isDefeated,
-            targetRemainingHealth: this.health.currentValue
+            targetRemainingQiBlood: this.qiBlood.currentValue
         };
     }
     
@@ -566,18 +569,18 @@ export class CultivatorClass implements Cultivator {
      * @returns 是否存活
      */
     isAlive(): boolean {
-        return this.health.currentValue > 0;
+        return this.qiBlood.currentValue > 0;
     }
-    
+
     /**
-     * 恢复生命值
+     * 恢复气血
      * @param amount 恢复量
      */
-    heal(amount: number): void {
-        this.health.setCurrentValue(this.health.currentValue + amount);
-        console.log(`${this.name} 恢复了 ${amount} 点生命值，当前生命值: ${this.health.currentValue}`);
+    recoverQiBlood(amount: number): void {
+        this.qiBlood.setCurrentValue(this.qiBlood.currentValue + amount);
+        console.log(`${this.name} 恢复了 ${amount} 点气血，当前气血: ${this.qiBlood.currentValue}`);
     }
-    
+
     /**
      * 恢复灵力
      * @param amount 恢复量
