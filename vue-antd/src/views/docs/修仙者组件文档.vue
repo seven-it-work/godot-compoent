@@ -243,6 +243,257 @@ const cultivator = ref(CultivatorClass.随机生成人物());
             </div>
           </div>
 
+          <!-- 灵根组件演示 -->
+          <div v-if="activeKey === 'spirit-root-components'" class="component-container">
+            <div class="component-header">
+              <h3 class="component-name">灵根组件集合</h3>
+              <span class="component-tag">灵根系统</span>
+            </div>
+            
+            <div class="component-description">
+              <p>提供完整的灵根系统UI组件，包括灵根信息展示、灵根选择器和灵根编辑器，支持各种灵根相关的交互需求。</p>
+            </div>
+
+            <!-- SpiritRootInfo 组件演示 -->
+            <div class="demo-section">
+              <h4 class="demo-subtitle">1. SpiritRootInfo - 灵根信息展示</h4>
+              <div class="component-demo-wrapper">
+                <div class="component-demo">
+                  <div class="spirit-root-grid">
+                    <SpiritRootInfo 
+                      v-for="spiritRoot in cultivator.spiritRoots" 
+                      :key="spiritRoot.name"
+                      :spirit-root="spiritRoot"
+                      class="spirit-root-demo"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="component-docs">
+                <h5>使用方法</h5>
+                <pre class="code-block"><code>&lt;SpiritRootInfo 
+  :spirit-root="spiritRoot"
+/&gt;</code></pre>
+                <h5>属性</h5>
+                <table class="api-table small">
+                  <thead>
+                    <tr>
+                      <th>属性名</th>
+                      <th>类型</th>
+                      <th>说明</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>spiritRoot</td>
+                      <td>SpiritRoot</td>
+                      <td>灵根对象</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- SpiritRootSelector 组件演示 -->
+            <div class="demo-section">
+              <h4 class="demo-subtitle">2. SpiritRootSelector - 灵根选择器</h4>
+              <div class="component-demo-wrapper">
+                <div class="component-demo">
+                  <div class="selector-demo">
+                    <div class="selector-item">
+                      <h5>单选模式</h5>
+                      <SpiritRootSelector 
+                        :selected="selectedSpiritRootType"
+                        @update:selected="handleSpiritRootSelect"
+                      />
+                    </div>
+                    <div class="selector-item">
+                      <h5>多选模式</h5>
+                      <SpiritRootSelector 
+                        :selected="selectedSpiritRootTypes"
+                        :multiple="true"
+                        @update:selected="handleSpiritRootSelect"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="component-docs">
+                <h5>使用方法</h5>
+                <pre class="code-block"><code>&lt;!-- 单选模式 --&gt;
+&lt;SpiritRootSelector 
+  :selected="selectedType"
+  @update:selected="handleSelect"
+/&gt;
+
+&lt;!-- 多选模式 --&gt;
+&lt;SpiritRootSelector 
+  :selected="selectedTypes"
+  :multiple="true"
+  @update:selected="handleSelect"
+/&gt;</code></pre>
+                <h5>属性</h5>
+                <table class="api-table small">
+                  <thead>
+                    <tr>
+                      <th>属性名</th>
+                      <th>类型</th>
+                      <th>默认值</th>
+                      <th>说明</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>label</td>
+                      <td>string</td>
+                      <td>选择灵根类型</td>
+                      <td>组件标签</td>
+                    </tr>
+                    <tr>
+                      <td>multiple</td>
+                      <td>boolean</td>
+                      <td>false</td>
+                      <td>是否支持多选</td>
+                    </tr>
+                    <tr>
+                      <td>selected</td>
+                      <td>string | string[]</td>
+                      <td>[]</td>
+                      <td>默认选中的灵根类型</td>
+                    </tr>
+                    <tr>
+                      <td>disabled</td>
+                      <td>boolean</td>
+                      <td>false</td>
+                      <td>是否禁用选择</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <h5>事件</h5>
+                <table class="api-table small">
+                  <thead>
+                    <tr>
+                      <th>事件名</th>
+                      <th>参数</th>
+                      <th>说明</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>update:selected</td>
+                      <td>string | string[]</td>
+                      <td>选择的灵根类型变化时触发</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- SpiritRootEditor 组件演示 -->
+            <div class="demo-section">
+              <h4 class="demo-subtitle">3. SpiritRootEditor - 灵根编辑器</h4>
+              <div class="component-demo-wrapper">
+                <div class="component-demo">
+                  <div v-if="!isEditing" class="editor-demo">
+                    <a-button 
+                      type="primary" 
+                      @click="currentEditingSpiritRoot = cultivator.spiritRoots[0]; isEditing = true"
+                    >
+                      编辑第一个灵根
+                    </a-button>
+                    <a-button 
+                      @click="currentEditingSpiritRoot = cultivator.spiritRoots[1]; isEditing = true"
+                      style="margin-left: 10px"
+                    >
+                      编辑第二个灵根
+                    </a-button>
+                  </div>
+                  <div v-else class="editor-container">
+                    <SpiritRootEditor 
+                      v-if="currentEditingSpiritRoot"
+                      :spirit-root="currentEditingSpiritRoot"
+                      @update="handleSpiritRootUpdate"
+                      @cancel="handleCancelEdit"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="component-docs">
+                <h5>使用方法</h5>
+                <pre class="code-block"><code>&lt;SpiritRootEditor 
+  :spirit-root="spiritRoot"
+  @update="handleUpdate"
+  @cancel="handleCancel"
+/&gt;</code></pre>
+                <h5>属性</h5>
+                <table class="api-table small">
+                  <thead>
+                    <tr>
+                      <th>属性名</th>
+                      <th>类型</th>
+                      <th>默认值</th>
+                      <th>说明</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>title</td>
+                      <td>string</td>
+                      <td>编辑灵根属性</td>
+                      <td>组件标题</td>
+                    </tr>
+                    <tr>
+                      <td>spiritRoot</td>
+                      <td>SpiritRoot</td>
+                      <td>-</td>
+                      <td>要编辑的灵根对象</td>
+                    </tr>
+                    <tr>
+                      <td>disabled</td>
+                      <td>boolean</td>
+                      <td>false</td>
+                      <td>是否禁用编辑</td>
+                    </tr>
+                    <tr>
+                      <td>showCancel</td>
+                      <td>boolean</td>
+                      <td>true</td>
+                      <td>是否显示取消按钮</td>
+                    </tr>
+                    <tr>
+                      <td>submitText</td>
+                      <td>string</td>
+                      <td>保存</td>
+                      <td>提交按钮文本</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <h5>事件</h5>
+                <table class="api-table small">
+                  <thead>
+                    <tr>
+                      <th>事件名</th>
+                      <th>参数</th>
+                      <th>说明</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>update</td>
+                      <td>Partial&lt;SpiritRoot&gt;</td>
+                      <td>灵根属性更新时触发</td>
+                    </tr>
+                    <tr>
+                      <td>cancel</td>
+                      <td>-</td>
+                      <td>用户取消编辑时触发</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
           <!-- 修仙功法组件 -->
           <div v-if="activeKey === 'cultivation-methods'" class="component-container">
             <div class="component-header">
@@ -483,17 +734,24 @@ const cultivator = ref(CultivatorClass.随机生成人物());
 
 <script setup lang="ts">
 import { CultivatorInfoCard, CultivatorAttributePanel, CultivatorActions, SpiritRootDetails, CultivationMethodsPanel, CultivatorClass } from '@/v1/cultivator';
-import { ref, computed } from 'vue';
+import { SpiritRootInfo, SpiritRootSelector, SpiritRootEditor } from '@/v1/spiritRoot/components';
+import { ref, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import type { DamageResult } from '@/v1/damageResult';
+import type { SpiritRoot } from '@/v1/spiritRoot';
 
 // 菜单配置
 const cultivatorMenu = [
   { key: 'cultivator-info-card', title: '修仙者信息' },
   { key: 'cultivator-attribute-panel', title: '修仙者属性' },
   { key: 'spirit-root-details', title: '灵根详情' },
+  { key: 'spirit-root-components', title: '灵根组件演示' },
   { key: 'cultivation-methods', title: '修仙功法' },
   { key: 'cultivator-actions', title: '修仙者操作' }
 ];
+
+// 获取路由信息
+const route = useRoute();
 
 // 当前激活的菜单项
 const activeKey = ref('cultivator-info-card');
@@ -501,6 +759,19 @@ const activeKey = ref('cultivator-info-card');
 // 快速开始和API参考的显示状态
 const showQuickStart = ref(false);
 const showApi = ref(false);
+
+// 从路由查询参数中获取初始状态
+onMounted(() => {
+  if (route.query.activeKey) {
+    activeKey.value = route.query.activeKey as string;
+  }
+  if (route.query.showQuickStart === 'true') {
+    showQuickStart.value = true;
+  }
+  if (route.query.showApi === 'true') {
+    showApi.value = true;
+  }
+});
 
 // 当前页面标题
 const currentTitle = computed(() => {
@@ -520,6 +791,70 @@ const actionResult = ref<string>('');
 // 处理修仙者更新
 const handleUpdate = (updatedCultivator: CultivatorClass) => {
   cultivator.value = updatedCultivator;
+};
+
+// 灵根组件演示状态
+const selectedSpiritRootType = ref<string>('金');
+const selectedSpiritRootTypes = ref<string[]>(['金', '木']);
+const currentEditingSpiritRoot = ref<SpiritRoot | null>(null);
+const isEditing = ref(false);
+
+// 处理灵根选择变化
+const handleSpiritRootSelect = (value: string | string[]) => {
+  if (Array.isArray(value)) {
+    selectedSpiritRootTypes.value = value;
+    actionResult.value = `已选择灵根: ${value.join(', ')}`;
+  } else {
+    selectedSpiritRootType.value = value;
+    actionResult.value = `已选择灵根: ${value}`;
+  }
+  // 3秒后自动清除结果
+  setTimeout(() => {
+    actionResult.value = '';
+  }, 3000);
+};
+
+// 处理灵根更新
+const handleSpiritRootUpdate = (updatedSpiritRoot: Partial<SpiritRoot>) => {
+  if (currentEditingSpiritRoot.value && cultivator.value) {
+    // 找到对应的灵根并更新
+    const index = cultivator.value.spiritRoots.findIndex(
+      root => root.name === currentEditingSpiritRoot.value?.name
+    );
+    if (index !== -1) {
+      cultivator.value.spiritRoots[index] = {
+        ...cultivator.value.spiritRoots[index],
+        ...updatedSpiritRoot
+      };
+      // 如果灵根值有变化，更新当前值
+      if (updatedSpiritRoot.spiritValue && typeof updatedSpiritRoot.spiritValue === 'object') {
+        cultivator.value.spiritRoots[index].spiritValue.currentValue = updatedSpiritRoot.spiritValue.currentValue || 0;
+      }
+      if (updatedSpiritRoot.attribute && typeof updatedSpiritRoot.attribute === 'object') {
+        cultivator.value.spiritRoots[index].attribute.currentValue = updatedSpiritRoot.attribute.currentValue || 0;
+      }
+      actionResult.value = `灵根 ${updatedSpiritRoot.name} 更新成功！`;
+      // 3秒后自动清除结果
+      setTimeout(() => {
+        actionResult.value = '';
+      }, 3000);
+    }
+    // 退出编辑模式
+    isEditing.value = false;
+    currentEditingSpiritRoot.value = null;
+  }
+};
+
+// 处理编辑灵根
+const handleEditSpiritRoot = (spiritRoot: SpiritRoot) => {
+  currentEditingSpiritRoot.value = spiritRoot;
+  isEditing.value = true;
+};
+
+// 处理取消编辑
+const handleCancelEdit = () => {
+  isEditing.value = false;
+  currentEditingSpiritRoot.value = null;
 };
 
 // 处理攻击事件
