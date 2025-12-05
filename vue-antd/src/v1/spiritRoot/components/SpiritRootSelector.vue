@@ -2,14 +2,14 @@
   <div class="spirit-root-selector">
     <div class="selector-label">{{ label }}</div>
     <div v-if="!multiple" class="radio-group">
-      <a-radio-group 
-        v-model:value="selectedValue" 
+      <a-radio-group
+        v-model:value="selectedValue"
         @change="handleChange"
         :disabled="disabled"
       >
-        <a-radio 
-          v-for="type in SPIRIT_ROOT_TYPES" 
-          :key="type" 
+        <a-radio
+          v-for="type in SPIRIT_ROOT_TYPES"
+          :key="type"
           :value="type"
           class="spirit-root-radio"
         >
@@ -21,14 +21,14 @@
       </a-radio-group>
     </div>
     <div v-else class="checkbox-group">
-      <a-checkbox-group 
-        v-model:value="selectedValue" 
+      <a-checkbox-group
+        v-model:value="selectedValue"
         @change="handleChange"
         :disabled="disabled"
       >
-        <a-checkbox 
-          v-for="type in SPIRIT_ROOT_TYPES" 
-          :key="type" 
+        <a-checkbox
+          v-for="type in SPIRIT_ROOT_TYPES"
+          :key="type"
           :value="type"
           class="spirit-root-checkbox"
         >
@@ -43,30 +43,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineEmits } from 'vue';
-import { SPIRIT_ROOT_TYPES, type SpiritRootType } from '../define';
+import { ref, watch, defineEmits } from "vue";
+import { SPIRIT_ROOT_TYPES, type SpiritRootType } from "../define";
 
 // 定义组件属性
-const props = withDefaults(defineProps<{
-  // 组件标签
-  label?: string;
-  // 是否支持多选
-  multiple?: boolean;
-  // 默认选中的灵根类型
-  selected?: SpiritRootType | SpiritRootType[];
-  // 是否禁用选择
-  disabled?: boolean;
-}>(), {
-  label: '选择灵根类型',
-  multiple: false,
-  selected: () => [],
-  disabled: false
-});
+const props = withDefaults(
+  defineProps<{
+    // 组件标签
+    label?: string;
+    // 是否支持多选
+    multiple?: boolean;
+    // 默认选中的灵根类型
+    selected?: SpiritRootType | SpiritRootType[];
+    // 是否禁用选择
+    disabled?: boolean;
+  }>(),
+  {
+    label: "选择灵根类型",
+    multiple: false,
+    selected: () => [],
+    disabled: false,
+  }
+);
 
 // 定义组件事件
 const emit = defineEmits<{
   // 当选中的灵根类型变化时触发
-  'update:selected': [value: SpiritRootType | SpiritRootType[]];
+  "update:selected": [value: SpiritRootType | SpiritRootType[]];
 }>();
 
 // 选中的值
@@ -74,7 +77,7 @@ const selectedValue = ref<SpiritRootType | SpiritRootType[]>(props.selected);
 
 // 监听选中值的变化，同步到父组件
 watch(selectedValue, (newValue) => {
-  emit('update:selected', newValue);
+  emit("update:selected", newValue);
 });
 
 // 处理选择变化
@@ -85,13 +88,13 @@ const handleChange = (e: any) => {
 // 获取灵根类型对应的图标
 const getSpiritRootIcon = (type: SpiritRootType): string => {
   const icons: Record<SpiritRootType, string> = {
-    '金': '⚜️',
-    '木': '🌿',
-    '水': '💧',
-    '火': '🔥',
-    '土': '🌍'
+    金: "⚜️",
+    木: "🌿",
+    水: "💧",
+    火: "🔥",
+    土: "🌍",
   };
-  return icons[type] || '✨';
+  return icons[type] || "✨";
 };
 </script>
 

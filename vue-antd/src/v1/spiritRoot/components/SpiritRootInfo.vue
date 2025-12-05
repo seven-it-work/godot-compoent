@@ -8,17 +8,23 @@
       <div class="spirit-value">
         <div class="value-header">
           <span class="value-label">灵根值</span>
-          <span class="value-number">{{ spiritRoot.spiritValue.getCurrentValue() }}</span>
+          <span class="value-number">{{
+            spiritRoot.spiritValue.getCurrentValue()
+          }}</span>
         </div>
         <div class="spirit-value-progress">
-          <div 
+          <div
             class="progress-bar"
             :style="{ width: getSpiritValueProgress() + '%' }"
           ></div>
         </div>
       </div>
       <div class="spirit-root-attributes">
-        <div class="attribute-item" v-for="attribute in getSpiritRootAttributes()" :key="attribute.name">
+        <div
+          class="attribute-item"
+          v-for="attribute in getSpiritRootAttributes()"
+          :key="attribute.name"
+        >
           <span class="attribute-name">{{ attribute.name }}</span>
           <span class="attribute-bonus">+{{ attribute.bonus }}</span>
         </div>
@@ -28,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import type { SpiritRoot } from '../define';
+import type { SpiritRoot } from "../define";
 
 // 定义组件属性
 const { spiritRoot } = defineProps<{
@@ -40,11 +46,11 @@ const { spiritRoot } = defineProps<{
  */
 const getSpiritRootGrade = (): string => {
   const value = spiritRoot.spiritValue.getCurrentValue();
-  if (value >= 90) return '天级';
-  if (value >= 70) return '地级';
-  if (value >= 50) return '玄级';
-  if (value >= 30) return '黄级';
-  return '凡级';
+  if (value >= 90) return "天级";
+  if (value >= 70) return "地级";
+  if (value >= 50) return "玄级";
+  if (value >= 30) return "黄级";
+  return "凡级";
 };
 
 /**
@@ -62,21 +68,36 @@ const getSpiritValueProgress = (): number => {
 const getSpiritRootAttributes = () => {
   const value = spiritRoot.spiritValue.getCurrentValue();
   const baseBonus = Math.floor(value / 10);
-  
+
   // 根据灵根类型提供不同的属性加成
   switch (spiritRoot.name) {
-    case '金':
-      return [{ name: '攻击力', bonus: baseBonus * 2 }, { name: '暴击率', bonus: baseBonus }];
-    case '木':
-      return [{ name: '气血', bonus: baseBonus * 2 }, { name: '防御力', bonus: baseBonus }];
-    case '水':
-      return [{ name: '灵力', bonus: baseBonus * 2 }, { name: '闪避率', bonus: baseBonus }];
-    case '火':
-      return [{ name: '攻击力', bonus: baseBonus * 2 }, { name: '暴击伤害', bonus: baseBonus }];
-    case '土':
-      return [{ name: '防御力', bonus: baseBonus * 2 }, { name: '气血', bonus: baseBonus }];
+    case "金":
+      return [
+        { name: "攻击力", bonus: baseBonus * 2 },
+        { name: "暴击率", bonus: baseBonus },
+      ];
+    case "木":
+      return [
+        { name: "气血", bonus: baseBonus * 2 },
+        { name: "防御力", bonus: baseBonus },
+      ];
+    case "水":
+      return [
+        { name: "灵力", bonus: baseBonus * 2 },
+        { name: "闪避率", bonus: baseBonus },
+      ];
+    case "火":
+      return [
+        { name: "攻击力", bonus: baseBonus * 2 },
+        { name: "暴击伤害", bonus: baseBonus },
+      ];
+    case "土":
+      return [
+        { name: "防御力", bonus: baseBonus * 2 },
+        { name: "气血", bonus: baseBonus },
+      ];
     default:
-      return [{ name: '综合属性', bonus: baseBonus }];
+      return [{ name: "综合属性", bonus: baseBonus }];
   }
 };
 </script>
@@ -88,7 +109,9 @@ const getSpiritRootAttributes = () => {
   padding: 12px;
   background-color: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .spirit-root-info:hover {

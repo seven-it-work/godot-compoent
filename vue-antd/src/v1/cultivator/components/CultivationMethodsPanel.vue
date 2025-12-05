@@ -1,10 +1,10 @@
 <template>
   <div class="cultivation-methods-panel">
-    <h3>修仙者功法</h3>
-    
+    <h3>修仙者功法(待开发)</h3>
+
     <div v-if="cultivator.cultivationMethods.length > 0" class="methods-grid">
-      <div 
-        v-for="method in getCultivationMethodsDetails()" 
+      <div
+        v-for="method in getCultivationMethodsDetails()"
         :key="method.name"
         class="method-card"
       >
@@ -21,24 +21,32 @@
           </div>
           <div class="method-effects">
             <h4>功法效果</h4>
-            <div class="effect-item" v-for="effect in method.effects" :key="effect.attribute">
+            <div
+              class="effect-item"
+              v-for="effect in method.effects"
+              :key="effect.attribute"
+            >
               <span class="effect-attribute">{{ effect.attribute }}</span>
-              <span class="effect-value">{{ effect.value > 0 ? '+' : '' }}{{ effect.value }}</span>
+              <span class="effect-value"
+                >{{ effect.value > 0 ? "+" : "" }}{{ effect.value }}</span
+              >
             </div>
           </div>
         </div>
       </div>
     </div>
-    
+
     <div v-else class="no-methods">
       <p>当前没有学会任何功法</p>
-      <button @click="addRandomMethod" class="add-method-btn">添加随机功法</button>
+      <button @click="addRandomMethod" class="add-method-btn">
+        添加随机功法
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { CultivatorClass } from '../impl';
+import { CultivatorClass } from "../impl";
 
 const { cultivator } = defineProps<{
   cultivator: CultivatorClass;
@@ -51,62 +59,64 @@ const emitEvents = defineEmits<{
 // 预定义一些功法数据
 const cultivationMethodsData = [
   {
-    name: '基础拳法',
-    grade: '凡级',
-    type: '攻击',
-    description: '入门级拳法，适合初学者修炼',
-    effects: [{ attribute: '攻击力', value: 10 }]
+    name: "基础拳法",
+    grade: "凡级",
+    type: "攻击",
+    description: "入门级拳法，适合初学者修炼",
+    effects: [{ attribute: "攻击力", value: 10 }],
   },
   {
-    name: '金刚护体',
-    grade: '黄级',
-    type: '防御',
-    description: '强化身体防御的功法',
-    effects: [{ attribute: '防御力', value: 15 }]
+    name: "金刚护体",
+    grade: "黄级",
+    type: "防御",
+    description: "强化身体防御的功法",
+    effects: [{ attribute: "防御力", value: 15 }],
   },
   {
-    name: '五行吐纳法',
-    grade: '玄级',
-    type: '心法',
-    description: '利用五行之气修炼的高级心法',
+    name: "五行吐纳法",
+    grade: "玄级",
+    type: "心法",
+    description: "利用五行之气修炼的高级心法",
     effects: [
-      { attribute: '气血', value: 20 },
-      { attribute: '灵力', value: 15 }
-    ]
+      { attribute: "气血", value: 20 },
+      { attribute: "灵力", value: 15 },
+    ],
   },
   {
-    name: '雷动九天',
-    grade: '地级',
-    type: '攻击',
-    description: '召唤雷电之力的强大功法',
+    name: "雷动九天",
+    grade: "地级",
+    type: "攻击",
+    description: "召唤雷电之力的强大功法",
     effects: [
-      { attribute: '攻击力', value: 30 },
-      { attribute: '暴击率', value: 5 }
-    ]
+      { attribute: "攻击力", value: 30 },
+      { attribute: "暴击率", value: 5 },
+    ],
   },
   {
-    name: '天地同寿',
-    grade: '天级',
-    type: '心法',
-    description: '传说中的顶级心法，能与天地同寿',
+    name: "天地同寿",
+    grade: "天级",
+    type: "心法",
+    description: "传说中的顶级心法，能与天地同寿",
     effects: [
-      { attribute: '气血', value: 50 },
-      { attribute: '灵力', value: 40 },
-      { attribute: '防御力', value: 25 }
-    ]
-  }
+      { attribute: "气血", value: 50 },
+      { attribute: "灵力", value: 40 },
+      { attribute: "防御力", value: 25 },
+    ],
+  },
 ];
 
 // 获取功法详情
 const getCultivationMethodsDetails = () => {
   return cultivator.cultivationMethods.map((methodName: string) => {
-    return cultivationMethodsData.find(method => method.name === methodName) || {
-      name: methodName,
-      grade: '未知',
-      type: '未知',
-      description: '暂无描述',
-      effects: []
-    };
+    return (
+      cultivationMethodsData.find((method) => method.name === methodName) || {
+        name: methodName,
+        grade: "未知",
+        type: "未知",
+        description: "暂无描述",
+        effects: [],
+      }
+    );
   });
 };
 
@@ -114,22 +124,25 @@ const getCultivationMethodsDetails = () => {
 const addRandomMethod = () => {
   // 筛选出还没有学会的功法
   const availableMethods = cultivationMethodsData.filter(
-    method => !cultivator.cultivationMethods.includes(method.name)
+    (method) => !cultivator.cultivationMethods.includes(method.name)
   );
-  
+
   if (availableMethods.length > 0) {
     // 随机选择一个功法
     const randomIndex = Math.floor(Math.random() * availableMethods.length);
     const selectedMethod = availableMethods[randomIndex];
-    
+
     // 添加到修仙者的功法列表
     if (selectedMethod) {
       const updatedCultivator = new CultivatorClass({
         ...cultivator,
-        cultivationMethods: [...cultivator.cultivationMethods, selectedMethod.name]
+        cultivationMethods: [
+          ...cultivator.cultivationMethods,
+          selectedMethod.name,
+        ],
       });
-      
-      emitEvents('update', updatedCultivator);
+
+      emitEvents("update", updatedCultivator);
     }
   }
 };

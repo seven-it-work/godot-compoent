@@ -3,29 +3,29 @@
     <h3>{{ title }}</h3>
     <div class="action-buttons">
       <!-- 升级按钮 -->
-      <button 
+      <button
         v-if="showUpgrade"
-        @click="handleUpgrade" 
+        @click="handleUpgrade"
         :disabled="!cultivator.canUpgrade()"
         class="action-button upgrade"
         :class="buttonClassPrefix + '-upgrade'"
       >
         {{ upgradeButtonText }}
       </button>
-      
+
       <!-- 突破按钮 -->
-      <button 
+      <button
         v-if="showBreakthrough"
-        @click="handleBreakthrough" 
+        @click="handleBreakthrough"
         :disabled="!cultivator.canBreakthrough()"
         class="action-button breakthrough"
         :class="buttonClassPrefix + '-breakthrough'"
       >
         {{ breakthroughButtonText }}
       </button>
-      
+
       <!-- 攻击训练按钮 -->
-      <button 
+      <button
         v-if="showAttack"
         @click="handleAttack"
         class="action-button attack"
@@ -33,9 +33,9 @@
       >
         {{ attackButtonText }}
       </button>
-      
+
       <!-- 恢复按钮 -->
-      <button 
+      <button
         v-if="showRecover"
         @click="handleRecover"
         class="action-button recover"
@@ -43,7 +43,7 @@
       >
         {{ recoverButtonText }}
       </button>
-      
+
       <!-- 自定义操作按钮插槽 -->
       <slot name="custom-actions"></slot>
     </div>
@@ -51,79 +51,88 @@
 </template>
 
 <script setup lang="ts">
-import { CultivatorClass } from '../impl';
-import type { DamageResult } from '@/v1/damageResult';
+import { CultivatorClass } from "../impl";
+import type { DamageResult } from "@/v1/damageResult";
 
 // 定义组件属性
-const props = withDefaults(defineProps<{
-  // 修仙者实例
-  cultivator: CultivatorClass;
-  
-  // 组件标题
-  title?: string;
-  
-  // 按钮显示配置
-  showUpgrade?: boolean;
-  showBreakthrough?: boolean;
-  showAttack?: boolean;
-  showRecover?: boolean;
-  
-  // 按钮文本配置
-  upgradeButtonText?: string;
-  breakthroughButtonText?: string;
-  attackButtonText?: string;
-  recoverButtonText?: string;
-  
-  // 恢复值配置
-  recoverQiBloodValue?: number;
-  recoverSpiritPowerValue?: number;
-  
-  // 攻击目标配置
-  attackTarget?: CultivatorClass | null;
-  
-  // 自定义按钮类前缀
-  buttonClassPrefix?: string;
-}>(), {
-  // 默认值
-  title: '修仙者操作',
-  showUpgrade: true,
-  showBreakthrough: true,
-  showAttack: true,
-  showRecover: true,
-  upgradeButtonText: (props) => `升级 (${props.cultivator.realmLevel.getCurrentValue()} → ${props.cultivator.realmLevel.getCurrentValue() + 1})`,
-  breakthroughButtonText: (props) => `突破 (${props.cultivator.getCultivationLevelName()})`,
-  attackButtonText: '攻击训练',
-  recoverButtonText: '恢复',
-  recoverQiBloodValue: 100,
-  recoverSpiritPowerValue: 50,
-  attackTarget: null,
-  buttonClassPrefix: 'cultivator-action'
-});
+const props = withDefaults(
+  defineProps<{
+    // 修仙者实例
+    cultivator: CultivatorClass;
+
+    // 组件标题
+    title?: string;
+
+    // 按钮显示配置
+    showUpgrade?: boolean;
+    showBreakthrough?: boolean;
+    showAttack?: boolean;
+    showRecover?: boolean;
+
+    // 按钮文本配置
+    upgradeButtonText?: string;
+    breakthroughButtonText?: string;
+    attackButtonText?: string;
+    recoverButtonText?: string;
+
+    // 恢复值配置
+    recoverQiBloodValue?: number;
+    recoverSpiritPowerValue?: number;
+
+    // 攻击目标配置
+    attackTarget?: CultivatorClass | null;
+
+    // 自定义按钮类前缀
+    buttonClassPrefix?: string;
+  }>(),
+  {
+    // 默认值
+    title: "修仙者操作",
+    showUpgrade: true,
+    showBreakthrough: true,
+    showAttack: true,
+    showRecover: true,
+    upgradeButtonText: (props) =>
+      `升级 (${props.cultivator.realmLevel.getCurrentValue()} → ${props.cultivator.realmLevel.getCurrentValue() + 1})`,
+    breakthroughButtonText: (props) =>
+      `突破 (${props.cultivator.getCultivationLevelName()})`,
+    attackButtonText: "攻击训练",
+    recoverButtonText: "恢复",
+    recoverQiBloodValue: 100,
+    recoverSpiritPowerValue: 50,
+    attackTarget: null,
+    buttonClassPrefix: "cultivator-action",
+  }
+);
 
 // 定义事件
 const emit = defineEmits<{
   // 更新修仙者
   update: [cultivator: CultivatorClass];
-  
+
   // 攻击事件
   attack: [damage: DamageResult];
-  
+
   // 操作结果事件
-  result: [message: string, type: 'success' | 'error' | 'info'];
-  
+  result: [message: string, type: "success" | "error" | "info"];
+
   // 按钮点击事件
-  buttonClick: [buttonType: 'upgrade' | 'breakthrough' | 'attack' | 'recover'];
+  buttonClick: [buttonType: "upgrade" | "breakthrough" | "attack" | "recover"];
 }>();
 
 // 处理升级
 const handleUpgrade = () => {
   if (props.cultivator.canUpgrade()) {
     props.cultivator.upgrade();
-    emit('update', props.cultivator);
-    emit('result', `升级成功！当前等级: ${props.cultivator.realmLevel.getCurrentValue()}`, 'success');
-    emit('buttonClick', 'upgrade');
+    emit("update", props.cultivator);
+    emit(
+      "result",
+      `升级成功！当前等级: ${props.cultivator.realmLevel.getCurrentValue()}`,
+      "success"
+    );
+    emit("buttonClick", "upgrade");
   } else {
-    emit('result', '升级失败！条件不满足。', 'error');
+    emit("result", "升级失败！条件不满足。", "error");
   }
 };
 
@@ -131,15 +140,19 @@ const handleUpgrade = () => {
 const handleBreakthrough = () => {
   if (props.cultivator.canBreakthrough()) {
     const success = props.cultivator.breakthrough();
-    emit('update', props.cultivator);
+    emit("update", props.cultivator);
     if (success) {
-      emit('result', `突破成功！当前境界: ${props.cultivator.getCultivationLevelName()}`, 'success');
+      emit(
+        "result",
+        `突破成功！当前境界: ${props.cultivator.getCultivationLevelName()}`,
+        "success"
+      );
     } else {
-      emit('result', '突破失败！请继续努力。', 'error');
+      emit("result", "突破失败！请继续努力。", "error");
     }
-    emit('buttonClick', 'breakthrough');
+    emit("buttonClick", "breakthrough");
   } else {
-    emit('result', '突破失败！条件不满足。', 'error');
+    emit("result", "突破失败！条件不满足。", "error");
   }
 };
 
@@ -148,97 +161,27 @@ const handleAttack = () => {
   // 使用传入的目标或创建临时目标
   const target = props.attackTarget || new CultivatorClass();
   const damageResult = props.cultivator.attackTarget(target);
-  emit('attack', damageResult);
-  emit('result', `攻击训练完成！造成伤害: ${damageResult.actualDamage}`, 'info');
-  emit('buttonClick', 'attack');
+  emit("attack", damageResult);
+  emit(
+    "result",
+    `攻击训练完成！造成伤害: ${damageResult.actualDamage}`,
+    "info"
+  );
+  emit("buttonClick", "attack");
 };
 
 // 处理恢复
 const handleRecover = () => {
   props.cultivator.recoverQiBlood(props.recoverQiBloodValue);
   props.cultivator.recoverSpiritPower(props.recoverSpiritPowerValue);
-  emit('update', props.cultivator);
-  emit('result', `恢复完成！当前气血: ${props.cultivator.qiBlood.getCurrentValue()}, 当前灵力: ${props.cultivator.spiritPower.getCurrentValue()}`, 'success');
-  emit('buttonClick', 'recover');
+  emit("update", props.cultivator);
+  emit(
+    "result",
+    `恢复完成！当前气血: ${props.cultivator.qiBlood.getCurrentValue()}, 当前灵力: ${props.cultivator.spiritPower.getCurrentValue()}`,
+    "success"
+  );
+  emit("buttonClick", "recover");
 };
 </script>
 
-<style scoped>
-.cultivator-actions {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 16px;
-  background-color: #f9f9f9;
-}
-
-.cultivator-actions h3 {
-  margin: 0 0 16px 0;
-  font-size: 18px;
-  color: #333;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 8px;
-}
-
-.action-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 0;
-}
-
-.action-button {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.action-button:hover:not(:disabled) {
-  opacity: 0.9;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.action-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.action-button.upgrade {
-  background-color: #4a90e2;
-  color: white;
-}
-
-.action-button.breakthrough {
-  background-color: #e74c3c;
-  color: white;
-}
-
-.action-button.attack {
-  background-color: #2ecc71;
-  color: white;
-}
-
-.action-button.recover {
-  background-color: #9b59b6;
-  color: white;
-}
-
-/* 响应式设计 */
-@media (min-width: 768px) {
-  .action-buttons {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-  
-  .action-button {
-    flex: 1;
-    min-width: 120px;
-  }
-}
-</style>
+<style scoped></style>

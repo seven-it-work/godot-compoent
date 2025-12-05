@@ -2,7 +2,9 @@
   <div class="cultivator-info-card">
     <div class="card-header">
       <h2>{{ cultivator.name }}</h2>
-      <span class="realm-level">{{ cultivator.getCultivationLevelName() }}</span>
+      <span class="realm-level">{{
+        cultivator.getCultivationLevelName()
+      }}</span>
     </div>
     <div class="card-body">
       <div class="basic-info">
@@ -18,9 +20,15 @@
       <div class="spirit-roots">
         <h3>灵根</h3>
         <div class="spirit-root-list">
-          <div v-for="root in cultivator.spiritRoots" :key="root.name" class="spirit-root-item">
+          <div
+            v-for="root in cultivator.spiritRoots"
+            :key="root.name"
+            class="spirit-root-item"
+          >
             <span class="root-name">{{ root.name }}</span>
-            <span class="root-value">{{ root.spiritValue.getCurrentValue() }}</span>
+            <span class="root-value">{{
+              root.spiritValue.getCurrentValue()
+            }}</span>
           </div>
         </div>
       </div>
@@ -29,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { CultivatorClass } from '../impl';
+import { CultivatorClass } from "../impl";
 
 defineProps<{
   cultivator: CultivatorClass;
