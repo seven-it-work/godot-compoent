@@ -45,7 +45,7 @@
           @click="collapsed = !collapsed"
           style="font-size: 16px; width: 64px; height: 64px; padding: 20px;">
         </a-button>
-        <div style="font-size: 18px; font-weight: bold;">修仙游戏开发文档</div>
+        <div style="font-size: 18px; font-weight: bold;">组件文档</div>
         <div></div>
       </a-layout-header>
 

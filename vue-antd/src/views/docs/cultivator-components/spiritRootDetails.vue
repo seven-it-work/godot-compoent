@@ -85,23 +85,7 @@ import { SpiritRootDetails } from '@/v1/cultivator/components';
 import CodeBlock from '@/components/CodeBlock.vue';
 
 // 创建测试修仙者实例
-const cultivator = ref(new CultivatorClass({
-  name: '测试修仙者',
-  realmLevel: 2,
-  cultivationLevel: 4,
-  attack: 100,
-  defense: 80,
-  qiBlood: 180,
-  spiritPower: 130,
-  breakthroughChance: 65,
-  spiritRootLevel: 3,
-  spiritRootValue: 750,
-  spiritRootAttributeBoost: {
-    attack: 20,
-    defense: 15,
-    spiritPower: 30
-  }
-}));
+const cultivator = ref(CultivatorClass.随机生成人物());
 
 // 消息提示
 const message = ref('');
@@ -109,23 +93,7 @@ const messageType = ref<'success' | 'error' | 'info'>('info');
 
 // 刷新数据
 const refreshCultivator = () => {
-  cultivator.value = new CultivatorClass({
-    name: '测试修仙者',
-    realmLevel: Math.floor(Math.random() * 5) + 1,
-    cultivationLevel: Math.floor(Math.random() * 10) + 1,
-    attack: Math.floor(Math.random() * 200) + 50,
-    defense: Math.floor(Math.random() * 150) + 50,
-    qiBlood: Math.floor(Math.random() * 300) + 100,
-    spiritPower: Math.floor(Math.random() * 250) + 50,
-    breakthroughChance: Math.floor(Math.random() * 50) + 50,
-    spiritRootLevel: Math.floor(Math.random() * 5) + 1,
-    spiritRootValue: Math.floor(Math.random() * 1000) + 100,
-    spiritRootAttributeBoost: {
-      attack: Math.floor(Math.random() * 30) + 10,
-      defense: Math.floor(Math.random() * 25) + 10,
-      spiritPower: Math.floor(Math.random() * 40) + 15
-    }
-  });
+  cultivator.value = CultivatorClass.随机生成人物();
   message.value = '';
 };
 
@@ -244,18 +212,7 @@ import { ref } from 'vue';
 import { CultivatorClass } from '@/v1/cultivator/impl';
 import { SpiritRootDetails } from '@/v1/cultivator/components';
 
-const cultivator = ref(new CultivatorClass({
-  name: '测试修仙者',
-  realmLevel: 2,
-  cultivationLevel: 4,
-  spiritRootLevel: 3,
-  spiritRootValue: 750,
-  spiritRootAttributeBoost: {
-    attack: 20,
-    defense: 15,
-    spiritPower: 30
-  }
-}));
+const cultivator = ref(CultivatorClass.随机生成人物());
 
 const handleUpdate = (updatedCultivator: CultivatorClass) => {
   cultivator.value = updatedCultivator;
@@ -264,7 +221,6 @@ const handleUpdate = (updatedCultivator: CultivatorClass) => {
 const handleUpgrade = (result: { success: boolean; message: string }) => {
   console.log('灵根提升结果:', result);
 };
-&lt;/script&gt;
 `;
 
 onMounted(() => {

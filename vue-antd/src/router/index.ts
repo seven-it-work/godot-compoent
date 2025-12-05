@@ -23,11 +23,6 @@ const baseRoutes: RouteRecordRaw[] = [
       { path: "cultivator-components/spiritRootDetails", component: () => import("@/views/docs/cultivator-components/spiritRootDetails.vue"), name: "SpiritRootDetails" } as RouteRecordRaw,
     ] as RouteRecordRaw[]
   },
-  {
-    path: "/test",
-    component: () => import("@/views/test/Test.vue"),
-    name: "Test",
-  },
 ];
 
 // 创建路由实例

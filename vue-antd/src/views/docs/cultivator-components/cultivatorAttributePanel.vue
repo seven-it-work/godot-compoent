@@ -46,29 +46,11 @@ import { CultivatorAttributePanel } from '@/v1/cultivator/components';
 import CodeBlock from '@/components/CodeBlock.vue';
 
 // 创建测试修仙者实例
-const cultivator = ref(new CultivatorClass({
-  attack: 80,
-  defense: 70,
-  qiBlood: 90,
-  spiritPower: 85,
-  criticalRate: 25,
-  criticalDamage: 150,
-  dodgeRate: 15,
-  breakthroughChance: 65
-}));
+const cultivator = ref(CultivatorClass.随机生成人物());
 
 // 刷新数据
 const refreshCultivator = () => {
-  cultivator.value = new CultivatorClass({
-    attack: Math.floor(Math.random() * 100),
-    defense: Math.floor(Math.random() * 100),
-    qiBlood: Math.floor(Math.random() * 100),
-    spiritPower: Math.floor(Math.random() * 100),
-    criticalRate: Math.floor(Math.random() * 50),
-    criticalDamage: 100 + Math.floor(Math.random() * 100),
-    dodgeRate: Math.floor(Math.random() * 30),
-    breakthroughChance: Math.floor(Math.random() * 100)
-  });
+  cultivator.value = CultivatorClass.随机生成人物();
 };
 
 // 属性说明数据
@@ -95,16 +77,7 @@ import { ref, onMounted } from 'vue';
 import { CultivatorClass } from '@/v1/cultivator/impl';
 import { CultivatorAttributePanel } from '@/v1/cultivator/components';
 
-const cultivator = ref(new CultivatorClass({
-  attack: 80,
-  defense: 70,
-  qiBlood: 90,
-  spiritPower: 85,
-  criticalRate: 25,
-  criticalDamage: 150,
-  dodgeRate: 15,
-  breakthroughChance: 65
-}));
+const cultivator = ref(CultivatorClass.随机生成人物());
 &lt;/script&gt;
 `;
 

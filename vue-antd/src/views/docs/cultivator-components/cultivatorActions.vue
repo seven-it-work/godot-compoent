@@ -90,15 +90,7 @@ import CodeBlock from '@/components/CodeBlock.vue';
 import type { DamageResult } from '@/v1/damageResult';
 
 // 创建测试修仙者实例
-const cultivator = ref(new CultivatorClass({
-  realmLevel: 1,
-  cultivationLevel: 1,
-  attack: 80,
-  defense: 70,
-  qiBlood: 50,
-  spiritPower: 30,
-  breakthroughChance: 65
-}));
+const cultivator = ref(CultivatorClass.随机生成人物());
 
 // 消息提示
 const message = ref('');
@@ -106,15 +98,7 @@ const messageType = ref<'success' | 'error' | 'info'>('info');
 
 // 刷新数据
 const refreshCultivator = () => {
-  cultivator.value = new CultivatorClass({
-    realmLevel: Math.floor(Math.random() * 10) + 1,
-    cultivationLevel: Math.floor(Math.random() * 5) + 1,
-    attack: Math.floor(Math.random() * 100),
-    defense: Math.floor(Math.random() * 100),
-    qiBlood: Math.floor(Math.random() * 100),
-    spiritPower: Math.floor(Math.random() * 100),
-    breakthroughChance: Math.floor(Math.random() * 100)
-  });
+  cultivator.value = CultivatorClass.随机生成人物();
   message.value = '';
 };
 
@@ -201,15 +185,7 @@ import { CultivatorClass } from '@/v1/cultivator/impl';
 import { CultivatorActions } from '@/v1/cultivator/components';
 import type { DamageResult } from '@/v1/damageResult';
 
-const cultivator = ref(new CultivatorClass({
-  realmLevel: 1,
-  cultivationLevel: 1,
-  attack: 80,
-  defense: 70,
-  qiBlood: 50,
-  spiritPower: 30,
-  breakthroughChance: 65
-}));
+const cultivator = ref(CultivatorClass.随机生成人物());
 
 const handleUpdate = (updatedCultivator: CultivatorClass) => {
   cultivator.value = updatedCultivator;
@@ -222,7 +198,6 @@ const handleResult = (msg: string, type: 'success' | 'error' | 'info') => {
 const handleAttack = (damage: DamageResult) => {
   console.log('攻击结果:', damage);
 };
-&lt;/script&gt;
 `;
 
 onMounted(() => {

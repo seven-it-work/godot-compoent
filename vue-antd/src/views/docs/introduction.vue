@@ -1,6 +1,6 @@
 <template>
   <div class="introduction-page">
-    <h1>修仙游戏开发文档</h1>
+    <h1>组件文档</h1>
     <p class="subtitle">Welcome to the cultivation game development documentation</p>
     
     <div class="intro-content">
