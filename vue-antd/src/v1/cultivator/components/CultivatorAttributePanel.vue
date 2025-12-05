@@ -1,51 +1,71 @@
 <template>
   <div class="attribute-panel">
-    <div class="attribute-grid" :style="{ '--columns': attributesPerRow }">
-      <div v-for="attr in displayAttributes" :key="attr" class="attribute-item">
-        <div class="attribute-label">{{ getAttributeLabel(attr) }}</div>
-        <div class="attribute-value">
-          <!-- 基础成长属性：直接显示值 -->
-          <div
-            v-if="getType(cultivator[attr]) === 'BasicGrowthAttribute'"
-            class="basic-value"
-          >
-            {{ formatAttributeValue(cultivator[attr]) }}
-          </div>
-          <!-- 基础范围成长属性：显示进度条 -->
-          <div
-            v-else-if="getType(cultivator[attr]) === 'BasicRangeGrowthAttribute'"
-            class="range-progress"
-          >
-            <div class="progress-bar">
-              <div
-                class="progress-fill"
-                :style="{
-                  width: `${getProgressPercentage(cultivator[attr])}%`,
-                  '--current-value': formatAttributeValue(cultivator[attr]),
-                  '--min-value': (cultivator[attr] as any).minRange,
-                  '--max-value': (cultivator[attr] as any).maxRange,
-                }"
-              ></div>
-              <div class="progress-text">
-                {{ formatAttributeValue(cultivator[attr]) }} /
-                {{ (cultivator[attr] as any).maxRange }}
+    <a-row :gutter="[16, 16]">
+      <a-col
+        v-for="attr in displayAttributes"
+        :key="attr"
+        :span="24 / attributesPerRow"
+      >
+        <div class="attribute-item">
+          <a-row :gutter="[8, 0]">
+            <!-- 属性名称 -->
+            <a-col :span="10">
+              <div class="attribute-label">{{ getAttributeLabel(attr) }}</div>
+            </a-col>
+            <!-- 属性值 -->
+            <a-col :span="14">
+              <div class="attribute-value">
+                <!-- 基础成长属性：直接显示值 -->
+                <div
+                  v-if="getType(cultivator[attr]) === 'BasicGrowthAttribute'"
+                >
+                  {{ formatAttributeValue(cultivator[attr]) }}
+                </div>
+                <!-- 基础范围成长属性：显示进度条 -->
+                <div
+                  v-else-if="
+                    getType(cultivator[attr]) === 'BasicRangeGrowthAttribute'
+                  "
+                  class="range-progress"
+                >
+                  <div class="progress-bar">
+                    <div
+                      class="progress-fill"
+                      :style="{
+                        width: `${getProgressPercentage(cultivator[attr])}%`,
+                        '--current-value': formatAttributeValue(
+                          cultivator[attr]
+                        ),
+                        '--min-value': (cultivator[attr] as any).minRange,
+                        '--max-value': (cultivator[attr] as any).maxRange,
+                      }"
+                    ></div>
+                    <div class="progress-text">
+                      {{ formatAttributeValue(cultivator[attr]) }} /
+                      {{ (cultivator[attr] as any).maxRange }}
+                    </div>
+                  </div>
+                </div>
+                <!-- 基础范围随机成长属性：显示范围值 -->
+                <div
+                  v-else-if="
+                    getType(cultivator[attr]) ===
+                    'BasicRangeRandomGrowthAttribute'
+                  "
+                >
+                  {{ (cultivator[attr] as any).minRange }} ~
+                  {{ (cultivator[attr] as any).maxRange }}
+                </div>
+                <!-- 其他类型：默认显示 -->
+                <div v-else>
+                  {{ formatAttributeValue(cultivator[attr]) }}
+                </div>
               </div>
-            </div>
-          </div>
-          <!-- 基础范围随机成长属性：显示范围值 -->
-          <div
-            v-else-if="getType(cultivator[attr]) === 'BasicRangeRandomGrowthAttribute'"
-          >
-            {{ (cultivator[attr] as any).minRange }} ~
-            {{ (cultivator[attr] as any).maxRange }}
-          </div>
-          <!-- 其他类型：默认显示 -->
-          <div v-else>
-            {{ formatAttributeValue(cultivator[attr]) }}
-          </div>
+            </a-col>
+          </a-row>
         </div>
-      </div>
-    </div>
+      </a-col>
+    </a-row>
   </div>
 </template>
 
@@ -60,7 +80,7 @@ import {
 } from "@/v1/growthAttribute/impl";
 
 // 配置每行显示的属性数量
-const attributesPerRow = 4;
+const attributesPerRow = 2;
 
 // 只显示需要展示的属性
 const displayAttributes = 展示的属性;
@@ -93,11 +113,10 @@ const getAttributeLabel = (attr: keyof Cultivator): string => {
   return attributeLabels[attr] || attr;
 };
 
-
 const getType = (value: unknown): string => {
-  if (value instanceof BasicGrowthAttribute){
-    if(value instanceof BasicRangeGrowthAttribute){
-      if(value instanceof BasicRangeRandomGrowthAttribute){
+  if (value instanceof BasicGrowthAttribute) {
+    if (value instanceof BasicRangeGrowthAttribute) {
+      if (value instanceof BasicRangeRandomGrowthAttribute) {
         return "BasicRangeRandomGrowthAttribute";
       }
       return "BasicRangeGrowthAttribute";
@@ -135,12 +154,6 @@ const formatAttributeValue = (value: unknown): string => {
 <style scoped>
 .attribute-panel {
   padding: 16px;
-}
-
-.attribute-grid {
-  display: grid;
-  grid-template-columns: repeat(var(--columns), 1fr);
-  gap: 16px;
 }
 
 .attribute-item {

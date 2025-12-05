@@ -35,6 +35,7 @@ export interface GrowthAttribute {
   getGrowthRandom(): number;
   // 获取当前值
   getCurrentValue(): number;
+  
 }
 
 /**
