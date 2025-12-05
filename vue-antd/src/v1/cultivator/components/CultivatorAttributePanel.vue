@@ -9,11 +9,11 @@
         <div class="attribute-item">
           <a-row :gutter="[8, 0]">
             <!-- 属性名称 -->
-            <a-col :span="10">
-              <div class="attribute-label">{{ getAttributeLabel(attr) }}</div>
+            <a-col :span="10" style="height: 100%;">
+              <div class="attribute-label" style="height: 100%;">{{ getAttributeLabel(attr) }}</div>
             </a-col>
             <!-- 属性值 -->
-            <a-col :span="14">
+            <a-col :span="14"style="height: 100%;">
               <div class="attribute-value">
                 <!-- 基础成长属性：直接显示值 -->
                 <div
@@ -113,12 +113,12 @@ const getAttributeLabel = (attr: keyof Cultivator): string => {
   return attributeLabels[attr] || attr;
 };
 
+// 获取属性类型
 const getType = (value: unknown): string => {
   if (value instanceof BasicGrowthAttribute) {
-    if (value instanceof BasicRangeGrowthAttribute) {
-      if (value instanceof BasicRangeRandomGrowthAttribute) {
-        return "BasicRangeRandomGrowthAttribute";
-      }
+    if (value instanceof BasicRangeRandomGrowthAttribute) {
+      return "BasicRangeRandomGrowthAttribute";
+    } else if (value instanceof BasicRangeGrowthAttribute) {
       return "BasicRangeGrowthAttribute";
     }
     return "BasicGrowthAttribute";
@@ -141,65 +141,108 @@ const getProgressPercentage = (value: unknown): number => {
 const formatAttributeValue = (value: unknown): string => {
   if (value == null) return "0";
   // 处理 GrowthAttribute 类型
-  if (typeof value === "object" && value !== null) {
-    const obj = value as Record<string, unknown>;
-    if ("getCurrentValue" in obj && typeof obj.getCurrentValue === "function") {
-      return `${obj.getCurrentValue()}`;
-    }
+  if (value instanceof BasicGrowthAttribute) {
+    return `${value.getCurrentValue()}`;
   }
   return JSON.stringify(value);
 };
 </script>
 
 <style scoped>
+/* 根元素字体大小作为基准，基于视口宽度动态计算，确保不同分辨率下自适应 */
+:root {
+  font-size: calc(10px + 0.25vw);
+}
+
 .attribute-panel {
-  padding: 16px;
+  /* 使用rem单位，基于根元素字体大小 */
+  padding: 1rem;
 }
 
 .attribute-item {
   background: #f5f5f5;
-  padding: 12px;
-  border-radius: 8px;
-  text-align: center;
+  /* 边框半径使用rem单位 */
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 确保内部a-row占满高度 */
+.attribute-item > .ant-row {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  /* 恢复默认的水平排列 */
+  flex-direction: row;
+}
+
+/* 确保a-col占满高度 */
+.attribute-item .ant-col {
+  display: flex;
+  height: 100%;
+  /* 内容垂直居中 */
+  align-items: center;
 }
 
 .attribute-label {
-  font-size: 14px;
+  /* 字体大小使用rem单位 */
+  font-size: 0.875rem;
   color: #666;
-  margin-bottom: 8px;
 }
 
 .attribute-value {
-  font-size: 18px;
+  /* 字体大小使用rem单位 */
+  font-size: 1.125rem;
   font-weight: bold;
   color: #333;
+  word-wrap: break-word;
+  white-space: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
 }
 
 /* 基础值样式 */
 .basic-value {
-  font-size: 20px;
+  /* 字体大小使用rem单位 */
+  font-size: 1.25rem;
   color: #1890ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 范围进度条样式 */
 .range-progress {
   width: 100%;
+  /* 最小高度使用rem单位 */
+  min-height: 1.25rem;
 }
 
 .progress-bar {
   position: relative;
-  height: 20px;
+  height: auto;
+  /* 最小高度使用rem单位 */
+  min-height: 1.25rem;
   background-color: #e8e8e8;
-  border-radius: 10px;
+  /* 边框半径使用rem单位 */
+  border-radius: 0.625rem;
   overflow: hidden;
+  display: flex;
+  align-items: center;
 }
 
 .progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #1890ff 0%, #52c41a 100%);
-  border-radius: 10px;
+  /* 边框半径使用rem单位 */
+  border-radius: 0.625rem;
   transition: width 0.3s ease;
   position: relative;
+  /* 最小高度使用rem单位 */
+  min-height: 1.25rem;
 }
 
 .progress-text {
@@ -211,20 +254,29 @@ const formatAttributeValue = (value: unknown): string => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  /* 字体大小使用rem单位 */
+  font-size: 0.75rem;
   color: #333;
   font-weight: bold;
   text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* 内边距使用rem单位 */
+  padding: 0 0.5rem;
 }
 
 /* 范围值样式 */
 .range-value {
-  font-size: 16px;
+  /* 字体大小使用rem单位 */
+  font-size: 1rem;
   color: #fa8c16;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  /* 间距使用rem单位 */
+  gap: 0.25rem;
+  flex-wrap: wrap;
 }
 
 .range-value::before {
