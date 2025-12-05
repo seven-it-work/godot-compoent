@@ -45,6 +45,7 @@ export class CultivatorClass implements Cultivator {
     name: "气血",
     minGrowth: 0,
     maxGrowth: 100,
+    currentValue: 100,
     minRange: 0,
     maxRange: 100,
     growMinRange: false,
@@ -106,6 +107,7 @@ export class CultivatorClass implements Cultivator {
     name: "灵力",
     minGrowth: 0,
     maxGrowth: 50,
+    currentValue: 50,
     minRange: 0,
     maxRange: 50,
     growMinRange: false,
@@ -134,8 +136,15 @@ export class CultivatorClass implements Cultivator {
    * @param options 可选配置项，用于初始化修仙者属性
    */
   constructor(options?: Partial<Cultivator>) {
-    // 使用合并后的选项初始化对象
-    Object.assign(this, options);
+    // 逐个属性赋值，确保通过setter设置
+    if (options) {
+      if (options.id !== undefined) this.id = options.id;
+      if (options.name !== undefined) this.name = options.name;
+      if (options.gender !== undefined) this.gender = options.gender;
+      if (options.cultivationMethods !== undefined) this.cultivationMethods = options.cultivationMethods;
+      // 属性对象需要特殊处理，不能直接赋值
+      // 其他属性已经在初始化时创建了实例，不需要重新赋值
+    }
   }
 
   /**

@@ -24,7 +24,15 @@ export class BasicGrowthAttribute implements GrowthAttribute {
    * @param options 配置选项
    */
   constructor(options?: Partial<GrowthAttribute>) {
-    Object.assign(this, options);
+    if (options) {
+      // 逐个属性赋值，确保通过setter设置
+      if (options.name !== undefined) this.name = options.name;
+      if (options.minGrowth !== undefined) this.minGrowth = options.minGrowth;
+      if (options.maxGrowth !== undefined) this.maxGrowth = options.maxGrowth;
+      if (options.growthRate !== undefined) this.growthRate = options.growthRate;
+      if (options.fixedGrowth !== undefined) this.fixedGrowth = options.fixedGrowth;
+      if (options.currentValue !== undefined) this.currentValue = options.currentValue;
+    }
   }
 
   /**
@@ -32,7 +40,8 @@ export class BasicGrowthAttribute implements GrowthAttribute {
    * 成长值 += getGrowthRandom()
    */
   grow(): void {
-    this.currentValue += this.getGrowthRandom();
+    // 成长值 += getGrowthRandom()，并保留两位小数
+    this.currentValue = Number.parseFloat((this.currentValue + this.getGrowthRandom()).toFixed(2));
   }
 
   /**
@@ -41,10 +50,10 @@ export class BasicGrowthAttribute implements GrowthAttribute {
    * @returns 成长随机值
    */
   getGrowthRandom(): number {
-    return (
+    return Number.parseFloat((
       RandomUtils.randomInt(this.minGrowth, this.maxGrowth) * this.growthRate +
       this.fixedGrowth
-    );
+    ).toFixed(2));
   }
 
   /**
@@ -60,7 +69,8 @@ export class BasicGrowthAttribute implements GrowthAttribute {
    * @param value 要设置的当前值
    */
   setCurrentValue(value: number): void {
-    this.currentValue = value;
+    // 设置当前值，并保留两位小数
+    this.currentValue = Number.parseFloat(value.toFixed(2));
   }
 }
 
@@ -87,7 +97,13 @@ export class BasicRangeGrowthAttribute
    */
   constructor(options?: Partial<RangeGrowthAttribute>) {
     super(options);
-    Object.assign(this, options);
+    if (options) {
+      // 逐个属性赋值，确保通过setter设置
+      if (options.minRange !== undefined) this.minRange = options.minRange;
+      if (options.maxRange !== undefined) this.maxRange = options.maxRange;
+      if (options.growMinRange !== undefined) this.growMinRange = options.growMinRange;
+      if (options.growCurrentValue !== undefined) this.growCurrentValue = options.growCurrentValue;
+    }
   }
 
   /**
@@ -114,14 +130,18 @@ export class BasicRangeGrowthAttribute
   grow(): void {
     const growthRandomValue = this.getGrowthRandom();
     if (this.growCurrentValue) {
-      this.currentValue += growthRandomValue;
+      // 当前值 += 成长随机值，并保留两位小数
+      this.currentValue = Number.parseFloat((this.currentValue + growthRandomValue).toFixed(2));
     }
     if (this.growMinRange) {
       const minGrowthValue = RandomUtils.randomInt(0, growthRandomValue / 2);
-      this.minRange += minGrowthValue;
-      this.maxRange += growthRandomValue - minGrowthValue;
+      // 最小范围 += 最小范围增长值，并保留两位小数
+      this.minRange = Number.parseFloat((this.minRange + minGrowthValue).toFixed(2));
+      // 最大范围 += (成长随机值 - 最小范围增长值)，并保留两位小数
+      this.maxRange = Number.parseFloat((this.maxRange + growthRandomValue - minGrowthValue).toFixed(2));
     } else {
-      this.maxRange += growthRandomValue;
+      // 最大范围 += 成长随机值，并保留两位小数
+      this.maxRange = Number.parseFloat((this.maxRange + growthRandomValue).toFixed(2));
     }
   }
 
@@ -138,7 +158,8 @@ export class BasicRangeGrowthAttribute
    * @param value 要设置的当前值
    */
   setCurrentValue(value: number): void {
-    super.setCurrentValue(value);
+    // 设置当前值，并保留两位小数
+    this.currentValue = Number.parseFloat(value.toFixed(2));
     // 确保当前值不超过最大范围
     if (this.currentValue > this.maxRange) {
       this.currentValue = this.maxRange;
@@ -166,7 +187,7 @@ export class BasicRangeRandomGrowthAttribute extends BasicRangeGrowthAttribute {
     };
     const mergedOptions = { ...defaultOptions, ...options };
     super(mergedOptions);
-    Object.assign(this, mergedOptions);
+    // 不需要再次Object.assign，父类构造函数已经处理了
   }
 
   /**
