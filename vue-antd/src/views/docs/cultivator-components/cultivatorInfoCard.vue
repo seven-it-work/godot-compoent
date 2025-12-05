@@ -78,7 +78,7 @@ import { CultivatorClass } from '@/v1/cultivator/impl';
 import { CultivatorInfoCard } from '@/v1/cultivator/components';
 
 const cultivator = ref(CultivatorClass.随机生成人物());
-</script>
+<\/script>
 `;
 
 onMounted(() => {

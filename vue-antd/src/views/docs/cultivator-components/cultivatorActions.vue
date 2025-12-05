@@ -198,6 +198,7 @@ const handleResult = (msg: string, type: 'success' | 'error' | 'info') => {
 const handleAttack = (damage: DamageResult) => {
   console.log('攻击结果:', damage);
 };
+<\/script>
 `;
 
 onMounted(() => {

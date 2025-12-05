@@ -221,6 +221,7 @@ const handleUpdate = (updatedCultivator: CultivatorClass) => {
 const handleUpgrade = (result: { success: boolean; message: string }) => {
   console.log('灵根提升结果:', result);
 };
+<\/script>
 `;
 
 onMounted(() => {
