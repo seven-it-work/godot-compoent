@@ -10,7 +10,9 @@
         }"
       ></div>
       <div class="progress-text">
-        {{ displayText }}
+      <slot name="progress-text" v-bind:displayText="displayText">
+          {{ displayText }}
+      </slot>
       </div>
     </div>
   </div>
@@ -67,7 +69,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  z-index: 999 !important;
   clip-path: none !important;
   overflow: visible !important;
 }
