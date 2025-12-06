@@ -20,6 +20,17 @@ export const SPIRIT_ROOT_TYPES: SpiritRootType[] = [
 ];
 
 /**
+ * 灵根类型对应的颜色
+ */
+export const SPIRIT_ROOT_COLORS: Record<SpiritRootType, string> = {
+  金: "#faad14",
+  木: "#52c41a",
+  水: "#1890ff",
+  火: "#ff4d4f",
+  土: "#fa8c16",
+};
+
+/**
  * 灵根接口
  * 定义单个灵根的属性
  */
