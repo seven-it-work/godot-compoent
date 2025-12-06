@@ -45,7 +45,7 @@
                   :max-value="
                     (cultivator[attr] as BasicRangeGrowthAttribute).maxRange
                   "
-                  color-type="gradient"
+                  color-type="multi"
                 />
               </div>
               <!-- 基础范围随机成长属性：显示范围值 -->
