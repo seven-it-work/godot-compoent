@@ -141,7 +141,8 @@ export class CultivatorClass implements Cultivator {
       if (options.id !== undefined) this.id = options.id;
       if (options.name !== undefined) this.name = options.name;
       if (options.gender !== undefined) this.gender = options.gender;
-      if (options.cultivationMethods !== undefined) this.cultivationMethods = options.cultivationMethods;
+      if (options.cultivationMethods !== undefined)
+        this.cultivationMethods = options.cultivationMethods;
       // 属性对象需要特殊处理，不能直接赋值
       // 其他属性已经在初始化时创建了实例，不需要重新赋值
     }

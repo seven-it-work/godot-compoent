@@ -29,9 +29,12 @@ export class BasicGrowthAttribute implements GrowthAttribute {
       if (options.name !== undefined) this.name = options.name;
       if (options.minGrowth !== undefined) this.minGrowth = options.minGrowth;
       if (options.maxGrowth !== undefined) this.maxGrowth = options.maxGrowth;
-      if (options.growthRate !== undefined) this.growthRate = options.growthRate;
-      if (options.fixedGrowth !== undefined) this.fixedGrowth = options.fixedGrowth;
-      if (options.currentValue !== undefined) this.currentValue = options.currentValue;
+      if (options.growthRate !== undefined)
+        this.growthRate = options.growthRate;
+      if (options.fixedGrowth !== undefined)
+        this.fixedGrowth = options.fixedGrowth;
+      if (options.currentValue !== undefined)
+        this.currentValue = options.currentValue;
     }
   }
 
@@ -41,7 +44,9 @@ export class BasicGrowthAttribute implements GrowthAttribute {
    */
   grow(): void {
     // 成长值 += getGrowthRandom()，并保留两位小数
-    this.currentValue = Number.parseFloat((this.currentValue + this.getGrowthRandom()).toFixed(2));
+    this.currentValue = Number.parseFloat(
+      (this.currentValue + this.getGrowthRandom()).toFixed(2)
+    );
   }
 
   /**
@@ -50,10 +55,13 @@ export class BasicGrowthAttribute implements GrowthAttribute {
    * @returns 成长随机值
    */
   getGrowthRandom(): number {
-    return Number.parseFloat((
-      RandomUtils.randomInt(this.minGrowth, this.maxGrowth) * this.growthRate +
-      this.fixedGrowth
-    ).toFixed(2));
+    return Number.parseFloat(
+      (
+        RandomUtils.randomInt(this.minGrowth, this.maxGrowth) *
+          this.growthRate +
+        this.fixedGrowth
+      ).toFixed(2)
+    );
   }
 
   /**
@@ -101,8 +109,10 @@ export class BasicRangeGrowthAttribute
       // 逐个属性赋值，确保通过setter设置
       if (options.minRange !== undefined) this.minRange = options.minRange;
       if (options.maxRange !== undefined) this.maxRange = options.maxRange;
-      if (options.growMinRange !== undefined) this.growMinRange = options.growMinRange;
-      if (options.growCurrentValue !== undefined) this.growCurrentValue = options.growCurrentValue;
+      if (options.growMinRange !== undefined)
+        this.growMinRange = options.growMinRange;
+      if (options.growCurrentValue !== undefined)
+        this.growCurrentValue = options.growCurrentValue;
     }
   }
 
@@ -131,17 +141,25 @@ export class BasicRangeGrowthAttribute
     const growthRandomValue = this.getGrowthRandom();
     if (this.growCurrentValue) {
       // 当前值 += 成长随机值，并保留两位小数
-      this.currentValue = Number.parseFloat((this.currentValue + growthRandomValue).toFixed(2));
+      this.currentValue = Number.parseFloat(
+        (this.currentValue + growthRandomValue).toFixed(2)
+      );
     }
     if (this.growMinRange) {
       const minGrowthValue = RandomUtils.randomInt(0, growthRandomValue / 2);
       // 最小范围 += 最小范围增长值，并保留两位小数
-      this.minRange = Number.parseFloat((this.minRange + minGrowthValue).toFixed(2));
+      this.minRange = Number.parseFloat(
+        (this.minRange + minGrowthValue).toFixed(2)
+      );
       // 最大范围 += (成长随机值 - 最小范围增长值)，并保留两位小数
-      this.maxRange = Number.parseFloat((this.maxRange + growthRandomValue - minGrowthValue).toFixed(2));
+      this.maxRange = Number.parseFloat(
+        (this.maxRange + growthRandomValue - minGrowthValue).toFixed(2)
+      );
     } else {
       // 最大范围 += 成长随机值，并保留两位小数
-      this.maxRange = Number.parseFloat((this.maxRange + growthRandomValue).toFixed(2));
+      this.maxRange = Number.parseFloat(
+        (this.maxRange + growthRandomValue).toFixed(2)
+      );
     }
   }
 
