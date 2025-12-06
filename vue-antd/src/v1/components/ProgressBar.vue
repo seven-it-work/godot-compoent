@@ -9,10 +9,10 @@
           background: fillBackground,
         }"
       ></div>
-      <div class="progress-text">
-      <slot name="progress-text" v-bind:displayText="displayText">
+      <div class="progress-text" :style="textStyle">
+        <slot name="progress-text" v-bind:displayText="displayText">
           {{ displayText }}
-      </slot>
+        </slot>
       </div>
     </div>
   </div>
@@ -117,6 +117,14 @@ const props = withDefaults(
     showText?: boolean;
     // 自定义文本
     customText?: string;
+    // 字体颜色
+    textColor?: string;
+    // 字体大小
+    fontSize?: string;
+    // 字体粗细
+    fontWeight?: string | number;
+    // 文本阴影
+    textShadow?: string;
   }>(),
   {
     colorType: "gradient",
@@ -128,6 +136,10 @@ const props = withDefaults(
       { color: "#52c41a", range: [71, 100] },
     ],
     showText: true,
+    textColor: "#fff",
+    fontSize: "0.75rem",
+    fontWeight: "bold",
+    textShadow: "0 1px 2px rgba(0, 0, 0, 0.3)",
   }
 );
 
@@ -184,5 +196,15 @@ const displayText = computed(() => {
   }
   // 否则显示默认文本
   return `${props.currentValue} / ${props.maxValue}`;
+});
+
+// 计算文本样式
+const textStyle = computed(() => {
+  return {
+    color: props.textColor,
+    fontSize: props.fontSize,
+    fontWeight: props.fontWeight,
+    textShadow: props.textShadow,
+  };
 });
 </script>

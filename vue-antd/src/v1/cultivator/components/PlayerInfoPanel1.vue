@@ -19,12 +19,22 @@
       <div class="vitality-section">
         <div class="vitality-item">
           <div class="vitality-progress">
-            <ProgressBar :current-value="(
-                cultivator.qiBlood as BasicRangeGrowthAttribute
-              ).getCurrentValue()
-              " :min-value="(cultivator.qiBlood as BasicRangeGrowthAttribute).minRange
-                " :max-value="(cultivator.qiBlood as BasicRangeGrowthAttribute).maxRange
-                " color-type="single" single-color="#ff4d4f">
+            <ProgressBar
+              :current-value="
+                (
+                  cultivator.qiBlood as BasicRangeGrowthAttribute
+                ).getCurrentValue()
+              "
+              :min-value="
+                (cultivator.qiBlood as BasicRangeGrowthAttribute).minRange
+              "
+              :max-value="
+                (cultivator.qiBlood as BasicRangeGrowthAttribute).maxRange
+              "
+              color-type="single"
+              single-color="#ff4d4f"
+              text-color="#000"
+            >
               <template #progress-text="{ displayText }">
                 气血：{{ displayText }}
               </template>
@@ -33,12 +43,22 @@
         </div>
         <div class="vitality-item">
           <div class="vitality-progress">
-            <ProgressBar :current-value="(
-                cultivator.spiritPower as BasicRangeGrowthAttribute
-              ).getCurrentValue()
-              " :min-value="(cultivator.spiritPower as BasicRangeGrowthAttribute).minRange
-                " :max-value="(cultivator.spiritPower as BasicRangeGrowthAttribute).maxRange
-                " color-type="single" single-color="#1890ff" >
+            <ProgressBar
+              :current-value="
+                (
+                  cultivator.spiritPower as BasicRangeGrowthAttribute
+                ).getCurrentValue()
+              "
+              :min-value="
+                (cultivator.spiritPower as BasicRangeGrowthAttribute).minRange
+              "
+              :max-value="
+                (cultivator.spiritPower as BasicRangeGrowthAttribute).maxRange
+              "
+              color-type="single"
+              single-color="#1890ff"
+              text-color="#000"
+            >
               <template #progress-text="{ displayText }">
                 灵力：{{ displayText }}
               </template>
@@ -49,10 +69,20 @@
 
       <!-- 五行属性 -->
       <div class="element-section">
-        <div v-for="element in SPIRIT_ROOT_TYPES" :key="element" class="element-item">
+        <div
+          v-for="element in SPIRIT_ROOT_TYPES"
+          :key="element"
+          class="element-item"
+        >
           <div class="element-progress">
-            <ProgressBar :current-value="getElementValue(element)" :min-value="0" :max-value="100" color-type="single"
-              :single-color="getElementColor(element)" >
+            <ProgressBar
+              :current-value="getElementValue(element)"
+              :min-value="0"
+              :max-value="100"
+              color-type="single"
+              :single-color="getElementColor(element)"
+              text-color="#000"
+            >
               <template #progress-text="{ displayText }">
                 {{ element }}：{{ displayText }}
               </template>
