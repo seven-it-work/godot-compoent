@@ -27,6 +27,7 @@ export class CultivatorClass implements Cultivator {
       maxRange: 20,
       growthRate: 1.2,
       fixedGrowth: 0,
+      tips: "修仙者的基础攻击能力，直接影响物理和法术攻击的伤害输出",
     }
   );
   // 防御力：减少修仙者受到的物理和法术伤害，值越高受到的伤害越少
@@ -39,6 +40,7 @@ export class CultivatorClass implements Cultivator {
       maxRange: 10,
       growthRate: 1.2,
       fixedGrowth: 0,
+      tips: "修仙者的基础防御能力，减少受到的物理和法术伤害",
     });
   // 气血：修仙者的生命总量，当气血降至0时，修仙者死亡
   qiBlood: BasicRangeGrowthAttribute = new BasicRangeGrowthAttribute({
@@ -52,6 +54,7 @@ export class CultivatorClass implements Cultivator {
     growCurrentValue: false,
     growthRate: 1,
     fixedGrowth: 0,
+    tips: "修仙者的生命总量，降至0时角色死亡，可通过休息或使用道具恢复",
   });
   // 灵根数组：修仙者拥有的灵根，每种灵根对应不同的元素属性，影响修炼速度和属性成长
   spiritRoots: SpiritRootClass[] = SpiritRootClass.随机生成灵根(5);
@@ -60,6 +63,7 @@ export class CultivatorClass implements Cultivator {
     name: "境界等级",
     growthRate: 0,
     fixedGrowth: 1,
+    tips: "修仙者的当前境界，影响各项属性的基础值和成长潜力",
   });
   // 性别：修仙者的性别，影响角色外观表现和部分剧情发展
   gender: Gender = "男";
@@ -79,6 +83,7 @@ export class CultivatorClass implements Cultivator {
         // 是否为百分百
         isPercent: true,
       },
+      tips: "攻击时触发暴击的概率，触发后造成额外伤害",
     });
   // 暴击伤害：暴击时造成的额外伤害倍率，在基础伤害上附加此百分比的额外伤害
   criticalDamage: BasicRangeRandomGrowthAttribute =
@@ -92,6 +97,7 @@ export class CultivatorClass implements Cultivator {
       growCurrentValue: false,
       growthRate: 1,
       fixedGrowth: 0,
+      tips: "暴击时造成的额外伤害倍率，值越高暴击伤害越大",
     });
   // 闪避率：躲避敌人攻击的概率百分比，值越高越容易躲避敌人的攻击
   dodgeRate: BasicRangeRandomGrowthAttribute =
@@ -109,6 +115,7 @@ export class CultivatorClass implements Cultivator {
         // 是否为百分百
         isPercent: true,
       },
+      tips: "躲避敌人攻击的概率，成功闪避后不受伤害",
     });
   // 灵力：用于释放技能和法术的能量资源，消耗后可通过休息或使用道具恢复
   spiritPower: BasicRangeGrowthAttribute = new BasicRangeGrowthAttribute({
@@ -122,6 +129,7 @@ export class CultivatorClass implements Cultivator {
     growCurrentValue: false,
     growthRate: 1,
     fixedGrowth: 0,
+    tips: "用于释放技能和法术的能量资源，消耗后可通过休息恢复",
   });
   // 功法列表：修仙者已经学会的功法名称集合，可在战斗或修炼中使用
   cultivationMethods: string[] = [];
@@ -141,6 +149,7 @@ export class CultivatorClass implements Cultivator {
         // 是否为百分百
         isPercent: true,
       },
+      tips: "突破到更高境界的概率，值越高越容易成功突破",
     });
   // 灵根吸纳：修仙者吸纳灵根能量的能力
   spiritRootAbsorb: BasicRangeRandomGrowthAttribute =
@@ -154,6 +163,25 @@ export class CultivatorClass implements Cultivator {
       growCurrentValue: false,
       growthRate: 1,
       fixedGrowth: 0,
+      tips: "修仙者吸纳灵根能量的能力，值越高每次吸纳获得的能量越多",
+    });
+  // 灵根吸纳冷却：灵根吸纳能力的冷却时间
+  spiritRootCooldown: BasicRangeRandomGrowthAttribute =
+    new BasicRangeRandomGrowthAttribute({
+      name: "灵根冷却",
+      minGrowth: 1,
+      maxGrowth: 5,
+      minRange: 1,
+      maxRange: 10,
+      growMinRange: true,
+      growCurrentValue: false,
+      growthRate: 0.9,
+      fixedGrowth: 0,
+      other: {
+        // 冷却时间单位（秒）
+        unit: "秒",
+      },
+      tips: "灵根吸纳的冷却时间，冷却结束后才能再次吸纳灵根能量",
     });
 
   /**
@@ -204,6 +232,7 @@ export class CultivatorClass implements Cultivator {
       this.dodgeRate,
       this.spiritPower,
       this.spiritRootAbsorb,
+      this.spiritRootCooldown,
       ...spiritRootsExp,
     ];
     // 遍历待升级的属性，成长随机值

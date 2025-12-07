@@ -20,6 +20,7 @@ export const 展示的属性: (keyof Cultivator)[] = [
   "dodgeRate",
   "breakthroughChance",
   "spiritRootAbsorb",
+  "spiritRootCooldown",
 ];
 /**
  * 修仙者接口
@@ -56,6 +57,8 @@ export interface Cultivator {
   breakthroughChance: RangeGrowthAttribute;
   // 灵根吸纳：修仙者吸纳灵根能量的能力
   spiritRootAbsorb: RangeGrowthAttribute;
+  // 灵根冷却：灵根吸纳能力的冷却时间
+  spiritRootCooldown: RangeGrowthAttribute;
 }
 
 // 定义所有境界的基础配置，不包含minLevel和maxLevel

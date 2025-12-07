@@ -26,7 +26,11 @@
       <!-- 默认内容 -->
       <div v-else class="content-item">
         <div class="content-content">
-          <p>未开发，菜单key={{ currentMenu }},value={{ menuItems.find(item => item.key === currentMenu)?.label }}</p>
+          <p>
+            未开发，菜单key={{ currentMenu }},value={{
+              menuItems.find((item) => item.key === currentMenu)?.label
+            }}
+          </p>
         </div>
       </div>
     </div>

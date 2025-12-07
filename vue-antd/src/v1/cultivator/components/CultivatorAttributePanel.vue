@@ -21,6 +21,12 @@
             <div class="attribute-label-col">
               <div class="attribute-label">
                 {{ (cultivator[attr] as BasicGrowthAttribute).name }}
+                <a-tooltip
+                  :title="(cultivator[attr] as BasicGrowthAttribute).tips"
+                  placement="topLeft"
+                >
+                  <QuestionCircleTwoTone style="padding: 2px" />
+                </a-tooltip>
               </div>
             </div>
             <!-- 属性值 -->
@@ -85,6 +91,7 @@ import {
   BasicRangeRandomGrowthAttribute,
 } from "@/v1/growthAttribute/impl";
 import ProgressBar from "@/v1/components/ProgressBar.vue";
+import { QuestionCircleTwoTone } from "@ant-design/icons-vue";
 
 // 配置每行显示的属性数量
 const attributesPerRow = 2;
@@ -200,7 +207,6 @@ const formatRangeValue = (value: unknown): string => {
   color: #495057;
   font-weight: 500;
 }
-
 /* 属性值 - 最终子元素，完全填充父容器 */
 .attribute-value {
   width: 100%;
