@@ -3,7 +3,9 @@
     <!-- 左侧头像区域 -->
     <div class="avatar-section">
       <div class="avatar-container">
-        <div class="avatar">头像</div>
+        <a-image
+          src="https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp"
+        />
       </div>
     </div>
 
@@ -100,8 +102,8 @@ import { BasicRangeGrowthAttribute } from "@/v1/growthAttribute/impl";
 import ProgressBar from "@/v1/components/ProgressBar.vue";
 import {
   SPIRIT_ROOT_TYPES,
-  SpiritRootType,
   SPIRIT_ROOT_COLORS,
+  type SpiritRootType,
 } from "@/v1/spiritRoot/define";
 
 // 获取五行元素值
@@ -136,27 +138,17 @@ defineProps<{
   width: 150px;
   border-right: 2px solid #000;
   background-color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .avatar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.avatar {
-  width: 100px;
-  height: 100px;
-  border: 2px solid #000;
-  background-color: #f0f0f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: #333;
 }
 
 /* 右侧信息区域 */
