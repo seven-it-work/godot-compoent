@@ -1,3 +1,9 @@
+<!-- 
+修仙者属性面板
+展示修仙者的基础属性和成长属性
+只展示  import { 展示的属性 } from "@/v1/cultivator/define"; 中的属性
+顺序就是 展示的属性 中的顺序
+-->
 <template>
   <div class="attribute-panel">
     <div class="attribute-grid">
