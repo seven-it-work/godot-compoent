@@ -142,6 +142,19 @@ export class CultivatorClass implements Cultivator {
         isPercent: true,
       },
     });
+  // 灵根吸纳：修仙者吸纳灵根能量的能力
+  spiritRootAbsorb: BasicRangeRandomGrowthAttribute =
+    new BasicRangeRandomGrowthAttribute({
+      name: "灵根吸纳",
+      minGrowth: 0,
+      maxGrowth: 10,
+      minRange: 5,
+      maxRange: 10,
+      growMinRange: true,
+      growCurrentValue: false,
+      growthRate: 1,
+      fixedGrowth: 0,
+    });
 
   /**
    * 构造函数
@@ -190,6 +203,7 @@ export class CultivatorClass implements Cultivator {
       this.criticalDamage,
       this.dodgeRate,
       this.spiritPower,
+      this.spiritRootAbsorb,
       ...spiritRootsExp,
     ];
     // 遍历待升级的属性，成长随机值

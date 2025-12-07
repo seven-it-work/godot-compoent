@@ -19,6 +19,7 @@ export const 展示的属性: (keyof Cultivator)[] = [
   "criticalDamage",
   "dodgeRate",
   "breakthroughChance",
+  "spiritRootAbsorb",
 ];
 /**
  * 修仙者接口
@@ -53,6 +54,8 @@ export interface Cultivator {
   cultivationMethods: string[];
   // 境界突破概率 最大100%级100
   breakthroughChance: RangeGrowthAttribute;
+  // 灵根吸纳：修仙者吸纳灵根能量的能力
+  spiritRootAbsorb: RangeGrowthAttribute;
 }
 
 // 定义所有境界的基础配置，不包含minLevel和maxLevel
