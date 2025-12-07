@@ -188,22 +188,20 @@ const cultivate = () => {
   if (isOnCooldown.value || allSpiritRootsFull.value) return;
 
   // 找到未满的灵根并吸收经验
-  const 未满灵根 = props.cultivator.spiritRoots.filter(
+  const 未满灵根 = props.cultivator.spiritRoots.find(
     (root) => root.spiritValue.getCurrentValue() < 100
   );
 
-  if (未满灵根.length > 0) {
+  if (未满灵根) {
     // 计算吸收量
     const absorbAmount = props.cultivator.spiritRootAbsorb.getCurrentValue();
 
-    // 遍历所有未满灵根，依次吸收经验
-    for (const spiritRoot of 未满灵根) {
-      const currentSpiritValue = spiritRoot.spiritValue.getCurrentValue();
-      if (currentSpiritValue < 100) {
-        // 更新灵根经验值
-        const newValue = Math.min(100, currentSpiritValue + absorbAmount);
-        spiritRoot.spiritValue.currentValue = newValue;
-      }
+    // 只吸收一个未满灵根的经验
+    const currentSpiritValue = 未满灵根.spiritValue.getCurrentValue();
+    if (currentSpiritValue < 100) {
+      // 更新灵根经验值
+      const newValue = Math.min(100, currentSpiritValue + absorbAmount);
+      未满灵根.spiritValue.currentValue = newValue;
     }
 
     // 设置冷却时间
