@@ -15,11 +15,9 @@ export type Gender = "男" | "女" | "未知";
 export const 展示的属性: (keyof Cultivator)[] = [
   "attack",
   "defense",
-  "qiBlood",
   "criticalRate",
   "criticalDamage",
   "dodgeRate",
-  "spiritPower",
   "breakthroughChance",
 ];
 /**

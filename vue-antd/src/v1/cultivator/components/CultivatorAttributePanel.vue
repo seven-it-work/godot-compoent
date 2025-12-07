@@ -76,6 +76,50 @@
   </div>
 </template>
 
+<script setup lang="ts">
+import { CultivatorClass } from "@/v1/cultivator";
+import { 展示的属性 } from "@/v1/cultivator/define";
+import {
+  BasicGrowthAttribute,
+  BasicRangeGrowthAttribute,
+  BasicRangeRandomGrowthAttribute,
+} from "@/v1/growthAttribute/impl";
+import ProgressBar from "@/v1/components/ProgressBar.vue";
+
+// 配置每行显示的属性数量
+const attributesPerRow = 2;
+
+// 只显示需要展示的属性
+const displayAttributes = 展示的属性;
+
+defineProps<{
+  cultivator: CultivatorClass;
+}>();
+
+// 获取属性类型
+const getType = (value: unknown): string => {
+  if (value instanceof BasicGrowthAttribute) {
+    if (value instanceof BasicRangeRandomGrowthAttribute) {
+      return "BasicRangeRandomGrowthAttribute";
+    } else if (value instanceof BasicRangeGrowthAttribute) {
+      return "BasicRangeGrowthAttribute";
+    }
+    return "BasicGrowthAttribute";
+  }
+  return "Unknown";
+};
+
+// 格式化属性值
+const formatAttributeValue = (value: unknown): string => {
+  if (value == null) return "0";
+  // 处理 GrowthAttribute 类型
+  if (value instanceof BasicGrowthAttribute) {
+    return `${value.getCurrentValue()}`;
+  }
+  return JSON.stringify(value);
+};
+</script>
+
 <style scoped>
 /* 基础重置 - 所有元素应用box-sizing: border-box */
 * {
@@ -175,47 +219,3 @@
   justify-content: center;
 }
 </style>
-
-<script setup lang="ts">
-import { CultivatorClass } from "@/v1/cultivator";
-import { 展示的属性 } from "@/v1/cultivator/define";
-import {
-  BasicGrowthAttribute,
-  BasicRangeGrowthAttribute,
-  BasicRangeRandomGrowthAttribute,
-} from "@/v1/growthAttribute/impl";
-import ProgressBar from "@/v1/components/ProgressBar.vue";
-
-// 配置每行显示的属性数量
-const attributesPerRow = 2;
-
-// 只显示需要展示的属性
-const displayAttributes = 展示的属性;
-
-defineProps<{
-  cultivator: CultivatorClass;
-}>();
-
-// 获取属性类型
-const getType = (value: unknown): string => {
-  if (value instanceof BasicGrowthAttribute) {
-    if (value instanceof BasicRangeRandomGrowthAttribute) {
-      return "BasicRangeRandomGrowthAttribute";
-    } else if (value instanceof BasicRangeGrowthAttribute) {
-      return "BasicRangeGrowthAttribute";
-    }
-    return "BasicGrowthAttribute";
-  }
-  return "Unknown";
-};
-
-// 格式化属性值
-const formatAttributeValue = (value: unknown): string => {
-  if (value == null) return "0";
-  // 处理 GrowthAttribute 类型
-  if (value instanceof BasicGrowthAttribute) {
-    return `${value.getCurrentValue()}`;
-  }
-  return JSON.stringify(value);
-};
-</script>
