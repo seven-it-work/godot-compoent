@@ -180,6 +180,10 @@ export class CultivatorClass implements Cultivator {
       other: {
         // 冷却时间单位（秒）
         unit: "秒",
+        // 上次操作时间：用于计算冷却状态的共享属性
+        lastOperationTime: 0,
+        // 当前冷却时间：用于共享冷却时间，避免每次获取随机值不一致
+        currentCooldown: 0,
       },
       tips: "灵根吸纳的冷却时间，冷却结束后才能再次吸纳灵根能量",
     });

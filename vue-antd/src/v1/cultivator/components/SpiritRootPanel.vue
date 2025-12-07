@@ -64,19 +64,36 @@ const props = defineProps<{
 }>();
 
 // 冷却状态管理
-const lastAbsorbTime = ref<number>(0);
 const nowTime = ref<number>(Date.now());
-const cooldownTime = computed(() =>
-  props.cultivator.spiritRootCooldown.getCurrentValue()
-);
+
+// 共享冷却时间获取逻辑
+const cooldownTime = computed(() => {
+  const spiritRootCooldown = props.cultivator.spiritRootCooldown;
+  const other = spiritRootCooldown.other as any;
+
+  // 如果 currentCooldown 为 0，则获取新的随机值并存储
+  if (other.currentCooldown === 0) {
+    other.currentCooldown = spiritRootCooldown.getCurrentValue();
+  }
+
+  return other.currentCooldown;
+});
+
 const isOnCooldown = computed(() => {
-  const elapsed = (nowTime.value - lastAbsorbTime.value) / 1000;
+  const other = props.cultivator.spiritRootCooldown.other as any;
+  const elapsed = (nowTime.value - other.lastOperationTime) / 1000;
   return elapsed < cooldownTime.value;
 });
 
 const remainingCooldown = computed(() => {
-  if (!isOnCooldown.value) return 0;
-  const elapsed = (nowTime.value - lastAbsorbTime.value) / 1000;
+  if (!isOnCooldown.value) {
+    // 冷却结束，重置 currentCooldown
+    (props.cultivator.spiritRootCooldown.other as any).currentCooldown = 0;
+    return 0;
+  }
+
+  const other = props.cultivator.spiritRootCooldown.other as any;
+  const elapsed = (nowTime.value - other.lastOperationTime) / 1000;
   return cooldownTime.value - elapsed;
 });
 
@@ -128,7 +145,8 @@ const absorbSpiritRootExperience = (spiritRoot: SpiritRootClass) => {
   spiritRoot.spiritValue.currentValue = newValue;
 
   // 设置冷却时间
-  lastAbsorbTime.value = Date.now();
+  (props.cultivator.spiritRootCooldown.other as any).lastOperationTime =
+    Date.now();
 };
 </script>
 

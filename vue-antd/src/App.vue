@@ -15,5 +15,3 @@ onMounted(() => {
   console.log("应用已初始化");
 });
 </script>
-
-
