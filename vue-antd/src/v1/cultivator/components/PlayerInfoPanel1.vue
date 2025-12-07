@@ -23,29 +23,10 @@
         <CultivatorAttributePanel :cultivator="cultivator" />
       </div>
 
-      <!-- 技能菜单内容 -->
-      <div v-else-if="currentMenu === 'skills'" class="content-item">
-        <div class="content-title">技能页面</div>
-        <div class="content-content">
-          <p>这是技能页面的详细内容</p>
-          <p>可以在这里展示玩家的技能列表</p>
-        </div>
-      </div>
-
-      <!-- 背包菜单内容 -->
-      <div v-else-if="currentMenu === 'backpack'" class="content-item">
-        <div class="content-title">背包页面</div>
-        <div class="content-content">
-          <p>这是背包页面的详细内容</p>
-          <p>可以在这里展示玩家的背包物品</p>
-        </div>
-      </div>
-
       <!-- 默认内容 -->
       <div v-else class="content-item">
-        <div class="content-title">请选择菜单</div>
         <div class="content-content">
-          <p>请从上方选择一个菜单查看相应内容</p>
+          <p>未开发，菜单key={{ currentMenu }},value={{ menuItems.find(item => item.key === currentMenu)?.label }}</p>
         </div>
       </div>
     </div>
@@ -60,14 +41,16 @@ import CultivatorAttributePanel from "./CultivatorAttributePanel.vue";
 
 // 定义菜单数据
 const menuItems = [
+  { key: "option", label: "操作" },
   { key: "attributes", label: "属性" },
+  { key: "location", label: "所在地" },
   { key: "skills", label: "技能" },
   { key: "equipment", label: "装备" },
   { key: "backpack", label: "背包" },
 ];
 
 // 当前选中的菜单
-const currentMenu = ref("attributes");
+const currentMenu = ref("option");
 
 // 移除了computed属性，改用模板中的v-if/v-else-if来处理内容切换
 
