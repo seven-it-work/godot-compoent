@@ -1,5 +1,5 @@
 <template>
-  <div class="player-info-panel-1">
+  <div>
     <!-- 玩家基本信息组件 -->
     <PlayerBasicInfo :cultivator="cultivator" />
 
@@ -80,7 +80,7 @@ defineProps<{
 .player-info-panel-1 {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: auto;
   height: auto;
 }
 

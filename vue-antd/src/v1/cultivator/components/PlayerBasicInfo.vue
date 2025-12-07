@@ -97,7 +97,7 @@ defineProps<{
   border: 2px solid #000;
   background-color: #fff;
   overflow: hidden;
-  width: 100%;
+  width: auto;
   height: auto;
 }
 
