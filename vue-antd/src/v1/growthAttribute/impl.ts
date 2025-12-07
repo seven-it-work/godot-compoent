@@ -18,6 +18,8 @@ export class BasicGrowthAttribute implements GrowthAttribute {
   fixedGrowth: number = 0;
   // 当前值
   currentValue: number = 0;
+  // 其他属性
+  other?: Record<string, any> = {};
 
   /**
    * 构造函数
@@ -35,6 +37,7 @@ export class BasicGrowthAttribute implements GrowthAttribute {
         this.fixedGrowth = options.fixedGrowth;
       if (options.currentValue !== undefined)
         this.currentValue = options.currentValue;
+      if (options.other !== undefined) this.other = options.other;
     }
   }
 

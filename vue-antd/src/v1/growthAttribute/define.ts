@@ -1,20 +1,3 @@
-// 基础类型定义
-export interface SimpleGrowthAttribute {
-  value: number;
-}
-
-export interface SimpleRangeGrowthAttribute {
-  minValue: number;
-  maxValue: number;
-  value: number;
-}
-
-export interface SimpleRangeRandomGrowthAttribute {
-  minValue: number;
-  maxValue: number;
-  value: number;
-}
-
 // 成长属性接口
 export interface GrowthAttribute {
   // 属性名称
@@ -29,6 +12,8 @@ export interface GrowthAttribute {
   fixedGrowth?: number;
   // 当前值
   currentValue: number;
+  // 其他属性
+  other?: Record<string, any>;
   // 成长方法
   grow(): void;
   // 获取成长随机值

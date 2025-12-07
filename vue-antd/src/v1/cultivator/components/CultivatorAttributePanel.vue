@@ -20,7 +20,7 @@
             <!-- 属性名称 -->
             <div class="attribute-label-col">
               <div class="attribute-label">
-                {{ (cultivator[attr] as BasicGrowthAttribute).name }}：
+                {{ (cultivator[attr] as BasicGrowthAttribute).name }}
               </div>
             </div>
             <!-- 属性值 -->
@@ -62,13 +62,7 @@
                 "
                 class="attribute-value range-value"
               >
-                {{
-                  (cultivator[attr] as BasicRangeRandomGrowthAttribute).minRange
-                }}
-                ~
-                {{
-                  (cultivator[attr] as BasicRangeRandomGrowthAttribute).maxRange
-                }}
+                {{ formatRangeValue(cultivator[attr]) }}
               </div>
               <!-- 其他类型：默认显示 -->
               <div v-else class="attribute-value">
@@ -124,6 +118,17 @@ const formatAttributeValue = (value: unknown): string => {
   }
   return JSON.stringify(value);
 };
+
+// 格式化范围值
+const formatRangeValue = (value: unknown): string => {
+  if (value instanceof BasicRangeRandomGrowthAttribute) {
+    if (value.other?.isPercent) {
+      return `${value.minRange}% ~ ${value.maxRange}%`;
+    }
+    return `${value.minRange} ~ ${value.maxRange}`;
+  }
+  return "0 ~ 0";
+};
 </script>
 
 <style scoped>
@@ -169,7 +174,7 @@ const formatAttributeValue = (value: unknown): string => {
 
 /* 属性标签列 - 子容器，占据40%宽度 */
 .attribute-label-col {
-  width: 40%;
+  width: 50%;
   height: 100%;
   display: flex;
 }

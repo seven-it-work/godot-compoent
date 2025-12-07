@@ -1,11 +1,5 @@
 // 导出类型
-export type {
-  SimpleGrowthAttribute,
-  SimpleRangeGrowthAttribute,
-  SimpleRangeRandomGrowthAttribute,
-  GrowthAttribute,
-  RangeGrowthAttribute,
-} from "./define";
+export type { GrowthAttribute, RangeGrowthAttribute } from "./define";
 
 // 导出实现类
 export {

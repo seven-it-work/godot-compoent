@@ -129,7 +129,6 @@ defineProps<{
   border: 2px solid #000;
   background-color: #fff;
   margin-top: 10px;
-  padding: 20px;
   min-height: 200px;
   font-size: 16px;
   color: #000;

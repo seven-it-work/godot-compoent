@@ -67,40 +67,48 @@ export class CultivatorClass implements Cultivator {
   criticalRate: BasicRangeRandomGrowthAttribute =
     new BasicRangeRandomGrowthAttribute({
       name: "暴击率",
-      minGrowth: 1,
-      maxGrowth: 3,
+      minGrowth: 0,
+      maxGrowth: 1,
       minRange: 0,
       maxRange: 1,
       growMinRange: true,
       growCurrentValue: false,
-      growthRate: 1.1,
+      growthRate: 1,
       fixedGrowth: 0,
+      other: {
+        // 是否为百分百
+        isPercent: true,
+      },
     });
   // 暴击伤害：暴击时造成的额外伤害倍率，在基础伤害上附加此百分比的额外伤害
   criticalDamage: BasicRangeRandomGrowthAttribute =
     new BasicRangeRandomGrowthAttribute({
       name: "暴击伤害",
-      minGrowth: 10,
-      maxGrowth: 20,
+      minGrowth: 5,
+      maxGrowth: 10,
       minRange: 0,
-      maxRange: 1,
+      maxRange: 5,
       growMinRange: true,
       growCurrentValue: false,
-      growthRate: 1.1,
+      growthRate: 1,
       fixedGrowth: 0,
     });
   // 闪避率：躲避敌人攻击的概率百分比，值越高越容易躲避敌人的攻击
   dodgeRate: BasicRangeRandomGrowthAttribute =
     new BasicRangeRandomGrowthAttribute({
       name: "闪避率",
-      minGrowth: 1,
-      maxGrowth: 3,
+      minGrowth: 0,
+      maxGrowth: 1,
       minRange: 0,
       maxRange: 1,
       growMinRange: true,
       growCurrentValue: false,
-      growthRate: 1.1,
+      growthRate: 1,
       fixedGrowth: 0,
+      other: {
+        // 是否为百分百
+        isPercent: true,
+      },
     });
   // 灵力：用于释放技能和法术的能量资源，消耗后可通过休息或使用道具恢复
   spiritPower: BasicRangeGrowthAttribute = new BasicRangeGrowthAttribute({
@@ -120,7 +128,7 @@ export class CultivatorClass implements Cultivator {
   // 境界突破概率 最大100%级100
   breakthroughChance: BasicRangeRandomGrowthAttribute =
     new BasicRangeRandomGrowthAttribute({
-      name: "境界突破概率",
+      name: "突破率",
       minGrowth: 0,
       maxGrowth: 0,
       minRange: 0,
@@ -129,6 +137,10 @@ export class CultivatorClass implements Cultivator {
       growCurrentValue: false,
       growthRate: 0,
       fixedGrowth: 0,
+      other: {
+        // 是否为百分百
+        isPercent: true,
+      },
     });
 
   /**
