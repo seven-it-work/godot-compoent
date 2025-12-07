@@ -5,24 +5,25 @@
 
 <template>
   <div class="spirit-root-panel">
-    <!-- 五行属性 -->
+    <!-- 灵根属性 -->
     <div class="element-section">
       <div
-        v-for="element in SPIRIT_ROOT_TYPES"
-        :key="element"
+        v-for="spiritRoot in cultivator.spiritRoots"
+        :key="spiritRoot.type"
         class="element-item"
       >
         <div class="element-progress">
           <ProgressBar
-            :current-value="getElementValue(element)"
+            :current-value="spiritRoot.spiritValue.getCurrentValue()"
             :min-value="0"
             :max-value="100"
             color-type="single"
-            :single-color="getElementColor(element)"
+            :single-color="getElementColor(spiritRoot.type)"
             text-color="#000"
           >
             <template #progress-text="{ displayText }">
-              {{ element }}：{{ displayText }}
+              {{ spiritRoot.type }}
+              {{ spiritRoot.attribute.getCurrentValue() }}级 {{ displayText }}
             </template>
           </ProgressBar>
         </div>
@@ -33,18 +34,11 @@
 
 <script setup lang="ts">
 import { CultivatorClass } from "../impl";
-import ProgressBar from "@/v1/components/ProgressBar.vue";
+import ProgressBar from "../../components/ProgressBar.vue";
 import {
-  SPIRIT_ROOT_TYPES,
   SPIRIT_ROOT_COLORS,
   type SpiritRootType,
-} from "@/v1/spiritRoot/define";
-
-// 获取五行元素值
-const getElementValue = (_element: SpiritRootType): number => {
-  // 这里需要根据实际数据结构调整，暂时返回模拟值
-  return 50;
-};
+} from "../../spiritRoot/define";
 
 // 获取五行元素颜色
 const getElementColor = (element: SpiritRootType): string => {

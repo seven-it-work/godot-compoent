@@ -10,8 +10,8 @@ import {
 } from "./define";
 
 export class SpiritRootClass implements SpiritRoot {
-  // 灵根名称
-  name: string;
+  // 灵根类型
+  type: SpiritRootType;
   // 灵根属性值
   attribute: BasicGrowthAttribute;
   // 灵根对应的灵气值
@@ -21,11 +21,11 @@ export class SpiritRootClass implements SpiritRoot {
    * @param options 配置选项
    */
   constructor(
-    name: string,
+    type: SpiritRootType,
     attribute: BasicGrowthAttribute,
     spiritValue: BasicRangeGrowthAttribute
   ) {
-    this.name = name;
+    this.type = type;
     this.attribute = attribute;
     this.spiritValue = spiritValue;
   }
@@ -51,7 +51,7 @@ export class SpiritRootClass implements SpiritRoot {
       if (existingRoots.has(randomType)) {
         // 如果该灵根已存在，调用grow()方法增长
         const root = existingRoots.get(randomType)!;
-        root.spiritValue.grow();
+        root.attribute.grow();
       } else {
         // 如果该灵根不存在，创建新的灵根对象
         const newRoot = new SpiritRootClass(
@@ -75,7 +75,7 @@ export class SpiritRootClass implements SpiritRoot {
           })
         );
         // 新创建的灵根初始值为1（调用一次grow）
-        newRoot.spiritValue.grow();
+        newRoot.attribute.grow();
         // 添加到结果数组和跟踪Map中
         resultArray.push(newRoot);
         existingRoots.set(randomType, newRoot);

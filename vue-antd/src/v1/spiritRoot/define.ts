@@ -35,8 +35,8 @@ export const SPIRIT_ROOT_COLORS: Record<SpiritRootType, string> = {
  * 定义单个灵根的属性
  */
 export interface SpiritRoot {
-  // 灵根名称
-  name: string;
+  // 灵根类型
+  type: SpiritRootType;
   // 灵根属性值
   attribute: GrowthAttribute;
   // 灵根对应的灵气值
