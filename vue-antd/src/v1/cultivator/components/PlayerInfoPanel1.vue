@@ -94,6 +94,15 @@
       </div>
     </div>
   </div>
+
+  <!-- 水平菜单 -->
+  <div class="horizontal-menu">
+    <div class="menu-item">个人属性</div>
+    <div class="menu-item">技能</div>
+    <div class="menu-item">装备</div>
+    <div class="menu-item">背包</div>
+    <div class="menu-item">任务</div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -236,5 +245,39 @@ defineProps<{
   height: 30px;
   border: 1px solid #000;
   overflow: hidden;
+}
+
+/* 水平菜单 */
+.horizontal-menu {
+  display: flex;
+  width: 100%;
+  border: 2px solid #000;
+  background-color: #fff;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.menu-item {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  border-right: 2px solid #000;
+  font-size: 16px;
+  font-weight: bold;
+  color: #000;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.menu-item:last-child {
+  border-right: none;
+}
+
+.menu-item:hover {
+  background-color: #f0f0f0;
+}
+
+.menu-item:active {
+  background-color: #e0e0e0;
 }
 </style>
