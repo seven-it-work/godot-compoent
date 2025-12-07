@@ -169,9 +169,9 @@ export class CultivatorClass implements Cultivator {
   spiritRootCooldown: BasicRangeRandomGrowthAttribute =
     new BasicRangeRandomGrowthAttribute({
       name: "灵根冷却",
-      minGrowth: 1,
+      minGrowth: -1,
       maxGrowth: 5,
-      minRange: 1,
+      minRange: 3,
       maxRange: 10,
       growMinRange: true,
       growCurrentValue: false,
