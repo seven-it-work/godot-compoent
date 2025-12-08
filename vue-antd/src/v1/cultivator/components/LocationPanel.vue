@@ -98,7 +98,6 @@ const props = defineProps<{
 
 /* 灵脉卡片样式 */
 .spirit-vein-card {
-  padding: 8px !important;
   margin-bottom: 8px !important;
   min-height: auto;
 }
