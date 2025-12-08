@@ -84,6 +84,16 @@
         </div>
       </div>
 
+      <!-- 所在地菜单内容 -->
+      <div v-else-if="currentMenu === 'location'" class="content-item">
+        <div class="content-content">
+          <LocationPanel
+            :location="cultivator.currentLocation"
+            :cultivator="cultivator"
+          />
+        </div>
+      </div>
+
       <!-- 默认内容 -->
       <div v-else class="content-item">
         <div class="content-content">
@@ -103,6 +113,7 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import { CultivatorClass } from "../impl";
 import PlayerBasicInfo from "./PlayerBasicInfo.vue";
 import CultivatorAttributePanel from "./CultivatorAttributePanel.vue";
+import LocationPanel from "./LocationPanel.vue";
 
 // 定义菜单数据
 const menuItems = [

@@ -7,7 +7,8 @@ import RandomUtils from "@/v1/utils/RandomUtils";
 import { realmConfigs, type Cultivator, type Gender } from "./define";
 import type { DamageResult } from "@/v1/damageResult";
 import { SpiritRootClass } from "@/v1/spiritRoot";
-
+import { LocationClass } from "@/v1/location";
+import { type Location } from "@/v1/location/define";
 /**
  * 修仙者类
  * 实现修仙者接口，提供修仙者的基本属性和能力
@@ -187,6 +188,9 @@ export class CultivatorClass implements Cultivator {
       },
       tips: "灵根吸纳的冷却时间，冷却结束后才能再次吸纳灵根能量",
     });
+
+  // 当前所在地：修仙者当前所在的地点
+  currentLocation: Location = LocationClass.随机生成地点();
 
   /**
    * 构造函数
