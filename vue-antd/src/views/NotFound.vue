@@ -18,17 +18,17 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { useRouter } from "vue-router";
 
-const router = useRouter()
+const router = useRouter();
 
 const goHome = () => {
-  router.push('/')
-}
+  router.push("/");
+};
 
 const goBack = () => {
-  router.back()
-}
+  router.back();
+};
 </script>
 
 <style scoped>
@@ -38,7 +38,7 @@ const goBack = () => {
   align-items: center;
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
   padding: 20px;
 }
 
@@ -78,7 +78,8 @@ const goBack = () => {
   margin-bottom: 40px;
 }
 
-.home-button, .back-button {
+.home-button,
+.back-button {
   padding: 12px 24px;
   margin: 0 10px;
   border: none;
@@ -127,7 +128,7 @@ const goBack = () => {
 
 .character::before,
 .character::after {
-  content: '';
+  content: "";
   position: absolute;
   background: #333;
   border-radius: 50%;
@@ -169,7 +170,7 @@ const goBack = () => {
 }
 
 .thought-bubble::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -10px;
   left: 50%;
