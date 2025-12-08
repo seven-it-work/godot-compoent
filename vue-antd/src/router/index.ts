@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+<<<<<<< HEAD
 import type { RouteRecordRaw } from "vue-router";
 
 // 基础路由（包含404页面等）
@@ -24,11 +25,24 @@ const baseRoutes: RouteRecordRaw[] = [
     ] as RouteRecordRaw[]
   },
 ];
+=======
+import IndexPage from "@/views/index.vue";
+>>>>>>> 46f53198a6f5c95e096bd7de89ec34a86d22bfe2
 
 // 创建路由实例
 const router = createRouter({
   // 设置基础路径，适配 GitHub Pages 部署
   history: createWebHistory(import.meta.env.BASE_URL),
+<<<<<<< HEAD
   routes: [ ...baseRoutes],
+=======
+  routes: [
+    {
+      path: "/",
+      name: "home",
+      component: IndexPage,
+    },
+  ],
+>>>>>>> 46f53198a6f5c95e096bd7de89ec34a86d22bfe2
 });
 export default router;

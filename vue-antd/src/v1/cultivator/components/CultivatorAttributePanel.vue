@@ -1,108 +1,81 @@
+<!-- 
+修仙者属性面板
+展示修仙者的基础属性和成长属性
+只展示  import { 展示的属性 } from "@/v1/cultivator/define"; 中的属性
+顺序就是 展示的属性 中的顺序
+-->
 <template>
-  <div class="cultivator-attribute-panel">
-    <h3>修仙者属性</h3>
+  <div class="attribute-panel">
     <div class="attribute-grid">
-      <div class="attribute-item">
-        <div class="attribute-header">
-          <span class="attribute-name">攻击力</span>
-          <span class="attribute-value">{{ cultivator.attack.getCurrentValue() }}</span>
-        </div>
-        <div class="attribute-progress">
-          <div 
-            class="progress-bar attack" 
-            :style="{ width: getProgressWidth(cultivator.attack) + '%' }"
-          ></div>
-        </div>
-      </div>
-
-      <div class="attribute-item">
-        <div class="attribute-header">
-          <span class="attribute-name">防御力</span>
-          <span class="attribute-value">{{ cultivator.defense.getCurrentValue() }}</span>
-        </div>
-        <div class="attribute-progress">
-          <div 
-            class="progress-bar defense" 
-            :style="{ width: getProgressWidth(cultivator.defense) + '%' }"
-          ></div>
-        </div>
-      </div>
-
-      <div class="attribute-item">
-        <div class="attribute-header">
-          <span class="attribute-name">气血</span>
-          <span class="attribute-value">{{ cultivator.qiBlood.getCurrentValue() }}</span>
-        </div>
-        <div class="attribute-progress">
-          <div 
-            class="progress-bar qi-blood" 
-            :style="{ width: getProgressWidth(cultivator.qiBlood) + '%' }"
-          ></div>
-        </div>
-      </div>
-
-      <div class="attribute-item">
-        <div class="attribute-header">
-          <span class="attribute-name">灵力</span>
-          <span class="attribute-value">{{ cultivator.spiritPower.getCurrentValue() }}</span>
-        </div>
-        <div class="attribute-progress">
-          <div 
-            class="progress-bar spirit-power" 
-            :style="{ width: getProgressWidth(cultivator.spiritPower) + '%' }"
-          ></div>
-        </div>
-      </div>
-
-      <div class="attribute-item">
-        <div class="attribute-header">
-          <span class="attribute-name">暴击率</span>
-          <span class="attribute-value">{{ cultivator.criticalRate.getCurrentValue() }}%</span>
-        </div>
-        <div class="attribute-progress">
-          <div 
-            class="progress-bar critical-rate" 
-            :style="{ width: getProgressWidth(cultivator.criticalRate) + '%' }"
-          ></div>
-        </div>
-      </div>
-
-      <div class="attribute-item">
-        <div class="attribute-header">
-          <span class="attribute-name">暴击伤害</span>
-          <span class="attribute-value">{{ cultivator.criticalDamage.getCurrentValue() }}%</span>
-        </div>
-        <div class="attribute-progress">
-          <div 
-            class="progress-bar critical-damage" 
-            :style="{ width: getProgressWidth(cultivator.criticalDamage) + '%' }"
-          ></div>
-        </div>
-      </div>
-
-      <div class="attribute-item">
-        <div class="attribute-header">
-          <span class="attribute-name">闪避率</span>
-          <span class="attribute-value">{{ cultivator.dodgeRate.getCurrentValue() }}%</span>
-        </div>
-        <div class="attribute-progress">
-          <div 
-            class="progress-bar dodge-rate" 
-            :style="{ width: getProgressWidth(cultivator.dodgeRate) + '%' }"
-          ></div>
-        </div>
-      </div>
-
-      <div class="attribute-item">
-        <div class="attribute-header">
-          <span class="attribute-name">突破概率</span>
-          <span class="attribute-value">{{ cultivator.breakthroughChance.getCurrentValue() }}%</span>
-        </div>
-        <div class="attribute-progress">
-          <div 
-            class="progress-bar breakthrough-chance" 
-            :style="{ width: getProgressWidth(cultivator.breakthroughChance) + '%' }"
-          ></div>
+      <!-- 直接使用div替代a-col，避免Ant Design栅格系统的样式影响 -->
+      <div
+        v-for="attr in displayAttributes"
+        :key="attr"
+        class="attribute-col"
+        :style="{ width: `${100 / attributesPerRow}%` }"
+      >
+        <div class="attribute-card">
+          <!-- 直接使用div替代ant-row，避免flex布局复杂性 -->
+          <div class="attribute-row">
+            <!-- 属性名称 -->
+            <div class="attribute-label-col">
+              <div class="attribute-label">
+                {{ (cultivator[attr] as BasicGrowthAttribute).name }}
+                <a-tooltip
+                  :title="(cultivator[attr] as BasicGrowthAttribute).tips"
+                  placement="topLeft"
+                >
+                  <QuestionCircleTwoTone style="padding: 2px" />
+                </a-tooltip>
+              </div>
+            </div>
+            <!-- 属性值 -->
+            <div class="attribute-value-col">
+              <!-- 基础成长属性：直接显示值 -->
+              <div
+                v-if="getType(cultivator[attr]) === 'BasicGrowthAttribute'"
+                class="attribute-value"
+              >
+                {{ formatAttributeValue(cultivator[attr]) }}
+              </div>
+              <!-- 基础范围成长属性：显示进度条 -->
+              <div
+                v-else-if="
+                  getType(cultivator[attr]) === 'BasicRangeGrowthAttribute'
+                "
+                class="attribute-value range-progress"
+              >
+                <ProgressBar
+                  :current-value="
+                    (
+                      cultivator[attr] as BasicRangeGrowthAttribute
+                    ).getCurrentValue()
+                  "
+                  :min-value="
+                    (cultivator[attr] as BasicRangeGrowthAttribute).minRange
+                  "
+                  :max-value="
+                    (cultivator[attr] as BasicRangeGrowthAttribute).maxRange
+                  "
+                  color-type="multi"
+                />
+              </div>
+              <!-- 基础范围随机成长属性：显示范围值 -->
+              <div
+                v-else-if="
+                  getType(cultivator[attr]) ===
+                  'BasicRangeRandomGrowthAttribute'
+                "
+                class="attribute-value range-value"
+              >
+                {{ formatRangeValue(cultivator[attr]) }}
+              </div>
+              <!-- 其他类型：默认显示 -->
+              <div v-else class="attribute-value">
+                {{ formatAttributeValue(cultivator[attr]) }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -110,107 +83,156 @@
 </template>
 
 <script setup lang="ts">
-import { CultivatorClass } from '../impl';
+import { CultivatorClass } from "@/v1/cultivator";
+import { 展示的属性 } from "@/v1/cultivator/define";
+import {
+  BasicGrowthAttribute,
+  BasicRangeGrowthAttribute,
+  BasicRangeRandomGrowthAttribute,
+} from "@/v1/growthAttribute/impl";
+import ProgressBar from "@/v1/components/ProgressBar.vue";
+import { QuestionCircleTwoTone } from "@ant-design/icons-vue";
+
+// 配置每行显示的属性数量
+const attributesPerRow = 2;
+
+// 只显示需要展示的属性
+const displayAttributes = 展示的属性;
 
 defineProps<{
   cultivator: CultivatorClass;
 }>();
 
-const getProgressWidth = (attribute: any): number => {
-  // 计算属性值在0-100范围内的百分比
-  const value = attribute.getCurrentValue();
-  return Math.min(Math.max(value, 0), 100);
+// 获取属性类型
+const getType = (value: unknown): string => {
+  if (value instanceof BasicGrowthAttribute) {
+    if (value instanceof BasicRangeRandomGrowthAttribute) {
+      return "BasicRangeRandomGrowthAttribute";
+    } else if (value instanceof BasicRangeGrowthAttribute) {
+      return "BasicRangeGrowthAttribute";
+    }
+    return "BasicGrowthAttribute";
+  }
+  return "Unknown";
+};
+
+// 格式化属性值
+const formatAttributeValue = (value: unknown): string => {
+  if (value == null) return "0";
+  // 处理 GrowthAttribute 类型
+  if (value instanceof BasicGrowthAttribute) {
+    return `${value.getCurrentValue()}`;
+  }
+  return JSON.stringify(value);
+};
+
+// 格式化范围值
+const formatRangeValue = (value: unknown): string => {
+  if (value instanceof BasicRangeRandomGrowthAttribute) {
+    if (value.other?.isPercent) {
+      return `${value.minRange}% ~ ${value.maxRange}%`;
+    }
+    return `${value.minRange} ~ ${value.maxRange}`;
+  }
+  return "0 ~ 0";
 };
 </script>
 
 <style scoped>
-.cultivator-attribute-panel {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 16px;
-  background-color: #f9f9f9;
+/* 基础重置 - 所有元素应用box-sizing: border-box */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.cultivator-attribute-panel h3 {
-  margin: 0 0 16px 0;
-  font-size: 18px;
-  color: #333;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 8px;
+/* 面板容器 */
+.attribute-panel {
+  padding: 0.5rem;
 }
 
+/* 网格布局 */
 .attribute-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-}
-
-.attribute-item {
-  background-color: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  padding: 12px;
-}
-
-.attribute-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+  flex-wrap: wrap;
 }
 
-.attribute-name {
-  font-weight: bold;
-  color: #555;
+/* 属性列 */
+.attribute-col {
+  width: 50%; /* 默认每行2个属性，对应24/attributesPerRow=12，即50% */
+  padding: 2px;
 }
 
-.attribute-value {
-  font-weight: bold;
-  color: #4a90e2;
-}
-
-.attribute-progress {
-  height: 8px;
-  background-color: #e0e0e0;
+/* 属性卡片 - 父容器，设置明确的最小高度 */
+.attribute-card {
+  border: 1px solid #e8e8e8;
   border-radius: 4px;
-  overflow: hidden;
-}
-
-.progress-bar {
+  min-height: 4vw;
   height: 100%;
-  border-radius: 4px;
-  transition: width 0.3s ease;
+  background: #fff;
 }
 
-.progress-bar.attack {
-  background-color: #e74c3c;
+/* 属性行 - 子容器，填充父容器 */
+.attribute-row {
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 
-.progress-bar.defense {
-  background-color: #2ecc71;
+/* 属性标签列 - 子容器，占据40%宽度 */
+.attribute-label-col {
+  width: 50%;
+  height: 100%;
+  display: flex;
 }
 
-.progress-bar.qi-blood {
-  background-color: #e67e22;
+/* 属性值列 - 子容器，占据60%宽度 */
+.attribute-value-col {
+  width: 60%;
+  height: 100%;
+  display: flex;
+  background: #f5f5f5;
 }
 
-.progress-bar.spirit-power {
-  background-color: #9b59b6;
+/* 属性标签 - 最终子元素，完全填充父容器 */
+.attribute-label {
+  width: 100%;
+  height: 100%;
+  padding: 0 4px;
+  border: 1px solid #e8e8e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  color: #495057;
+  font-weight: 500;
+}
+/* 属性值 - 最终子元素，完全填充父容器 */
+.attribute-value {
+  width: 100%;
+  height: 100%;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #212529;
 }
 
-.progress-bar.critical-rate {
-  background-color: #3498db;
+/* 范围值样式 */
+.range-value {
+  color: #fa8c16;
 }
 
-.progress-bar.critical-damage {
-  background-color: #e91e63;
-}
-
-.progress-bar.dodge-rate {
-  background-color: #1abc9c;
-}
-
-.progress-bar.breakthrough-chance {
-  background-color: #f39c12;
+/* 范围进度条样式 */
+.range-progress {
+  padding: 0;
+  /* 确保占满父元素 */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
