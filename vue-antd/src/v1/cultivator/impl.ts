@@ -14,6 +14,8 @@ import { type Location } from "@/v1/location/define";
  * 实现修仙者接口，提供修仙者的基本属性和能力
  */
 export class CultivatorClass implements Cultivator {
+  // 头像
+  avatar: string = "";
   // 唯一标识：自动生成的全局唯一ID，用于区分不同的修仙者
   id: string = RandomUtils.randomId();
   // 名称：修仙者的姓名，用于显示和标识

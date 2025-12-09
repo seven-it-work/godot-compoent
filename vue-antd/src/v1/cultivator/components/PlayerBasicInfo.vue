@@ -8,9 +8,7 @@
     <!-- 左侧头像区域 -->
     <div class="avatar-section">
       <div class="avatar-container">
-        <a-image
-          src="https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp"
-        />
+        <a-image :src="cultivator.avatar" />
       </div>
     </div>
 

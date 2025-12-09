@@ -60,9 +60,10 @@ export interface Cultivator {
   spiritRootAbsorb: RangeGrowthAttribute;
   // 灵根冷却：灵根吸纳能力的冷却时间
   spiritRootCooldown: RangeGrowthAttribute;
-  
   // 当前所在地：修仙者当前所在的地点
   currentLocation: Location;
+  // 头像：修仙者的显示头像
+  avatar?: string;
 }
 
 // 定义所有境界的基础配置，不包含minLevel和maxLevel

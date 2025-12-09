@@ -1,9 +1,8 @@
-import type { SpiritRootType, SpiritRoot } from "../spiritRoot/define";
-import type { SpiritRootClass } from "../spiritRoot";
+import type { SpiritRoot } from "@/v1/spiritRoot";
 import type {
   BasicGrowthAttribute,
   BasicRangeRandomGrowthAttribute,
-} from "../growthAttribute/impl";
+} from "@/v1/growthAttribute";
 
 /**
  * 灵脉接口

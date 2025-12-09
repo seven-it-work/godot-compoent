@@ -5,59 +5,65 @@
       :cultivator="cultivator"
     />
 
-    <div class="operation-section">
+    <a-row>
       <!-- 修炼功能 -->
-      <div class="operation-item">
-        <div class="operation-header">
-          <span class="operation-label">修炼</span>
-          <a-switch
-            v-model:checked="autoCultivate"
-            @change="handleAutoCultivateChange"
-          />
-        </div>
-        <div class="operation-content">
-          <a-button
-            type="primary"
-            @click="cultivate"
-            :disabled="isOnCooldown || allSpiritRootsFull"
-          >
-            {{
-              isOnCooldown
-                ? `冷却中 (${Math.ceil(remainingCooldown)}s)`
-                : "开始修炼"
-            }}
-          </a-button>
-          <p class="operation-desc">吸收灵根经验，提升灵根等级</p>
-        </div>
-      </div>
-
-      <!-- 突破功能 -->
-      <div class="operation-item">
-        <div class="operation-header">
-          <span class="operation-label">突破</span>
-          <a-switch
-            v-model:checked="autoBreakthrough"
-            @change="handleAutoBreakthroughChange"
-          />
-        </div>
-        <div class="operation-content">
-          <a-button
-            type="success"
-            @click="breakthrough"
-            :disabled="!canBreakthrough || isOnCooldown"
-          >
-            {{
-              !canBreakthrough
-                ? "条件不足"
-                : isOnCooldown
+      <a-col :span="12">
+        <a-card size="small" style="background-color: #ebf3ec">
+          <template #title>
+            <a-button
+              type="primary"
+              @click="cultivate"
+              :disabled="isOnCooldown || allSpiritRootsFull"
+            >
+              {{
+                isOnCooldown
                   ? `冷却中 (${Math.ceil(remainingCooldown)}s)`
-                  : "突破境界"
-            }}
-          </a-button>
-          <p class="operation-desc">当所有灵根经验满时，突破到更高境界</p>
-        </div>
-      </div>
-    </div>
+                  : "开始修炼"
+              }}
+            </a-button>
+          </template>
+          <template #extra>
+            <a-switch
+              v-model:checked="autoCultivate"
+              @change="handleAutoCultivateChange"
+            >
+              <template #checkedChildren>自动中</template>
+              <template #unCheckedChildren>手动中</template>
+            </a-switch>
+          </template>
+        </a-card>
+      </a-col>
+      <!-- 突破功能 -->
+      <a-col :span="12">
+        <a-card size="small" style="background-color: #ebf3ec">
+          <template #title>
+            <a-button
+              type="success"
+              @click="breakthrough"
+              :disabled="!canBreakthrough || isOnCooldown"
+            >
+              {{
+                !canBreakthrough
+                  ? "条件不足"
+                  : isOnCooldown
+                    ? `冷却中 (${Math.ceil(remainingCooldown)}s)`
+                    : "突破境界"
+              }}
+            </a-button>
+          </template>
+          <template #extra>
+            <a-switch
+              v-model:checked="autoBreakthrough"
+              @change="handleAutoBreakthroughChange"
+            >
+              <template #checkedChildren>自动中</template>
+              <template #unCheckedChildren>手动中</template>
+            </a-switch>
+          </template>
+        </a-card>
+      </a-col>
+      <!-- 外出 -->
+    </a-row>
   </div>
 </template>
 
