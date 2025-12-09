@@ -18,6 +18,6 @@ function 随机数据() {
     <!-- <CultivationMethodsPanel :cultivator="cultivator" /> -->
     <!-- <CultivatorActions :cultivator="cultivator" /> -->
     <!-- <CultivatorAttributePanel :cultivator="cultivator" /> -->
-    <!-- <PlayerInfoPanel1 :cultivator="cultivator" /> -->
+    <PlayerInfoPanel1 :cultivator="cultivator" />
   </div>
 </template>
