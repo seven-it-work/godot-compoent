@@ -23,7 +23,7 @@
         <a-card size="small" :bordered="true" class="spirit-vein-card">
           <div class="spirit-vein-header">
             <span>{{ vein.type }}灵脉</span>
-            <span>等级 {{ vein.level.getCurrentValue() }}</span>
+            <span>等级 {{ vein.attribute.getCurrentValue() }}</span>
             <span :class="{ active: vein.isActive, inactive: !vein.isActive }">
               {{ vein.isActive ? "活跃" : "不活跃" }}
             </span>

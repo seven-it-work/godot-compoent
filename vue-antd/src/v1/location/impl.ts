@@ -16,12 +16,10 @@ import { LOCATION_NAMES, LOCATION_DESCRIPTIONS } from "./config";
 export class SpiritVeinClass implements SpiritVein {
   // 灵脉类型
   type: SpiritRootType;
-  // 灵脉属性值，影响生成量
+  // 灵脉属性值，影响生成量（也是灵脉的等级）
   attribute: BasicGrowthAttribute;
   // 灵脉存储的灵气值
   spiritValue: BasicRangeGrowthAttribute;
-  // 等级
-  level: BasicGrowthAttribute;
   // 单位时间产生的灵气值
   productionRate: BasicRangeRandomGrowthAttribute;
   // 是否活跃，true活跃（可以生成灵气） false不活跃（不能生成灵气）
@@ -31,25 +29,22 @@ export class SpiritVeinClass implements SpiritVein {
     type: SpiritRootType,
     attribute: BasicGrowthAttribute,
     spiritValue: BasicRangeGrowthAttribute,
-    level: BasicGrowthAttribute,
     productionRate: BasicRangeRandomGrowthAttribute,
     isActive: boolean
   ) {
     this.type = type;
     this.attribute = attribute;
     this.spiritValue = spiritValue;
-    this.level = level;
     this.productionRate = productionRate;
     this.isActive = isActive;
     // 设置默认值
     attribute.tips = `灵脉属性值，影响${type}灵气生成量`;
     spiritValue.tips = `灵脉当前存储的${type}灵气值，当前存储满了可以升级灵脉`;
-    level.tips = `灵脉等级，等级越高，${type}灵气上限和单位时间产生的灵气值越高`;
     productionRate.tips = `灵脉单位时间产生的${type}灵气值`;
   }
 
   grow(): void {
-    this.level.grow();
+    this.attribute.grow();
     // 提高灵脉灵气上限
     this.spiritValue.grow();
     // 提高灵脉单位时间产生的灵气值
@@ -99,7 +94,7 @@ export class SpiritVeinClass implements SpiritVein {
       if (existingVeins.has(randomType)) {
         // 如果该SpiritVeinClass型已存在，调用grow()方法增长其属性值
         const vein = existingVeins.get(randomType)!;
-        vein.attribute.grow();
+        vein.grow();
       } else {
         // 如果该SpiritVeinClass型不存在，创建新的灵脉对象
         const newVein = new SpiritVeinClass(
@@ -121,11 +116,6 @@ export class SpiritVeinClass implements SpiritVein {
             growthRate: 1,
             fixedGrowth: 10,
           }),
-          new BasicGrowthAttribute({
-            name: `${randomType}灵脉等级`,
-            currentValue: 1,
-            growthRate: 1,
-          }),
           new BasicRangeRandomGrowthAttribute({
             name: `${randomType}灵脉生产速率`,
             minGrowth: 1,
@@ -138,7 +128,7 @@ export class SpiritVeinClass implements SpiritVein {
           true // 灵脉初始状态为活跃
         );
         // 新创建的灵脉属性初始值为1（调用一次grow）
-        newVein.attribute.grow();
+        newVein.grow();
         // 添加到结果数组和跟踪Map中
         resultArray.push(newVein);
         existingVeins.set(randomType, newVein);

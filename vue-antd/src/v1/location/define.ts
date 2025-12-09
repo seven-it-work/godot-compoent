@@ -10,8 +10,6 @@ import type {
  * 定义地点中的灵脉属性
  */
 export interface SpiritVein extends SpiritRoot {
-  // 灵脉等级
-  level: BasicGrowthAttribute;
   // 灵脉单位时间生产灵气值
   productionRate: BasicRangeRandomGrowthAttribute;
   // 是否活跃
