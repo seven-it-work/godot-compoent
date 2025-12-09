@@ -137,27 +137,67 @@ const updateNowTime = () => {
 const cultivate = () => {
   if (isOnCooldown.value || allSpiritRootsFull.value) return;
 
-  // 找到未满的灵根并吸收经验
-  const 未满灵根 = props.cultivator.spiritRoots.find(
+  // 获取当前所在地的灵脉
+  const currentLocation = props.cultivator.currentLocation;
+  const spiritVeins = currentLocation.spiritVeins;
+
+  // 找到所有未满的灵根
+  const all未满灵根 = props.cultivator.spiritRoots.filter(
     (root) => root.spiritValue.getCurrentValue() < 100
   );
 
-  if (未满灵根) {
-    // 计算吸收量
-    const absorbAmount = props.cultivator.spiritRootAbsorb.getCurrentValue();
+  // 遍历所有未满灵根，尝试找到可以吸取的灵脉
+  for (const 未满灵根 of all未满灵根) {
+    // 查找对应类型的灵脉
+    const targetVein = spiritVeins.find((vein) => vein.type === 未满灵根.type);
 
-    // 只吸收一个未满灵根的经验
-    const currentSpiritValue = 未满灵根.spiritValue.getCurrentValue();
-    if (currentSpiritValue < 100) {
-      // 更新灵根经验值
-      const newValue = Math.min(100, currentSpiritValue + absorbAmount);
-      未满灵根.spiritValue.currentValue = newValue;
+    // 如果有对应类型的灵脉
+    if (targetVein) {
+      // 获取灵脉中的灵气值
+      const veinSpiritValue = targetVein.spiritValue.getCurrentValue();
+
+      // 如果灵脉中有灵气
+      if (veinSpiritValue > 0) {
+        // 计算吸收量
+        const absorbAmount =
+          props.cultivator.spiritRootAbsorb.getCurrentValue();
+
+        // 实际能吸取的数量（不超过灵脉中的灵气值和灵根升级所需的经验值）
+        const currentSpiritValue = 未满灵根.spiritValue.getCurrentValue();
+        const actualAbsorbAmount = Math.min(
+          absorbAmount,
+          veinSpiritValue,
+          100 - currentSpiritValue
+        );
+
+        // 如果实际能吸取的数量大于0
+        if (actualAbsorbAmount > 0) {
+          // 从灵脉中扣除灵气
+          targetVein.spiritValue.setCurrentValue(
+            veinSpiritValue - actualAbsorbAmount
+          );
+
+          // 更新灵根经验值
+          const newValue = currentSpiritValue + actualAbsorbAmount;
+          未满灵根.spiritValue.currentValue = newValue;
+
+          console.log(
+            `从${未满灵根.type}灵脉中吸取了${actualAbsorbAmount}点灵气，升级${未满灵根.type}灵根`
+          );
+
+          // 设置冷却时间
+          (props.cultivator.spiritRootCooldown.other as any).lastOperationTime =
+            Date.now();
+
+          // 成功吸取后退出函数
+          return;
+        }
+      }
     }
-
-    // 设置冷却时间
-    (props.cultivator.spiritRootCooldown.other as any).lastOperationTime =
-      Date.now();
   }
+
+  // 如果遍历完所有未满灵根都无法吸取，则提示
+  console.log("当前地点没有可吸取的灵脉，无法获取经验");
 };
 
 // 突破功能

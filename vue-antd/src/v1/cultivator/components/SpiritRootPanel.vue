@@ -137,12 +137,53 @@ const absorbSpiritRootExperience = (spiritRoot: SpiritRootClass) => {
     return;
   }
 
+  // 获取当前所在地的灵脉
+  const currentLocation = props.cultivator.currentLocation;
+  const spiritVeins = currentLocation.spiritVeins;
+
+  // 查找对应类型的灵脉
+  const targetVein = spiritVeins.find((vein) => vein.type === spiritRoot.type);
+
+  // 如果没有对应类型的灵脉，则无法吸取
+  if (!targetVein) {
+    console.log(`当前地点没有${spiritRoot.type}灵脉，无法吸取经验`);
+    return;
+  }
+
+  // 获取灵脉中的灵气值
+  const veinSpiritValue = targetVein.spiritValue.getCurrentValue();
+
+  // 如果灵脉中没有灵气，则无法吸取
+  if (veinSpiritValue <= 0) {
+    console.log(`${spiritRoot.type}灵脉中没有灵气，无法吸取经验`);
+    return;
+  }
+
   // 计算吸收量
   const absorbAmount = props.cultivator.spiritRootAbsorb.getCurrentValue();
 
+  // 实际能吸取的数量（不超过灵脉中的灵气值和灵根升级所需的经验值）
+  const actualAbsorbAmount = Math.min(
+    absorbAmount,
+    veinSpiritValue,
+    100 - currentSpiritValue
+  );
+
+  // 如果实际能吸取的数量为0，则退出
+  if (actualAbsorbAmount <= 0) {
+    return;
+  }
+
+  // 从灵脉中扣除灵气
+  targetVein.spiritValue.setCurrentValue(veinSpiritValue - actualAbsorbAmount);
+
   // 更新灵根经验值
-  const newValue = Math.min(100, currentSpiritValue + absorbAmount);
-  spiritRoot.spiritValue.currentValue = newValue;
+  const newValue = currentSpiritValue + actualAbsorbAmount;
+  spiritRoot.spiritValue.setCurrentValue(newValue);
+
+  console.log(
+    `从${spiritRoot.type}灵脉中吸取了${actualAbsorbAmount}点灵气，升级${spiritRoot.type}灵根`
+  );
 
   // 设置冷却时间
   (props.cultivator.spiritRootCooldown.other as any).lastOperationTime =

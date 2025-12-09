@@ -18,6 +18,8 @@ export interface GrowthAttribute {
   grow(): void;
   // 获取成长随机值
   getGrowthRandom(): number;
+  // 设置当前值
+  setCurrentValue(value: number): void;
   // 获取当前值
   getCurrentValue(): number;
   // tips 提示
