@@ -65,6 +65,8 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { CultivatorClass } from "../impl";
 import LocationPanel from "./LocationPanel.vue";
+import { getGameTimeInstance } from "../../timeSystem/impl";
+import { TimeEventType } from "../../timeSystem/define";
 
 // 定义组件属性
 const props = defineProps<{
@@ -77,7 +79,13 @@ const autoCultivate = ref(false);
 const autoBreakthrough = ref(false);
 
 // 冷却状态管理
-const nowTime = ref<number>(Date.now());
+// 获取游戏时间实例
+const gameTime = ref(getGameTimeInstance());
+// 获取事件管理器
+const eventManager = ref(gameTime.value.getEventManager());
+
+// 响应式触发冷却更新的标志
+const cooldownTrigger = ref(0);
 
 // 共享冷却时间获取逻辑
 const cooldownTime = computed(() => {
@@ -94,9 +102,26 @@ const cooldownTime = computed(() => {
 
 // 是否处于冷却中
 const isOnCooldown = computed(() => {
+  // 强制触发计算更新
+  cooldownTrigger.value;
+
   const other = props.cultivator.spiritRootCooldown.other as any;
-  const elapsed = (nowTime.value - other.lastOperationTime) / 1000;
-  return elapsed < cooldownTime.value;
+
+  // 如果没有设置冷却时间，或者冷却时间已经结束
+  if (!other.lastOperationGameTime || !cooldownTime.value) {
+    return false;
+  }
+
+  // 获取当前游戏时间和上次操作时间
+  const currentGameTime = gameTime.value.currentTime;
+  const lastOperationGameTime = other.lastOperationGameTime;
+
+  // 计算经过的游戏时间（毫秒）
+  const elapsedGameTimeMs = currentGameTime - lastOperationGameTime;
+  // 转换为秒
+  const elapsedGameTime = elapsedGameTimeMs / 1000;
+
+  return elapsedGameTime < cooldownTime.value;
 });
 
 // 剩余冷却时间
@@ -108,8 +133,17 @@ const remainingCooldown = computed(() => {
   }
 
   const other = props.cultivator.spiritRootCooldown.other as any;
-  const elapsed = (nowTime.value - other.lastOperationTime) / 1000;
-  return cooldownTime.value - elapsed;
+
+  // 获取当前游戏时间和上次操作时间
+  const currentGameTime = gameTime.value.currentTime;
+  const lastOperationGameTime = other.lastOperationGameTime;
+
+  // 计算经过的游戏时间（毫秒）
+  const elapsedGameTimeMs = currentGameTime - lastOperationGameTime;
+  // 转换为秒
+  const elapsedGameTime = elapsedGameTimeMs / 1000;
+
+  return cooldownTime.value - elapsedGameTime;
 });
 
 // 所有灵根经验是否已满
@@ -128,9 +162,10 @@ const canBreakthrough = computed(() => {
 let autoCultivateInterval: number | null = null;
 let autoBreakthroughInterval: number | null = null;
 
-// 更新当前时间
-const updateNowTime = () => {
-  nowTime.value = Date.now();
+// 时间变化事件处理函数
+const handleTimeChanged = () => {
+  // 更新触发标志，强制计算属性重新计算
+  cooldownTrigger.value++;
 };
 
 // 修炼功能
@@ -185,9 +220,11 @@ const cultivate = () => {
             `从${未满灵根.type}灵脉中吸取了${actualAbsorbAmount}点灵气，升级${未满灵根.type}灵根`
           );
 
-          // 设置冷却时间
-          (props.cultivator.spiritRootCooldown.other as any).lastOperationTime =
-            Date.now();
+          // 设置冷却时间（使用游戏时间）
+          const cooldownOther = props.cultivator.spiritRootCooldown
+            .other as any;
+          cooldownOther.lastOperationTime = Date.now(); // 保留现实时间（兼容旧代码）
+          cooldownOther.lastOperationGameTime = gameTime.value.currentTime; // 存储游戏时间
 
           // 成功吸取后退出函数
           return;
@@ -207,9 +244,10 @@ const breakthrough = () => {
   // 这里可以添加突破的具体逻辑
   console.log("突破成功！");
 
-  // 设置冷却时间
-  (props.cultivator.spiritRootCooldown.other as any).lastOperationTime =
-    Date.now();
+  // 设置冷却时间（使用游戏时间）
+  const cooldownOther = props.cultivator.spiritRootCooldown.other as any;
+  cooldownOther.lastOperationTime = Date.now(); // 保留现实时间（兼容旧代码）
+  cooldownOther.lastOperationGameTime = gameTime.value.currentTime; // 存储游戏时间
 };
 
 // 自动修炼开关变化处理
@@ -250,12 +288,17 @@ const handleAutoBreakthroughChange = (checked: boolean) => {
 
 // 组件挂载时
 onMounted(() => {
-  // 启动时间更新定时器
-  const timeInterval = window.setInterval(updateNowTime, 1000);
+  // 初始更新一次
+  cooldownTrigger.value++;
+
+  // 监听时间变化事件
+  eventManager.value.on(TimeEventType.TIME_CHANGED, handleTimeChanged);
 
   // 组件卸载时清理
   onUnmounted(() => {
-    window.clearInterval(timeInterval);
+    // 移除时间变化事件监听
+    eventManager.value.off(TimeEventType.TIME_CHANGED, handleTimeChanged);
+
     if (autoCultivateInterval) {
       window.clearInterval(autoCultivateInterval);
     }

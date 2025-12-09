@@ -53,6 +53,8 @@ import {
   type SpiritRootType,
 } from "../../spiritRoot/define";
 import { SpiritRootClass } from "../../spiritRoot/impl";
+import { getGameTimeInstance } from "../../timeSystem/impl";
+import { TimeEventType } from "../../timeSystem/define";
 
 // 获取五行元素颜色
 const getElementColor = (element: SpiritRootType): string => {
@@ -64,7 +66,13 @@ const props = defineProps<{
 }>();
 
 // 冷却状态管理
-const nowTime = ref<number>(Date.now());
+// 获取游戏时间实例
+const gameTime = ref(getGameTimeInstance());
+// 获取事件管理器
+const eventManager = ref(gameTime.value.getEventManager());
+
+// 响应式触发冷却更新的标志
+const cooldownTrigger = ref(0);
 
 // 共享冷却时间获取逻辑
 const cooldownTime = computed(() => {
@@ -80,9 +88,26 @@ const cooldownTime = computed(() => {
 });
 
 const isOnCooldown = computed(() => {
+  // 强制触发计算更新
+  cooldownTrigger.value;
+
   const other = props.cultivator.spiritRootCooldown.other as any;
-  const elapsed = (nowTime.value - other.lastOperationTime) / 1000;
-  return elapsed < cooldownTime.value;
+
+  // 如果没有设置冷却时间，或者冷却时间已经结束
+  if (!other.lastOperationTime || !cooldownTime.value) {
+    return false;
+  }
+
+  // 获取当前游戏时间和上次操作时间
+  const currentGameTime = gameTime.value.currentTime;
+  const lastOperationGameTime = other.lastOperationGameTime;
+
+  // 计算经过的游戏时间（毫秒）
+  const elapsedGameTimeMs = currentGameTime - lastOperationGameTime;
+  // 转换为秒
+  const elapsedGameTime = elapsedGameTimeMs / 1000;
+
+  return elapsedGameTime < cooldownTime.value;
 });
 
 const remainingCooldown = computed(() => {
@@ -93,8 +118,17 @@ const remainingCooldown = computed(() => {
   }
 
   const other = props.cultivator.spiritRootCooldown.other as any;
-  const elapsed = (nowTime.value - other.lastOperationTime) / 1000;
-  return cooldownTime.value - elapsed;
+
+  // 获取当前游戏时间和上次操作时间
+  const currentGameTime = gameTime.value.currentTime;
+  const lastOperationGameTime = other.lastOperationGameTime;
+
+  // 计算经过的游戏时间（毫秒）
+  const elapsedGameTimeMs = currentGameTime - lastOperationGameTime;
+  // 转换为秒
+  const elapsedGameTime = elapsedGameTimeMs / 1000;
+
+  return cooldownTime.value - elapsedGameTime;
 });
 
 const cooldownProgress = computed(() => {
@@ -102,26 +136,23 @@ const cooldownProgress = computed(() => {
   return (remainingCooldown.value / cooldownTime.value) * 100;
 });
 
-// 冷却倒计时更新
-let cooldownInterval: number | null = null;
-const updateCooldown = () => {
-  // 更新当前时间，触发响应式更新
-  nowTime.value = Date.now();
+// 时间变化事件处理函数
+const handleTimeChanged = () => {
+  // 更新触发标志，强制计算属性重新计算
+  cooldownTrigger.value++;
 };
 
 onMounted(() => {
   // 初始更新一次
-  updateCooldown();
-  // 启动定时器
-  cooldownInterval = window.setInterval(updateCooldown, 1000);
+  cooldownTrigger.value++;
+
+  // 监听时间变化事件
+  eventManager.value.on(TimeEventType.TIME_CHANGED, handleTimeChanged);
 });
 
 onUnmounted(() => {
-  // 清理定时器
-  if (cooldownInterval) {
-    window.clearInterval(cooldownInterval);
-    cooldownInterval = null;
-  }
+  // 移除时间变化事件监听
+  eventManager.value.off(TimeEventType.TIME_CHANGED, handleTimeChanged);
 });
 
 // 灵根经验吸收函数
@@ -185,9 +216,10 @@ const absorbSpiritRootExperience = (spiritRoot: SpiritRootClass) => {
     `从${spiritRoot.type}灵脉中吸取了${actualAbsorbAmount}点灵气，升级${spiritRoot.type}灵根`
   );
 
-  // 设置冷却时间
-  (props.cultivator.spiritRootCooldown.other as any).lastOperationTime =
-    Date.now();
+  // 设置冷却时间（使用游戏时间）
+  const cooldownOther = props.cultivator.spiritRootCooldown.other as any;
+  cooldownOther.lastOperationTime = Date.now(); // 保留现实时间（兼容旧代码）
+  cooldownOther.lastOperationGameTime = gameTime.value.currentTime; // 存储游戏时间
 };
 </script>
 
