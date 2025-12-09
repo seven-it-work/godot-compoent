@@ -70,7 +70,6 @@ export class SpiritVeinClass implements SpiritVein {
     } else {
       this.spiritValue.setCurrentValue(新的灵气存储);
     }
-    console.log("生成灵气");
   }
 
   /**
@@ -125,7 +124,7 @@ export class SpiritVeinClass implements SpiritVein {
             growthRate: 1,
             fixedGrowth: 1,
           }),
-          true // 灵脉初始状态为活跃
+          RandomUtils.random.bool() // 灵脉初始状态为活跃
         );
         // 新创建的灵脉属性初始值为1（调用一次grow）
         newVein.grow();
@@ -134,6 +133,12 @@ export class SpiritVeinClass implements SpiritVein {
         existingVeins.set(randomType, newVein);
       }
     }
+    // 非活跃的灵脉，将经验设置最大
+    resultArray.forEach((vein) => {
+      if (!vein.isActive) {
+        vein.spiritValue.setCurrentValue(vein.spiritValue.maxRange);
+      }
+    });
     return resultArray;
   }
 }

@@ -212,10 +212,6 @@ const absorbSpiritRootExperience = (spiritRoot: SpiritRootClass) => {
   const newValue = currentSpiritValue + actualAbsorbAmount;
   spiritRoot.spiritValue.setCurrentValue(newValue);
 
-  console.log(
-    `从${spiritRoot.type}灵脉中吸取了${actualAbsorbAmount}点灵气，升级${spiritRoot.type}灵根`
-  );
-
   // 设置冷却时间（使用游戏时间）
   const cooldownOther = props.cultivator.spiritRootCooldown.other as any;
   cooldownOther.lastOperationTime = Date.now(); // 保留现实时间（兼容旧代码）

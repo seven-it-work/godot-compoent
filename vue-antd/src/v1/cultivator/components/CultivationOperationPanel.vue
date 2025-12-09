@@ -215,11 +215,6 @@ const cultivate = () => {
           // 更新灵根经验值
           const newValue = currentSpiritValue + actualAbsorbAmount;
           未满灵根.spiritValue.currentValue = newValue;
-
-          console.log(
-            `从${未满灵根.type}灵脉中吸取了${actualAbsorbAmount}点灵气，升级${未满灵根.type}灵根`
-          );
-
           // 设置冷却时间（使用游戏时间）
           const cooldownOther = props.cultivator.spiritRootCooldown
             .other as any;
