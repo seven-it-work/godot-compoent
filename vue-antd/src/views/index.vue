@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { CultivatorClass } from "@/v1/cultivator";
 import PlayerInfoPanel1 from "@/v1/cultivator/components/PlayerInfoPanel1.vue";
 import GameTimeDisplay from "@/v1/timeSystem/components/GameTimeDisplay.vue";
+import MapGridComponent from "@/v1/map/components/MapGridComponent.vue";
 
 const cultivator = ref<CultivatorClass>(CultivatorClass.随机生成人物());
 // 随机数据方法
@@ -19,5 +20,6 @@ function 随机数据() {
     <!-- <CultivatorActions :cultivator="cultivator" /> -->
     <!-- <CultivatorAttributePanel :cultivator="cultivator" /> -->
     <PlayerInfoPanel1 :cultivator="cultivator" />
+    <MapGridComponent />
   </div>
 </template>
