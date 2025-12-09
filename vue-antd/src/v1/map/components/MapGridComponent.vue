@@ -15,33 +15,35 @@
       <a-button @click="clearPath">清除路径</a-button>
       <a-button @click="resetMap">重置地图</a-button>
     </div>
-    <div
-      class="map-grid"
-      :style="{
-        width: `${currentMap.width * gridSize}px`,
-        height: `${currentMap.height * gridSize}px`,
-      }"
-    >
+    <div class="map-scroll-container">
       <div
-        v-for="(row, y) in currentMap.grid"
-        :key="`row-${y}`"
-        class="map-row"
+        class="map-grid"
+        :style="{
+          width: `${currentMap.width * gridSize}px`,
+          height: `${currentMap.height * gridSize}px`,
+        }"
       >
         <div
-          v-for="(grid, x) in row"
-          :key="`grid-${x}-${y}`"
-          class="map-cell"
-          :style="{
-            width: `${gridSize}px`,
-            height: `${gridSize}px`,
-            backgroundColor: getCellColor(grid, x, y),
-            border: getCellBorder(grid, x, y),
-          }"
-          @click="handleCellClick(x, y)"
+          v-for="(row, y) in currentMap.grid"
+          :key="`row-${y}`"
+          class="map-row"
         >
-          <div class="cell-content">
-            <div class="cell-position">({{ x }}, {{ y }})</div>
-            <div class="cell-location">{{ grid.location.name }}</div>
+          <div
+            v-for="(grid, x) in row"
+            :key="`grid-${x}-${y}`"
+            class="map-cell"
+            :style="{
+              width: `${gridSize}px`,
+              height: `${gridSize}px`,
+              backgroundColor: getCellColor(grid, x, y),
+              border: getCellBorder(grid, x, y),
+            }"
+            @click="handleCellClick(x, y)"
+          >
+            <div class="cell-content">
+              <div class="cell-position">({{ x }}, {{ y }})</div>
+              <div class="cell-location">{{ grid.location.name }}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -203,6 +205,14 @@ onMounted(() => {
 .map-container {
   padding: 20px;
   font-family: Arial, sans-serif;
+}
+
+.map-scroll-container {
+  max-width: 800px;
+  max-height: 600px;
+  overflow: auto;
+  border: 1px solid #bdbdbd;
+  margin-top: 10px;
 }
 
 .map-info {
