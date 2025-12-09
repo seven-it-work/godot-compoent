@@ -16,7 +16,10 @@ export interface SpiritVein extends SpiritRoot {
   isActive: boolean;
   // 成长
   grow(): void;
-  // 生成灵灵对应的灵气
+  /**
+   * 生成对应的灵气
+   * 每天游戏时间生产一次灵气
+   */
   generateSpiritValue(): void;
 }
 

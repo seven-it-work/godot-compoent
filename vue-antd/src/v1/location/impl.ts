@@ -12,6 +12,7 @@ import RandomUtils from "../utils/RandomUtils";
 import type { Location, LocationType, SpiritVein } from "./define";
 import { LOCATION_TYPES } from "./define";
 import { LOCATION_NAMES, LOCATION_DESCRIPTIONS } from "./config";
+import { locationManager } from "./LocationManager";
 
 export class SpiritVeinClass implements SpiritVein {
   // 灵脉类型
@@ -55,22 +56,21 @@ export class SpiritVeinClass implements SpiritVein {
 
   /**
    * 生成灵灵对应的灵气
+   * 每天游戏时间生产一次灵气
    */
   generateSpiritValue(): void {
     const 基数 = this.attribute.getCurrentValue();
-    const 单位时间产生的灵气值 = this.productionRate.getCurrentValue();
-    const 生成数量 = 单位时间产生的灵气值 * 基数;
+    const 每天产生的灵气值 = this.productionRate.getCurrentValue();
+    // 计算每天生成的灵气值
+    const 生成数量 = 每天产生的灵气值 * 基数;
+    const 新的灵气存储 = 生成数量 + this.spiritValue.getCurrentValue();
     // 如果 生成数量+当前灵气值 超过 灵脉灵气上限，那么该灵脉就能自动grow()
-    if (
-      生成数量 + this.spiritValue.getCurrentValue() >=
-      this.spiritValue.maxRange
-    ) {
+    if (新的灵气存储 >= this.spiritValue.maxRange) {
       this.grow();
     } else {
-      this.spiritValue.setCurrentValue(
-        this.spiritValue.getCurrentValue() + 生成数量
-      );
+      this.spiritValue.setCurrentValue(新的灵气存储);
     }
+    console.log("生成灵气");
   }
 
   /**
@@ -163,6 +163,9 @@ export class LocationClass implements Location {
     if (this.spiritVeins.length === 0) {
       this.spiritVeins = SpiritVeinClass.随机生成灵脉();
     }
+
+    // 将地点实例自动注册到地点管理器
+    locationManager.addLocation(this);
   }
 
   /**

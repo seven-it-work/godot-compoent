@@ -85,7 +85,7 @@ export class GameTimeImpl implements GameTime {
    * 构造函数
    * @param timeScale 初始时间流速，默认为1
    */
-  constructor(timeScale: number = 1) {
+  constructor(timeScale: number = 100) {
     this.currentTime = GameTimeImpl.START_TIME;
     this.timeScale = timeScale;
     this.lastUpdateTime = Date.now();
@@ -101,13 +101,15 @@ export class GameTimeImpl implements GameTime {
   /**
    * 更新游戏时间
    * 根据当前时间流速和现实时间差计算并更新游戏时间
+   * 1倍速 = 游戏时间100秒 = 真实时间1秒
    */
   update(): void {
     if (this.isPaused) return;
 
     const now = Date.now();
     const deltaRealTime = now - this.lastUpdateTime;
-    const deltaGameTime = deltaRealTime * this.timeScale;
+    // 调整时间流速计算，1倍速时游戏时间的100秒对应真实时间的1秒
+    const deltaGameTime = deltaRealTime * this.timeScale * 100;
 
     this.currentTime += deltaGameTime;
     this.lastUpdateTime = now;
@@ -340,7 +342,7 @@ let gameTimeInstance: GameTimeImpl | null = null;
  * @param timeScale 初始时间流速，仅在首次创建实例时有效
  * @returns 游戏时间实例
  */
-export function getGameTimeInstance(timeScale: number = 1): GameTimeImpl {
+export function getGameTimeInstance(timeScale: number = 100): GameTimeImpl {
   if (!gameTimeInstance) {
     gameTimeInstance = new GameTimeImpl(timeScale);
   }

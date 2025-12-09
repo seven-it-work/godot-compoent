@@ -18,79 +18,6 @@
   </div>
 </template>
 
-<style scoped>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-.progress-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.progress-bar {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background-color: #f0f2f5;
-  overflow: hidden;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.progress-fill {
-  height: 100%;
-  transition: all 0.3s ease;
-  position: relative;
-  box-shadow: 0 0 6px rgba(24, 144, 255, 0.3);
-}
-
-.progress-text {
-  position: absolute;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 0.75rem;
-  color: #fff;
-  font-weight: bold;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  clip-path: none !important;
-  overflow: visible !important;
-}
-
-/* 进度条基础样式 - 颜色由JS动态计算 */
-
-/* 进度条动画效果 */
-.progress-fill {
-  animation: progress-pulse 2s infinite;
-}
-
-@keyframes progress-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-</style>
-
 <script setup lang="ts">
 import { computed } from "vue";
 // 定义颜色类型枚举
@@ -208,3 +135,76 @@ const textStyle = computed(() => {
   };
 });
 </script>
+
+<style scoped>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.progress-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-bar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #f0f2f5;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.progress-fill {
+  height: 100%;
+  transition: all 0.3s ease;
+  position: relative;
+  box-shadow: 0 0 6px rgba(24, 144, 255, 0.3);
+}
+
+.progress-text {
+  position: absolute;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.75rem;
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  clip-path: none !important;
+  overflow: visible !important;
+}
+
+/* 进度条基础样式 - 颜色由JS动态计算 */
+
+/* 进度条动画效果 */
+.progress-fill {
+  animation: progress-pulse 2s infinite;
+}
+
+@keyframes progress-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+</style>

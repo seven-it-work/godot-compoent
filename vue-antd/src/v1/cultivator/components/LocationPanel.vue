@@ -30,8 +30,9 @@
           </div>
           <div class="spirit-vein-details">
             <div class="spirit-value-container">
+              {{ getSpiritValue(vein) }}
               <ProgressBar
-                :current-value="vein.spiritValue.getCurrentValue()"
+                :current-value="getSpiritValue(vein)"
                 :min-value="vein.spiritValue.minRange"
                 :max-value="vein.spiritValue.maxRange"
                 :show-text="false"
@@ -55,8 +56,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 import type { Location, LocationClass, SpiritVein } from "@/v1/location";
+import type { BasicRangeGrowthAttribute } from "@/v1/growthAttribute/impl";
 
 import type { Cultivator } from "@/v1/cultivator";
 import ProgressBar from "@/v1/components/ProgressBar.vue";
@@ -65,6 +67,83 @@ const props = defineProps<{
   location: Location;
   cultivator: Cultivator;
 }>();
+
+// 创建响应式的灵脉灵气值映射，用于触发视图更新
+const spiritValues = ref<Map<SpiritVein, number>>(new Map());
+
+// 初始化灵脉灵气值映射
+const initSpiritValues = () => {
+  const newValues = new Map<SpiritVein, number>();
+  if (props.location.spiritVeins) {
+    props.location.spiritVeins.forEach((vein) => {
+      newValues.set(vein, vein.spiritValue.getCurrentValue());
+    });
+  }
+  spiritValues.value = newValues;
+};
+
+// 监听灵脉变化，重新初始化灵气值映射
+watch(
+  () => props.location.spiritVeins,
+  () => {
+    initSpiritValues();
+  },
+  { deep: true }
+);
+
+// 创建定时器，定期检查灵脉灵气值变化并更新映射
+let spiritValueCheckInterval: number | null = null;
+
+// 启动灵气值检查定时器
+const startSpiritValueCheck = () => {
+  if (spiritValueCheckInterval) return;
+
+  // 每100ms检查一次灵气值变化
+  spiritValueCheckInterval = window.setInterval(() => {
+    let hasChanges = false;
+    const newValues = new Map<SpiritVein, number>(spiritValues.value);
+
+    if (props.location.spiritVeins) {
+      props.location.spiritVeins.forEach((vein) => {
+        const currentValue = vein.spiritValue.getCurrentValue();
+        const storedValue = newValues.get(vein);
+
+        if (storedValue !== currentValue) {
+          newValues.set(vein, currentValue);
+          hasChanges = true;
+        }
+      });
+    }
+
+    if (hasChanges) {
+      spiritValues.value = newValues;
+    }
+  }, 100);
+};
+
+// 停止灵气值检查定时器
+const stopSpiritValueCheck = () => {
+  if (spiritValueCheckInterval) {
+    clearInterval(spiritValueCheckInterval);
+    spiritValueCheckInterval = null;
+  }
+};
+
+// 组件挂载时启动定时器
+onMounted(() => {
+  initSpiritValues();
+  startSpiritValueCheck();
+});
+
+// 组件卸载时停止定时器
+onUnmounted(() => {
+  stopSpiritValueCheck();
+});
+
+// 获取灵脉的当前灵气值
+const getSpiritValue = (vein: SpiritVein): number => {
+  return spiritValues.value.get(vein) || vein.spiritValue.getCurrentValue();
+};
 </script>
 
 <style scoped>
