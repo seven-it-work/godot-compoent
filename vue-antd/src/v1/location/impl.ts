@@ -133,10 +133,16 @@ export class SpiritVeinClass implements SpiritVein {
         existingVeins.set(randomType, newVein);
       }
     }
-    // 非活跃的灵脉，将经验设置最大
     resultArray.forEach((vein) => {
+      // 非活跃的灵脉，将经验设置最大
       if (!vein.isActive) {
         vein.spiritValue.setCurrentValue(vein.spiritValue.maxRange);
+      }
+      // 其他灵脉，将经验设置为随机值
+      else {
+        vein.spiritValue.setCurrentValue(
+          RandomUtils.random.integer(0, vein.spiritValue.maxRange)
+        );
       }
     });
     return resultArray;
