@@ -344,7 +344,11 @@ export class CultivatorClass implements Cultivator {
     // 突破概率
     const breakthroughChance = this.breakthroughChance.getCurrentValue();
     const breakthroughSuccess = Math.random() < breakthroughChance / 100;
-    if (!this.canBreakthrough() && !enforceBreakthrough && !breakthroughSuccess) {
+    if (
+      !this.canBreakthrough() &&
+      !enforceBreakthrough &&
+      !breakthroughSuccess
+    ) {
       return false;
     }
     // 随机成长0~5次

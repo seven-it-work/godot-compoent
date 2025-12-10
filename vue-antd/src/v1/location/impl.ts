@@ -12,7 +12,10 @@ import RandomUtils from "@/v1/utils/RandomUtils";
 import type { Location, LocationType, SpiritVein } from "./define";
 import { LOCATION_TYPES } from "./define";
 import { LOCATION_NAMES, LOCATION_DESCRIPTIONS } from "./config";
-import { autoRegisterTimeFlowHandler, getGameTimeInstance } from "@/v1/timeSystem";
+import {
+  autoRegisterTimeFlowHandler,
+  getGameTimeInstance,
+} from "@/v1/timeSystem";
 import type { TimeFlowHandler } from "@/v1/timeSystem";
 /**
  * 灵脉自动处理器
@@ -71,7 +74,8 @@ export class SpiritVeinClass implements SpiritVein {
   destroy(): void {
     if (this.handler) {
       // 获取时间流逝处理器管理器
-      const timeFlowHandlerManager = getGameTimeInstance().getTimeFlowHandlerManager();
+      const timeFlowHandlerManager =
+        getGameTimeInstance().getTimeFlowHandlerManager();
       // 从管理器中移除处理器
       timeFlowHandlerManager.removeHandler(this.handler);
       // 清空引用，允许垃圾回收
@@ -94,11 +98,15 @@ export class SpiritVeinClass implements SpiritVein {
    * 每天游戏时间生产一次灵气
    */
   generateSpiritValue(): void {
+    if (!this.isActive) {
+      return;
+    }
     const baseValue = this.attribute.getCurrentValue();
     const dailyProduction = this.productionRate.getCurrentValue();
     // 计算每天生成的灵气值
     const generatedAmount = dailyProduction * baseValue;
-    const newSpiritStorage = generatedAmount + this.spiritValue.getCurrentValue();
+    const newSpiritStorage =
+      generatedAmount + this.spiritValue.getCurrentValue();
     // 如果 生成数量+当前灵气值 超过 灵脉灵气上限，那么该灵脉就能自动grow()
     if (newSpiritStorage >= this.spiritValue.maxRange) {
       this.grow();

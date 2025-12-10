@@ -26,24 +26,24 @@ export interface TimeFlowHandlerManager {
    * @param handler 时间流逝处理器实例
    */
   registerHandler(handler: TimeFlowHandler): void;
-  
+
   /**
    * 移除时间流逝处理器
    * @param handler 要移除的时间流逝处理器实例
    */
   removeHandler(handler: TimeFlowHandler): void;
-  
+
   /**
    * 执行所有注册的时间流逝处理器
    */
   executeAllHandlers(): void;
-  
+
   /**
    * 获取所有注册的时间流逝处理器
    * @returns 时间流逝处理器数组
    */
   getAllHandlers(): TimeFlowHandler[];
-  
+
   /**
    * 清空所有注册的时间流逝处理器
    */

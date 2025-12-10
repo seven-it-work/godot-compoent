@@ -17,7 +17,9 @@ import { CultivatorClass } from "@/v1/cultivator/impl";
 onMounted(() => {
   const cultivatorStore = useCultivatorStore();
   // 初始化人物
-  cultivatorStore.setCurrentCultivator(CultivatorClass.generateRandomCultivator());
+  cultivatorStore.setCurrentCultivator(
+    CultivatorClass.generateRandomCultivator()
+  );
   const mapStore = useMapStore();
   mapStore.createMap(10, 10);
   const currentMap = mapStore.getCurrentMap();

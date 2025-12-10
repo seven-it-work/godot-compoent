@@ -3,32 +3,42 @@
  * 提供游戏时间的管理、计算和事件处理功能
  */
 import { TimeEventType, TimeUnit } from "./define";
-import type { GameTime, TimeEventHandler, TimeEventManager, TimeFlowHandler, TimeFlowHandlerManager } from "./define";
+import type {
+  GameTime,
+  TimeEventHandler,
+  TimeEventManager,
+  TimeFlowHandler,
+  TimeFlowHandlerManager,
+} from "./define";
 
 /**
  * 自动注册时间流逝处理器的装饰器
  * 用于装饰实现了时间流逝处理器接口的类
  * 当类实例化时，自动将实例注册到时间流逝处理器管理器中
  */
-export function autoRegisterTimeFlowHandler<T extends new (...args: any[]) => any>(target: T): T {
+export function autoRegisterTimeFlowHandler<
+  T extends new (...args: any[]) => any,
+>(target: T): T {
   // 保存原始构造函数
   const original = target;
-  
+
   // 创建新的构造函数
-  const decorated = function(...args: any[]) {
+  const decorated = function (...args: any[]) {
     // 创建实例
     const instance = new original(...args);
-    
+
     // 将实例注册到时间流逝处理器管理器
-    TimeFlowHandlerManagerImpl.getInstance().registerHandler(instance as unknown as TimeFlowHandler);
-    
+    TimeFlowHandlerManagerImpl.getInstance().registerHandler(
+      instance as unknown as TimeFlowHandler
+    );
+
     // 返回实例
     return instance;
   } as unknown as T;
-  
+
   // 复制原始原型
   decorated.prototype = original.prototype;
-  
+
   // 返回装饰后的构造函数
   return decorated;
 }
@@ -40,15 +50,15 @@ export function autoRegisterTimeFlowHandler<T extends new (...args: any[]) => an
 export class TimeFlowHandlerManagerImpl implements TimeFlowHandlerManager {
   /** 单例实例 */
   private static instance: TimeFlowHandlerManagerImpl | null = null;
-  
+
   /** 存储所有注册的时间流逝处理器 */
   private handlers: Set<TimeFlowHandler> = new Set();
-  
+
   /**
    * 私有构造函数，防止外部直接实例化
    */
   private constructor() {}
-  
+
   /**
    * 获取单例实例
    * @returns 时间流逝处理器管理器实例
@@ -59,7 +69,7 @@ export class TimeFlowHandlerManagerImpl implements TimeFlowHandlerManager {
     }
     return TimeFlowHandlerManagerImpl.instance;
   }
-  
+
   /**
    * 注册时间流逝处理器
    * @param handler 时间流逝处理器实例
@@ -67,7 +77,7 @@ export class TimeFlowHandlerManagerImpl implements TimeFlowHandlerManager {
   registerHandler(handler: TimeFlowHandler): void {
     this.handlers.add(handler);
   }
-  
+
   /**
    * 移除时间流逝处理器
    * @param handler 要移除的时间流逝处理器实例
@@ -75,7 +85,7 @@ export class TimeFlowHandlerManagerImpl implements TimeFlowHandlerManager {
   removeHandler(handler: TimeFlowHandler): void {
     this.handlers.delete(handler);
   }
-  
+
   /**
    * 执行所有注册的时间流逝处理器
    */
@@ -89,7 +99,7 @@ export class TimeFlowHandlerManagerImpl implements TimeFlowHandlerManager {
       }
     });
   }
-  
+
   /**
    * 获取所有注册的时间流逝处理器
    * @returns 时间流逝处理器数组
@@ -97,7 +107,7 @@ export class TimeFlowHandlerManagerImpl implements TimeFlowHandlerManager {
   getAllHandlers(): TimeFlowHandler[] {
     return Array.from(this.handlers);
   }
-  
+
   /**
    * 清空所有注册的时间流逝处理器
    */
@@ -179,7 +189,7 @@ export class GameTimeImpl implements GameTime {
   private lastMonth: number;
   /** 上一次记录的年份 */
   private lastYear: number;
-  
+
   /** 时间流逝处理器管理器实例 */
   private timeFlowHandlerManager: TimeFlowHandlerManagerImpl;
 
@@ -200,7 +210,7 @@ export class GameTimeImpl implements GameTime {
     this.lastMonth = this.getMonth();
     this.lastYear = this.getYear();
   }
-  
+
   /**
    * 获取时间流逝处理器管理器
    * @returns 时间流逝处理器管理器实例
@@ -251,10 +261,10 @@ export class GameTimeImpl implements GameTime {
         month: currentMonth,
         year: currentYear,
       });
-      
+
       // 每天变化时执行所有时间流逝处理器
       this.timeFlowHandlerManager.executeAllHandlers();
-      
+
       this.lastDay = currentDay;
     }
 
