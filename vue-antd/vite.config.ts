@@ -31,10 +31,28 @@ export default defineConfig({
       ],
     }),
   ],
+  esbuild: {
+    tsconfigRaw: {
+      compilerOptions: {
+        experimentalDecorators: true,
+        emitDecoratorMetadata: true,
+      },
+    },
+  },
   // 配置路径别名
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
+    },
+  },
+  // 设置构建目标，支持 ES2021 特性
+  build: {
+    target: 'es2021',
+  },
+  // 设置开发服务器目标，支持 ES2021 特性
+  server: {
+    fs: {
+      strict: true,
     },
   },
   // 设置基础路径，适配 GitHub Pages 部署

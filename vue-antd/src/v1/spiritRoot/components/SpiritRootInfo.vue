@@ -1,7 +1,7 @@
 <template>
   <div class="spirit-root-info">
     <div class="spirit-root-header">
-      <span class="spirit-root-name">{{ spiritRoot.name }}</span>
+      <span class="spirit-root-name">{{ spiritRoot.type }}</span>
       <span class="spirit-root-grade">{{ getSpiritRootGrade() }}</span>
     </div>
     <div class="spirit-root-body">
@@ -70,7 +70,7 @@ const getSpiritRootAttributes = () => {
   const baseBonus = Math.floor(value / 10);
 
   // 根据灵根类型提供不同的属性加成
-  switch (spiritRoot.name) {
+  switch (spiritRoot.type) {
     case "金":
       return [
         { name: "攻击力", bonus: baseBonus * 2 },

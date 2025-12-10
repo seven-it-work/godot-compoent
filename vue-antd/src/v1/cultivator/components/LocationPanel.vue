@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useCultivatorStore } from "@/stores/cultivator";
 import type { SpiritVein } from "@/v1/location";
 import ProgressBar from "@/v1/components/ProgressBar.vue";

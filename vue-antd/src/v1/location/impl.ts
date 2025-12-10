@@ -12,6 +12,23 @@ import RandomUtils from "@/v1/utils/RandomUtils";
 import type { Location, LocationType, SpiritVein } from "./define";
 import { LOCATION_TYPES } from "./define";
 import { LOCATION_NAMES, LOCATION_DESCRIPTIONS } from "./config";
+import { autoRegisterTimeFlowHandler, getGameTimeInstance } from "@/v1/timeSystem";
+import type { TimeFlowHandler } from "@/v1/timeSystem";
+/**
+ * 灵脉自动处理器
+ */
+@autoRegisterTimeFlowHandler
+export class SpiritVeinAutoHandler implements TimeFlowHandler {
+  private spiritVein: SpiritVein;
+
+  constructor(spiritVein: SpiritVein) {
+    this.spiritVein = spiritVein;
+  }
+
+  executeAction(): void {
+    this.spiritVein.generateSpiritValue();
+  }
+}
 
 export class SpiritVeinClass implements SpiritVein {
   // 灵脉类型
@@ -24,6 +41,8 @@ export class SpiritVeinClass implements SpiritVein {
   productionRate: BasicRangeRandomGrowthAttribute;
   // 是否活跃，true活跃（可以生成灵气） false不活跃（不能生成灵气）
   isActive: boolean;
+  // 灵脉自动处理器引用，用于手动清理
+  private handler?: SpiritVeinAutoHandler;
 
   constructor(
     type: SpiritRootType,
@@ -41,6 +60,23 @@ export class SpiritVeinClass implements SpiritVein {
     attribute.tips = `灵脉属性值，影响${type}灵气生成量`;
     spiritValue.tips = `灵脉当前存储的${type}灵气值，当前存储满了可以升级灵脉`;
     productionRate.tips = `灵脉单位时间产生的${type}灵气值`;
+    // 保存处理器引用
+    this.handler = new SpiritVeinAutoHandler(this);
+  }
+
+  /**
+   * 销毁灵脉，清理资源
+   * 从时间流逝处理器管理器中移除自动处理器
+   */
+  destroy(): void {
+    if (this.handler) {
+      // 获取时间流逝处理器管理器
+      const timeFlowHandlerManager = getGameTimeInstance().getTimeFlowHandlerManager();
+      // 从管理器中移除处理器
+      timeFlowHandlerManager.removeHandler(this.handler);
+      // 清空引用，允许垃圾回收
+      this.handler = undefined;
+    }
   }
 
   grow(): void {
@@ -58,16 +94,16 @@ export class SpiritVeinClass implements SpiritVein {
    * 每天游戏时间生产一次灵气
    */
   generateSpiritValue(): void {
-    const 基数 = this.attribute.getCurrentValue();
-    const 每天产生的灵气值 = this.productionRate.getCurrentValue();
+    const baseValue = this.attribute.getCurrentValue();
+    const dailyProduction = this.productionRate.getCurrentValue();
     // 计算每天生成的灵气值
-    const 生成数量 = 每天产生的灵气值 * 基数;
-    const 新的灵气存储 = 生成数量 + this.spiritValue.getCurrentValue();
+    const generatedAmount = dailyProduction * baseValue;
+    const newSpiritStorage = generatedAmount + this.spiritValue.getCurrentValue();
     // 如果 生成数量+当前灵气值 超过 灵脉灵气上限，那么该灵脉就能自动grow()
-    if (新的灵气存储 >= this.spiritValue.maxRange) {
+    if (newSpiritStorage >= this.spiritValue.maxRange) {
       this.grow();
     } else {
-      this.spiritValue.setCurrentValue(新的灵气存储);
+      this.spiritValue.setCurrentValue(newSpiritStorage);
     }
   }
 
@@ -76,7 +112,7 @@ export class SpiritVeinClass implements SpiritVein {
    * @param num 总灵脉值（要分配的灵脉点数）
    * @returns 灵脉数组
    */
-  static 随机生成灵脉(num: number = 5): SpiritVeinClass[] {
+  static generateRandomSpiritVeins(num: number = 5): SpiritVeinClass[] {
     // 使用数组存储生成的灵脉对象
     const resultArray: SpiritVeinClass[] = [];
     // 使用Map辅助跟踪已存在的SpiritVeinClass型
@@ -164,7 +200,7 @@ export class LocationClass implements Location {
     growthRate: 1,
   });
   // 地点灵脉
-  spiritVeins: SpiritVein[] = SpiritVeinClass.随机生成灵脉();
+  spiritVeins: SpiritVein[] = SpiritVeinClass.generateRandomSpiritVeins();
   // 地图相关属性
   x: number = -1;
   y: number = -1;
@@ -177,7 +213,7 @@ export class LocationClass implements Location {
 
     // 如果没有指定灵脉，生成随机灵脉
     if (this.spiritVeins.length === 0) {
-      this.spiritVeins = SpiritVeinClass.随机生成灵脉();
+      this.spiritVeins = SpiritVeinClass.generateRandomSpiritVeins();
     }
   }
 
@@ -210,8 +246,8 @@ export class LocationClass implements Location {
     });
   }
 
-  static 随机生成地点(num: number = 5): Location {
-    const spiritVeins = SpiritVeinClass.随机生成灵脉(num);
+  static generateRandomLocation(num: number = 5): Location {
+    const spiritVeins = SpiritVeinClass.generateRandomSpiritVeins(num);
     return new LocationClass({
       name: RandomUtils.random.pick(LOCATION_NAMES),
       description: RandomUtils.random.pick(LOCATION_DESCRIPTIONS),

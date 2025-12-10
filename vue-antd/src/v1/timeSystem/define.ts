@@ -12,8 +12,42 @@ export const TimeUnit = {
   YEAR: 31536000000, // 年（默认365天）
 } as const;
 
-export interface 时间流逝处理器{
-  执行动作():void
+export interface TimeFlowHandler {
+  executeAction(): void;
+}
+
+/**
+ * 时间流逝处理器管理器接口
+ * 负责注册、移除和执行所有时间流逝处理器
+ */
+export interface TimeFlowHandlerManager {
+  /**
+   * 注册时间流逝处理器
+   * @param handler 时间流逝处理器实例
+   */
+  registerHandler(handler: TimeFlowHandler): void;
+  
+  /**
+   * 移除时间流逝处理器
+   * @param handler 要移除的时间流逝处理器实例
+   */
+  removeHandler(handler: TimeFlowHandler): void;
+  
+  /**
+   * 执行所有注册的时间流逝处理器
+   */
+  executeAllHandlers(): void;
+  
+  /**
+   * 获取所有注册的时间流逝处理器
+   * @returns 时间流逝处理器数组
+   */
+  getAllHandlers(): TimeFlowHandler[];
+  
+  /**
+   * 清空所有注册的时间流逝处理器
+   */
+  clearHandlers(): void;
 }
 
 /**

@@ -8,7 +8,7 @@ import { ref } from "vue";
  */
 export const useCultivatorStore = defineStore("cultivator", () => {
   // 修仙者实例（响应式）
-  const cultivator = ref(CultivatorClass.随机生成人物());
+  const cultivator = ref(CultivatorClass.generateRandomCultivator());
 
   const setCurrentCultivator = (_cultivator: CultivatorClass) => {
     cultivator.value = _cultivator;

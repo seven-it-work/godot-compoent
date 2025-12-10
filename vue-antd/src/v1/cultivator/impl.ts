@@ -59,7 +59,7 @@ export class CultivatorClass implements Cultivator {
     tips: "修仙者的生命总量，降至0时角色死亡，可通过休息或使用道具恢复",
   });
   // 灵根数组：修仙者拥有的灵根，每种灵根对应不同的元素属性，影响修炼速度和属性成长
-  spiritRoots: SpiritRootClass[] = SpiritRootClass.随机生成灵根(5);
+  spiritRoots: SpiritRootClass[] = SpiritRootClass.generateRandomSpiritRoots(5);
   // 境界等级：修仙者的当前境界，影响各项属性的基础值和成长潜力
   realmLevel: BasicGrowthAttribute = new BasicGrowthAttribute({
     name: "境界等级",
@@ -191,7 +191,7 @@ export class CultivatorClass implements Cultivator {
     });
 
   // 当前所在地：修仙者当前所在的地点
-  currentLocation: Location = LocationClass.随机生成地点();
+  currentLocation: Location = LocationClass.generateRandomLocation();
 
   /**
    * 构造函数
@@ -213,21 +213,21 @@ export class CultivatorClass implements Cultivator {
   /**
    * 升级
    */
-  upgrade(是否强制升级: boolean = false): void {
-    if (!this.canUpgrade() && !是否强制升级) {
+  upgrade(enforceUpgrade: boolean = false): void {
+    if (!this.canUpgrade() && !enforceUpgrade) {
       return;
     }
     // 升级境界等级
     this.realmLevel.grow();
     // 所有灵根的经验
-    this._属性成长();
+    this._attributeGrowth();
     // 升级后灵根的经验重置为0
     this.spiritRoots.forEach((spiritRoot: SpiritRootClass) =>
       spiritRoot.spiritValue.setCurrentValue(0)
     );
   }
 
-  _属性成长(): void {
+  private _attributeGrowth(): void {
     const spiritRootsExp = this.spiritRoots.map(
       (spiritRoot) => spiritRoot.spiritValue
     );
@@ -339,18 +339,18 @@ export class CultivatorClass implements Cultivator {
    * 突破境界
    * 凡人->练气
    */
-  breakthrough(是否强制突破: boolean = false): boolean {
+  breakthrough(enforceBreakthrough: boolean = false): boolean {
     // 检查是否可以突破
     // 突破概率
     const breakthroughChance = this.breakthroughChance.getCurrentValue();
-    const 是否成功突破 = Math.random() < breakthroughChance / 100;
-    if (!this.canBreakthrough() && !是否强制突破 && !是否成功突破) {
+    const breakthroughSuccess = Math.random() < breakthroughChance / 100;
+    if (!this.canBreakthrough() && !enforceBreakthrough && !breakthroughSuccess) {
       return false;
     }
     // 随机成长0~5次
-    const 成长次数 = RandomUtils.random.integer(0, 5);
-    for (let i = 0; i < 成长次数; i++) {
-      this._属性成长();
+    const growthTimes = RandomUtils.random.integer(0, 5);
+    for (let i = 0; i < growthTimes; i++) {
+      this._attributeGrowth();
     }
     this.upgrade(true);
     return true;
@@ -535,7 +535,7 @@ export class CultivatorClass implements Cultivator {
   }
 
   // 静态方法 随机生成人物
-  static 随机生成人物(): CultivatorClass {
+  static generateRandomCultivator(): CultivatorClass {
     // 随机生成性别
     const gender: Gender = RandomUtils.pickone(["男", "女"]);
     // 随机生成姓名 - 将Gender类型转换为randomCultivatorName需要的类型

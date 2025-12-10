@@ -35,7 +35,7 @@ export class SpiritRootClass implements SpiritRoot {
    * @param num 总灵根值（要分配的灵根点数）
    * @returns 灵根数组
    */
-  static 随机生成灵根(num: number = 5): SpiritRootClass[] {
+  static generateRandomSpiritRoots(num: number = 5): SpiritRootClass[] {
     // 使用数组存储生成的灵根对象
     const resultArray: SpiritRootClass[] = [];
     // 使用Map辅助跟踪已存在的灵根类型

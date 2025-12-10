@@ -10,6 +10,9 @@
     "paths": {
       "@/*": ["./src/*"]
     },
+    /* 装饰器支持 */
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     /* Linting */
     "strict": true,
     "noImplicitAny": true,

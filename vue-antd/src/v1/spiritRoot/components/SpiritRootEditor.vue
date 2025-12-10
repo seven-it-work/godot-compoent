@@ -170,7 +170,7 @@ const handleSubmit = () => {
         submitting.value = false;
         // 创建更新后的灵根对象
         const updatedSpiritRoot = {
-          name: formData.name,
+          type: formData.type,
           spiritValue: {
             ...props.spiritRoot?.spiritValue,
             currentValue: formData.spiritValue,
@@ -185,13 +185,13 @@ const handleSubmit = () => {
         emit("update", updatedSpiritRoot);
       }, 500);
     })
-    .catch((errorInfo) => {});
+    .catch(() => {});
 };
 
 // 处理表单重置
 const handleReset = () => {
   if (props.spiritRoot) {
-    formData.name = props.spiritRoot.name;
+    formData.type = props.spiritRoot.type;
     formData.spiritValue = props.spiritRoot.spiritValue.getCurrentValue();
     formData.attributeValue = props.spiritRoot.attribute.getCurrentValue();
     // 重置表单验证
