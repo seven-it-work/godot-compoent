@@ -43,9 +43,7 @@ export class TimeEventManagerImpl implements TimeEventManager {
     this.events.get(eventType)?.forEach((handler) => {
       try {
         handler(data);
-      } catch (error) {
-        console.error(`Error in time event handler: ${error}`);
-      }
+      } catch (error) {}
     });
   }
 }

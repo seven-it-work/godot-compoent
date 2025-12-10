@@ -185,9 +185,7 @@ const handleSubmit = () => {
         emit("update", updatedSpiritRoot);
       }, 500);
     })
-    .catch((errorInfo) => {
-      console.log("表单验证失败:", errorInfo);
-    });
+    .catch((errorInfo) => {});
 };
 
 // 处理表单重置

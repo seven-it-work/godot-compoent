@@ -1,5 +1,5 @@
-import { CultivatorClass } from './impl';
-import { useCultivatorStore } from '@/stores/cultivator';
+import { CultivatorClass } from "./impl";
+import { useCultivatorStore } from "@/stores/cultivator";
 
 /**
  * 修仙者管理器

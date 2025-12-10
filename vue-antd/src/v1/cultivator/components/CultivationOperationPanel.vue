@@ -79,8 +79,6 @@ const cultivator = computed(() => {
   return cultivatorStore.getCurrentCultivator();
 });
 
-
-
 // 自动修炼开关
 const autoCultivate = ref(false);
 // 自动突破开关
@@ -236,8 +234,7 @@ const cultivate = () => {
     }
   }
 
-  // 如果遍历完所有未满灵根都无法吸取，则提示
-  console.log("当前地点没有可吸取的灵脉，无法获取经验");
+  // 如果遍历完所有未满灵根都无法吸取，则直接返回
 };
 
 // 突破功能
@@ -245,7 +242,6 @@ const breakthrough = () => {
   if (!canBreakthrough.value || isOnCooldown.value) return;
 
   // 这里可以添加突破的具体逻辑
-  console.log("突破成功！");
 
   // 设置冷却时间（使用游戏时间）
   const cooldownOther = cultivator.value.spiritRootCooldown.other as any;

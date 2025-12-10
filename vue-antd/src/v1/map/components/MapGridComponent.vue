@@ -164,7 +164,6 @@ const moveToNext = () => {
     // 移动失败或到达终点，停止自动移动并清理路径
     stopAutoMove();
     currentMap.clearPath();
-    console.log("[Map] 移动完成，自动清理路径");
   }
 };
 

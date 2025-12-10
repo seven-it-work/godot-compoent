@@ -2,17 +2,16 @@ import {
   SPIRIT_ROOT_TYPES,
   SpiritRootClass,
   type SpiritRootType,
-} from "../spiritRoot";
+} from "@/v1/spiritRoot";
 import {
   BasicGrowthAttribute,
   BasicRangeGrowthAttribute,
   BasicRangeRandomGrowthAttribute,
-} from "../growthAttribute/impl";
-import RandomUtils from "../utils/RandomUtils";
+} from "@/v1/growthAttribute/impl";
+import RandomUtils from "@/v1/utils/RandomUtils";
 import type { Location, LocationType, SpiritVein } from "./define";
 import { LOCATION_TYPES } from "./define";
 import { LOCATION_NAMES, LOCATION_DESCRIPTIONS } from "./config";
-import { locationManager } from "./LocationManager";
 
 export class SpiritVeinClass implements SpiritVein {
   // 灵脉类型
@@ -180,9 +179,6 @@ export class LocationClass implements Location {
     if (this.spiritVeins.length === 0) {
       this.spiritVeins = SpiritVeinClass.随机生成灵脉();
     }
-
-    // 将地点实例自动注册到地点管理器
-    locationManager.addLocation(this);
   }
 
   /**

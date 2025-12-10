@@ -1,5 +1,5 @@
 import { LocationClass, type Location } from "../location/";
-import type { GameMap, MapManager } from "./define";
+import type { GameMap } from "./define";
 
 /**
  * 地图实现类
@@ -68,7 +68,7 @@ export class GameMapClass implements GameMap {
    * @param y 坐标Y
    * @returns 地图位置
    */
-  getGrid(x: number, y: number): Location  {
+  getGrid(x: number, y: number): Location {
     if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
       throw new Error(`坐标 (${x}, ${y}) 超出地图范围`);
     }
@@ -82,8 +82,6 @@ export class GameMapClass implements GameMap {
    * @param y 坐标Y
    */
   selectGrid(x: number, y: number): void {
-    console.log(`[Map] 选择格子: (${x}, ${y})`);
-
     // 清除之前的选择
     this.grid.forEach((row) => {
       row.forEach((grid) => {
@@ -97,7 +95,6 @@ export class GameMapClass implements GameMap {
       grid.isSelected = true;
       this.endX = x;
       this.endY = y;
-      console.log(`[Map] 格子 (${x}, ${y}) 已选择`);
     }
   }
 
@@ -108,16 +105,12 @@ export class GameMapClass implements GameMap {
   setPath(path: { x: number; y: number }[]): void {
     this.path = path;
     this.updatePathStatus();
-    console.log(`[Map] 设置路径: ${JSON.stringify(this.path)}`);
-    console.log(`[Map] 路径长度: ${this.path.length}`);
   }
 
   /**
    * 更新路径状态
    */
   private updatePathStatus(): void {
-    console.log(`[Map] 更新路径状态, 路径: ${JSON.stringify(this.path)}`);
-
     // 清除之前的路径
     this.grid.forEach((row) => {
       row.forEach((grid) => {
@@ -130,7 +123,6 @@ export class GameMapClass implements GameMap {
       const grid = this.getGrid(point.x, point.y);
       if (grid) {
         grid.isOnPath = true;
-        console.log(`[Map] 格子 (${point.x}, ${point.y}) 设置为路径`);
       }
     });
   }
@@ -183,10 +175,6 @@ export class GameMapClass implements GameMap {
     endX: number,
     endY: number
   ): { x: number; y: number }[] {
-    console.log(
-      `[Map] 开始路径规划: 从(${startX}, ${startY})到(${endX}, ${endY})`
-    );
-
     // 检查起点和终点是否可通行
     const startGrid = this.getGrid(startX, startY);
     const endGrid = this.getGrid(endX, endY);
@@ -196,13 +184,11 @@ export class GameMapClass implements GameMap {
       !startGrid.isPassable ||
       !endGrid.isPassable
     ) {
-      console.log(`[Map] 路径规划失败: 起点或终点不可通行`);
       return [];
     }
 
     // 检查起点和终点是否相同
     if (startX === endX && startY === endY) {
-      console.log(`[Map] 路径规划失败: 起点和终点相同`);
       return [];
     }
 
@@ -242,7 +228,6 @@ export class GameMapClass implements GameMap {
           temp = temp.parent;
         }
         const resultPath = path.reverse();
-        console.log(`[Map] 路径规划成功: ${JSON.stringify(resultPath)}`);
         return resultPath;
       }
 
@@ -288,7 +273,6 @@ export class GameMapClass implements GameMap {
     }
 
     // 没有找到路径
-    console.log(`[Map] 路径规划失败: 没有找到路径`);
     return [];
   }
 
@@ -304,62 +288,3 @@ export class GameMapClass implements GameMap {
 /**
  * 地图管理器实现类
  */
-export class MapManagerClass implements MapManager {
-  /** 单例实例 */
-  private static instance: MapManagerClass | null = null;
-
-  /** 当前地图 */
-  private currentMap: GameMapClass | null = null;
-
-  /**
-   * 私有构造函数，防止外部直接实例化
-   */
-  private constructor() {}
-
-  /**
-   * 获取地图管理器单例实例
-   * @returns 地图管理器实例
-   */
-  public static getInstance(): MapManagerClass {
-    if (!MapManagerClass.instance) {
-      MapManagerClass.instance = new MapManagerClass();
-    }
-    return MapManagerClass.instance;
-  }
-
-  /**
-   * 获取当前地图
-   * @returns 当前地图
-   */
-  getCurrentMap(): GameMap {
-    if (!this.currentMap) {
-      // 如果没有当前地图，创建一个默认地图
-      this.currentMap = new GameMapClass();
-      this.currentMap.init(10, 10);
-    }
-    return this.currentMap;
-  }
-
-  /**
-   * 创建新地图
-   * @param width 地图宽度
-   * @param height 地图高度
-   * @returns 新地图
-   */
-  createMap(width: number, height: number): GameMap {
-    this.currentMap = new GameMapClass();
-    this.currentMap.init(width, height);
-    return this.currentMap;
-  }
-
-  /**
-   * 设置当前地图
-   * @param map 地图实例
-   */
-  setCurrentMap(map: GameMap): void {
-    this.currentMap = map as GameMapClass;
-  }
-}
-
-// 导出单例实例的便捷访问方式
-export const mapManager = MapManagerClass.getInstance();

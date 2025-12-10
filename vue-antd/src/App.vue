@@ -27,6 +27,5 @@ onMounted(() => {
   // 3. 获取随机位置的格子信息
   const randomGrid = currentMap.getGrid(randomX, randomY);
   cultivatorStore.setCultivatorLocation(randomGrid);
-  console.log("应用初始化完成");
 });
 </script>

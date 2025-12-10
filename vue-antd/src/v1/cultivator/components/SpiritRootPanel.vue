@@ -177,7 +177,6 @@ const absorbSpiritRootExperience = (spiritRoot: SpiritRootClass) => {
 
   // 如果没有对应类型的灵脉，则无法吸取
   if (!targetVein) {
-    console.log(`当前地点没有${spiritRoot.type}灵脉，无法吸取经验`);
     return;
   }
 
@@ -186,7 +185,6 @@ const absorbSpiritRootExperience = (spiritRoot: SpiritRootClass) => {
 
   // 如果灵脉中没有灵气，则无法吸取
   if (veinSpiritValue <= 0) {
-    console.log(`${spiritRoot.type}灵脉中没有灵气，无法吸取经验`);
     return;
   }
 

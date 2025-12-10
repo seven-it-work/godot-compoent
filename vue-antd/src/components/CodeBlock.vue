@@ -80,7 +80,6 @@ const handleCopy = async () => {
       copyText.value = "复制";
     }, 3000);
   } catch (error) {
-    console.error("复制失败:", error);
     copyText.value = "复制失败";
     emit("copy-error", (error as Error).message);
 

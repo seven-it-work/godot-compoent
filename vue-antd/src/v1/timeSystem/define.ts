@@ -12,6 +12,10 @@ export const TimeUnit = {
   YEAR: 31536000000, // 年（默认365天）
 } as const;
 
+export interface 时间流逝处理器{
+  执行动作():void
+}
+
 /**
  * 时间单位类型定义
  * 用于类型安全的时间单位引用

@@ -372,11 +372,9 @@ export class CultivatorClass implements Cultivator {
    */
   useCultivationMethod(cultivationMethodId: string): void {
     if (!this.cultivationMethods.includes(cultivationMethodId)) {
-      console.log(`${this.name} 尚未学习 ${cultivationMethodId} 功法`);
       return;
     }
     // 实际使用功法的逻辑
-    console.log(`${this.name} 使用了 ${cultivationMethodId} 功法`);
   }
 
   /**
@@ -389,34 +387,22 @@ export class CultivatorClass implements Cultivator {
     const currentX = currentLocation.x || 0;
     const currentY = currentLocation.y || 0;
 
-    console.log(
-      `[Cultivator] 尝试移动到下一格, 当前位置: (${currentX}, ${currentY}), 路径: ${JSON.stringify(currentMap.path)}`
-    );
-
     // 找到当前位置在路径中的索引
     const currentIndex = currentMap.path.findIndex(
       (pos: { x: number; y: number }) =>
         pos.x === currentX && pos.y === currentY
     );
-    console.log(
-      `[Cultivator] 当前位置在路径中的索引: ${currentIndex}, 路径长度: ${currentMap.path.length}`
-    );
 
     // 如果当前位置不在路径中，或者已经是最后一个位置，返回false
     if (currentIndex === -1 || currentIndex >= currentMap.path.length - 1) {
-      console.log(
-        `[Cultivator] 移动失败: 当前位置不在路径中或已经是最后一个位置`
-      );
       return false;
     }
 
     // 移动到下一个位置
     const nextPos = currentMap.path[currentIndex + 1];
     if (!nextPos) {
-      console.log(`[Cultivator] 移动失败: 下一个位置不存在`);
       return false;
     }
-    console.log(`[Cultivator] 移动到下一个位置: (${nextPos.x}, ${nextPos.y})`);
 
     // 更新路径状态
     // @ts-ignore - 调用私有方法
@@ -425,18 +411,10 @@ export class CultivatorClass implements Cultivator {
     // 获取新位置
     const newLocation = currentMap.getGrid(nextPos.x, nextPos.y);
     if (newLocation) {
-      console.log(
-        `[Cultivator] 准备更新位置到: (${nextPos.x}, ${nextPos.y}), 新位置名称: ${newLocation.name}`
-      );
-      console.log(`[Cultivator] 旧位置对象:`, currentLocation);
-      console.log(`[Cultivator] 新位置对象:`, newLocation);
-
       // 更新当前位置
       this.currentLocation = newLocation;
-      console.log(`[Cultivator] 更新位置后，当前位置:`, this.currentLocation);
     }
 
-    console.log(`[Cultivator] 移动成功`);
     return true;
   }
 
@@ -484,7 +462,6 @@ export class CultivatorClass implements Cultivator {
     const isDodged = Math.random() < this.dodgeRate.getCurrentValue() / 100;
 
     if (isDodged) {
-      console.log(`${this.name} 闪避了攻击！`);
       return {
         ...damageInfo,
         isDodged: true,
@@ -504,10 +481,6 @@ export class CultivatorClass implements Cultivator {
 
     // 检查是否被击败
     const isDefeated = !this.isAlive();
-
-    console.log(
-      `${this.name} 受到了 ${damageInfo.actualDamage} 点伤害，剩余气血: ${this.qiBlood.currentValue}`
-    );
 
     return {
       ...damageInfo,
@@ -531,7 +504,7 @@ export class CultivatorClass implements Cultivator {
 
     // 如果目标被击败
     if (damageResult.isDefeated) {
-      console.log(`${target.name} 被击败了！`);
+      // 击败逻辑
     }
 
     return damageResult;
@@ -551,9 +524,6 @@ export class CultivatorClass implements Cultivator {
    */
   recoverQiBlood(amount: number): void {
     this.qiBlood.setCurrentValue(this.qiBlood.currentValue + amount);
-    console.log(
-      `${this.name} 恢复了 ${amount} 点气血，当前气血: ${this.qiBlood.currentValue}`
-    );
   }
 
   /**
@@ -562,9 +532,6 @@ export class CultivatorClass implements Cultivator {
    */
   recoverSpiritPower(amount: number): void {
     this.spiritPower.setCurrentValue(this.spiritPower.currentValue + amount);
-    console.log(
-      `${this.name} 恢复了 ${amount} 点灵力，当前灵力: ${this.spiritPower.currentValue}`
-    );
   }
 
   // 静态方法 随机生成人物
