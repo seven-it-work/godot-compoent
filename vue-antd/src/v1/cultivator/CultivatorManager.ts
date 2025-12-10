@@ -1,4 +1,5 @@
 import { CultivatorClass } from './impl';
+import { useCultivatorStore } from '@/stores/cultivator';
 
 /**
  * 修仙者管理器
@@ -24,12 +25,8 @@ export class CultivatorManager {
    * 获取当前修仙者实例
    */
   public getCurrentCultivator(): CultivatorClass {
-    if (!this.cultivator) {
-      // 如果没有实例，创建一个新的
-      this.cultivator = new CultivatorClass();
-      this.cultivator.name = this.cultivator.gender === '男' ? '张三' : '李四';
-    }
-    return this.cultivator;
+    const cultivatorStore = useCultivatorStore();
+    return cultivatorStore.getCurrentCultivator();
   }
 
   /**

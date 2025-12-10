@@ -1,6 +1,7 @@
 import { LocationClass, type Location } from "../location/";
 import type { GameMap, MapManager } from "./define";
 import { useCultivatorStore } from "@/stores/cultivator";
+import { cultivatorManager } from "../cultivator/CultivatorManager";
 
 /**
  * 地图实现类

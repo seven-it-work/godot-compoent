@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useCultivatorStore } from "@/stores/cultivator";
 import LocationPanel from "./LocationPanel.vue";
@@ -99,7 +99,7 @@ const cooldownTrigger = ref(0);
 
 // 共享冷却时间获取逻辑
 const cooldownTime = computed(() => {
-  const spiritRootCooldown = props.cultivator.spiritRootCooldown;
+  const spiritRootCooldown = cultivator.value.spiritRootCooldown;
   const other = spiritRootCooldown.other as any;
 
   // 如果 currentCooldown 为 0，则获取新的随机值并存储
@@ -115,7 +115,7 @@ const isOnCooldown = computed(() => {
   // 强制触发计算更新
   cooldownTrigger.value;
 
-  const other = props.cultivator.spiritRootCooldown.other as any;
+  const other = cultivator.value.spiritRootCooldown.other as any;
 
   // 如果没有设置冷却时间，或者冷却时间已经结束
   if (!other.lastOperationGameTime || !cooldownTime.value) {
@@ -138,11 +138,11 @@ const isOnCooldown = computed(() => {
 const remainingCooldown = computed(() => {
   if (!isOnCooldown.value) {
     // 冷却结束，重置 currentCooldown
-    (props.cultivator.spiritRootCooldown.other as any).currentCooldown = 0;
+    (cultivator.value.spiritRootCooldown.other as any).currentCooldown = 0;
     return 0;
   }
 
-  const other = props.cultivator.spiritRootCooldown.other as any;
+  const other = cultivator.value.spiritRootCooldown.other as any;
 
   // 获取当前游戏时间和上次操作时间
   const currentGameTime = gameTime.value.currentTime;
@@ -158,7 +158,7 @@ const remainingCooldown = computed(() => {
 
 // 所有灵根经验是否已满
 const allSpiritRootsFull = computed(() => {
-  return props.cultivator.spiritRoots.every(
+  return cultivator.value.spiritRoots.every(
     (root) => root.spiritValue.getCurrentValue() >= 100
   );
 });
@@ -183,11 +183,11 @@ const cultivate = () => {
   if (isOnCooldown.value || allSpiritRootsFull.value) return;
 
   // 获取当前所在地的灵脉
-  const currentLocation = props.cultivator.currentLocation;
+  const currentLocation = cultivator.value.currentLocation;
   const spiritVeins = currentLocation.spiritVeins;
 
   // 找到所有未满的灵根
-  const all未满灵根 = props.cultivator.spiritRoots.filter(
+  const all未满灵根 = cultivator.value.spiritRoots.filter(
     (root) => root.spiritValue.getCurrentValue() < 100
   );
 
@@ -205,7 +205,7 @@ const cultivate = () => {
       if (veinSpiritValue > 0) {
         // 计算吸收量
         const absorbAmount =
-          props.cultivator.spiritRootAbsorb.getCurrentValue();
+          cultivator.value.spiritRootAbsorb.getCurrentValue();
 
         // 实际能吸取的数量（不超过灵脉中的灵气值和灵根升级所需的经验值）
         const currentSpiritValue = 未满灵根.spiritValue.getCurrentValue();
@@ -226,7 +226,7 @@ const cultivate = () => {
           const newValue = currentSpiritValue + actualAbsorbAmount;
           未满灵根.spiritValue.currentValue = newValue;
           // 设置冷却时间（使用游戏时间）
-          const cooldownOther = props.cultivator.spiritRootCooldown
+          const cooldownOther = cultivator.value.spiritRootCooldown
             .other as any;
           cooldownOther.lastOperationTime = Date.now(); // 保留现实时间（兼容旧代码）
           cooldownOther.lastOperationGameTime = gameTime.value.currentTime; // 存储游戏时间
@@ -250,7 +250,7 @@ const breakthrough = () => {
   console.log("突破成功！");
 
   // 设置冷却时间（使用游戏时间）
-  const cooldownOther = props.cultivator.spiritRootCooldown.other as any;
+  const cooldownOther = cultivator.value.spiritRootCooldown.other as any;
   cooldownOther.lastOperationTime = Date.now(); // 保留现实时间（兼容旧代码）
   cooldownOther.lastOperationGameTime = gameTime.value.currentTime; // 存储游戏时间
 };
