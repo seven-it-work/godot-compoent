@@ -166,6 +166,12 @@ export class LocationClass implements Location {
   });
   // 地点灵脉
   spiritVeins: SpiritVein[] = SpiritVeinClass.随机生成灵脉();
+  // 地图相关属性
+  x?: number;
+  y?: number;
+  isPassable: boolean = true;
+  isSelected: boolean = false;
+  isOnPath: boolean = false;
 
   constructor(options: Partial<Location>) {
     Object.assign(this, options);

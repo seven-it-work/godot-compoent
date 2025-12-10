@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { CultivatorClass } from "@/v1/cultivator";
+import { useCultivatorStore } from "@/stores/cultivator";
 import PlayerInfoPanel1 from "@/v1/cultivator/components/PlayerInfoPanel1.vue";
 import GameTimeDisplay from "@/v1/timeSystem/components/GameTimeDisplay.vue";
 import MapGridComponent from "@/v1/map/components/MapGridComponent.vue";
 
-const cultivator = ref<CultivatorClass>(CultivatorClass.随机生成人物());
+// 使用Pinia store获取修仙者实例
+const cultivatorStore = useCultivatorStore();
+const cultivator = cultivatorStore.getCurrentCultivator();
+
 // 随机数据方法
 function 随机数据() {
-  cultivator.value.upgrade(true);
+  cultivator.upgrade(true);
 }
 </script>
 

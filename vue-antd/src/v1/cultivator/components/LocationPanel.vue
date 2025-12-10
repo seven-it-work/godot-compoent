@@ -3,21 +3,21 @@
     <!-- 地点基本信息 -->
     <div>
       <div class="location-header">
-        <div class="location-name">
-          {{ location.name }}
-        </div>
+        <div class="location-name">{{ locationName }}</div>
         <div class="location-type-level">
-          <span>{{ location.type.name }}</span>
-          <span>等级:{{ location.level.getCurrentValue() }}</span>
+          <span>{{ currentLocation.type.name }}</span>
+          <span>等级:{{ currentLocation.level.getCurrentValue() }}</span>
         </div>
       </div>
-      <span class="location-description">{{ location.description }}</span>
+      <span class="location-description">{{
+        currentLocation.description
+      }}</span>
     </div>
     <!-- 灵脉信息 -->
     <a-row :gutter="16">
       <a-col
         :span="12"
-        v-for="(vein, index) in location.spiritVeins"
+        v-for="(vein, index) in currentLocation.spiritVeins"
         :key="index"
       >
         <a-card size="small" :bordered="true" class="spirit-vein-card">
@@ -56,17 +56,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from "vue";
+import { computed, ref, onMounted, onUnmounted } from "vue";
+import { useCultivatorStore } from "@/stores/cultivator";
 import type { Location, LocationClass, SpiritVein } from "@/v1/location";
 import type { BasicRangeGrowthAttribute } from "@/v1/growthAttribute/impl";
-
-import type { Cultivator } from "@/v1/cultivator";
 import ProgressBar from "@/v1/components/ProgressBar.vue";
 
-const props = defineProps<{
-  location: Location;
-  cultivator: Cultivator;
-}>();
+// 获取修仙者状态管理Store
+const cultivatorStore = useCultivatorStore();
+
+// 当前位置（响应式）
+const currentLocation = computed<Location | null>(() => {
+  return cultivatorStore.getCurrentLocation();
+});
+
+// 位置名称（响应式）
+const locationName = computed(() => {
+  return currentLocation.value?.name || "未知位置";
+});
 
 // 创建响应式的灵脉灵气值映射，用于触发视图更新
 const spiritValues = ref<Map<SpiritVein, number>>(new Map());
@@ -74,22 +81,13 @@ const spiritValues = ref<Map<SpiritVein, number>>(new Map());
 // 初始化灵脉灵气值映射
 const initSpiritValues = () => {
   const newValues = new Map<SpiritVein, number>();
-  if (props.location.spiritVeins) {
-    props.location.spiritVeins.forEach((vein) => {
+  if (currentLocation.value?.spiritVeins) {
+    currentLocation.value.spiritVeins.forEach((vein) => {
       newValues.set(vein, vein.spiritValue.getCurrentValue());
     });
   }
   spiritValues.value = newValues;
 };
-
-// 监听灵脉变化，重新初始化灵气值映射
-watch(
-  () => props.location.spiritVeins,
-  () => {
-    initSpiritValues();
-  },
-  { deep: true }
-);
 
 // 创建定时器，定期检查灵脉灵气值变化并更新映射
 let spiritValueCheckInterval: number | null = null;
@@ -103,8 +101,8 @@ const startSpiritValueCheck = () => {
     let hasChanges = false;
     const newValues = new Map<SpiritVein, number>(spiritValues.value);
 
-    if (props.location.spiritVeins) {
-      props.location.spiritVeins.forEach((vein) => {
+    if (currentLocation.value?.spiritVeins) {
+      currentLocation.value.spiritVeins.forEach((vein) => {
         const currentValue = vein.spiritValue.getCurrentValue();
         const storedValue = newValues.get(vein);
 

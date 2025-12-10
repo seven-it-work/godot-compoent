@@ -1,9 +1,6 @@
 <template>
   <div class="content-content">
-    <LocationPanel
-      :location="cultivator.currentLocation"
-      :cultivator="cultivator"
-    />
+    <LocationPanel />
 
     <a-row>
       <!-- 修炼功能 -->
@@ -68,16 +65,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { CultivatorClass } from "../impl";
+import { computed, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+import { useCultivatorStore } from "@/stores/cultivator";
 import LocationPanel from "./LocationPanel.vue";
 import { getGameTimeInstance } from "../../timeSystem/impl";
 import { TimeEventType } from "../../timeSystem/define";
 
-// 定义组件属性
-const props = defineProps<{
-  cultivator: CultivatorClass;
-}>();
+// 获取修仙者状态管理Store
+const cultivatorStore = useCultivatorStore();
+
+// 修仙者实例（响应式）
+const cultivator = computed(() => {
+  return cultivatorStore.getCurrentCultivator();
+});
+
+// 使用router
+const router = useRouter();
 
 // 自动修炼开关
 const autoCultivate = ref(false);

@@ -3,7 +3,10 @@
     <h2>地图系统</h2>
     <div class="map-info">
       <p>当前位置: ({{ currentMap.currentX }}, {{ currentMap.currentY }})</p>
-      <p>地图尺寸: {{ currentMap.width }}x{{ currentMap.height }}</p>
+      <p>
+        当前位置名称:
+        {{ cultivator.currentLocation.name }}
+      </p>
       <a-button
         type="primary"
         @click="toggleAutoMove"
@@ -42,7 +45,7 @@
           >
             <div class="cell-content">
               <div class="cell-position">({{ x }}, {{ y }})</div>
-              <div class="cell-location">{{ grid.location.name }}</div>
+              <div class="cell-location">{{ grid.name }}</div>
             </div>
           </div>
         </div>
@@ -54,19 +57,31 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch, onUnmounted } from "vue";
 import { mapManager } from "../impl";
-import type { MapGrid } from "../define";
+import { cultivatorManager } from "@/v1/cultivator/CultivatorManager";
+import type { Location } from "../../location/define";
 
 // 地图配置
 const gridSize = 80; // 每个格子的像素大小
 
 // 当前地图（响应式对象）
 const currentMap = reactive(mapManager.getCurrentMap());
+// 玩家实例
+const cultivator = reactive(cultivatorManager.getCurrentCultivator());
 
 // 监听地图实例变化
 watch(
   () => mapManager.getCurrentMap(),
   (newMap) => {
     Object.assign(currentMap, newMap);
+  },
+  { deep: true }
+);
+
+// 监听玩家实例变化
+watch(
+  () => cultivatorManager.getCurrentCultivator(),
+  (newCultivator) => {
+    Object.assign(cultivator, newCultivator);
   },
   { deep: true }
 );
@@ -81,7 +96,7 @@ const moveSpeed = ref(500);
 /**
  * 获取格子颜色
  */
-const getCellColor = (grid: MapGrid, x: number, y: number) => {
+const getCellColor = (grid: Location, x: number, y: number) => {
   // 当前位置
   if (x === currentMap.currentX && y === currentMap.currentY) {
     return "#4CAF50"; // 绿色
@@ -105,7 +120,7 @@ const getCellColor = (grid: MapGrid, x: number, y: number) => {
 /**
  * 获取格子边框
  */
-const getCellBorder = (grid: MapGrid, x: number, y: number) => {
+const getCellBorder = (grid: Location, x: number, y: number) => {
   // 当前位置
   if (x === currentMap.currentX && y === currentMap.currentY) {
     return "3px solid #4CAF50"; // 绿色粗边框

@@ -1,30 +1,6 @@
-import { LocationClass } from "../location/impl";
-import RandomUtils from "../utils/RandomUtils";
-import type { MapGrid, GameMap, MapManager } from "./define";
-
-/**
- * 地图格子实现类
- */
-export class MapGridClass implements MapGrid {
-  x: number;
-  y: number;
-  location: LocationClass;
-  isPassable: boolean;
-  isSelected: boolean;
-  isOnPath: boolean;
-
-  constructor(x: number, y: number, isPassable: boolean = true) {
-    this.x = x;
-    this.y = y;
-    this.location = new LocationClass({
-      name: `位置(${x},${y})`,
-      description: `地图上的位置(${x},${y})`,
-    });
-    this.isPassable = isPassable;
-    this.isSelected = false;
-    this.isOnPath = false;
-  }
-}
+import { LocationClass, type Location } from "../location/";
+import type { GameMap, MapManager } from "./define";
+import { useCultivatorStore } from "@/stores/cultivator";
 
 /**
  * 地图实现类
@@ -32,7 +8,7 @@ export class MapGridClass implements MapGrid {
 export class GameMapClass implements GameMap {
   width: number;
   height: number;
-  grid: MapGridClass[][];
+  grid: LocationClass[][];
   startX: number;
   startY: number;
   endX: number;
@@ -66,11 +42,19 @@ export class GameMapClass implements GameMap {
 
     // 创建地图网格
     for (let y = 0; y < height; y++) {
-      const row: MapGridClass[] = [];
+      const row: LocationClass[] = [];
       for (let x = 0; x < width; x++) {
-        // 所有格子都设置为可通行
-        const isPassable = true;
-        row.push(new MapGridClass(x, y, isPassable));
+        // 直接创建Location实例，添加地图相关属性
+        const location = new LocationClass({
+          name: `位置(${x},${y})`,
+          description: `地图上的位置(${x},${y})`,
+          x: x,
+          y: y,
+          isPassable: true,
+          isSelected: false,
+          isOnPath: false,
+        });
+        row.push(location);
       }
       this.grid.push(row);
     }
@@ -83,15 +67,22 @@ export class GameMapClass implements GameMap {
     this.endX = this.currentX;
     this.endY = this.currentY;
     this.path = [];
+
+    // 设置玩家初始位置为地图中心
+    const currentLocation = this.getGrid(this.currentX, this.currentY);
+    if (currentLocation) {
+      cultivatorManager.getCurrentCultivator().currentLocation =
+        currentLocation;
+    }
   }
 
   /**
    * 获取指定坐标的格子
    * @param x 坐标X
    * @param y 坐标Y
-   * @returns 地图格子
+   * @returns 地图位置
    */
-  getGrid(x: number, y: number): MapGrid | null {
+  getGrid(x: number, y: number): Location | null {
     if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
       return null;
     }
@@ -359,8 +350,25 @@ export class GameMapClass implements GameMap {
 
     // 更新路径状态
     this.updatePathStatus();
-    console.log(`[Map] 移动成功`);
 
+    // 更新玩家当前位置
+    const newLocation = this.getGrid(this.currentX, this.currentY);
+    if (newLocation) {
+      console.log(
+        `[Map] 准备更新玩家位置到: (${this.currentX}, ${this.currentY}), 新位置名称: ${newLocation.name}`
+      );
+      // 使用Pinia store获取和更新修仙者位置
+      const cultivatorStore = useCultivatorStore();
+      console.log(`[Map] 旧位置对象:`, cultivatorStore.getCurrentLocation());
+      console.log(`[Map] 新位置对象:`, newLocation);
+      cultivatorStore.setCultivatorLocation(newLocation);
+      console.log(
+        `[Map] 更新玩家位置后，当前位置:`,
+        cultivatorStore.getCurrentLocation()
+      );
+    }
+
+    console.log(`[Map] 移动成功`);
     return true;
   }
 

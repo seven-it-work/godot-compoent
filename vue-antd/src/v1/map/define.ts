@@ -1,25 +1,6 @@
 import type { Location } from "../location";
 
 /**
- * 地图格子接口
- * 表示地图上的一个格子，包含位置信息和坐标
- */
-export interface MapGrid {
-  // 格子坐标X
-  x: number;
-  // 格子坐标Y
-  y: number;
-  // 格子对应的位置
-  location: Location;
-  // 是否可通行
-  isPassable: boolean;
-  // 是否被选中
-  isSelected: boolean;
-  // 是否在路径上
-  isOnPath: boolean;
-}
-
-/**
  * 地图接口
  * 管理地图网格和路径规划
  */
@@ -29,7 +10,7 @@ export interface GameMap {
   // 地图高度
   height: number;
   // 地图网格
-  grid: MapGrid[][];
+  grid: Location[][];
   // 起点坐标
   startX: number;
   startY: number;
@@ -53,9 +34,9 @@ export interface GameMap {
    * 获取指定坐标的格子
    * @param x 坐标X
    * @param y 坐标Y
-   * @returns 地图格子
+   * @returns 地图位置
    */
-  getGrid(x: number, y: number): MapGrid | null;
+  getGrid(x: number, y: number): Location | null;
 
   /**
    * 选择格子

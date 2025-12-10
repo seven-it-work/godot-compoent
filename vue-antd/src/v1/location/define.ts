@@ -35,6 +35,17 @@ export interface Location {
   level: BasicGrowthAttribute;
   // 地点灵脉
   spiritVeins: SpiritVein[];
+  // 地图相关属性
+  // 格子坐标X
+  x?: number;
+  // 格子坐标Y
+  y?: number;
+  // 是否可通行
+  isPassable?: boolean;
+  // 是否被选中
+  isSelected?: boolean;
+  // 是否在路径上
+  isOnPath?: boolean;
 }
 
 export interface LocationType {
