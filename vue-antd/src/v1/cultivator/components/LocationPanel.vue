@@ -3,7 +3,9 @@
     <!-- 地点基本信息 -->
     <div>
       <div class="location-header">
-        <div class="location-name">{{ locationName }}</div>
+        <div class="location-name">
+          {{ cultivatorStore.getCurrentLocation().name }}
+        </div>
         <div class="location-type-level">
           <span>{{ cultivatorStore.getCurrentLocation().type.name }}</span>
           <span
@@ -63,16 +65,11 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from "vue";
 import { useCultivatorStore } from "@/stores/cultivator";
-import type { LocationClass, SpiritVein } from "@/v1/location";
+import type { SpiritVein } from "@/v1/location";
 import ProgressBar from "@/v1/components/ProgressBar.vue";
 
 // 获取修仙者状态管理Store
 const cultivatorStore = useCultivatorStore();
-
-// 位置名称（响应式）
-const locationName = computed(() => {
-  return cultivatorStore.getCurrentLocation().name || "未知位置";
-});
 
 // 创建响应式的灵脉灵气值映射，用于触发视图更新
 const spiritValues = ref<Map<SpiritVein, number>>(new Map());

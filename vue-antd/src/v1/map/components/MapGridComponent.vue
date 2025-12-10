@@ -9,7 +9,7 @@
       </p>
       <p>
         当前位置名称:
-        {{ cultivatorStore.getCurrentCultivator().currentLocation.name }}
+        {{ cultivatorStore.getCurrentLocation().name }}
       </p>
       <a-button
         type="primary"
