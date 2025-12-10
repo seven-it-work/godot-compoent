@@ -1,6 +1,5 @@
 import { getGameTimeInstance, TimeEventType } from "../timeSystem";
 import type { Location } from "./define";
-import { LocationClass } from "./impl";
 
 /**
  * 地点管理器类

@@ -1,7 +1,5 @@
 import { LocationClass, type Location } from "../location/";
 import type { GameMap, MapManager } from "./define";
-import { useCultivatorStore } from "@/stores/cultivator";
-import { cultivatorManager } from "../cultivator/CultivatorManager";
 
 /**
  * 地图实现类
@@ -9,13 +7,11 @@ import { cultivatorManager } from "../cultivator/CultivatorManager";
 export class GameMapClass implements GameMap {
   width: number;
   height: number;
-  grid: LocationClass[][];
+  grid: Location[][];
   startX: number;
   startY: number;
   endX: number;
   endY: number;
-  currentX: number;
-  currentY: number;
   path: { x: number; y: number }[];
 
   constructor() {
@@ -26,8 +22,6 @@ export class GameMapClass implements GameMap {
     this.startY = 0;
     this.endX = 0;
     this.endY = 0;
-    this.currentX = 0;
-    this.currentY = 0;
     this.path = [];
   }
 
@@ -61,20 +55,11 @@ export class GameMapClass implements GameMap {
     }
 
     // 初始位置设置在地图中心
-    this.currentX = Math.floor(width / 2);
-    this.currentY = Math.floor(height / 2);
-    this.startX = this.currentX;
-    this.startY = this.currentY;
-    this.endX = this.currentX;
-    this.endY = this.currentY;
+    this.startX = Math.floor(width / 2);
+    this.startY = Math.floor(height / 2);
+    this.endX = this.startX;
+    this.endY = this.startY;
     this.path = [];
-
-    // 设置玩家初始位置为地图中心
-    const currentLocation = this.getGrid(this.currentX, this.currentY);
-    if (currentLocation) {
-      cultivatorManager.getCurrentCultivator().currentLocation =
-        currentLocation;
-    }
   }
 
   /**
@@ -83,9 +68,9 @@ export class GameMapClass implements GameMap {
    * @param y 坐标Y
    * @returns 地图位置
    */
-  getGrid(x: number, y: number): Location | null {
+  getGrid(x: number, y: number): Location  {
     if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
-      return null;
+      throw new Error(`坐标 (${x}, ${y}) 超出地图范围`);
     }
     // @ts-ignore
     return this.grid[y][x];
@@ -97,9 +82,7 @@ export class GameMapClass implements GameMap {
    * @param y 坐标Y
    */
   selectGrid(x: number, y: number): void {
-    console.log(
-      `[Map] 选择格子: (${x}, ${y}), 当前位置: (${this.currentX}, ${this.currentY})`
-    );
+    console.log(`[Map] 选择格子: (${x}, ${y})`);
 
     // 清除之前的选择
     this.grid.forEach((row) => {
@@ -114,15 +97,19 @@ export class GameMapClass implements GameMap {
       grid.isSelected = true;
       this.endX = x;
       this.endY = y;
-
-      // 规划路径
-      this.path = this.findPath(this.currentX, this.currentY, x, y);
-      console.log(`[Map] 规划路径: ${JSON.stringify(this.path)}`);
-      console.log(`[Map] 路径长度: ${this.path.length}`);
-
-      // 更新路径状态
-      this.updatePathStatus();
+      console.log(`[Map] 格子 (${x}, ${y}) 已选择`);
     }
+  }
+
+  /**
+   * 设置路径
+   * @param path 路径数组
+   */
+  setPath(path: { x: number; y: number }[]): void {
+    this.path = path;
+    this.updatePathStatus();
+    console.log(`[Map] 设置路径: ${JSON.stringify(this.path)}`);
+    console.log(`[Map] 路径长度: ${this.path.length}`);
   }
 
   /**
@@ -147,18 +134,6 @@ export class GameMapClass implements GameMap {
       }
     });
   }
-
-  /**
-   * A*算法的节点
-   */
-  private aStarNode = {
-    x: 0,
-    y: 0,
-    g: 0, // 从起点到当前节点的代价
-    h: 0, // 从当前节点到终点的估计代价
-    f: 0, // 总代价 g + h
-    parent: null as any,
-  };
 
   /**
    * A*算法的启发函数
@@ -315,62 +290,6 @@ export class GameMapClass implements GameMap {
     // 没有找到路径
     console.log(`[Map] 路径规划失败: 没有找到路径`);
     return [];
-  }
-
-  /**
-   * 移动到下一个格子
-   * @returns 是否移动成功
-   */
-  moveToNext(): boolean {
-    console.log(
-      `[Map] 尝试移动到下一格, 当前位置: (${this.currentX}, ${this.currentY}), 路径: ${JSON.stringify(this.path)}`
-    );
-
-    // 找到当前位置在路径中的索引
-    const currentIndex = this.path.findIndex(
-      (pos) => pos.x === this.currentX && pos.y === this.currentY
-    );
-    console.log(
-      `[Map] 当前位置在路径中的索引: ${currentIndex}, 路径长度: ${this.path.length}`
-    );
-
-    // 如果当前位置不在路径中，或者已经是最后一个位置，返回false
-    if (currentIndex === -1 || currentIndex >= this.path.length - 1) {
-      console.log(`[Map] 移动失败: 当前位置不在路径中或已经是最后一个位置`);
-      return false;
-    }
-
-    // 移动到下一个位置
-    const nextPos = this.path[currentIndex + 1];
-    // @ts-ignore
-    console.log(`[Map] 移动到下一个位置: (${nextPos.x}, ${nextPos.y})`);
-    // @ts-ignore
-    this.currentX = nextPos.x;
-    // @ts-ignore
-    this.currentY = nextPos.y;
-
-    // 更新路径状态
-    this.updatePathStatus();
-
-    // 更新玩家当前位置
-    const newLocation = this.getGrid(this.currentX, this.currentY);
-    if (newLocation) {
-      console.log(
-        `[Map] 准备更新玩家位置到: (${this.currentX}, ${this.currentY}), 新位置名称: ${newLocation.name}`
-      );
-      // 使用Pinia store获取和更新修仙者位置
-      const cultivatorStore = useCultivatorStore();
-      console.log(`[Map] 旧位置对象:`, cultivatorStore.getCurrentLocation());
-      console.log(`[Map] 新位置对象:`, newLocation);
-      cultivatorStore.setCultivatorLocation(newLocation);
-      console.log(
-        `[Map] 更新玩家位置后，当前位置:`,
-        cultivatorStore.getCurrentLocation()
-      );
-    }
-
-    console.log(`[Map] 移动成功`);
-    return true;
   }
 
   /**

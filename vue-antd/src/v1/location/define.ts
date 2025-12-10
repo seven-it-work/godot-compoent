@@ -37,9 +37,9 @@ export interface Location {
   spiritVeins: SpiritVein[];
   // 地图相关属性
   // 格子坐标X
-  x?: number;
+  x: number;
   // 格子坐标Y
-  y?: number;
+  y: number;
   // 是否可通行
   isPassable?: boolean;
   // 是否被选中

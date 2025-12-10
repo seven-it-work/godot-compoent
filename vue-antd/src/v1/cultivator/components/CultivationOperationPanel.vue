@@ -66,7 +66,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
-import { useRouter } from "vue-router";
 import { useCultivatorStore } from "@/stores/cultivator";
 import LocationPanel from "./LocationPanel.vue";
 import { getGameTimeInstance } from "../../timeSystem/impl";
@@ -80,8 +79,7 @@ const cultivator = computed(() => {
   return cultivatorStore.getCurrentCultivator();
 });
 
-// 使用router
-const router = useRouter();
+
 
 // 自动修炼开关
 const autoCultivate = ref(false);

@@ -5,19 +5,24 @@
       <div class="location-header">
         <div class="location-name">{{ locationName }}</div>
         <div class="location-type-level">
-          <span>{{ currentLocation.type.name }}</span>
-          <span>等级:{{ currentLocation.level.getCurrentValue() }}</span>
+          <span>{{ cultivatorStore.getCurrentLocation().type.name }}</span>
+          <span
+            >等级:{{
+              cultivatorStore.getCurrentLocation().level.getCurrentValue()
+            }}</span
+          >
         </div>
       </div>
       <span class="location-description">{{
-        currentLocation.description
+        cultivatorStore.getCurrentLocation().description
       }}</span>
     </div>
     <!-- 灵脉信息 -->
     <a-row :gutter="16">
       <a-col
         :span="12"
-        v-for="(vein, index) in currentLocation.spiritVeins"
+        v-for="(vein, index) in cultivatorStore.getCurrentLocation()
+          .spiritVeins"
         :key="index"
       >
         <a-card size="small" :bordered="true" class="spirit-vein-card">
@@ -58,21 +63,15 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from "vue";
 import { useCultivatorStore } from "@/stores/cultivator";
-import type { Location, LocationClass, SpiritVein } from "@/v1/location";
-import type { BasicRangeGrowthAttribute } from "@/v1/growthAttribute/impl";
+import type { LocationClass, SpiritVein } from "@/v1/location";
 import ProgressBar from "@/v1/components/ProgressBar.vue";
 
 // 获取修仙者状态管理Store
 const cultivatorStore = useCultivatorStore();
 
-// 当前位置（响应式）
-const currentLocation = computed<Location | null>(() => {
-  return cultivatorStore.getCurrentLocation();
-});
-
 // 位置名称（响应式）
 const locationName = computed(() => {
-  return currentLocation.value?.name || "未知位置";
+  return cultivatorStore.getCurrentLocation().name || "未知位置";
 });
 
 // 创建响应式的灵脉灵气值映射，用于触发视图更新
@@ -81,8 +80,8 @@ const spiritValues = ref<Map<SpiritVein, number>>(new Map());
 // 初始化灵脉灵气值映射
 const initSpiritValues = () => {
   const newValues = new Map<SpiritVein, number>();
-  if (currentLocation.value?.spiritVeins) {
-    currentLocation.value.spiritVeins.forEach((vein) => {
+  if (cultivatorStore.getCurrentLocation().spiritVeins) {
+    cultivatorStore.getCurrentLocation().spiritVeins.forEach((vein) => {
       newValues.set(vein, vein.spiritValue.getCurrentValue());
     });
   }
@@ -101,8 +100,8 @@ const startSpiritValueCheck = () => {
     let hasChanges = false;
     const newValues = new Map<SpiritVein, number>(spiritValues.value);
 
-    if (currentLocation.value?.spiritVeins) {
-      currentLocation.value.spiritVeins.forEach((vein) => {
+    if (cultivatorStore.getCurrentLocation().spiritVeins) {
+      cultivatorStore.getCurrentLocation().spiritVeins.forEach((vein) => {
         const currentValue = vein.spiritValue.getCurrentValue();
         const storedValue = newValues.get(vein);
 

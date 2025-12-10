@@ -1,42 +1,42 @@
-import { defineStore } from 'pinia';
-import { CultivatorClass } from '@/v1/cultivator/impl';
-import type { LocationClass } from '@/v1/location/impl';
+import { defineStore } from "pinia";
+import { CultivatorClass } from "@/v1/cultivator/impl";
+import type { Location } from "@/v1/location/define";
 
 /**
  * 修仙者状态管理Store
  */
-export const useCultivatorStore = defineStore('cultivator', () => {
+export const useCultivatorStore = defineStore("cultivator", () => {
   // 修仙者实例（响应式）
-  const cultivator = new CultivatorClass();
-  
-  // 初始化修仙者信息
-  cultivator.name = cultivator.gender === '男' ? '张三' : '李四';
-  
+  let cultivator = CultivatorClass.随机生成人物();
+
+  const setCurrentCultivator = (_cultivator: CultivatorClass) => {
+    cultivator = _cultivator;
+  };
   /**
    * 获取当前修仙者实例
    */
   const getCurrentCultivator = () => {
     return cultivator;
   };
-  
+
   /**
    * 设置修仙者位置
    */
-  const setCultivatorLocation = (location: LocationClass) => {
+  const setCultivatorLocation = (location: Location) => {
     cultivator.currentLocation = location;
   };
-  
+
   /**
    * 获取当前修仙者位置
    */
-  const getCurrentLocation = () => {
+  const getCurrentLocation = (): Location => {
     return cultivator.currentLocation;
   };
-  
+
   return {
-    cultivator,
+    setCurrentCultivator,
     getCurrentCultivator,
     setCultivatorLocation,
-    getCurrentLocation
+    getCurrentLocation,
   };
 });

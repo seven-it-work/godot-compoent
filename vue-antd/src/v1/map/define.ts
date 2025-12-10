@@ -17,9 +17,6 @@ export interface GameMap {
   // 终点坐标
   endX: number;
   endY: number;
-  // 当前位置坐标
-  currentX: number;
-  currentY: number;
   // 路径
   path: { x: number; y: number }[];
 
@@ -36,7 +33,7 @@ export interface GameMap {
    * @param y 坐标Y
    * @returns 地图位置
    */
-  getGrid(x: number, y: number): Location | null;
+  getGrid(x: number, y: number): Location;
 
   /**
    * 选择格子
@@ -61,15 +58,15 @@ export interface GameMap {
   ): { x: number; y: number }[];
 
   /**
-   * 移动到下一个格子
-   * @returns 是否移动成功
-   */
-  moveToNext(): boolean;
-
-  /**
    * 清除路径
    */
   clearPath(): void;
+
+  /**
+   * 设置路径
+   * @param path 路径数组
+   */
+  setPath(path: { x: number; y: number }[]): void;
 }
 
 /**

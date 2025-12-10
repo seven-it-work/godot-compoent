@@ -7,8 +7,7 @@ import RandomUtils from "@/v1/utils/RandomUtils";
 import { realmConfigs, type Cultivator, type Gender } from "./define";
 import type { DamageResult } from "@/v1/damageResult";
 import { SpiritRootClass } from "@/v1/spiritRoot";
-import { LocationClass } from "@/v1/location";
-import { type Location } from "@/v1/location/define";
+import { LocationClass, type Location } from "@/v1/location";
 /**
  * 修仙者类
  * 实现修仙者接口，提供修仙者的基本属性和能力
@@ -378,6 +377,67 @@ export class CultivatorClass implements Cultivator {
     }
     // 实际使用功法的逻辑
     console.log(`${this.name} 使用了 ${cultivationMethodId} 功法`);
+  }
+
+  /**
+   * 移动到下一个格子
+   * @returns 是否移动成功
+   */
+  moveToNext(currentMap: any): boolean {
+    // 获取当前位置
+    const currentLocation = this.currentLocation;
+    const currentX = currentLocation.x || 0;
+    const currentY = currentLocation.y || 0;
+
+    console.log(
+      `[Cultivator] 尝试移动到下一格, 当前位置: (${currentX}, ${currentY}), 路径: ${JSON.stringify(currentMap.path)}`
+    );
+
+    // 找到当前位置在路径中的索引
+    const currentIndex = currentMap.path.findIndex(
+      (pos: { x: number; y: number }) =>
+        pos.x === currentX && pos.y === currentY
+    );
+    console.log(
+      `[Cultivator] 当前位置在路径中的索引: ${currentIndex}, 路径长度: ${currentMap.path.length}`
+    );
+
+    // 如果当前位置不在路径中，或者已经是最后一个位置，返回false
+    if (currentIndex === -1 || currentIndex >= currentMap.path.length - 1) {
+      console.log(
+        `[Cultivator] 移动失败: 当前位置不在路径中或已经是最后一个位置`
+      );
+      return false;
+    }
+
+    // 移动到下一个位置
+    const nextPos = currentMap.path[currentIndex + 1];
+    if (!nextPos) {
+      console.log(`[Cultivator] 移动失败: 下一个位置不存在`);
+      return false;
+    }
+    console.log(`[Cultivator] 移动到下一个位置: (${nextPos.x}, ${nextPos.y})`);
+
+    // 更新路径状态
+    // @ts-ignore - 调用私有方法
+    currentMap.updatePathStatus();
+
+    // 获取新位置
+    const newLocation = currentMap.getGrid(nextPos.x, nextPos.y);
+    if (newLocation) {
+      console.log(
+        `[Cultivator] 准备更新位置到: (${nextPos.x}, ${nextPos.y}), 新位置名称: ${newLocation.name}`
+      );
+      console.log(`[Cultivator] 旧位置对象:`, currentLocation);
+      console.log(`[Cultivator] 新位置对象:`, newLocation);
+
+      // 更新当前位置
+      this.currentLocation = newLocation;
+      console.log(`[Cultivator] 更新位置后，当前位置:`, this.currentLocation);
+    }
+
+    console.log(`[Cultivator] 移动成功`);
+    return true;
   }
 
   /**

@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { CultivatorClass } from "../impl";
 import PlayerBasicInfo from "./PlayerBasicInfo.vue";
 import CultivatorAttributePanel from "./CultivatorAttributePanel.vue";
@@ -61,7 +61,8 @@ const menuItems = [
 // 当前选中的菜单
 const currentMenu = ref("option");
 
-const props = defineProps<{
+// 定义组件属性
+const { cultivator } = defineProps<{
   cultivator: CultivatorClass;
 }>();
 

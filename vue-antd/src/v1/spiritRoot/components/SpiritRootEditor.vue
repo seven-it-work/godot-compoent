@@ -13,9 +13,9 @@
       </a-button>
     </div>
     <a-form :model="formData" :rules="rules" ref="formRef" layout="vertical">
-      <a-form-item name="name" label="灵根名称">
+      <a-form-item name="type" label="灵根名称">
         <a-select
-          v-model:value="formData.name"
+          v-model:value="formData.type"
           :disabled="disabled"
           class="w-full"
         >
@@ -108,14 +108,14 @@ const submitting = ref(false);
 
 // 表单数据
 const formData = reactive({
-  name: "",
+  type: "",
   spiritValue: 0,
   attributeValue: 0,
 });
 
 // 表单验证规则
 const rules = {
-  name: [{ required: true, message: "请选择灵根名称", trigger: "change" }],
+  type: [{ required: true, message: "请选择灵根名称", trigger: "change" }],
   spiritValue: [
     { required: true, message: "请输入灵根值", trigger: "change" },
     {
@@ -144,7 +144,7 @@ watch(
   (newValue) => {
     if (newValue) {
       nextTick(() => {
-        formData.name = newValue.name;
+        formData.type = newValue.type;
         formData.spiritValue = newValue.spiritValue.getCurrentValue();
         formData.attributeValue = newValue.attribute.getCurrentValue();
         // 重置表单验证

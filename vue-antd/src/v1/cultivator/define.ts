@@ -64,6 +64,13 @@ export interface Cultivator {
   currentLocation: Location;
   // 头像：修仙者的显示头像
   avatar?: string;
+
+  /**
+   * 移动到下一个格子
+   * @param currentMap 当前地图实例
+   * @returns 是否移动成功
+   */
+  moveToNext(currentMap: any): boolean;
 }
 
 // 定义所有境界的基础配置，不包含minLevel和maxLevel

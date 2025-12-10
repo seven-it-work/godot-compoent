@@ -167,8 +167,8 @@ export class LocationClass implements Location {
   // 地点灵脉
   spiritVeins: SpiritVein[] = SpiritVeinClass.随机生成灵脉();
   // 地图相关属性
-  x?: number;
-  y?: number;
+  x: number = -1;
+  y: number = -1;
   isPassable: boolean = true;
   isSelected: boolean = false;
   isOnPath: boolean = false;
@@ -214,7 +214,7 @@ export class LocationClass implements Location {
     });
   }
 
-  static 随机生成地点(num: number = 5): LocationClass {
+  static 随机生成地点(num: number = 5): Location {
     const spiritVeins = SpiritVeinClass.随机生成灵脉(num);
     return new LocationClass({
       name: RandomUtils.random.pick(LOCATION_NAMES),
