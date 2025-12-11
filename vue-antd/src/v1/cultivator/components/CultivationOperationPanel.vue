@@ -195,7 +195,10 @@ const cultivate = () => {
 
   // 获取当前所在地的灵脉
   const currentLocation = cultivator.value.currentLocation;
-  const spiritVeins = currentLocation.spiritVeins;
+  if (currentLocation) {
+    throw new Error("当前位置不能为空");
+  }
+  const spiritVeins = currentLocation?.spiritVeins || [];
 
   // 找到所有未满的灵根
   const all未满灵根 = cultivator.value.spiritRoots.filter(

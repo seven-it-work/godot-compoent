@@ -53,7 +53,7 @@ export class CombatManagerClass implements CombatManager {
   /**
    * 执行战斗回合
    */
-  private executeCombatRound(): void {
+  executeCombatRound(): void {
     if (
       this.combatStatus !== CombatStatus.IN_PROGRESS ||
       !this.player ||
@@ -313,6 +313,27 @@ export class CombatManagerClass implements CombatManager {
   }
 
   /**
+   * 记录战斗日志
+   * @param round 回合信息
+   */
+  private recordCombatLog(round: CombatRound): void {
+    const attackerName = round.attacker.name;
+    const defenderName = round.defender.name;
+
+    if (!round.isHit) {
+      this.combatLog.push(
+        `第${this.currentRound}回合：${attackerName}攻击未命中${defenderName}`
+      );
+      return;
+    }
+
+    const criticalText = round.isCritical ? "（暴击！）" : "";
+    this.combatLog.push(
+      `第${this.currentRound}回合：${attackerName}对${defenderName}造成${round.damage}点伤害${criticalText}（${defenderName}剩余${round.defenderStatus.hp}气血）`
+    );
+  }
+
+  /**
    * 结束战斗
    */
   endCombat(): CombatResult {
@@ -363,23 +384,9 @@ export class CombatManagerClass implements CombatManager {
   }
 
   /**
-   * 记录战斗日志
-   * @param round 回合信息
+   * 获取当前回合
    */
-  private recordCombatLog(round: CombatRound): void {
-    const attackerName = round.attacker.name;
-    const defenderName = round.defender.name;
-
-    if (!round.isHit) {
-      this.combatLog.push(
-        `第${this.currentRound}回合：${attackerName}攻击未命中${defenderName}`
-      );
-      return;
-    }
-
-    const criticalText = round.isCritical ? "（暴击！）" : "";
-    this.combatLog.push(
-      `第${this.currentRound}回合：${attackerName}对${defenderName}造成${round.damage}点伤害${criticalText}（${defenderName}剩余${round.defenderStatus.hp}气血）`
-    );
+  getCurrentRound(): number {
+    return this.currentRound;
   }
 }

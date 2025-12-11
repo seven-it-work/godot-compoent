@@ -15,7 +15,7 @@
         <span>战斗地点：{{ location?.name }}</span>
       </div>
       <div class="round-info">
-        <span>当前回合：{{ combatManager.currentRound }}</span>
+        <span>当前回合：{{ combatManager.getCurrentRound() }}</span>
       </div>
     </div>
 
@@ -32,8 +32,8 @@
             <a-progress
               :percent="getHpPercent(player)"
               :format="
-                (percent) =>
-                  `${player?.qiBlood.currentValue}/${player?.qiBlood.maxValue}`
+                () =>
+                  `${player?.qiBlood.currentValue}/${player?.qiBlood.maxRange}`
               "
               status="active"
             />
@@ -43,8 +43,8 @@
             <a-progress
               :percent="getSpiritPowerPercent(player)"
               :format="
-                (percent) =>
-                  `${player?.spiritPower.currentValue}/${player?.spiritPower.maxValue}`
+                () =>
+                  `${player?.spiritPower.currentValue}/${player?.spiritPower.maxRange}`
               "
               status="active"
               stroke-color="#52c41a"
@@ -68,8 +68,8 @@
             <a-progress
               :percent="getHpPercent(enemy)"
               :format="
-                (percent) =>
-                  `${enemy?.qiBlood.currentValue}/${enemy?.qiBlood.maxValue}`
+                () =>
+                  `${enemy?.qiBlood.currentValue}/${enemy?.qiBlood.maxRange}`
               "
               status="active"
             />
@@ -79,8 +79,8 @@
             <a-progress
               :percent="getSpiritPowerPercent(enemy)"
               :format="
-                (percent) =>
-                  `${enemy?.spiritPower.currentValue}/${enemy?.spiritPower.maxValue}`
+                () =>
+                  `${enemy?.spiritPower.currentValue}/${enemy?.spiritPower.maxRange}`
               "
               status="active"
               stroke-color="#52c41a"
@@ -140,12 +140,12 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, onUnmounted } from "vue";
-import { useCombatStore } from "../impl";
 import type { Cultivator } from "@/v1/cultivator/define";
 import type { Location } from "@/v1/location/define";
 import { CombatStatus } from "../define";
 import type { CombatParticipant } from "../define";
 import type { CombatManagerClass } from "../impl";
+import { useCombatStore } from "@/stores/combat";
 
 // Props
 interface Props {
@@ -207,7 +207,7 @@ watch(combatStatus, (newStatus) => {
 const getHpPercent = (participant: CombatParticipant | undefined) => {
   if (!participant) return 0;
   return (
-    (participant.qiBlood.currentValue / participant.qiBlood.maxValue) * 100
+    (participant.qiBlood.currentValue / participant.qiBlood.maxRange) * 100
   );
 };
 
@@ -217,7 +217,7 @@ const getHpPercent = (participant: CombatParticipant | undefined) => {
 const getSpiritPowerPercent = (participant: CombatParticipant | undefined) => {
   if (!participant) return 0;
   return (
-    (participant.spiritPower.currentValue / participant.spiritPower.maxValue) *
+    (participant.spiritPower.currentValue / participant.spiritPower.maxRange) *
     100
   );
 };

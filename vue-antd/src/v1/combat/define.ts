@@ -122,4 +122,14 @@ export interface CombatManager {
    * 获取战斗记录
    */
   getCombatLog(): string[];
+
+  /**
+   * 获取当前回合
+   */
+  getCurrentRound(): number;
+
+  /**
+   * 执行战斗回合
+   */
+  executeCombatRound(): void;
 }
