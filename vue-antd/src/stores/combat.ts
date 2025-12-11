@@ -30,7 +30,10 @@ export const useCombatStore = defineStore("combat", () => {
   // 是否正在战斗
   const isCombatActive = computed(() => {
     return (
-      combatStatus.value === CombatStatus.IN_PROGRESS &&
+      (combatStatus.value === CombatStatus.IN_PROGRESS ||
+        combatStatus.value === CombatStatus.PLAYER_VICTORY ||
+        combatStatus.value === CombatStatus.PLAYER_DEFEAT ||
+        combatStatus.value === CombatStatus.DRAW) &&
       player.value !== null &&
       enemy.value !== null
     );

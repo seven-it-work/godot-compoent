@@ -1,8 +1,12 @@
 <template>
   <div class="combat-panel">
     <div class="combat-header">
-      <h2>战斗界面</h2>
-      <a-button v-if="combatStatus === CombatStatus.IN_PROGRESS" type="primary" @click="handleFlee">逃跑</a-button>
+      <a-button
+        v-if="combatStatus === CombatStatus.IN_PROGRESS"
+        type="primary"
+        @click="handleFlee"
+        >逃跑</a-button
+      >
       <a-button v-else type="primary" @click="$emit('close')">关闭</a-button>
     </div>
 
@@ -25,17 +29,23 @@
         <div class="combatant-stats">
           <div class="stat">
             <span class="label">气血：</span>
-            <a-progress 
-              :percent="getHpPercent(player)" 
-              :format="(percent) => `${player?.qiBlood.currentValue}/${player?.qiBlood.maxValue}`" 
+            <a-progress
+              :percent="getHpPercent(player)"
+              :format="
+                (percent) =>
+                  `${player?.qiBlood.currentValue}/${player?.qiBlood.maxValue}`
+              "
               status="active"
             />
           </div>
           <div class="stat">
             <span class="label">灵力：</span>
-            <a-progress 
-              :percent="getSpiritPowerPercent(player)" 
-              :format="(percent) => `${player?.spiritPower.currentValue}/${player?.spiritPower.maxValue}`" 
+            <a-progress
+              :percent="getSpiritPowerPercent(player)"
+              :format="
+                (percent) =>
+                  `${player?.spiritPower.currentValue}/${player?.spiritPower.maxValue}`
+              "
               status="active"
               stroke-color="#52c41a"
             />
@@ -55,17 +65,23 @@
         <div class="combatant-stats">
           <div class="stat">
             <span class="label">气血：</span>
-            <a-progress 
-              :percent="getHpPercent(enemy)" 
-              :format="(percent) => `${enemy?.qiBlood.currentValue}/${enemy?.qiBlood.maxValue}`" 
+            <a-progress
+              :percent="getHpPercent(enemy)"
+              :format="
+                (percent) =>
+                  `${enemy?.qiBlood.currentValue}/${enemy?.qiBlood.maxValue}`
+              "
               status="active"
             />
           </div>
           <div class="stat">
             <span class="label">灵力：</span>
-            <a-progress 
-              :percent="getSpiritPowerPercent(enemy)" 
-              :format="(percent) => `${enemy?.spiritPower.currentValue}/${enemy?.spiritPower.maxValue}`" 
+            <a-progress
+              :percent="getSpiritPowerPercent(enemy)"
+              :format="
+                (percent) =>
+                  `${enemy?.spiritPower.currentValue}/${enemy?.spiritPower.maxValue}`
+              "
               status="active"
               stroke-color="#52c41a"
             />
@@ -87,25 +103,43 @@
     <!-- 战斗结果 -->
     <div v-if="combatResult" class="combat-result">
       <h3>{{ getResultText() }}</h3>
-      <div v-if="combatResult.status === CombatStatus.PLAYER_VICTORY" class="rewards">
+      <div
+        v-if="combatResult.status === CombatStatus.PLAYER_VICTORY"
+        class="rewards"
+      >
         <h4>获得奖励：</h4>
-        <div class="reward-item">经验：{{ combatResult.rewards.experience }}</div>
+        <div class="reward-item">
+          经验：{{ combatResult.rewards.experience }}
+        </div>
         <div class="reward-item">灵气：{{ combatResult.rewards.spiritQi }}</div>
         <div v-if="combatResult.rewards.items.length > 0" class="reward-item">
-          物品：{{ combatResult.rewards.items.join(', ') }}
+          物品：{{ combatResult.rewards.items.join(", ") }}
         </div>
       </div>
     </div>
 
     <!-- 战斗控制按钮 -->
-    <div v-if="combatStatus === CombatStatus.IN_PROGRESS" class="combat-controls">
-      <a-button type="primary" size="large" @click="executeNextRound">继续战斗</a-button>
+    <div
+      v-if="combatStatus === CombatStatus.IN_PROGRESS"
+      class="combat-controls"
+    >
+      <a-button type="primary" size="large" @click="executeNextRound"
+        >继续战斗</a-button
+      >
+      <a-switch
+        v-model:checked="isAutoFighting"
+        @change="handleAutoFightChange"
+        class="auto-fight-switch"
+      >
+        <template #checkedChildren>自动中</template>
+        <template #unCheckedChildren>手动中</template>
+      </a-switch>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onUnmounted } from "vue";
 import { useCombatStore } from "../impl";
 import type { Cultivator } from "@/v1/cultivator/define";
 import type { Location } from "@/v1/location/define";
@@ -132,7 +166,9 @@ const emit = defineEmits<{
 const combatStore = useCombatStore();
 
 // 战斗管理器
-const combatManager = computed(() => combatStore.combatManager as CombatManagerClass);
+const combatManager = computed(
+  () => combatStore.combatManager as CombatManagerClass
+);
 
 // 战斗状态
 const combatStatus = computed(() => combatStore.getCombatStatus());
@@ -148,13 +184,20 @@ const player = computed(() => props.player);
 const enemy = computed(() => props.enemy);
 const location = computed(() => props.location);
 
+// 自动战斗状态
+const isAutoFighting = ref(false);
+// 自动战斗定时器
+let autoFightInterval: number | null = null;
+// 自动战斗间隔时间（毫秒）
+const autoFightIntervalMs = ref(1000);
+
 // 初始化战斗
 combatStore.startCombat(props.player, props.enemy, props.location);
 
 // 监听战斗状态变化
 watch(combatStatus, (newStatus) => {
   if (newStatus !== CombatStatus.IN_PROGRESS && combatResult.value) {
-    emit('combatEnd', combatResult.value);
+    emit("combatEnd", combatResult.value);
   }
 });
 
@@ -163,7 +206,9 @@ watch(combatStatus, (newStatus) => {
  */
 const getHpPercent = (participant: CombatParticipant | undefined) => {
   if (!participant) return 0;
-  return (participant.qiBlood.currentValue / participant.qiBlood.maxValue) * 100;
+  return (
+    (participant.qiBlood.currentValue / participant.qiBlood.maxValue) * 100
+  );
 };
 
 /**
@@ -171,7 +216,10 @@ const getHpPercent = (participant: CombatParticipant | undefined) => {
  */
 const getSpiritPowerPercent = (participant: CombatParticipant | undefined) => {
   if (!participant) return 0;
-  return (participant.spiritPower.currentValue / participant.spiritPower.maxValue) * 100;
+  return (
+    (participant.spiritPower.currentValue / participant.spiritPower.maxValue) *
+    100
+  );
 };
 
 /**
@@ -189,17 +237,17 @@ const executeNextRound = () => {
  * 获取战斗结果文本
  */
 const getResultText = () => {
-  if (!combatResult.value) return '';
-  
+  if (!combatResult.value) return "";
+
   switch (combatResult.value.status) {
     case CombatStatus.PLAYER_VICTORY:
-      return '战斗胜利！';
+      return "战斗胜利！";
     case CombatStatus.PLAYER_DEFEAT:
-      return '战斗失败！';
+      return "战斗失败！";
     case CombatStatus.DRAW:
-      return '战斗平局！';
+      return "战斗平局！";
     default:
-      return '战斗结束';
+      return "战斗结束";
   }
 };
 
@@ -207,9 +255,55 @@ const getResultText = () => {
  * 逃跑
  */
 const handleFlee = () => {
+  // 停止自动战斗
+  stopAutoFighting();
   const result = combatStore.endCombat();
-  emit('combatEnd', result);
+  emit("combatEnd", result);
 };
+
+/**
+ * 处理自动战斗开关变化
+ */
+const handleAutoFightChange = (checked: boolean) => {
+  if (checked) {
+    startAutoFighting();
+  } else {
+    stopAutoFighting();
+  }
+};
+
+/**
+ * 开始自动战斗
+ */
+const startAutoFighting = () => {
+  if (autoFightInterval) return;
+
+  // 设置定时器，自动执行战斗回合
+  autoFightInterval = window.setInterval(() => {
+    // 检查战斗状态是否仍在进行中
+    if (combatStatus.value === CombatStatus.IN_PROGRESS) {
+      executeNextRound();
+    } else {
+      // 战斗已结束，停止自动战斗
+      stopAutoFighting();
+    }
+  }, autoFightIntervalMs.value);
+};
+
+/**
+ * 停止自动战斗
+ */
+const stopAutoFighting = () => {
+  if (autoFightInterval) {
+    window.clearInterval(autoFightInterval);
+    autoFightInterval = null;
+  }
+};
+
+// 组件卸载时清理定时器
+onUnmounted(() => {
+  stopAutoFighting();
+});
 </script>
 
 <style scoped>
@@ -373,6 +467,12 @@ const handleFlee = () => {
 .combat-controls {
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 20px;
   margin-top: 20px;
+}
+
+.auto-fight-switch {
+  margin-left: 20px;
 }
 </style>

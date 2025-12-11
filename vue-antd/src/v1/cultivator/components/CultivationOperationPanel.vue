@@ -60,6 +60,15 @@
         </a-card>
       </a-col>
       <!-- 外出 -->
+      <a-col :span="12">
+        <a-card size="small" style="background-color: #ebf3ec">
+          <template #title>
+            <a-button type="warning" @click="toggleOuting">
+              {{ isOuting ? "结束外出" : "开始外出" }}
+            </a-button>
+          </template>
+        </a-card>
+      </a-col>
     </a-row>
   </div>
 </template>
@@ -77,6 +86,12 @@ const cultivatorStore = useCultivatorStore();
 // 修仙者实例（响应式）
 const cultivator = computed(() => {
   return cultivatorStore.getCurrentCultivator();
+});
+
+// 外出状态
+const isOuting = computed({
+  get: () => cultivatorStore.isOuting,
+  set: (value) => cultivatorStore.setIsOuting(value),
 });
 
 // 自动修炼开关
@@ -283,6 +298,11 @@ const handleAutoBreakthroughChange = (checked: boolean) => {
       autoBreakthroughInterval = null;
     }
   }
+};
+
+// 外出状态切换函数
+const toggleOuting = () => {
+  isOuting.value = !isOuting.value;
 };
 
 // 组件挂载时

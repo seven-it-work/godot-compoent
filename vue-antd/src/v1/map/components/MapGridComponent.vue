@@ -1,31 +1,26 @@
 <template>
   <div class="map-container">
-    <h2>地图系统</h2>
     <div class="map-info">
-      <p>
-        当前位置: ({{
-          cultivatorStore.getCurrentCultivator().currentLocation?.x || -1
-        }},
-        {{ cultivatorStore.getCurrentCultivator().currentLocation?.y || -1 }})
-      </p>
-      <p>
-        当前位置名称:
-        {{ cultivatorStore.getCurrentLocation().name }}
-      </p>
+      <a-button
+        @click="cultivate"
+        :disabled="isOnCooldown || allSpiritRootsFull"
+      >
+        {{
+          isOnCooldown
+            ? `冷却中 (${Math.ceil(remainingCooldown)}s)`
+            : "开始修炼"
+        }}
+      </a-button>
       <a-button
         type="primary"
         @click="toggleAutoMove"
         :disabled="currentMap.path.length <= 1"
       >
-        {{ currentMap.path.length }}
         {{ isAutoMoving ? "停止移动" : "开始自动移动" }}
       </a-button>
-      <a-button @click="clearPath">清除路径</a-button>
-      <a-button @click="resetMap">重置地图</a-button>
     </div>
     <div class="map-scroll-container">
       <div
-        class="map-grid"
         :style="{
           width: `${currentMap.width * gridSize}px`,
           height: `${currentMap.height * gridSize}px`,
@@ -60,13 +55,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, onUnmounted } from "vue";
+import { ref, reactive, onMounted, watch, onUnmounted, computed } from "vue";
 import { useCultivatorStore } from "@/stores/cultivator";
 import { useMapStore } from "@/stores/map";
 import { useCombatStore } from "@/stores/combat";
 import { useRouter } from "vue-router";
+import { getGameTimeInstance } from "../../timeSystem/impl";
+import { TimeEventType } from "../../timeSystem/define";
 import type { Location } from "../../location/define";
-import type { Cultivator } from "@/v1/cultivator/define";
 
 // 地图配置
 const gridSize = 80; // 每个格子的像素大小
@@ -98,6 +94,86 @@ const isAutoMoving = ref(false);
 const moveInterval = ref<number | null>(null);
 // 移动速度（毫秒/格）
 const moveSpeed = ref(500);
+
+// 冷却状态管理
+// 获取游戏时间实例
+const gameTime = ref(getGameTimeInstance());
+// 获取事件管理器
+const eventManager = ref(gameTime.value.getEventManager());
+
+// 响应式触发冷却更新的标志
+const cooldownTrigger = ref(0);
+
+// 修仙者实例（响应式）
+const cultivator = computed(() => {
+  return cultivatorStore.getCurrentCultivator();
+});
+
+// 共享冷却时间获取逻辑
+const cooldownTime = computed(() => {
+  const spiritRootCooldown = cultivator.value.spiritRootCooldown;
+  const other = spiritRootCooldown.other as any;
+
+  // 如果 currentCooldown 为 0，则获取新的随机值并存储
+  if (other.currentCooldown === 0) {
+    other.currentCooldown = spiritRootCooldown.getCurrentValue();
+  }
+
+  return other.currentCooldown;
+});
+
+// 是否处于冷却中
+const isOnCooldown = computed(() => {
+  // 强制触发计算更新
+  cooldownTrigger.value;
+
+  const other = cultivator.value.spiritRootCooldown.other as any;
+
+  // 如果没有设置冷却时间，或者冷却时间已经结束
+  if (!other.lastOperationGameTime || !cooldownTime.value) {
+    return false;
+  }
+
+  // 获取当前游戏时间和上次操作时间
+  const currentGameTime = gameTime.value.currentTime;
+  const lastOperationGameTime = other.lastOperationGameTime;
+
+  // 计算经过的游戏时间（毫秒）
+  const elapsedGameTimeMs = currentGameTime - lastOperationGameTime;
+  // 转换为秒
+  const elapsedGameTime = elapsedGameTimeMs / 1000;
+
+  return elapsedGameTime < cooldownTime.value;
+});
+
+// 剩余冷却时间
+const remainingCooldown = computed(() => {
+  if (!isOnCooldown.value) {
+    // 冷却结束，重置 currentCooldown
+    (cultivator.value.spiritRootCooldown.other as any).currentCooldown = 0;
+    return 0;
+  }
+
+  const other = cultivator.value.spiritRootCooldown.other as any;
+
+  // 获取当前游戏时间和上次操作时间
+  const currentGameTime = gameTime.value.currentTime;
+  const lastOperationGameTime = other.lastOperationGameTime;
+
+  // 计算经过的游戏时间（毫秒）
+  const elapsedGameTimeMs = currentGameTime - lastOperationGameTime;
+  // 转换为秒
+  const elapsedGameTime = elapsedGameTimeMs / 1000;
+
+  return cooldownTime.value - elapsedGameTime;
+});
+
+// 所有灵根经验是否已满
+const allSpiritRootsFull = computed(() => {
+  return cultivator.value.spiritRoots.every(
+    (root) => root.spiritValue.getCurrentValue() >= 100
+  );
+});
 
 /**
  * 获取格子颜色
@@ -135,11 +211,11 @@ const getCellBorder = (grid: Location, x: number, y: number) => {
     x === cultivatorStore.getCurrentCultivator().currentLocation?.x &&
     y === cultivatorStore.getCurrentCultivator().currentLocation?.y
   ) {
-    return "3px solid #4CAF50"; // 绿色粗边框
+    return "1px solid #4CAF50"; // 绿色粗边框
   }
   // 选中的格子
   if (grid.isSelected) {
-    return "3px solid #FF9800"; // 橙色粗边框
+    return "1px solid #FF9800"; // 橙色粗边框
   }
   // 默认边框
   return "1px solid #BDBDBD"; // 灰色边框
@@ -225,25 +301,83 @@ const toggleAutoMove = () => {
   }
 };
 
-/**
- * 清除路径
- */
-const clearPath = () => {
-  stopAutoMove(); // 清除路径时停止自动移动
-  currentMap.clearPath();
+// 时间变化事件处理函数
+const handleTimeChanged = () => {
+  // 更新触发标志，强制计算属性重新计算
+  cooldownTrigger.value++;
 };
 
-/**
- * 重置地图
- */
-const resetMap = () => {
-  stopAutoMove(); // 重置地图时停止自动移动
-  mapStore.createMap(10, 10);
+// 修炼功能
+const cultivate = () => {
+  if (isOnCooldown.value || allSpiritRootsFull.value) return;
+
+  // 开始修炼前将外出状态设置为false
+  cultivatorStore.setIsOuting(false);
+
+  // 获取当前所在地的灵脉
+  const currentLocation = cultivator.value.currentLocation;
+  const spiritVeins = currentLocation.spiritVeins;
+
+  // 找到所有未满的灵根
+  const all未满灵根 = cultivator.value.spiritRoots.filter(
+    (root) => root.spiritValue.getCurrentValue() < 100
+  );
+
+  // 遍历所有未满灵根，尝试找到可以吸取的灵脉
+  for (const 未满灵根 of all未满灵根) {
+    // 查找对应类型的灵脉
+    const targetVein = spiritVeins.find((vein) => vein.type === 未满灵根.type);
+
+    // 如果有对应类型的灵脉
+    if (targetVein) {
+      // 获取灵脉中的灵气值
+      const veinSpiritValue = targetVein.spiritValue.getCurrentValue();
+
+      // 如果灵脉中有灵气
+      if (veinSpiritValue > 0) {
+        // 计算吸收量
+        const absorbAmount =
+          cultivator.value.spiritRootAbsorb.getCurrentValue();
+
+        // 实际能吸取的数量（不超过灵脉中的灵气值和灵根升级所需的经验值）
+        const currentSpiritValue = 未满灵根.spiritValue.getCurrentValue();
+        const actualAbsorbAmount = Math.min(
+          absorbAmount,
+          veinSpiritValue,
+          100 - currentSpiritValue
+        );
+
+        // 如果实际能吸取的数量大于0
+        if (actualAbsorbAmount > 0) {
+          // 从灵脉中扣除灵气
+          targetVein.spiritValue.setCurrentValue(
+            veinSpiritValue - actualAbsorbAmount
+          );
+
+          // 更新灵根经验值
+          const newValue = currentSpiritValue + actualAbsorbAmount;
+          未满灵根.spiritValue.currentValue = newValue;
+          // 设置冷却时间（使用游戏时间）
+          const cooldownOther = cultivator.value.spiritRootCooldown
+            .other as any;
+          cooldownOther.lastOperationTime = Date.now(); // 保留现实时间（兼容旧代码）
+          cooldownOther.lastOperationGameTime = gameTime.value.currentTime; // 存储游戏时间
+
+          // 成功吸取后退出函数
+          return;
+        }
+      }
+    }
+  }
+
+  // 如果遍历完所有未满灵根都无法吸取，则直接返回
 };
 
 // 组件卸载时清除定时器
 onUnmounted(() => {
   stopAutoMove();
+  // 移除时间变化事件监听
+  eventManager.value.off(TimeEventType.TIME_CHANGED, handleTimeChanged);
 });
 
 // 组件挂载时初始化地图
@@ -251,6 +385,9 @@ onMounted(() => {
   if (currentMap.width === 0 || currentMap.height === 0) {
     mapStore.createMap(10, 10);
   }
+
+  // 监听时间变化事件
+  eventManager.value.on(TimeEventType.TIME_CHANGED, handleTimeChanged);
 });
 </script>
 
@@ -261,7 +398,6 @@ onMounted(() => {
 }
 
 .map-scroll-container {
-  max-width: 800px;
   max-height: 600px;
   overflow: auto;
   border: 1px solid #bdbdbd;
@@ -269,19 +405,8 @@ onMounted(() => {
 }
 
 .map-info {
-  margin-bottom: 20px;
-  padding: 10px;
   background-color: #f5f5f5;
   border-radius: 4px;
-}
-
-.map-info p {
-  margin: 5px 0;
-}
-
-.map-info button {
-  margin-right: 10px;
-  margin-top: 10px;
 }
 
 .map-grid {

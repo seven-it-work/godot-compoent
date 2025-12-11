@@ -12,21 +12,16 @@ const cultivator = cultivatorStore.getCurrentCultivator();
 // 使用Pinia store获取时间系统实例并初始化
 const timeSystemStore = useTimeSystemStore();
 timeSystemStore.initGameTime();
-
-// 随机数据方法
-function 随机数据() {
-  cultivator.upgrade(true);
-}
 </script>
 
 <template>
   <div>
     <GameTimeDisplay :cultivator="cultivator" />
-    <button @click="随机数据()">随机数据</button>
-    <!-- <CultivationMethodsPanel :cultivator="cultivator" /> -->
-    <!-- <CultivatorActions :cultivator="cultivator" /> -->
-    <!-- <CultivatorAttributePanel :cultivator="cultivator" /> -->
-    <PlayerInfoPanel1 />
-    <MapGridComponent />
+    <template v-if="cultivatorStore.getIsOuting()">
+      <MapGridComponent />
+    </template>
+    <template v-else>
+      <PlayerInfoPanel1 />
+    </template>
   </div>
 </template>

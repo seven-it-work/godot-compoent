@@ -9,6 +9,8 @@ import { ref } from "vue";
 export const useCultivatorStore = defineStore("cultivator", () => {
   // 修仙者实例（响应式）
   const cultivator = ref(CultivatorClass.generateRandomCultivator());
+  // 是否在外出中（响应式）
+  const isOuting = ref(false);
 
   const setCurrentCultivator = (_cultivator: CultivatorClass) => {
     cultivator.value = _cultivator;
@@ -34,10 +36,27 @@ export const useCultivatorStore = defineStore("cultivator", () => {
     return cultivator.value.currentLocation as Location;
   };
 
+  /**
+   * 设置修仙者是否在外出中
+   */
+  const setIsOuting = (status: boolean) => {
+    isOuting.value = status;
+  };
+
+  /**
+   * 获取修仙者是否在外出中
+   */
+  const getIsOuting = (): boolean => {
+    return isOuting.value;
+  };
+
   return {
+    isOuting,
     setCurrentCultivator,
     getCurrentCultivator,
     setCultivatorLocation,
     getCurrentLocation,
+    setIsOuting,
+    getIsOuting,
   };
 });
