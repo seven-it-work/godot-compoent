@@ -16,8 +16,8 @@ export const useCultivatorStore = defineStore("cultivator", () => {
   /**
    * 获取当前修仙者实例
    */
-  const getCurrentCultivator = () => {
-    return cultivator.value;
+  const getCurrentCultivator = (): CultivatorClass => {
+    return cultivator.value as CultivatorClass;
   };
 
   /**

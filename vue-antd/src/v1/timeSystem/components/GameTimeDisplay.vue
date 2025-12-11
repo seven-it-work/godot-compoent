@@ -26,65 +26,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { getGameTimeInstance } from "@/v1/timeSystem/index.ts";
-import type { GameTime } from "@/v1/timeSystem/define.ts";
+import { computed, onMounted, onUnmounted } from "vue";
+import { useTimeSystemStore } from "@/stores/timeSystem";
 
-// 游戏时间实例
-const gameTime = ref<GameTime | null>(null);
-// 格式化时间
-const formattedTime = ref("");
-// 时间流速
-const timeScale = ref(1);
-// 是否准备就绪
-const isGameTimeReady = ref(false);
+// 获取时间系统状态管理Store
+const timeSystemStore = useTimeSystemStore();
 
 // 计算属性
-const isPaused = computed(() => gameTime.value?.isPaused || false);
-
-// 更新时间显示
-const updateTimeDisplay = () => {
-  if (gameTime.value) {
-    formattedTime.value = gameTime.value.getFormattedTime();
-  }
-};
+const formattedTime = computed(() => timeSystemStore.getFormattedTime());
+const isPaused = computed(() => {
+  const gameTime = timeSystemStore.getGameTimeInstance();
+  return gameTime?.isPaused || false;
+});
+// 从store获取游戏时间是否就绪
+const isGameTimeReady = computed(() => timeSystemStore.isGameTimeReady);
+// 从store获取时间流速
+const timeScale = computed({
+  get: () => timeSystemStore.timeScale,
+  set: (value) => timeSystemStore.updateTimeScale(value),
+});
 
 // 切换暂停/继续
 const togglePause = () => {
-  if (!gameTime.value) return;
-
-  if (gameTime.value.isPaused) {
-    gameTime.value.resume();
-  } else {
-    gameTime.value.pause();
-  }
+  timeSystemStore.togglePause();
 };
 
 // 更新时间流速
 const updateTimeScale = (value: number | null) => {
-  if (gameTime.value && value !== null) {
-    gameTime.value.setTimeScale(value);
-  }
+  timeSystemStore.updateTimeScale(value);
 };
 
 // 游戏时间更新函数
 let updateInterval: number | null = null;
 const updateGameTime = () => {
-  if (gameTime.value) {
-    gameTime.value.update();
-    updateTimeDisplay();
+  const gameTime = timeSystemStore.getGameTimeInstance();
+  if (gameTime) {
+    gameTime.update();
+    // 无需手动更新formattedTime，因为它是基于store的计算属性
   }
 };
 
 onMounted(() => {
-  // 初始化游戏时间实例
-  gameTime.value = getGameTimeInstance(timeScale.value);
-  isGameTimeReady.value = true;
-
-  // 设置初始时间流速
-  if (gameTime.value) {
-    gameTime.value.setTimeScale(timeScale.value);
-    updateTimeDisplay();
+  // 如果游戏时间实例未初始化，则初始化
+  if (!timeSystemStore.isGameTimeReady) {
+    timeSystemStore.initGameTime();
   }
 
   // 启动游戏时间更新定时器

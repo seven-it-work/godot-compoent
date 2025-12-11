@@ -44,10 +44,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
-import { CultivatorClass } from "../impl";
 import PlayerBasicInfo from "./PlayerBasicInfo.vue";
 import CultivatorAttributePanel from "./CultivatorAttributePanel.vue";
 import CultivationOperationPanel from "./CultivationOperationPanel.vue";
+import { useCultivatorStore } from "@/stores/cultivator";
+
+// 获取修仙者状态管理Store
+const cultivatorStore = useCultivatorStore();
+
+// 从store获取修仙者实例
+const cultivator = cultivatorStore.getCurrentCultivator();
 
 // 定义菜单数据
 const menuItems = [
@@ -61,10 +67,7 @@ const menuItems = [
 // 当前选中的菜单
 const currentMenu = ref("option");
 
-// 定义组件属性
-const { cultivator } = defineProps<{
-  cultivator: CultivatorClass;
-}>();
+// 无需props，直接从store获取修仙者实例
 
 // 组件挂载时
 onMounted(() => {
