@@ -1,0 +1,142 @@
+[
+  {
+    "id": "hero-1",
+    "name": "雷诺·杰克逊",
+    "health": 30,
+    "armor": 0,
+    "heroPower": {
+      "name": "爆破专家",
+      "description": "被动：当你使用一张随从牌时，如果它的法力值消耗大于或等于(5)，则使其获得+1/+1和战吼。",
+      "type": "passive",
+      "cost": 0,
+      "cooldown": 0,
+      "currentCooldown": 0
+    }
+  },
+  {
+    "id": "hero-2",
+    "name": "伊利丹·怒风",
+    "health": 30,
+    "armor": 0,
+    "heroPower": {
+      "name": "恶魔变形",
+      "description": "被动：在你的回合结束时，使你的所有随从获得+1攻击力。",
+      "type": "passive",
+      "cost": 0,
+      "cooldown": 0,
+      "currentCooldown": 0
+    }
+  },
+  {
+    "id": "hero-3",
+    "name": "玛维·影歌",
+    "health": 30,
+    "armor": 0,
+    "heroPower": {
+      "name": "束缚",
+      "description": "在你的回合开始时，随机将一个敌方随从移回其拥有者的手牌。",
+      "type": "passive",
+      "cost": 0,
+      "cooldown": 0,
+      "currentCooldown": 0
+    }
+  },
+  {
+    "id": "hero-4",
+    "name": "加尔鲁什·地狱咆哮",
+    "health": 30,
+    "armor": 2,
+    "heroPower": {
+      "name": "战歌指挥",
+      "description": "被动：在你的回合开始时，使你的所有随从获得+1生命值。",
+      "type": "passive",
+      "cost": 0,
+      "cooldown": 0,
+      "currentCooldown": 0
+    }
+  },
+  {
+    "id": "hero-5",
+    "name": "吉安娜·普罗德摩尔",
+    "health": 30,
+    "armor": 0,
+    "heroPower": {
+      "name": "火球术",
+      "description": "造成3点伤害。",
+      "type": "active",
+      "cost": 2,
+      "cooldown": 0,
+      "currentCooldown": 0
+    }
+  },
+  {
+    "id": "hero-6",
+    "name": "萨尔",
+    "health": 30,
+    "armor": 0,
+    "heroPower": {
+      "name": "闪电箭",
+      "description": "造成2点伤害，随机分配到所有敌方随从身上。",
+      "type": "active",
+      "cost": 2,
+      "cooldown": 0,
+      "currentCooldown": 0
+    }
+  },
+  {
+    "id": "hero-7",
+    "name": "乌瑟尔·光明使者",
+    "health": 30,
+    "armor": 0,
+    "heroPower": {
+      "name": "圣光术",
+      "description": "恢复3点生命值。",
+      "type": "active",
+      "cost": 2,
+      "cooldown": 0,
+      "currentCooldown": 0
+    }
+  },
+  {
+    "id": "hero-8",
+    "name": "古尔丹",
+    "health": 30,
+    "armor": 0,
+    "heroPower": {
+      "name": "生命分流",
+      "description": "失去2点生命值，获得2个法力水晶。",
+      "type": "active",
+      "cost": 0,
+      "cooldown": 0,
+      "currentCooldown": 0
+    }
+  },
+  {
+    "id": "hero-9",
+    "name": "安度因·乌瑞恩",
+    "health": 30,
+    "armor": 0,
+    "heroPower": {
+      "name": "真言术：盾",
+      "description": "使一个随从获得+2生命值和嘲讽。",
+      "type": "active",
+      "cost": 1,
+      "cooldown": 0,
+      "currentCooldown": 0
+    }
+  },
+  {
+    "id": "hero-10",
+    "name": "玛法里奥·怒风",
+    "health": 30,
+    "armor": 0,
+    "heroPower": {
+      "name": "变形术",
+      "description": "将一个随从变形成为一个1/1的绵羊。",
+      "type": "active",
+      "cost": 1,
+      "cooldown": 0,
+      "currentCooldown": 0
+    }
+  }
+]

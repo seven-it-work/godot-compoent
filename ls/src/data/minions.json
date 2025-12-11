@@ -1,0 +1,276 @@
+[
+  {
+    "id": "minion-1",
+    "name": "鱼人招潮者",
+    "star": 1,
+    "type": "murloc",
+    "attack": 1,
+    "health": 1,
+    "cost": 1,
+    "keywords": [],
+    "effects": [
+      {
+        "type": "on_minion_summoned",
+        "description": "战吼：召唤一个1/1的鱼人侍从。",
+        "trigger": "battlecry"
+      }
+    ]
+  },
+  {
+    "id": "minion-2",
+    "name": "南海船工",
+    "star": 1,
+    "type": "pirate",
+    "attack": 1,
+    "health": 2,
+    "cost": 1,
+    "keywords": ["charge"],
+    "effects": []
+  },
+  {
+    "id": "minion-3",
+    "name": "微型木乃伊",
+    "star": 1,
+    "type": "undead",
+    "attack": 1,
+    "health": 2,
+    "cost": 1,
+    "keywords": ["reborn"],
+    "effects": []
+  },
+  {
+    "id": "minion-4",
+    "name": "雏龙",
+    "star": 1,
+    "type": "dragon",
+    "attack": 1,
+    "health": 3,
+    "cost": 1,
+    "keywords": [],
+    "effects": []
+  },
+  {
+    "id": "minion-5",
+    "name": "机械袋鼠",
+    "star": 1,
+    "type": "mech",
+    "attack": 2,
+    "health": 1,
+    "cost": 1,
+    "keywords": [],
+    "effects": []
+  },
+  {
+    "id": "minion-6",
+    "name": "杂毛野兽",
+    "star": 1,
+    "type": "beast",
+    "attack": 2,
+    "health": 1,
+    "cost": 1,
+    "keywords": [],
+    "effects": []
+  },
+  {
+    "id": "minion-7",
+    "name": "蓝腮战士",
+    "star": 2,
+    "type": "murloc",
+    "attack": 2,
+    "health": 1,
+    "cost": 2,
+    "keywords": ["charge"],
+    "effects": []
+  },
+  {
+    "id": "minion-8",
+    "name": "海盗帕奇斯",
+    "star": 2,
+    "type": "pirate",
+    "attack": 3,
+    "health": 1,
+    "cost": 2,
+    "keywords": ["charge"],
+    "effects": []
+  },
+  {
+    "id": "minion-9",
+    "name": "亡灵药剂师",
+    "star": 2,
+    "type": "undead",
+    "attack": 2,
+    "health": 2,
+    "cost": 2,
+    "keywords": [],
+    "effects": [
+      {
+        "type": "on_turn_end",
+        "description": "在你的回合结束时，为所有友方随从恢复1点生命值。",
+        "trigger": "on_turn_end"
+      }
+    ]
+  },
+  {
+    "id": "minion-10",
+    "name": "龙人执行者",
+    "star": 2,
+    "type": "dragon",
+    "attack": 3,
+    "health": 2,
+    "cost": 2,
+    "keywords": [],
+    "effects": [
+      {
+        "type": "battlecry",
+        "description": "战吼：如果你的手牌中有龙牌，则获得+1攻击力。",
+        "trigger": "battlecry"
+      }
+    ]
+  },
+  {
+    "id": "minion-11",
+    "name": "吵吵机器人",
+    "star": 2,
+    "type": "mech",
+    "attack": 1,
+    "health": 2,
+    "cost": 2,
+    "keywords": ["taunt", "divine_shield"],
+    "effects": []
+  },
+  {
+    "id": "minion-12",
+    "name": "豺狼人土枪手",
+    "star": 2,
+    "type": "beast",
+    "attack": 2,
+    "health": 3,
+    "cost": 2,
+    "keywords": [],
+    "effects": []
+  },
+  {
+    "id": "minion-13",
+    "name": "鱼人领军",
+    "star": 3,
+    "type": "murloc",
+    "attack": 2,
+    "health": 3,
+    "cost": 3,
+    "keywords": [],
+    "effects": [
+      {
+        "type": "on_minion_summoned",
+        "description": "所有友方鱼人获得+1/+1。",
+        "trigger": "aura"
+      }
+    ]
+  },
+  {
+    "id": "minion-14",
+    "name": "霍格船长",
+    "star": 3,
+    "type": "pirate",
+    "attack": 4,
+    "health": 4,
+    "cost": 3,
+    "keywords": [],
+    "effects": [
+      {
+        "type": "on_turn_end",
+        "description": "在你的回合结束时，召唤一个1/1的海盗。",
+        "trigger": "on_turn_end"
+      }
+    ]
+  },
+  {
+    "id": "minion-15",
+    "name": "鬼灵爬行者",
+    "star": 3,
+    "type": "undead",
+    "attack": 2,
+    "health": 3,
+    "cost": 3,
+    "keywords": ["taunt"],
+    "effects": [
+      {
+        "type": "death_rattle",
+        "description": "亡语：召唤两个1/1的鬼灵蜘蛛。",
+        "trigger": "death_rattle"
+      }
+    ]
+  },
+  {
+    "id": "minion-16",
+    "name": "青铜龙巢守卫",
+    "star": 3,
+    "type": "dragon",
+    "attack": 3,
+    "health": 6,
+    "cost": 3,
+    "keywords": [],
+    "effects": []
+  },
+  {
+    "id": "minion-17",
+    "name": "回收机器人",
+    "star": 3,
+    "type": "mech",
+    "attack": 3,
+    "health": 3,
+    "cost": 3,
+    "keywords": [],
+    "effects": [
+      {
+        "type": "death_rattle",
+        "description": "亡语：随机使一个友方机械获得+1/+1。",
+        "trigger": "death_rattle"
+      }
+    ]
+  },
+  {
+    "id": "minion-18",
+    "name": "巨型蟾蜍",
+    "star": 3,
+    "type": "beast",
+    "attack": 3,
+    "health": 4,
+    "cost": 3,
+    "keywords": [],
+    "effects": [
+      {
+        "type": "death_rattle",
+        "description": "亡语：对所有敌方随从造成1点伤害。",
+        "trigger": "death_rattle"
+      }
+    ]
+  },
+  {
+    "id": "minion-19",
+    "name": "寒光先知",
+    "star": 4,
+    "type": "murloc",
+    "attack": 2,
+    "health": 3,
+    "cost": 4,
+    "keywords": [],
+    "effects": [
+      {
+        "type": "battlecry",
+        "description": "战吼：使所有友方鱼人获得+2生命值。",
+        "trigger": "battlecry"
+      }
+    ]
+  },
+  {
+    "id": "minion-20",
+    "name": "破浪巨人",
+    "star": 4,
+    "type": "elemental",
+    "attack": 8,
+    "health": 8,
+    "cost": 4,
+    "keywords": [],
+    "effects": []
+  }
+]
