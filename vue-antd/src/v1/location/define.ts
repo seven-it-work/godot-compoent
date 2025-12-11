@@ -1,4 +1,5 @@
 import type { SpiritRoot } from "@/v1/spiritRoot";
+import type { Cultivator } from "@/v1/cultivator/define";
 import type {
   BasicGrowthAttribute,
   BasicRangeRandomGrowthAttribute,
@@ -35,6 +36,8 @@ export interface Location {
   level: BasicGrowthAttribute;
   // 地点灵脉
   spiritVeins: SpiritVein[];
+  // 地点怪物列表
+  monsters: Cultivator[];
   // 地图相关属性
   // 格子坐标X
   x: number;

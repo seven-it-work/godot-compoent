@@ -3,6 +3,7 @@ import {
   SpiritRootClass,
   type SpiritRootType,
 } from "@/v1/spiritRoot";
+import { CultivatorClass } from "@/v1/cultivator/impl";
 import {
   BasicGrowthAttribute,
   BasicRangeGrowthAttribute,
@@ -209,6 +210,8 @@ export class LocationClass implements Location {
   });
   // 地点灵脉
   spiritVeins: SpiritVein[] = SpiritVeinClass.generateRandomSpiritVeins();
+  // 地点怪物列表
+  monsters: CultivatorClass[] = [];
   // 地图相关属性
   x: number = -1;
   y: number = -1;
@@ -223,6 +226,78 @@ export class LocationClass implements Location {
     if (this.spiritVeins.length === 0) {
       this.spiritVeins = SpiritVeinClass.generateRandomSpiritVeins();
     }
+
+    // 如果没有指定怪物，生成随机怪物
+    if (this.monsters.length === 0) {
+      this.generateRandomMonsters();
+    }
+  }
+
+  /**
+   * 生成随机怪物
+   * 根据地点等级生成合适数量和强度的怪物
+   */
+  generateRandomMonsters(): void {
+    // 根据地点等级决定怪物数量（1-3个）
+    const monsterCount = RandomUtils.random.integer(
+      1,
+      Math.min(3, this.level.getCurrentValue())
+    );
+
+    for (let i = 0; i < monsterCount; i++) {
+      // 生成随机怪物
+      const monster: CultivatorClass =
+        CultivatorClass.generateRandomCultivator();
+      // 设置怪物等级与地点等级相关
+      const lv = Math.max(
+        1,
+        this.level.getCurrentValue() + RandomUtils.random.integer(-1, 1)
+      );
+      for (let index = 0; index < lv; index++) {
+        monster.upgrade(true);
+      }
+      // 将当前地点设置为怪物的当前位置
+      monster.currentLocation = this;
+      // 添加到怪物列表
+      this.monsters.push(monster);
+    }
+  }
+
+  /**
+   * 添加怪物到地点
+   * @param monster 要添加的怪物
+   */
+  addMonster(monster: CultivatorClass): void {
+    monster.currentLocation = this;
+    this.monsters.push(monster);
+  }
+
+  /**
+   * 从地点移除怪物
+   * @param monsterId 要移除的怪物ID
+   * @returns 是否移除成功
+   */
+  removeMonster(monsterId: string): boolean {
+    const initialLength = this.monsters.length;
+    this.monsters = this.monsters.filter((monster) => monster.id !== monsterId);
+    return this.monsters.length < initialLength;
+  }
+
+  /**
+   * 获取地点中的所有怪物
+   * @returns 怪物列表
+   */
+  getMonsters(): CultivatorClass[] {
+    return this.monsters;
+  }
+
+  /**
+   * 根据ID获取怪物
+   * @param monsterId 怪物ID
+   * @returns 怪物实例或undefined
+   */
+  getMonsterById(monsterId: string): CultivatorClass | undefined {
+    return this.monsters.find((monster) => monster.id === monsterId);
   }
 
   /**
