@@ -3,12 +3,15 @@ import { Hero } from './Hero';
 import { Minion } from './Minion';
 import { GameManager } from './GameManager';
 
-// AI难度枚举
-export enum AIDifficulty {
-  EASY = 'easy',
-  MEDIUM = 'medium',
-  HARD = 'hard'
-}
+// AI难度类型
+export type AIDifficulty = 'easy' | 'medium' | 'hard';
+
+// AI难度常量
+export const AIDifficulty = {
+  EASY: 'easy' as AIDifficulty,
+  MEDIUM: 'medium' as AIDifficulty,
+  HARD: 'hard' as AIDifficulty
+} as const;
 
 // AI玩家类
 export class AIPlayer extends Player {
@@ -112,7 +115,7 @@ export class AIPlayer extends Player {
       case AIDifficulty.HARD:
         // 更复杂的刷新策略
         const hasGoodMinion = this.gameManager?.tavern.availableMinions.some(
-          minion => minion.star >= this.tavernLevel || minion.attack + minion.health >= 6
+          minion => minion.tier >= this.tavernLevel || minion.attack + minion.health >= 6
         ) || false;
         
         if (!hasGoodMinion && this.bench.length < 5) {
@@ -142,7 +145,7 @@ export class AIPlayer extends Player {
       // 决定是否购买该随从
       if (this.shouldBuyMinion(minion)) {
         // 尝试购买
-        if (this.gold >= minion.cost && this.bench.length < 7) {
+        if (minion && this.gold >= minion.cost && this.bench.length < 7) {
           this.gameManager.buyMinion(this, i);
           i--; // 因为购买后数组会变化，需要调整索引
         }
@@ -169,7 +172,7 @@ export class AIPlayer extends Player {
         break;
       case AIDifficulty.MEDIUM:
         // 中等AI：考虑价值和星级
-        if (minion.star >= this.tavernLevel) {
+        if (minion.tier >= this.tavernLevel) {
           buyChance = 0.8;
         } else if (minionValue >= 5) {
           buyChance = 0.6;
@@ -188,13 +191,13 @@ export class AIPlayer extends Player {
           valueScore += minion.keywords.length * 2;
         }
         
-        // 考虑特效
-        if (minion.effects.length > 0) {
-          valueScore += minion.effects.length * 3;
+        // 考虑mechanics数量（代替effects）
+        if (minion.mechanics.length > 0) {
+          valueScore += minion.mechanics.length * 3;
         }
         
         // 考虑星级
-        valueScore += (minion.star - this.tavernLevel) * 2;
+        valueScore += (minion.tier - this.tavernLevel) * 2;
         
         // 计算购买概率
         buyChance = Math.min(valueScore / 10, 1);
@@ -259,24 +262,6 @@ export class AIPlayer extends Player {
 
   // 决定是否出售随从
   private decideSellMinions(): void {
-    // 简单AI：很少出售随从
-    // 中等AI：根据随从质量决定
-    // 困难AI：更智能的出售策略
-    
-    let sellChance = 0;
-    
-    switch (this.difficulty) {
-      case AIDifficulty.EASY:
-        sellChance = 0.1; // 10% 概率出售
-        break;
-      case AIDifficulty.MEDIUM:
-        sellChance = 0.3; // 30% 概率出售
-        break;
-      case AIDifficulty.HARD:
-        sellChance = 0.5; // 50% 概率出售
-        break;
-    }
-
     // 遍历bench和战场上的随从，决定是否出售
     for (let i = this.bench.length - 1; i >= 0; i--) {
       const minion = this.bench[i];

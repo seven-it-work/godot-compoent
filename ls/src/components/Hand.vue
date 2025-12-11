@@ -1,0 +1,205 @@
+<template>
+  <div class="hand-container">
+    <!-- 手牌标题 -->
+    <h3 class="hand-title">手牌</h3>
+    
+    <!-- 手牌区域 -->
+    <div 
+      class="hand-area"
+      @dragover.prevent
+      @drop="onDrop($event, 'hand')"
+    >
+      <!-- 随从手牌，动态生成 -->
+      <div 
+        v-for="(minion, index) in player?.bench" 
+        :key="minion.id || index"
+        class="hand-slot"
+        draggable="true"
+        @dragstart="onDragStart($event, 'hand', index, minion)"
+      >
+        <MinionCard 
+          :minion="minion" 
+          @click="selectMinion(minion, index)"
+        />
+      </div>
+      
+      <!-- 空手牌槽，根据剩余空间动态生成 -->
+      <div 
+        v-for="index in emptySlots" 
+        :key="`empty-${index}`"
+        class="hand-slot empty"
+      >
+        <div class="empty-slot">
+          <span>空</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 操作提示 -->
+    <div v-if="selectedMinion" class="action-hint">
+      <span>已选择: {{ selectedMinion.name }}</span>
+      <button class="action-button" @click="placeMinion">放置随从</button>
+      <button class="action-button sell-button" @click="sellMinion">出售随从</button>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import { useGameStore } from '../stores/game';
+import { Minion } from '../game/Minion';
+import MinionCard from './MinionCard.vue';
+
+// 使用游戏store
+const gameStore = useGameStore();
+const { player } = gameStore;
+
+// 选中的随从
+const selectedMinion = ref<Minion | null>(null);
+const selectedIndex = ref<number | null>(null);
+
+// 计算空手牌槽数量
+const emptySlots = computed(() => {
+  const maxBenchSlots = 7;
+  const currentMinions = player?.bench.length || 0;
+  return Math.max(0, maxBenchSlots - currentMinions);
+});
+
+// 选择随从
+const selectMinion = (minion: Minion, index: number) => {
+  selectedMinion.value = minion;
+  selectedIndex.value = index;
+};
+
+// 放置随从到战场
+const placeMinion = () => {
+  if (selectedMinion.value && selectedIndex.value !== null && player) {
+    // 调用store方法放置随从
+    gameStore.placeMinionFromBench(selectedIndex.value, 0); // 这里简单起见，放置到第一个位置
+    selectedMinion.value = null;
+    selectedIndex.value = null;
+  }
+};
+
+// 出售随从
+const sellMinion = () => {
+  if (selectedMinion.value && selectedIndex.value !== null && player) {
+    gameStore.sellMinion('bench', selectedIndex.value);
+    selectedMinion.value = null;
+    selectedIndex.value = null;
+  }
+};
+
+// 拖拽开始事件
+const onDragStart = (event: DragEvent, source: string, index: number, minion: any) => {
+  event.dataTransfer?.setData('text/plain', JSON.stringify({
+    source,
+    index,
+    minionId: minion.id,
+    strId: minion.strId
+  }));
+};
+
+// 拖拽放置事件
+const onDrop = (event: DragEvent, target: string) => {
+  event.preventDefault();
+  const data = event.dataTransfer?.getData('text/plain');
+  if (data) {
+    const dragData = JSON.parse(data);
+    // 如果是从酒馆拖拽到手牌，执行购买操作
+    if (dragData.source === 'tavern' && target === 'hand') {
+      // 找到对应的酒馆随从索引
+      const tavernIndex = dragData.index;
+      // 购买随从，只有当条件满足时，卡片才会从酒馆移除
+      const success = gameStore.buyMinion(tavernIndex);
+      if (!success) {
+        console.log('购买失败，可能是金币不足或手牌已满');
+      }
+    }
+  }
+};
+</script>
+
+<style scoped>
+.hand-container {
+  margin: 20px 0;
+  padding: 10px;
+  background-color: transparent;
+  border-radius: 10px;
+  color: black;
+}
+
+.hand-title {
+  margin: 0 0 15px 0;
+  text-align: center;
+  color: #ffd700;
+  font-size: 20px;
+}
+
+.hand-area {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.hand-slot {
+  width: 100px;
+  height: 150px;
+  position: relative;
+}
+
+.hand-slot.empty {
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 2px dashed rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-slot {
+  font-size: 18px;
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.action-hint {
+  text-align: center;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  color: black;
+}
+
+.action-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #4caf50;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.sell-button {
+  background-color: #f44336;
+}
+
+.sell-button:hover {
+  background-color: #d32f2f;
+}
+</style>

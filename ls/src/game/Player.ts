@@ -19,7 +19,7 @@ export class Player {
   constructor(id: string, hero: Hero, isPlayer: boolean = false) {
     this.id = id;
     this.hero = hero;
-    this.minions = [];
+    this.minions = new Array(7).fill(null) as Minion[];
     this.bench = [];
     this.tavernLevel = 1;
     this.gold = 3;
@@ -52,20 +52,36 @@ export class Player {
       return false;
     }
 
-    if (this.minions.length >= 7) {
+    if (position < 0 || position >= 7) {
       return false;
     }
 
     const minion = this.bench[index];
-    this.bench.splice(index, 1);
-    this.minions.splice(position, 0, minion);
-    minion.position = position;
-    return true;
+    if (minion) {
+      // 检查目标位置是否为空
+      if (this.minions[position] === null) {
+        this.bench.splice(index, 1);
+        this.minions[position] = minion;
+        minion.position = position;
+        return true;
+      } else {
+        // 如果目标位置已有随从，从第一个位置开始找第一个空位置
+        for (let i = 0; i < 7; i++) {
+          if (this.minions[i] === null) {
+            this.bench.splice(index, 1);
+            this.minions[i] = minion;
+            minion.position = i;
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   // 将战场上的随从放回 bench
   returnMinionToBench(position: number): boolean {
-    if (position < 0 || position >= this.minions.length) {
+    if (position < 0 || position >= 7) {
       return false;
     }
 
@@ -75,31 +91,37 @@ export class Player {
 
     const minion = this.minions[position];
     if (minion) {
-      this.minions.splice(position, 1);
+      this.minions[position] = null;
       this.bench.push(minion);
       minion.position = null;
+      return true;
     }
-    return true;
+    return false;
   }
 
   // 出售随从
   sellMinion(type: 'minion' | 'bench', index: number): boolean {
-    let targetArray: Minion[];
-    
     if (type === 'minion') {
       if (index < 0 || index >= this.minions.length) {
         return false;
       }
-      targetArray = this.minions;
+      
+      // 检查要出售的位置是否有随从
+      if (this.minions[index] === null) {
+        return false;
+      }
+      
+      // 将该位置设置为null，而不是使用splice
+      this.minions[index] = null;
     } else {
       if (index < 0 || index >= this.bench.length) {
         return false;
       }
-      targetArray = this.bench;
+      
+      // 手牌不是固定数组，直接移除
+      this.bench.splice(index, 1);
     }
 
-    // 移除随从
-    targetArray.splice(index, 1);
     // 获得金币
     this.gold += 1;
     // 限制金币不超过最大值
@@ -168,9 +190,10 @@ export class Player {
     });
     
     // 检查是否有三连
-    for (const [minionId, count] of Object.entries(minionCounts)) {
+    for (const [minionIdStr, count] of Object.entries(minionCounts)) {
       if (count >= 3) {
         // 找到对应的随从
+        const minionId = parseInt(minionIdStr);
         const targetMinion = this.bench.find(minion => minion.id === minionId && !minion.isGolden);
         if (targetMinion) {
           return targetMinion;
@@ -184,7 +207,8 @@ export class Player {
   // 执行三连合成
   performTriple(minionId: string): Minion | null {
     // 找到3个相同的随从
-    const targetMinions = this.bench.filter(minion => minion.id === minionId && !minion.isGolden);
+    const id = parseInt(minionId);
+    const targetMinions = this.bench.filter(minion => minion.id === id && !minion.isGolden);
     
     if (targetMinions.length < 3 || !targetMinions[0]) {
       return null;
@@ -212,5 +236,41 @@ export class Player {
   takeDamage(damage: number): void {
     this.hero.takeDamage(damage);
     this.isDead = this.hero.isDead;
+  }
+  
+  // 重新排序战场上的随从
+  reorderMinions(fromIndex: number, toIndex: number): boolean {
+    if (fromIndex < 0 || fromIndex >= this.minions.length || toIndex < 0 || toIndex >= this.minions.length) {
+      return false;
+    }
+    
+    // 检查原位置是否有随从
+    if (this.minions[fromIndex] === null) {
+      return false;
+    }
+    
+    // 保存要移动的随从
+    const movedMinion = this.minions[fromIndex];
+    
+    // 检查目标位置是否为空
+    if (this.minions[toIndex] === null) {
+      // 如果目标位置为空，直接移动
+      this.minions[fromIndex] = null;
+      this.minions[toIndex] = movedMinion;
+      movedMinion.position = toIndex;
+    } else {
+      // 如果目标位置不为空，交换两个位置的随从
+      const targetMinion = this.minions[toIndex];
+      this.minions[fromIndex] = targetMinion;
+      this.minions[toIndex] = movedMinion;
+      
+      // 更新位置
+      if (targetMinion) {
+        targetMinion.position = fromIndex;
+      }
+      movedMinion.position = toIndex;
+    }
+    
+    return true;
   }
 }

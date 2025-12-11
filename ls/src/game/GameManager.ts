@@ -66,15 +66,20 @@ export class GameManager {
 
     // 创建7个AI玩家
     for (let i = 2; i <= 8; i++) {
-      const aiHero = this.getRandomHeroes(1)[0].clone();
-      // 根据难度创建AI玩家，这里简单起见，使用中等难度
-      const aiPlayer = new AIPlayer(`player-${i}`, aiHero, AIDifficulty.MEDIUM, this);
-      this.players.push(aiPlayer);
+      const randomHeroes = this.getRandomHeroes(1);
+      if (randomHeroes.length > 0) {
+        const aiHero = randomHeroes[0]?.clone();
+        if (aiHero) {
+          // 根据难度创建AI玩家，这里简单起见，使用中等难度
+          const aiPlayer = new AIPlayer(`player-${i}`, aiHero, AIDifficulty.MEDIUM, this);
+          this.players.push(aiPlayer);
+        }
+      }
     }
 
     // 开始游戏
     this.gameState = GameState.IN_GAME;
-    this.currentPlayer = this.players[0];
+    this.currentPlayer = this.players[0] || null;
     return true;
   }
 
@@ -103,7 +108,11 @@ export class GameManager {
     let nextIndex = (currentIndex + 1) % this.players.length;
 
     // 找到下一个存活的玩家
-    while (nextIndex !== currentIndex && this.players[nextIndex].isDead) {
+    while (nextIndex !== currentIndex) {
+      const nextPlayer = this.players[nextIndex];
+      if (nextPlayer && !nextPlayer.isDead) {
+        break;
+      }
       nextIndex = (nextIndex + 1) % this.players.length;
     }
 
@@ -113,14 +122,12 @@ export class GameManager {
       return;
     }
 
-    this.currentPlayer = this.players[nextIndex];
+    const nextPlayer = this.players[nextIndex];
+    this.currentPlayer = nextPlayer || null;
 
     // 如果是AI玩家，自动执行回合
     if (this.currentPlayer instanceof AIPlayer && !this.currentPlayer.isPlayer) {
-      // 延迟执行AI回合，让玩家有时间看到切换过程
-      setTimeout(() => {
-        this.currentPlayer?.executeTurn(this);
-      }, 1000);
+      // AI玩家逻辑在其他地方处理
     }
   }
 
@@ -139,10 +146,12 @@ export class GameManager {
         const player2 = shuffledPlayers[i + 1];
 
         // 执行战斗
-        const battleResult = BattleSystem.executeBattle(player1, player2);
+        if (player1 && player2) {
+          const battleResult = BattleSystem.executeBattle(player1, player2);
 
-        // 处理战斗结果
-        this.handleBattleResult(battleResult);
+          // 处理战斗结果
+          this.handleBattleResult(battleResult);
+        }
       }
     }
 
@@ -170,7 +179,7 @@ export class GameManager {
     result.loser.takeDamage(result.damageDealt);
 
     // 如果失败者死亡，标记为死亡
-    if (result.loser.health <= 0) {
+    if (result.loser.hero.health <= 0) {
       result.loser.isDead = true;
     }
   }
@@ -238,7 +247,6 @@ export class GameManager {
     }
 
     // 如果是最后一个玩家，进入战斗阶段
-    const currentIndex = this.players.indexOf(this.currentPlayer);
     const alivePlayers = this.players.filter(player => !player.isDead);
     const lastAlivePlayer = alivePlayers[alivePlayers.length - 1];
 

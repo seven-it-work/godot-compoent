@@ -66,35 +66,23 @@ export class BattleSystem {
     for (let i = 0; i < attackers.length; i++) {
       const attacker = attackers[i];
       
-      // 如果攻击者已经死亡，跳过
-      if (attacker.health <= 0) {
+      // 如果攻击者不存在或已经死亡，跳过
+      if (!attacker || attacker.health <= 0) {
         continue;
       }
 
       // 检查攻击者是否可以攻击
-      if (attacker) {
-        const canAttack = attacker.hasAttacked < 1;
-        const hasWindfury = attacker.keywords.includes(MinionKeyword.WINDFURY as any);
-        const hasSuperWindfury = attacker.keywords.includes(MinionKeyword.SUPER_WINDFURY as any);
-        
-        if (!hasWindfury && !hasSuperWindfury && attacker.hasAttacked >= 1) {
-          continue;
-        }
-        
-        if (hasWindfury && attacker.hasAttacked >= 2) {
-          continue;
-        }
-        
-        if (hasSuperWindfury && attacker.hasAttacked >= 4) {
-          continue;
-        }
-      } else {
+      const hasWindfury = attacker.keywords.includes(MinionKeyword.WINDFURY as any);
+      const hasSuperWindfury = attacker.keywords.includes(MinionKeyword.SUPER_WINDFURY as any);
+      
+      // 普通随从每回合只能攻击一次
+      if (!hasWindfury && !hasSuperWindfury && attacker.hasAttacked) {
         continue;
       }
 
       // 找到目标随从（优先攻击有嘲讽的随从）
       const targetIndex = this.findTarget(defenders);
-      if (targetIndex === -1 || !attacker) {
+      if (targetIndex === -1) {
         break;
       }
 
@@ -106,10 +94,9 @@ export class BattleSystem {
       // 执行攻击
       this.executeAttack(attacker, defender);
       
-      // 增加攻击次数
-      attacker.hasAttacked++;
+      // 设置攻击状态为已攻击
+      attacker.hasAttacked = true;
       
-
       // 如果目标死亡，从防御者列表中移除
       if (defender.health <= 0) {
         defenders.splice(targetIndex, 1);
@@ -156,14 +143,18 @@ export class BattleSystem {
   // 找到攻击目标
   private static findTarget(defenders: Minion[]): number {
     // 优先攻击有嘲讽的随从
-    const tauntMinions = defenders.filter((minion, index) => {
+    const tauntMinions = defenders.filter(minion => {
       return minion.keywords.includes(MinionKeyword.TAUNT);
     });
 
     if (tauntMinions.length > 0) {
       // 随机选择一个嘲讽随从
       const randomIndex = Math.floor(Math.random() * tauntMinions.length);
-      return defenders.indexOf(tauntMinions[randomIndex]);
+      const targetMinion = tauntMinions[randomIndex];
+      if (targetMinion) {
+        return defenders.indexOf(targetMinion);
+      }
+      return -1;
     } else {
       // 随机选择一个随从
       if (defenders.length > 0) {

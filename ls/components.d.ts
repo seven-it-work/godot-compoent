@@ -14,6 +14,10 @@ declare module 'vue' {
     ACard: typeof import('ant-design-vue/es')['Card']
     ACol: typeof import('ant-design-vue/es')['Col']
     ARow: typeof import('ant-design-vue/es')['Row']
+    Battlefield: typeof import('./src/components/Battlefield.vue')['default']
     GameBoard: typeof import('./src/components/GameBoard.vue')['default']
+    Hand: typeof import('./src/components/Hand.vue')['default']
+    MinionCard: typeof import('./src/components/MinionCard.vue')['default']
+    Tavern: typeof import('./src/components/Tavern.vue')['default']
   }
 }

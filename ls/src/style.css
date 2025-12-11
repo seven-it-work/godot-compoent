@@ -1,17 +1,23 @@
 :root {
-
+  color: black;
 }
 
 body {
   margin: 0;
   display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  overflow: hidden;
+  background-color: white;
 }
 
 #app {
-  margin: 0 auto;
-  padding: 2rem;
+  margin: 0;
+  padding: 0;
   text-align: center;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  color: black;
+  background-color: white;
 }

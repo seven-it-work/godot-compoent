@@ -1,5 +1,5 @@
 // 随从类型
-export type MinionType = 'beast' | 'mech' | 'dragon' | 'murloc' | 'demon' | 'elemental' | 'pirate' | 'all';
+export type MinionType = 'beast' | 'mech' | 'dragon' | 'murloc' | 'demon' | 'elemental' | 'pirate' | 'undead' | 'naga' | 'quilboar' | 'all';
 
 // 随从类型常量
 export const MinionType = {
@@ -10,6 +10,9 @@ export const MinionType = {
   DEMON: 'demon' as MinionType,
   ELEMENTAL: 'elemental' as MinionType,
   PIRATE: 'pirate' as MinionType,
+  UNDEAD: 'undead' as MinionType,
+  NAGA: 'naga' as MinionType,
+  QUILBOAR: 'quilboar' as MinionType,
   ALL: 'all' as MinionType
 } as const;
 
@@ -29,118 +32,182 @@ export const MinionKeyword = {
   IMMUNE: 'immune' as MinionKeyword
 } as const;
 
-// 随从特效类型
-export type MinionEffectType = 'battlecry' | 'death_rattle' | 'on_turn_start' | 'on_turn_end' | 'on_attack' | 'on_defend' | 'revenge' | 'on_minion_summoned';
-
-// 随从特效类型常量
-export const MinionEffectType = {
-  BATTLECRY: 'battlecry' as MinionEffectType,
-  DEATH_RATTLE: 'death_rattle' as MinionEffectType,
-  ON_TURN_START: 'on_turn_start' as MinionEffectType,
-  ON_TURN_END: 'on_turn_end' as MinionEffectType,
-  ON_ATTACK: 'on_attack' as MinionEffectType,
-  ON_DEFEND: 'on_defend' as MinionEffectType,
-  REVENGE: 'revenge' as MinionEffectType,
-  ON_MINION_SUMMONED: 'on_minion_summoned' as MinionEffectType
-} as const;
-
-// 随从特效接口
-export interface MinionEffect {
-  type: MinionEffectType;
-  description: string;
-  trigger: (minion: Minion, game: any) => void;
+// 升级卡片接口
+export interface UpgradeCard {
+  id: number;
+  strId: string;
+  cardType: string;
+  name: string;
+  nameCN: string;
+  text: string;
+  mechanics: string[];
+  referencedTags: string[];
+  img: string;
+  art: string;
+  tier: number;
+  health: number;
+  attack: number;
+  minionTypes: string[];
+  minionTypesCN: string[];
 }
 
 // 随从类
 export class Minion {
-  id: string;
+  id: number;
+  strId: string;
+  cardType: string;
   name: string;
-  star: number; // 1-6星
-  type: MinionType;
-  attack: number;
+  nameCN: string;
+  text: string;
+  mechanics: string[];
+  referencedTags: string[];
+  img: string;
+  art: string;
+  tier: number;
   health: number;
-  maxHealth: number;
+  attack: number;
+  minionTypes: string[];
+  minionTypesCN: string[];
+  upgradeCard?: UpgradeCard;
+  
+  // 游戏状态属性
   cost: number;
   keywords: MinionKeyword[];
-  effects: MinionEffect[];
   isGolden: boolean;
   isFrozen: boolean;
   position: number | null;
-  hasAttacked: number;
+  hasAttacked: boolean;
   hasDivineShield: boolean;
   hasReborn: boolean;
+  maxHealth: number;
+  
+  // 静态计数器，用于生成唯一实例ID
+  private static instanceCounter: number = 0;
+  instanceId: string;
 
   constructor(
-    id: string,
+    id: number,
+    strId: string,
+    cardType: string,
     name: string,
-    star: number,
-    type: MinionType,
-    attack: number,
+    nameCN: string,
+    text: string,
+    mechanics: string[],
+    referencedTags: string[],
+    img: string,
+    art: string,
+    tier: number,
     health: number,
-    cost: number = 3,
-    keywords: MinionKeyword[] = [],
-    effects: MinionEffect[] = []
+    attack: number,
+    minionTypes: string[],
+    minionTypesCN: string[],
+    upgradeCard?: UpgradeCard
   ) {
+    // 原始卡片属性
     this.id = id;
+    this.strId = strId;
+    this.cardType = cardType;
     this.name = name;
-    this.star = star;
-    this.type = type;
-    this.attack = attack;
+    this.nameCN = nameCN;
+    this.text = text;
+    this.mechanics = mechanics;
+    this.referencedTags = referencedTags;
+    this.img = img;
+    this.art = art;
+    this.tier = tier;
     this.health = health;
-    this.maxHealth = health;
-    this.cost = cost;
-    this.keywords = keywords;
-    this.effects = effects;
+    this.attack = attack;
+    this.minionTypes = minionTypes;
+    this.minionTypesCN = minionTypesCN;
+    this.upgradeCard = upgradeCard;
+    
+    // 游戏状态属性
+    this.cost = 3; // 默认cost为3
+    this.keywords = Minion.mapMechanicsToKeywords(mechanics);
     this.isGolden = false;
     this.isFrozen = false;
     this.position = null;
-    this.hasAttacked = 0;
-    this.hasDivineShield = keywords.includes(MinionKeyword.DIVINE_SHIELD);
-    this.hasReborn = keywords.includes(MinionKeyword.REBORN);
+    this.hasAttacked = false;
+    this.hasDivineShield = this.keywords.includes(MinionKeyword.DIVINE_SHIELD);
+    this.hasReborn = this.keywords.includes(MinionKeyword.REBORN);
+    this.maxHealth = health;
+    
+    // 生成唯一实例ID
+    this.instanceId = `${strId}-${Minion.instanceCounter++}`;
+  }
+  
+  // 将mechanics映射为keywords
+  private static mapMechanicsToKeywords(mechanics: string[]): MinionKeyword[] {
+    const mechanicsMap: Record<string, MinionKeyword> = {
+      'TAUNT': MinionKeyword.TAUNT,
+      'DIVINE_SHIELD': MinionKeyword.DIVINE_SHIELD,
+      'WINDFURY': MinionKeyword.WINDFURY,
+      'REBORN': MinionKeyword.REBORN,
+      'STEALTH': MinionKeyword.STEALTH,
+      'CHARGE': MinionKeyword.CHARGE,
+      'POISONOUS': MinionKeyword.POISONOUS,
+      'IMMUNE': MinionKeyword.IMMUNE
+    };
+    
+    const keywords: MinionKeyword[] = [];
+    for (const mechanic of mechanics) {
+      const keyword = mechanicsMap[mechanic];
+      if (keyword !== undefined) {
+        keywords.push(keyword);
+      }
+    }
+    return keywords;
   }
 
   // 攻击方法
-  attackTarget(target: Minion): void {
-    // 处理攻击逻辑
+  attackTarget(): void {
     this.hasAttacked = true;
   }
 
   // 受到伤害
   takeDamage(damage: number): boolean {
-    // 处理伤害逻辑
+    if (this.hasDivineShield) {
+      this.hasDivineShield = false;
+      return false;
+    }
+    this.health -= damage;
     return this.health <= 0;
-  }
-
-  // 触发特效
-  triggerEffect(effectType: MinionEffectType, game: any): void {
-    this.effects.forEach(effect => {
-      if (effect.type === effectType) {
-        effect.trigger(this, game);
-      }
-    });
   }
 
   // 三连升级为金色随从
   upgradeToGolden(): void {
-    this.isGolden = true;
-    this.attack *= 2;
-    this.health *= 2;
-    this.maxHealth *= 2;
-    // 特效翻倍逻辑
+    if (this.upgradeCard) {
+      this.isGolden = true;
+      this.attack = this.upgradeCard.attack;
+      this.health = this.upgradeCard.health;
+      this.maxHealth = this.upgradeCard.health;
+      this.text = this.upgradeCard.text;
+      this.mechanics = this.upgradeCard.mechanics;
+      this.keywords = Minion.mapMechanicsToKeywords(this.upgradeCard.mechanics);
+      this.hasDivineShield = this.keywords.includes(MinionKeyword.DIVINE_SHIELD);
+      this.hasReborn = this.keywords.includes(MinionKeyword.REBORN);
+    }
   }
 
   // 克隆随从
   clone(): Minion {
     return new Minion(
       this.id,
+      this.strId,
+      this.cardType,
       this.name,
-      this.star,
-      this.type,
-      this.attack,
+      this.nameCN,
+      this.text,
+      [...this.mechanics],
+      [...this.referencedTags],
+      this.img,
+      this.art,
+      this.tier,
       this.health,
-      this.cost,
-      [...this.keywords],
-      [...this.effects]
+      this.attack,
+      [...this.minionTypes],
+      [...this.minionTypesCN],
+      this.upgradeCard
     );
   }
 }
