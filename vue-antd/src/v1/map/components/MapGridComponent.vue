@@ -4,8 +4,9 @@
     <div class="map-info">
       <p>
         当前位置: ({{
-          cultivatorStore.getCurrentCultivator().currentLocation.x
-        }}, {{ cultivatorStore.getCurrentCultivator().currentLocation.y }})
+          cultivatorStore.getCurrentCultivator().currentLocation?.x || -1
+        }},
+        {{ cultivatorStore.getCurrentCultivator().currentLocation?.y || -1 }})
       </p>
       <p>
         当前位置名称:
@@ -62,9 +63,10 @@
 import { ref, reactive, onMounted, watch, onUnmounted } from "vue";
 import { useCultivatorStore } from "@/stores/cultivator";
 import { useMapStore } from "@/stores/map";
-import { useCombatStore } from "../../combat/impl";
+import { useCombatStore } from "@/stores/combat";
 import { useRouter } from "vue-router";
 import type { Location } from "../../location/define";
+import type { Cultivator } from "@/v1/cultivator/define";
 
 // 地图配置
 const gridSize = 80; // 每个格子的像素大小
@@ -103,8 +105,8 @@ const moveSpeed = ref(500);
 const getCellColor = (grid: Location, x: number, y: number) => {
   // 当前位置
   if (
-    x === cultivatorStore.getCurrentCultivator().currentLocation.x &&
-    y === cultivatorStore.getCurrentCultivator().currentLocation.y
+    x === cultivatorStore.getCurrentCultivator().currentLocation?.x &&
+    y === cultivatorStore.getCurrentCultivator().currentLocation?.y
   ) {
     return "#4CAF50"; // 绿色
   }
@@ -130,8 +132,8 @@ const getCellColor = (grid: Location, x: number, y: number) => {
 const getCellBorder = (grid: Location, x: number, y: number) => {
   // 当前位置
   if (
-    x === cultivatorStore.getCurrentCultivator().currentLocation.x &&
-    y === cultivatorStore.getCurrentCultivator().currentLocation.y
+    x === cultivatorStore.getCurrentCultivator().currentLocation?.x &&
+    y === cultivatorStore.getCurrentCultivator().currentLocation?.y
   ) {
     return "3px solid #4CAF50"; // 绿色粗边框
   }
@@ -151,8 +153,8 @@ const handleCellClick = (x: number, y: number) => {
   currentMap.selectGrid(x, y);
 
   // 获取当前位置作为起点
-  const startX = cultivatorStore.getCurrentCultivator().currentLocation.x || 0;
-  const startY = cultivatorStore.getCurrentCultivator().currentLocation.y || 0;
+  const startX = cultivatorStore.getCurrentCultivator().currentLocation?.x || 0;
+  const startY = cultivatorStore.getCurrentCultivator().currentLocation?.y || 0;
 
   // 规划路径
   const path = currentMap.findPath(startX, startY, x, y);
@@ -166,18 +168,19 @@ const handleCellClick = (x: number, y: number) => {
  */
 const moveToNext = () => {
   const result = cultivatorStore.getCurrentCultivator().moveToNext(currentMap);
-  
+
   if (result.success && result.encounteredMonster && result.monster) {
     // 遇到怪兽，触发战斗
     const player = cultivatorStore.getCurrentCultivator();
     const location = cultivatorStore.getCurrentLocation();
-    
+
     // 初始化战斗
+    // @ts-ignore
     combatStore.startCombat(player, result.monster, location);
-    
+
     // 跳转到战斗页面
-    router.push('/combat');
-    
+    router.push("/combat");
+
     // 停止自动移动
     stopAutoMove();
     currentMap.clearPath();

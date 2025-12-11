@@ -1,4 +1,3 @@
-import { defineStore } from "pinia";
 import type {
   CombatManager,
   CombatParticipant,
@@ -6,9 +5,7 @@ import type {
   CombatRound,
 } from "./define";
 import { CombatStatus } from "./define";
-import type { Cultivator } from "@/v1/cultivator/define";
 import type { Location } from "@/v1/location/define";
-import { ref, reactive } from "vue";
 import RandomUtils from "@/v1/utils/RandomUtils";
 
 /**
@@ -386,79 +383,3 @@ export class CombatManagerClass implements CombatManager {
     );
   }
 }
-
-/**
- * 战斗状态管理Store
- */
-export const useCombatStore = defineStore("combat", () => {
-  // 战斗管理器实例
-  const combatManager = reactive(new CombatManagerClass());
-
-  // 当前战斗状态
-  const combatStatus = ref(CombatStatus.NOT_STARTED);
-
-  // 当前战斗结果
-  const combatResult = ref<CombatResult | null>(null);
-
-  // 战斗日志
-  const combatLog = ref<string[]>([]);
-
-  /**
-   * 开始战斗
-   * @param player 玩家
-   * @param enemy 敌人
-   * @param location 战斗地点
-   */
-  const startCombat = (
-    player: Cultivator,
-    enemy: Cultivator,
-    location: Location
-  ) => {
-    combatManager.startCombat(player, enemy, location);
-    combatStatus.value = combatManager.getCombatStatus();
-    combatLog.value = combatManager.getCombatLog();
-  };
-
-  /**
-   * 结束战斗
-   */
-  const endCombat = () => {
-    const result = combatManager.endCombat();
-    combatResult.value = result;
-    combatStatus.value = result.status;
-    return result;
-  };
-
-  /**
-   * 获取当前战斗状态
-   */
-  const getCombatStatus = () => {
-    return combatManager.getCombatStatus();
-  };
-
-  /**
-   * 获取当前战斗结果
-   */
-  const getCombatResult = () => {
-    return combatManager.getCombatResult();
-  };
-
-  /**
-   * 获取战斗日志
-   */
-  const getCombatLog = () => {
-    return combatManager.getCombatLog();
-  };
-
-  return {
-    combatManager,
-    combatStatus,
-    combatResult,
-    combatLog,
-    startCombat,
-    endCombat,
-    getCombatStatus,
-    getCombatResult,
-    getCombatLog,
-  };
-});

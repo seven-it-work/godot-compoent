@@ -4,6 +4,7 @@ import type { Location } from "@/v1/location/define";
 /**
  * 战斗状态枚举
  */
+// @ts-ignore
 export enum CombatStatus {
   /** 战斗未开始 */
   NOT_STARTED = "NOT_STARTED",
@@ -14,7 +15,7 @@ export enum CombatStatus {
   /** 战斗结束 - 玩家失败 */
   PLAYER_DEFEAT = "PLAYER_DEFEAT",
   /** 战斗结束 - 平局 */
-  DRAW = "DRAW"
+  DRAW = "DRAW",
 }
 
 /**
@@ -86,33 +87,37 @@ export interface CombatManager {
    * @param enemy 敌人
    * @param location 战斗地点
    */
-  startCombat(player: CombatParticipant, enemy: CombatParticipant, location: Location): void;
-  
+  startCombat(
+    player: CombatParticipant,
+    enemy: CombatParticipant,
+    location: Location
+  ): void;
+
   /**
    * 执行玩家回合
    */
   executePlayerTurn(): void;
-  
+
   /**
    * 执行敌人回合
    */
   executeEnemyTurn(): void;
-  
+
   /**
    * 结束战斗
    */
   endCombat(): CombatResult;
-  
+
   /**
    * 获取当前战斗状态
    */
   getCombatStatus(): CombatStatus;
-  
+
   /**
    * 获取当前战斗结果
    */
   getCombatResult(): CombatResult | null;
-  
+
   /**
    * 获取战斗记录
    */

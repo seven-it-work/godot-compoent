@@ -31,7 +31,7 @@ export const useCultivatorStore = defineStore("cultivator", () => {
    * 获取当前修仙者位置
    */
   const getCurrentLocation = (): Location => {
-    return cultivator.value.currentLocation;
+    return cultivator.value.currentLocation as Location;
   };
 
   return {
