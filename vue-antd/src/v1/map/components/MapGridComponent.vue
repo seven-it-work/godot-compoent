@@ -62,6 +62,8 @@
 import { ref, reactive, onMounted, watch, onUnmounted } from "vue";
 import { useCultivatorStore } from "@/stores/cultivator";
 import { useMapStore } from "@/stores/map";
+import { useCombatStore } from "../../combat/impl";
+import { useRouter } from "vue-router";
 import type { Location } from "../../location/define";
 
 // 地图配置
@@ -71,6 +73,10 @@ const gridSize = 80; // 每个格子的像素大小
 const cultivatorStore = useCultivatorStore();
 // 获取地图状态管理Store
 const mapStore = useMapStore();
+// 获取战斗状态管理Store
+const combatStore = useCombatStore();
+// 获取路由实例
+const router = useRouter();
 
 // 当前地图（响应式对象）
 const currentMap = reactive(mapStore.getCurrentMap());
@@ -159,8 +165,23 @@ const handleCellClick = (x: number, y: number) => {
  * 移动到下一格
  */
 const moveToNext = () => {
-  const success = cultivatorStore.getCurrentCultivator().moveToNext(currentMap);
-  if (!success) {
+  const result = cultivatorStore.getCurrentCultivator().moveToNext(currentMap);
+  
+  if (result.success && result.encounteredMonster && result.monster) {
+    // 遇到怪兽，触发战斗
+    const player = cultivatorStore.getCurrentCultivator();
+    const location = cultivatorStore.getCurrentLocation();
+    
+    // 初始化战斗
+    combatStore.startCombat(player, result.monster, location);
+    
+    // 跳转到战斗页面
+    router.push('/combat');
+    
+    // 停止自动移动
+    stopAutoMove();
+    currentMap.clearPath();
+  } else if (!result.success) {
     // 移动失败或到达终点，停止自动移动并清理路径
     stopAutoMove();
     currentMap.clearPath();

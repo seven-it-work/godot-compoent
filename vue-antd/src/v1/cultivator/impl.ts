@@ -191,7 +191,7 @@ export class CultivatorClass implements Cultivator {
     });
 
   // 当前所在地：修仙者当前所在的地点
-  currentLocation: Location = LocationClass.generateRandomLocation();
+  currentLocation: Location | null = null;
 
   /**
    * 构造函数
@@ -383,11 +383,16 @@ export class CultivatorClass implements Cultivator {
 
   /**
    * 移动到下一个格子
-   * @returns 是否移动成功
+   * @returns 移动结果，包含是否遇到怪兽和怪兽信息
    */
-  moveToNext(currentMap: any): boolean {
+  moveToNext(currentMap: any): {
+    success: boolean;
+    encounteredMonster?: boolean;
+    monster?: any;
+  } {
     // 获取当前位置
     const currentLocation = this.currentLocation;
+    if (!currentLocation) return { success: false };
     const currentX = currentLocation.x || 0;
     const currentY = currentLocation.y || 0;
 
@@ -399,13 +404,13 @@ export class CultivatorClass implements Cultivator {
 
     // 如果当前位置不在路径中，或者已经是最后一个位置，返回false
     if (currentIndex === -1 || currentIndex >= currentMap.path.length - 1) {
-      return false;
+      return { success: false };
     }
 
     // 移动到下一个位置
     const nextPos = currentMap.path[currentIndex + 1];
     if (!nextPos) {
-      return false;
+      return { success: false };
     }
 
     // 更新路径状态
@@ -417,9 +422,23 @@ export class CultivatorClass implements Cultivator {
     if (newLocation) {
       // 更新当前位置
       this.currentLocation = newLocation;
+
+      // 检查新位置是否有怪兽
+      if (newLocation.monsters && newLocation.monsters.length > 0) {
+        // 获取第一个怪兽作为战斗对手
+        const enemy = newLocation.monsters[0];
+
+        // 从地点移除这个怪兽
+        newLocation.monsters = newLocation.monsters.filter(
+          (monster) => monster.id !== enemy.id
+        );
+
+        // 返回移动成功和怪兽信息
+        return { success: true, encounteredMonster: true, monster: enemy };
+      }
     }
 
-    return true;
+    return { success: true, encounteredMonster: false };
   }
 
   /**

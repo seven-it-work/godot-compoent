@@ -61,7 +61,7 @@ export interface Cultivator {
   // 灵根冷却：灵根吸纳能力的冷却时间
   spiritRootCooldown: RangeGrowthAttribute;
   // 当前所在地：修仙者当前所在的地点
-  currentLocation: Location;
+  currentLocation: Location | null;
   // 头像：修仙者的显示头像
   avatar?: string;
 

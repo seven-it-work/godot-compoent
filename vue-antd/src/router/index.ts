@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import IndexPage from "@/views/index.vue";
+import CombatPage from "@/views/CombatPage.vue";
 
 // 创建路由实例
 const router = createRouter({
@@ -9,6 +10,11 @@ const router = createRouter({
       path: "/",
       name: "home",
       component: IndexPage,
+    },
+    {
+      path: "/combat",
+      name: "combat",
+      component: CombatPage,
     },
   ],
 });

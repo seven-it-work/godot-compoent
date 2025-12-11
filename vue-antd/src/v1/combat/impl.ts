@@ -1,9 +1,15 @@
 import { defineStore } from "pinia";
-import type { CombatManager, CombatParticipant, CombatResult, CombatRound, CombatStatus } from "./define";
+import type {
+  CombatManager,
+  CombatParticipant,
+  CombatResult,
+  CombatRound,
+} from "./define";
+import { CombatStatus } from "./define";
 import type { Cultivator } from "@/v1/cultivator/define";
 import type { Location } from "@/v1/location/define";
 import { ref, reactive } from "vue";
-import { RandomUtils } from "@/v1/utils/RandomUtils";
+import RandomUtils from "@/v1/utils/RandomUtils";
 
 /**
  * 战斗管理器实现类
@@ -24,7 +30,11 @@ export class CombatManagerClass implements CombatManager {
    * @param enemy 敌人
    * @param location 战斗地点
    */
-  startCombat(player: CombatParticipant, enemy: CombatParticipant, location: Location): void {
+  startCombat(
+    player: CombatParticipant,
+    enemy: CombatParticipant,
+    location: Location
+  ): void {
     this.player = player;
     this.enemy = enemy;
     this.location = location;
@@ -35,7 +45,9 @@ export class CombatManagerClass implements CombatManager {
     this.combatResult = null;
 
     // 记录战斗开始日志
-    this.combatLog.push(`战斗开始：${player.name} VS ${enemy.name}（地点：${location.name}）`);
+    this.combatLog.push(
+      `战斗开始：${player.name} VS ${enemy.name}（地点：${location.name}）`
+    );
 
     // 开始第一个回合
     this.executeCombatRound();
@@ -45,7 +57,11 @@ export class CombatManagerClass implements CombatManager {
    * 执行战斗回合
    */
   private executeCombatRound(): void {
-    if (this.combatStatus !== CombatStatus.IN_PROGRESS || !this.player || !this.enemy) {
+    if (
+      this.combatStatus !== CombatStatus.IN_PROGRESS ||
+      !this.player ||
+      !this.enemy
+    ) {
       return;
     }
 
@@ -98,12 +114,12 @@ export class CombatManagerClass implements CombatManager {
       isHit: attackResult.isHit,
       attackerStatus: {
         hp: this.player.qiBlood.getCurrentValue(),
-        spiritPower: this.player.spiritPower.getCurrentValue()
+        spiritPower: this.player.spiritPower.getCurrentValue(),
       },
       defenderStatus: {
         hp: this.enemy.qiBlood.getCurrentValue(),
-        spiritPower: this.enemy.spiritPower.getCurrentValue()
-      }
+        spiritPower: this.enemy.spiritPower.getCurrentValue(),
+      },
     };
 
     this.rounds.push(round);
@@ -134,12 +150,12 @@ export class CombatManagerClass implements CombatManager {
       isHit: attackResult.isHit,
       attackerStatus: {
         hp: this.enemy.qiBlood.getCurrentValue(),
-        spiritPower: this.enemy.spiritPower.getCurrentValue()
+        spiritPower: this.enemy.spiritPower.getCurrentValue(),
       },
       defenderStatus: {
         hp: this.player.qiBlood.getCurrentValue(),
-        spiritPower: this.player.spiritPower.getCurrentValue()
-      }
+        spiritPower: this.player.spiritPower.getCurrentValue(),
+      },
     };
 
     this.rounds.push(round);
@@ -153,14 +169,17 @@ export class CombatManagerClass implements CombatManager {
    * @param attacker 攻击方
    * @param defender 防御方
    */
-  private calculateAttack(attacker: CombatParticipant, defender: CombatParticipant): {
+  private calculateAttack(
+    attacker: CombatParticipant,
+    defender: CombatParticipant
+  ): {
     damage: number;
     isCritical: boolean;
     isHit: boolean;
   } {
     // 计算命中概率
     const hitChance = this.calculateHitChance(attacker, defender);
-    const isHit = RandomUtils.random.float(0, 100) <= hitChance;
+    const isHit = RandomUtils.random.real(0, 100) <= hitChance;
 
     if (!isHit) {
       return { damage: 0, isCritical: false, isHit: false };
@@ -168,21 +187,25 @@ export class CombatManagerClass implements CombatManager {
 
     // 计算暴击概率
     const criticalChance = attacker.criticalRate.getCurrentValue();
-    const isCritical = RandomUtils.random.float(0, 100) <= criticalChance;
+    const isCritical = RandomUtils.random.real(0, 100) <= criticalChance;
 
     // 计算基础伤害
     let baseDamage = attacker.attack.getCurrentValue();
 
     // 应用暴击伤害
     if (isCritical) {
-      const criticalMultiplier = 1 + (attacker.criticalDamage.getCurrentValue() / 100);
+      const criticalMultiplier =
+        1 + attacker.criticalDamage.getCurrentValue() / 100;
       baseDamage *= criticalMultiplier;
     }
 
     // 计算实际伤害（考虑防御）
     const defense = defender.defense.getCurrentValue();
     const damageReduction = defense / (defense + 100);
-    const finalDamage = Math.max(1, Math.floor(baseDamage * (1 - damageReduction)));
+    const finalDamage = Math.max(
+      1,
+      Math.floor(baseDamage * (1 - damageReduction))
+    );
 
     return { damage: finalDamage, isCritical, isHit };
   }
@@ -192,7 +215,10 @@ export class CombatManagerClass implements CombatManager {
    * @param attacker 攻击方
    * @param defender 防御方
    */
-  private calculateHitChance(attacker: CombatParticipant, defender: CombatParticipant): number {
+  private calculateHitChance(
+    attacker: CombatParticipant,
+    defender: CombatParticipant
+  ): number {
     // 基础命中概率
     let hitChance = 80;
 
@@ -277,15 +303,15 @@ export class CombatManagerClass implements CombatManager {
       status: this.combatStatus,
       participants: {
         player: this.player,
-        enemy: this.enemy
+        enemy: this.enemy,
       },
       rounds: this.rounds,
       totalRounds: this.currentRound,
       rewards: {
         experience: baseExperience,
         items: items,
-        spiritQi: baseSpiritQi
-      }
+        spiritQi: baseSpiritQi,
+      },
     };
   }
 
@@ -303,15 +329,15 @@ export class CombatManagerClass implements CombatManager {
         status: this.combatStatus,
         participants: {
           player: this.player,
-          enemy: this.enemy
+          enemy: this.enemy,
         },
         rounds: this.rounds,
         totalRounds: this.currentRound,
         rewards: {
           experience: 0,
           items: [],
-          spiritQi: 0
-        }
+          spiritQi: 0,
+        },
       };
     }
 
@@ -346,14 +372,18 @@ export class CombatManagerClass implements CombatManager {
   private recordCombatLog(round: CombatRound): void {
     const attackerName = round.attacker.name;
     const defenderName = round.defender.name;
-    
+
     if (!round.isHit) {
-      this.combatLog.push(`第${this.currentRound}回合：${attackerName}攻击未命中${defenderName}`);
+      this.combatLog.push(
+        `第${this.currentRound}回合：${attackerName}攻击未命中${defenderName}`
+      );
       return;
     }
 
     const criticalText = round.isCritical ? "（暴击！）" : "";
-    this.combatLog.push(`第${this.currentRound}回合：${attackerName}对${defenderName}造成${round.damage}点伤害${criticalText}（${defenderName}剩余${round.defenderStatus.hp}气血）`);
+    this.combatLog.push(
+      `第${this.currentRound}回合：${attackerName}对${defenderName}造成${round.damage}点伤害${criticalText}（${defenderName}剩余${round.defenderStatus.hp}气血）`
+    );
   }
 }
 
@@ -379,7 +409,11 @@ export const useCombatStore = defineStore("combat", () => {
    * @param enemy 敌人
    * @param location 战斗地点
    */
-  const startCombat = (player: Cultivator, enemy: Cultivator, location: Location) => {
+  const startCombat = (
+    player: Cultivator,
+    enemy: Cultivator,
+    location: Location
+  ) => {
     combatManager.startCombat(player, enemy, location);
     combatStatus.value = combatManager.getCombatStatus();
     combatLog.value = combatManager.getCombatLog();
@@ -425,6 +459,6 @@ export const useCombatStore = defineStore("combat", () => {
     endCombat,
     getCombatStatus,
     getCombatResult,
-    getCombatLog
+    getCombatLog,
   };
 });

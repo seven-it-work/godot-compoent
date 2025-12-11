@@ -73,7 +73,7 @@ onMounted(() => {
   }
 
   // 启动游戏时间更新定时器
-  updateInterval = window.setInterval(updateGameTime, 100);
+  updateInterval = window.setInterval(updateGameTime, 1000);
 });
 
 onUnmounted(() => {
