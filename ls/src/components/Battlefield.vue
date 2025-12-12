@@ -10,7 +10,7 @@
           :key="slotIndex"
           class="player-minion-slot"
           :class="{ empty: !playerMinions?.[slotIndex - 1] }"
-          @click="selectPlayerMinion(playerMinions?.[slotIndex - 1], slotIndex - 1)"
+          @click="selectPlayerMinion(playerMinions?.[slotIndex - 1] || undefined, slotIndex - 1)"
           draggable="true"
           @dragstart="
             onDragStart($event, 'battlefield', slotIndex - 1, playerMinions?.[slotIndex - 1])
@@ -36,8 +36,8 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useGameStore } from '../stores/game';
 import { Minion } from '../game/Minion';
+import { useGameStore } from '../stores/game';
 import MinionCard from './MinionCard.vue';
 
 // 使用游戏store

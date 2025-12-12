@@ -5,7 +5,7 @@ import { Minion } from './Minion';
 export class Player {
   id: string;
   hero: Hero;
-  minions: Minion[];
+  minions: (Minion | null)[];
   bench: Minion[];
   tavernLevel: number;
   gold: number;
@@ -19,7 +19,7 @@ export class Player {
   constructor(id: string, hero: Hero, isPlayer: boolean = false) {
     this.id = id;
     this.hero = hero;
-    this.minions = new Array(7).fill(null) as Minion[];
+    this.minions = new Array(7).fill(null) as (Minion | null)[];
     this.bench = [];
     this.tavernLevel = 1;
     this.gold = 3;
@@ -169,7 +169,9 @@ export class Player {
 
     // 重置随从状态
     this.minions.forEach(minion => {
-      minion.hasAttacked = false;
+      if (minion) {
+        minion.hasAttacked = false;
+      }
     });
 
     // 重置技能冷却
@@ -261,19 +263,19 @@ export class Player {
     if (this.minions[toIndex] === null) {
       // 如果目标位置为空，直接移动
       this.minions[fromIndex] = null;
-      this.minions[toIndex] = movedMinion;
-      movedMinion.position = toIndex;
+      this.minions[toIndex] = movedMinion!;
+      movedMinion!.position = toIndex;
     } else {
       // 如果目标位置不为空，交换两个位置的随从
       const targetMinion = this.minions[toIndex];
-      this.minions[fromIndex] = targetMinion;
-      this.minions[toIndex] = movedMinion;
+      this.minions[fromIndex] = targetMinion as Minion | null;
+      this.minions[toIndex] = movedMinion!;
 
       // 更新位置
       if (targetMinion) {
         targetMinion.position = fromIndex;
       }
-      movedMinion.position = toIndex;
+      movedMinion!.position = toIndex;
     }
 
     return true;

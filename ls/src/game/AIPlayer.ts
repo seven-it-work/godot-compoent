@@ -235,7 +235,11 @@ export class AIPlayer extends Player {
     // 3. 具有亡语或特效的随从放在后面
     // 4. 圣盾随从放在前面吸收伤害
 
-    this.minions.sort((a, b) => {
+    // 只处理非null的随从
+    const nonNullMinions = this.minions.filter((minion): minion is Minion => minion !== null);
+    
+    // 排序非null随从
+    nonNullMinions.sort((a, b) => {
       // 嘲讽随从优先级高
       const aHasTaunt = a.keywords.includes('taunt' as any);
       const bHasTaunt = b.keywords.includes('taunt' as any);
@@ -255,9 +259,13 @@ export class AIPlayer extends Player {
       return b.health - a.health;
     });
 
-    // 更新随从位置
-    this.minions.forEach((minion, index) => {
-      minion.position = index;
+    // 清空当前minions数组，然后重新填充排序后的随从
+    this.minions = new Array(7).fill(null) as (Minion | null)[];
+    nonNullMinions.forEach((minion, index) => {
+      if (index < 7) {
+        this.minions[index] = minion;
+        minion.position = index;
+      }
     });
   }
 

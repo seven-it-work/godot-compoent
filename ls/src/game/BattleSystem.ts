@@ -14,9 +14,13 @@ export interface BattleResult {
 export class BattleSystem {
   // 执行战斗
   static executeBattle(player1: Player, player2: Player): BattleResult {
-    // 复制玩家的随从，避免修改原始数据
-    const player1Minions = player1.minions.map(minion => minion.clone());
-    const player2Minions = player2.minions.map(minion => minion.clone());
+    // 复制玩家的随从，避免修改原始数据，只保留非null的随从
+    const player1Minions = player1.minions
+      .filter((minion): minion is Minion => minion !== null)
+      .map(minion => minion.clone());
+    const player2Minions = player2.minions
+      .filter((minion): minion is Minion => minion !== null)
+      .map(minion => minion.clone());
 
     // 战斗回合，直到一方没有随从
     while (player1Minions.length > 0 && player2Minions.length > 0) {
