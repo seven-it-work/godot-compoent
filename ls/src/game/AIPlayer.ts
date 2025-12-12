@@ -3,21 +3,32 @@ import { Hero } from './Hero';
 import { Minion } from './Minion';
 import { GameManager } from './GameManager';
 
-// AI难度类型
+// AI难度类型 - 定义AI玩家的智能程度
 export type AIDifficulty = 'easy' | 'medium' | 'hard';
 
-// AI难度常量
+// AI难度常量 - 提供预设的AI难度选项
 export const AIDifficulty = {
-  EASY: 'easy' as AIDifficulty,
-  MEDIUM: 'medium' as AIDifficulty,
-  HARD: 'hard' as AIDifficulty,
+  EASY: 'easy' as AIDifficulty, // 简单难度 - 较低智能
+  MEDIUM: 'medium' as AIDifficulty, // 中等难度 - 平衡智能
+  HARD: 'hard' as AIDifficulty, // 困难难度 - 较高智能
 } as const;
 
-// AI玩家类
+/**
+ * AI玩家类 - 继承自Player类，实现AI决策逻辑
+ */
 export class AIPlayer extends Player {
+  /** AI难度 - 决定AI的智能程度 */
   difficulty: AIDifficulty;
+  /** 游戏管理器引用 - 用于AI获取游戏状态和执行操作 */
   gameManager: GameManager | null;
 
+  /**
+   * AI玩家构造函数
+   * @param id - 玩家唯一标识符
+   * @param hero - 英雄实例
+   * @param difficulty - AI难度，默认为中等难度
+   * @param gameManager - 游戏管理器引用，默认为null
+   */
   constructor(
     id: string,
     hero: Hero,
@@ -29,23 +40,30 @@ export class AIPlayer extends Player {
     this.gameManager = gameManager;
   }
 
-  // AI执行回合
+  /**
+   * AI执行回合 - 按照优先级顺序执行AI决策
+   * @param gameManager - 游戏管理器实例，用于执行游戏操作
+   * @使用方式：当轮到AI玩家回合时，游戏管理器调用此方法
+   */
   executeTurn(gameManager: GameManager): void {
     this.gameManager = gameManager;
 
     // 按照优先级执行AI决策
-    this.decideUpgradeTavern();
-    this.decideRefreshTavern();
-    this.decideBuyMinions();
-    this.decidePlaceMinions();
-    this.decideSellMinions();
-    this.decideUseHeroPower();
+    this.decideUpgradeTavern(); // 决定是否升级酒馆
+    this.decideRefreshTavern(); // 决定是否刷新酒馆
+    this.decideBuyMinions(); // 决定购买哪些随从
+    this.decidePlaceMinions(); // 决定如何布置随从
+    this.decideSellMinions(); // 决定是否出售随从
+    this.decideUseHeroPower(); // 决定是否使用英雄技能
 
     // 结束回合
     gameManager.endPlayerTurn();
   }
 
-  // 决定是否升级酒馆
+  /**
+   * 决定是否升级酒馆 - 根据AI难度和游戏状态做出决策
+   * @private - 内部方法，仅供AI类使用
+   */
   private decideUpgradeTavern(): void {
     // 简单AI：较低概率升级酒馆
     // 中等AI：根据回合数和金币情况决定
@@ -90,10 +108,13 @@ export class AIPlayer extends Player {
     }
   }
 
-  // 决定是否刷新酒馆
+  /**
+   * 决定是否刷新酒馆 - 根据AI难度和现有随从质量做出决策
+   * @private - 内部方法，仅供AI类使用
+   */
   private decideRefreshTavern(): void {
     // 简单AI：较低概率刷新
-    // 中等AI：根据现有随从质量决定
+    // 中等AI：根据现有随从数量和质量决定
     // 困难AI：更智能的刷新策略
 
     const refreshCost = this.gameManager?.tavern.refreshCost || 1;
@@ -133,7 +154,10 @@ export class AIPlayer extends Player {
     }
   }
 
-  // 决定购买哪些随从
+  /**
+   * 决定购买哪些随从 - 遍历可用随从并评估是否购买
+   * @private - 内部方法，仅供AI类使用
+   */
   private decideBuyMinions(): void {
     if (!this.gameManager) {
       return;
@@ -154,7 +178,12 @@ export class AIPlayer extends Player {
     }
   }
 
-  // 判断是否应该购买某个随从
+  /**
+   * 判断是否应该购买某个随从 - 根据AI难度和随从属性评估购买价值
+   * @param minion - 待评估的随从实例
+   * @returns 是否应该购买该随从
+   * @private - 内部方法，仅供AI类使用
+   */
   private shouldBuyMinion(minion: Minion | undefined): boolean {
     if (!minion) {
       return false;
@@ -187,17 +216,17 @@ export class AIPlayer extends Player {
         // 困难AI：更全面的评估
         let valueScore = minionValue;
 
-        // 考虑关键词
+        // 考虑关键词（如嘲讽、圣盾等）
         if (minion.keywords.length > 0) {
           valueScore += minion.keywords.length * 2;
         }
 
-        // 考虑mechanics数量（代替effects）
+        // 考虑特效数量
         if (minion.mechanics.length > 0) {
           valueScore += minion.mechanics.length * 3;
         }
 
-        // 考虑星级
+        // 考虑星级优势
         valueScore += (minion.tier - this.tavernLevel) * 2;
 
         // 计算购买概率
@@ -208,7 +237,10 @@ export class AIPlayer extends Player {
     return Math.random() < buyChance;
   }
 
-  // 决定如何布置随从
+  /**
+   * 决定如何布置随从 - 将bench中的随从放到战场上
+   * @private - 内部方法，仅供AI类使用
+   */
   private decidePlaceMinions(): void {
     // 简单AI：随机布置
     // 中等AI：简单的位置策略
@@ -227,7 +259,10 @@ export class AIPlayer extends Player {
     }
   }
 
-  // 优化随从位置（困难AI）
+  /**
+   * 优化随从位置（困难AI） - 根据随从属性调整战场上的随从位置
+   * @private - 内部方法，仅供AI类使用
+   */
   private optimizeMinionPositions(): void {
     // 基本位置策略：
     // 1. 嘲讽随从放在前面
@@ -269,7 +304,10 @@ export class AIPlayer extends Player {
     });
   }
 
-  // 决定是否出售随从
+  /**
+   * 决定是否出售随从 - 遍历随从并评估是否出售
+   * @private - 内部方法，仅供AI类使用
+   */
   private decideSellMinions(): void {
     // 遍历bench和战场上的随从，决定是否出售
     for (let i = this.bench.length - 1; i >= 0; i--) {
@@ -287,7 +325,12 @@ export class AIPlayer extends Player {
     }
   }
 
-  // 判断是否应该出售某个随从
+  /**
+   * 判断是否应该出售某个随从 - 根据AI难度和游戏状态评估出售价值
+   * @param minion - 待评估的随从实例
+   * @returns 是否应该出售该随从
+   * @private - 内部方法，仅供AI类使用
+   */
   private shouldSellMinion(minion: Minion): boolean {
     // 简单AI：只出售低价值随从
     // 中等AI：考虑随从质量和当前需求
@@ -330,7 +373,10 @@ export class AIPlayer extends Player {
     return Math.random() < sellChance;
   }
 
-  // 决定是否使用英雄技能
+  /**
+   * 决定是否使用英雄技能 - 根据AI难度和技能状态做出决策
+   * @private - 内部方法，仅供AI类使用
+   */
   private decideUseHeroPower(): void {
     // 简单AI：很少使用英雄技能
     // 中等AI：偶尔使用英雄技能

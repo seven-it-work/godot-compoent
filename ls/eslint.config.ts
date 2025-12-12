@@ -26,15 +26,18 @@ export default [
     rules: {
       ...prettierConfig.rules,
       'prettier/prettier': 'error',
-      '@typescript-eslint/no-unused-vars': ['error', { 
-        args: 'all', 
-        argsIgnorePattern: '^_', 
-        caughtErrors: 'all', 
-        caughtErrorsIgnorePattern: '^_', 
-        destructuredArrayIgnorePattern: '^_', 
-        varsIgnorePattern: '^_', 
-        ignoreRestSiblings: true 
-      }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          args: 'all',
+          argsIgnorePattern: '^_',
+          caughtErrors: 'all',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
       'vue/multi-word-component-names': 'off',
       'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
