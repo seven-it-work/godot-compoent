@@ -3,52 +3,8 @@
     <!-- 战场标题 -->
     <h3 class="battlefield-title">战场</h3>
     
-    <!-- 只有在战斗阶段才显示对手区域和VS区域 -->
-    <template v-if="gameState === 'battle_phase'">
-      <!-- 对手区域 -->
-      <div class="opponent-area">
-        <div class="opponent-info">
-          <div class="opponent-name">对手</div>
-          <div class="opponent-health">
-            <span>生命值:</span>
-            <span>{{ opponentHero?.health || 30 }}</span>
-          </div>
-        </div>
-        
-        <!-- 对手随从区域 -->
-        <div class="opponent-minions">
-          <div 
-            v-for="(minion, index) in opponentMinions" 
-            :key="minion.id || index"
-            class="opponent-minion-slot"
-          >
-            <MinionCard 
-              :minion="minion" 
-              :is-opponent="true"
-            />
-          </div>
-          
-          <!-- 空随从槽 -->
-          <div 
-            v-for="index in opponentEmptySlots" 
-            :key="`opponent-empty-${index}`"
-            class="opponent-minion-slot empty"
-          >
-            <div class="empty-slot">
-              <span>空</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- 战场中央区域 -->
-      <div class="battlefield-center">
-        <div class="vs-area">VS</div>
-      </div>
-    </template>
-    
     <!-- 玩家区域 -->
-    <div class="player-area" :class="{ 'only-player': gameState !== 'battle_phase' }">
+    <div class="player-area">
       <!-- 玩家随从区域 -->
         <div 
           class="player-minions"
@@ -71,7 +27,7 @@
             <MinionCard 
               v-if="playerMinions?.[slotIndex - 1]"
               :minion="playerMinions[slotIndex - 1] as Minion" 
-              :is-selected="selectedMinion?.id === playerMinions[slotIndex - 1]?.id"
+              :is-selected="gameStore.selectedMinion?.id === playerMinions[slotIndex - 1]?.id"
             />
             <!-- 如果该位置没有随从，渲染空槽 -->
             <div v-else class="empty-slot">
@@ -89,11 +45,7 @@
       </div>
     </div>
     
-    <!-- 操作提示 -->
-    <div v-if="selectedMinion && gameState !== 'battle_phase'" class="action-hint">
-      <span>已选择: {{ selectedMinion.name }}</span>
-      <button class="action-button" @click="returnMinionToBench">返回手牌</button>
-    </div>
+    
   </div>
 </template>
 
@@ -105,11 +57,8 @@ import MinionCard from './MinionCard.vue';
 
 // 使用游戏store
 const gameStore = useGameStore();
-const { player, aiPlayers, gameState } = gameStore;
+const { player } = gameStore;
 
-// 选中的随从
-const selectedMinion = ref<Minion | null>(null);
-const selectedMinionIndex = ref<number | null>(null);
 // 拖拽起始索引
 const dragStartIndex = ref<number | null>(null);
 
@@ -186,8 +135,8 @@ const onDrop = (event: DragEvent, targetOrIndex: string | number) => {
       if (dragStartIndex.value !== null && dragStartIndex.value !== toIndex) {
         gameStore.reorderMinions(dragStartIndex.value, toIndex);
         // 更新选中的随从索引
-        if (selectedMinionIndex.value === dragStartIndex.value) {
-          selectedMinionIndex.value = toIndex;
+        if (gameStore.selectedMinionIndex === dragStartIndex.value) {
+          gameStore.selectedMinionIndex = toIndex;
         }
       }
       dragStartIndex.value = null;
@@ -195,46 +144,20 @@ const onDrop = (event: DragEvent, targetOrIndex: string | number) => {
   }
 };
 
-// 对手随从（这里简单起见，使用第一个AI玩家的随从）
-const opponentMinions = computed(() => {
-  return aiPlayers[0]?.minions || [];
-});
-
 // 玩家英雄
 const playerHero = computed(() => {
   return player?.hero || null;
 });
 
-// 对手英雄（这里简单起见，使用第一个AI玩家的英雄）
-const opponentHero = computed(() => {
-  return aiPlayers[0]?.hero || null;
-});
-
-
-
-// 对手空随从槽数量
-const opponentEmptySlots = computed(() => {
-  const maxMinions = 7;
-  const currentMinions = opponentMinions.value.length;
-  return Math.max(0, maxMinions - currentMinions);
-});
-
 // 选择玩家随从
 const selectPlayerMinion = (minion: Minion | undefined, index: number) => {
   if (minion) {
-    selectedMinion.value = minion;
-    selectedMinionIndex.value = index;
+    // 使用gameStore管理选中的随从，来源为战场
+    gameStore.selectMinion(minion, index, 'battlefield');
   }
 };
 
-// 将战场上的随从放回 bench
-const returnMinionToBench = () => {
-  if (selectedMinion.value && selectedMinionIndex.value !== null && player) {
-    gameStore.returnMinionToBench(selectedMinionIndex.value);
-    selectedMinion.value = null;
-    selectedMinionIndex.value = null;
-  }
-};
+
 </script>
 
 <style scoped>
@@ -251,32 +174,6 @@ const returnMinionToBench = () => {
   text-align: center;
   color: #ffd700;
   font-size: 20px;
-}
-
-/* 对手区域 */
-.opponent-area {
-  margin-bottom: 20px;
-}
-
-.opponent-info {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 10px;
-}
-
-.opponent-name {
-  font-size: 16px;
-  font-weight: bold;
-  color: black;
-}
-
-.opponent-health {
-  display: flex;
-  gap: 5px;
-  font-size: 14px;
-  color: #666;
 }
 
 /* 玩家区域 */
@@ -306,20 +203,20 @@ const returnMinionToBench = () => {
 }
 
 /* 随从区域 */
-.opponent-minions, .player-minions {
+.player-minions {
   display: flex;
   gap: 10px;
   justify-content: center;
   flex-wrap: wrap;
 }
 
-.opponent-minion-slot, .player-minion-slot {
+.player-minion-slot {
   width: 100px;
   height: 150px;
   position: relative;
 }
 
-.opponent-minion-slot.empty, .player-minion-slot.empty {
+.player-minion-slot.empty {
   background-color: rgba(0, 0, 0, 0.05);
   border: 2px dashed rgba(0, 0, 0, 0.2);
   border-radius: 10px;
@@ -331,21 +228,6 @@ const returnMinionToBench = () => {
 .empty-slot {
   font-size: 18px;
   color: rgba(0, 0, 0, 0.3);
-}
-
-/* 战场中央区域 */
-.battlefield-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px 0;
-}
-
-.vs-area {
-  font-size: 24px;
-  font-weight: bold;
-  color: #ffd700;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 /* 操作提示 */

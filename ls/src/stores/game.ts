@@ -43,7 +43,13 @@ export const useGameStore = defineStore('game', {
     // 当前回合
     currentTurn: 1,
     // 随从池数据
-    minionPool: [] as Minion[]
+    minionPool: [] as Minion[],
+    // 选中的随从
+    selectedMinion: null as Minion | null,
+    // 选中的随从索引
+    selectedMinionIndex: null as number | null,
+    // 选中的随从来源
+    selectedMinionSource: null as 'tavern' | 'battlefield' | null
   }),
   
   actions: {
@@ -169,6 +175,20 @@ export const useGameStore = defineStore('game', {
         return this.player.reorderMinions(fromIndex, toIndex);
       }
       return false;
+    },
+    
+    // 选择随从
+    selectMinion(minion: Minion, index: number, source: 'tavern' | 'battlefield') {
+      this.selectedMinion = minion;
+      this.selectedMinionIndex = index;
+      this.selectedMinionSource = source;
+    },
+    
+    // 取消选择随从
+    cancelSelectMinion() {
+      this.selectedMinion = null;
+      this.selectedMinionIndex = null;
+      this.selectedMinionSource = null;
     }
   }
 });
