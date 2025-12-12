@@ -95,6 +95,10 @@
           <button v-else-if="gameStore.selectedMinionSource === 'battlefield'" class="action-button" @click="sellSelectedMinion">
             出售
           </button>
+          <!-- 手牌上的随从点击操作按钮 -->
+          <button v-else-if="gameStore.selectedMinionSource === 'hand'" class="action-button" @click="placeMinionFromHand">
+            放置随从
+          </button>
           <button class="action-button cancel-button" @click="cancelSelect">取消选择</button>
         </div>
       </div>
@@ -331,6 +335,14 @@ const buySelectedMinion = () => {
 const sellSelectedMinion = () => {
   if (gameStore.selectedMinion && gameStore.selectedMinionIndex !== null) {
     gameStore.sellMinion('minion', gameStore.selectedMinionIndex);
+    gameStore.cancelSelectMinion();
+  }
+};
+
+// 从手牌放置随从到战场
+const placeMinionFromHand = () => {
+  if (gameStore.selectedMinion && gameStore.selectedMinionIndex !== null) {
+    gameStore.placeMinionFromBench(gameStore.selectedMinionIndex, 0);
     gameStore.cancelSelectMinion();
   }
 };

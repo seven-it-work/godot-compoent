@@ -49,7 +49,7 @@ export const useGameStore = defineStore('game', {
     // 选中的随从索引
     selectedMinionIndex: null as number | null,
     // 选中的随从来源
-    selectedMinionSource: null as 'tavern' | 'battlefield' | null
+    selectedMinionSource: null as 'tavern' | 'battlefield' | 'hand' | null
   }),
   
   actions: {
@@ -178,7 +178,7 @@ export const useGameStore = defineStore('game', {
     },
     
     // 选择随从
-    selectMinion(minion: Minion, index: number, source: 'tavern' | 'battlefield') {
+    selectMinion(minion: Minion, index: number, source: 'tavern' | 'battlefield' | 'hand') {
       this.selectedMinion = minion;
       this.selectedMinionIndex = index;
       this.selectedMinionSource = source;

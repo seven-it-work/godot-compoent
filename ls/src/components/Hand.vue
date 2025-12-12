@@ -35,17 +35,12 @@
       </div>
     </div>
     
-    <!-- 操作提示 -->
-    <div v-if="selectedMinion" class="action-hint">
-      <span>已选择: {{ selectedMinion.name }}</span>
-      <button class="action-button" @click="placeMinion">放置随从</button>
-      <button class="action-button sell-button" @click="sellMinion">出售随从</button>
-    </div>
+    
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useGameStore } from '../stores/game';
 import { Minion } from '../game/Minion';
 import MinionCard from './MinionCard.vue';
@@ -54,9 +49,7 @@ import MinionCard from './MinionCard.vue';
 const gameStore = useGameStore();
 const { player } = gameStore;
 
-// 选中的随从
-const selectedMinion = ref<Minion | null>(null);
-const selectedIndex = ref<number | null>(null);
+
 
 // 计算空手牌槽数量
 const emptySlots = computed(() => {
@@ -67,28 +60,11 @@ const emptySlots = computed(() => {
 
 // 选择随从
 const selectMinion = (minion: Minion, index: number) => {
-  selectedMinion.value = minion;
-  selectedIndex.value = index;
+  // 使用gameStore管理选中的随从，来源为hand
+  gameStore.selectMinion(minion, index, 'hand');
 };
 
-// 放置随从到战场
-const placeMinion = () => {
-  if (selectedMinion.value && selectedIndex.value !== null && player) {
-    // 调用store方法放置随从
-    gameStore.placeMinionFromBench(selectedIndex.value, 0); // 这里简单起见，放置到第一个位置
-    selectedMinion.value = null;
-    selectedIndex.value = null;
-  }
-};
 
-// 出售随从
-const sellMinion = () => {
-  if (selectedMinion.value && selectedIndex.value !== null && player) {
-    gameStore.sellMinion('bench', selectedIndex.value);
-    selectedMinion.value = null;
-    selectedIndex.value = null;
-  }
-};
 
 // 拖拽开始事件
 const onDragStart = (event: DragEvent, source: string, index: number, minion: any) => {
