@@ -57,9 +57,11 @@ interface Props {
 }
 
 // 定义组件事件
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const emit = defineEmits(['click']);
 
 // 接收属性
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = withDefaults(defineProps<Props>(), {
   isOpponent: false,
   isSelected: false,

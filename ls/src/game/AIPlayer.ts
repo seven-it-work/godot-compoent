@@ -237,7 +237,7 @@ export class AIPlayer extends Player {
 
     // 只处理非null的随从
     const nonNullMinions = this.minions.filter((minion): minion is Minion => minion !== null);
-    
+
     // 排序非null随从
     nonNullMinions.sort((a, b) => {
       // 嘲讽随从优先级高

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
+import { Minion } from '../game/Minion';
 import { Player } from '../game/Player';
 import { Tavern } from '../game/Tavern';
-import { Minion } from '../game/Minion';
 
 // 英雄类型定义
 interface HeroPower {

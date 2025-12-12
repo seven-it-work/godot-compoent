@@ -30,8 +30,8 @@
 </template>
 
 <script setup lang="ts">
-import { useGameStore } from '../stores/game';
 import { Minion } from '../game/Minion';
+import { useGameStore } from '../stores/game';
 import MinionCard from './MinionCard.vue';
 
 const gameStore = useGameStore();
