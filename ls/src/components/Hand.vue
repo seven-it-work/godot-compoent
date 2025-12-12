@@ -1,8 +1,5 @@
 <template>
   <div class="hand-container">
-    <!-- 手牌标题 -->
-    <h3 class="hand-title">手牌</h3>
-    
     <!-- 手牌区域 -->
     <div 
       class="hand-area"

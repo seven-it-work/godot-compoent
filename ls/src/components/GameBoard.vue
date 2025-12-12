@@ -51,6 +51,38 @@
           </div>
         </div>
 
+        <!-- 玩家信息 -->
+        <div class="player-info">
+          <div class="player-name">玩家</div>
+          <div class="player-health">
+            <span>生命值:</span>
+            <span>{{ gameStore.player?.hero?.health || 30 }}</span>
+          </div>
+          
+          <div class="gold-info">
+            <span class="label">金币:</span>
+            <span class="value">{{ gameStore.player?.gold || 0 }} / {{ gameStore.player?.maxGold || 10 }}</span>
+          </div>
+          
+          <div class="turn-info">
+            <span class="label">回合:</span>
+            <span class="value">{{ gameStore.currentTurn }}</span>
+          </div>
+          
+          <div class="hero-info">
+            <div class="hero-name">{{ gameStore.selectedHero?.name || '未选择英雄' }}</div>
+            <div class="hero-health">
+              <span>生命值:</span>
+              <span>{{ gameStore.selectedHero?.health || 0 }}</span>
+            </div>
+          </div>
+          
+          <!-- 结束回合按钮 -->
+          <button class="end-turn-button" @click="endTurn">
+            结束回合
+          </button>
+        </div>
+
         <!-- 操作按钮区 -->
         <div class="tavern-actions">
           <!-- 升级按钮 -->
@@ -85,6 +117,7 @@
 
         <!-- 操作提示 -->
         <div v-if="gameStore.selectedMinion" class="action-hint">
+          <!-- 选择的卡牌详情 -->
           <span>已选择: {{ gameStore.selectedMinion.name }}</span>
           <!-- 酒馆上的随从点击操作按钮 -->
           <button v-if="gameStore.selectedMinionSource === 'tavern'" class="action-button" @click="buySelectedMinion">
@@ -110,33 +143,7 @@
         <Battlefield />
         <!-- 手牌组件 -->
         <Hand />
-        <!-- 底部区域 -->
-        <!-- 玩家信息区 -->
-        <div class="player-info">
-          <div class="gold-info">
-            <span class="label">金币:</span>
-            <span class="value">{{ gameStore.player?.gold || 0 }} / {{ gameStore.player?.maxGold || 10 }}</span>
-          </div>
-          
-          <div class="turn-info">
-            <span class="label">回合:</span>
-            <span class="value">{{ gameStore.currentTurn }}</span>
-          </div>
-          
-          <div class="hero-info">
-            <div class="hero-name">{{ gameStore.selectedHero?.name || '未选择英雄' }}</div>
-            <div class="hero-health">
-              <span>生命值:</span>
-              <span>{{ gameStore.selectedHero?.health || 0 }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 结束回合按钮 -->
-        <button class="end-turn-button" @click="endTurn">
-          结束回合
-        </button>
-
+        
         <!-- 返回英雄选择 -->
         <div style="text-align: center; margin-top: 20px;">
           <button @click="returnToHeroSelection">返回英雄选择</button>
@@ -160,7 +167,7 @@ import Battlefield from './Battlefield.vue';
 import { Hero } from '../game/Hero';
 import { Tavern } from '../game/Tavern';
 
-// 使用游戏store
+
 const gameStore = useGameStore();
 
 // 从JSON文件加载英雄数据，并随机选择3个
@@ -508,7 +515,7 @@ const cancelSelect = () => {
 /* 玩家信息区样式 */
 .player-info {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
   background-color: rgba(255, 255, 255, 0.9);
   padding: 15px;
@@ -517,6 +524,7 @@ const cancelSelect = () => {
   max-width: 100%;
   color: black;
   border: 2px solid rgba(0, 0, 0, 0.3);
+  gap: 10px;
 }
 
 .gold-info, .turn-info, .hero-info {
