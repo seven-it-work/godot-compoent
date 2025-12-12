@@ -1,47 +1,43 @@
 <template>
-  <div 
+  <div
     class="minion-card"
     :class="{ 'opponent-minion': isOpponent, selected: isSelected }"
     @click="$emit('click')"
   >
     <!-- 随从星级 -->
-  <div class="minion-star" :style="{ backgroundColor: getStarColor(minion.tier) }">
-    {{ minion.tier }}
-  </div>
-  
-  <!-- 随从类型 -->
-  <div class="minion-type">
-    {{ minion.minionTypesCN.join('/') || '中立' }}
-  </div>
-  
-  <!-- 随从名称 -->
-  <div class="minion-name">
-    {{ minion.nameCN || minion.name }}
-  </div>
-    
+    <div class="minion-star" :style="{ backgroundColor: getStarColor(minion.tier) }">
+      {{ minion.tier }}
+    </div>
+
+    <!-- 随从类型 -->
+    <div class="minion-type">
+      {{ minion.minionTypesCN.join('/') || '中立' }}
+    </div>
+
+    <!-- 随从名称 -->
+    <div class="minion-name">
+      {{ minion.nameCN || minion.name }}
+    </div>
+
     <!-- 随从属性 -->
     <div class="minion-stats">
       <div class="attack">{{ minion.attack }}</div>
       <div class="health">{{ minion.health }}</div>
     </div>
-    
+
     <!-- 随从关键词 -->
     <div class="minion-keywords">
-      <span 
-        v-for="keyword in minion.keywords" 
-        :key="keyword"
-        class="keyword-tag"
-      >
+      <span v-for="keyword in minion.keywords" :key="keyword" class="keyword-tag">
         {{ getKeywordName(keyword) }}
       </span>
     </div>
-    
+
     <!-- 购买提示（可选） -->
     <div v-if="showBuyIndicator" class="buy-indicator">
       <span class="cost">{{ minion.cost }}</span>
       购买
     </div>
-    
+
     <!-- 随从状态（可选） -->
     <div v-if="minion.hasAttacked" class="minion-status">
       <span>已攻击</span>
@@ -67,7 +63,7 @@ const emit = defineEmits(['click']);
 const props = withDefaults(defineProps<Props>(), {
   isOpponent: false,
   isSelected: false,
-  showBuyIndicator: false
+  showBuyIndicator: false,
 });
 
 // 获取星级颜色
@@ -79,7 +75,7 @@ const getStarColor = (star: number) => {
     '#43a047', // 3星
     '#fb8c00', // 4星
     '#e53935', // 5星
-    '#8e24aa'  // 6星
+    '#8e24aa', // 6星
   ];
   return colors[Math.min(star, 6)];
 };
@@ -87,15 +83,15 @@ const getStarColor = (star: number) => {
 // 获取关键词名称
 const getKeywordName = (keyword: string) => {
   const keywordMap: { [key: string]: string } = {
-    'taunt': '嘲讽',
-    'divine_shield': '圣盾',
-    'windfury': '风怒',
-    'super_windfury': '超级风怒',
-    'stealth': '潜行',
-    'charge': '冲锋',
-    'poisonous': '剧毒',
-    'reborn': '复生',
-    'immune': '免疫'
+    taunt: '嘲讽',
+    divine_shield: '圣盾',
+    windfury: '风怒',
+    super_windfury: '超级风怒',
+    stealth: '潜行',
+    charge: '冲锋',
+    poisonous: '剧毒',
+    reborn: '复生',
+    immune: '免疫',
   };
   return keywordMap[keyword] || keyword;
 };

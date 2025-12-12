@@ -1,9 +1,10 @@
 <template>
   <div>
     <!-- 选择英雄界面 -->
-    <a-row v-if="gameStore.gameState === 'hero_selection'">
-      <a-col :span="8"
-        v-for="hero in gameStore.availableHeroes" 
+    <a-row v-if="isHeroSelection">
+      <a-col
+        :span="8"
+        v-for="hero in gameStore.availableHeroes"
         :key="hero.id"
         @click="selectHero(hero.id)"
       >
@@ -22,9 +23,17 @@
               <span>{{ hero.armor }}</span>
             </div>
             <div>
-              <h3>{{ (hero as any).heroPowerList?.[0]?.name || hero.heroPower?.name || '未知技能' }}</h3>
-              <p>{{ (hero as any).heroPowerList?.[0]?.text || hero.heroPower?.description || '无描述' }}</p>
-              <div v-if="(hero as any).heroPowerList?.[0]?.manaCost > 0 || hero.heroPower?.cost > 0">
+              <h3>
+                {{ (hero as any).heroPowerList?.[0]?.name || hero.heroPower?.name || '未知技能' }}
+              </h3>
+              <p>
+                {{
+                  (hero as any).heroPowerList?.[0]?.text || hero.heroPower?.description || '无描述'
+                }}
+              </p>
+              <div
+                v-if="(hero as any).heroPowerList?.[0]?.manaCost > 0 || hero.heroPower?.cost > 0"
+              >
                 消耗: {{ (hero as any).heroPowerList?.[0]?.manaCost || hero.heroPower?.cost }}
               </div>
             </div>
@@ -34,7 +43,7 @@
     </a-row>
 
     <!-- 游戏主界面 -->
-    <div class="game-layout" v-else-if="gameStore.gameState === 'in_game'">
+    <div class="game-layout" v-else-if="isInGame">
       <!-- 左边30% 操作区域 -->
       <div class="left-section">
         <!-- 酒馆标题和等级 -->
@@ -43,9 +52,9 @@
           <div class="tavern-level">
             <span class="level-text">等级 {{ gameStore.player?.tavernLevel || 1 }}</span>
             <div class="level-bar">
-              <div 
-                class="level-progress" 
-                :style="{ width: `${(gameStore.player?.tavernLevel || 1) / 6 * 100}%` }"
+              <div
+                class="level-progress"
+                :style="{ width: `${((gameStore.player?.tavernLevel || 1) / 6) * 100}%` }"
               ></div>
             </div>
           </div>
@@ -58,17 +67,19 @@
             <span>生命值:</span>
             <span>{{ gameStore.player?.hero?.health || 30 }}</span>
           </div>
-          
+
           <div class="gold-info">
             <span class="label">金币:</span>
-            <span class="value">{{ gameStore.player?.gold || 0 }} / {{ gameStore.player?.maxGold || 10 }}</span>
+            <span class="value"
+              >{{ gameStore.player?.gold || 0 }} / {{ gameStore.player?.maxGold || 10 }}</span
+            >
           </div>
-          
+
           <div class="turn-info">
             <span class="label">回合:</span>
             <span class="value">{{ gameStore.currentTurn }}</span>
           </div>
-          
+
           <div class="hero-info">
             <div class="hero-name">{{ gameStore.selectedHero?.name || '未选择英雄' }}</div>
             <div class="hero-health">
@@ -76,17 +87,15 @@
               <span>{{ gameStore.selectedHero?.health || 0 }}</span>
             </div>
           </div>
-          
+
           <!-- 结束回合按钮 -->
-          <button class="end-turn-button" @click="endTurn">
-            结束回合
-          </button>
+          <button class="end-turn-button" @click="endTurn">结束回合</button>
         </div>
 
         <!-- 操作按钮区 -->
         <div class="tavern-actions">
           <!-- 升级按钮 -->
-          <button 
+          <button
             class="action-button upgrade-button"
             :disabled="!canUpgrade"
             @click="upgradeTavern"
@@ -94,9 +103,9 @@
             <span class="cost">{{ upgradeCost }}</span>
             升级
           </button>
-          
+
           <!-- 刷新按钮 -->
-          <button 
+          <button
             class="action-button refresh-button"
             :disabled="!(gameStore.player && gameStore.player.gold >= 1)"
             @click="refreshTavern"
@@ -104,9 +113,9 @@
             <span class="cost">1</span>
             刷新
           </button>
-          
+
           <!-- 冻结按钮 -->
-          <button 
+          <button
             class="action-button freeze-button"
             :class="{ frozen: gameStore.tavern?.isFrozen }"
             @click="toggleFreeze"
@@ -120,16 +129,28 @@
           <!-- 选择的卡牌详情 -->
           <span>已选择: {{ gameStore.selectedMinion.name }}</span>
           <!-- 酒馆上的随从点击操作按钮 -->
-          <button v-if="gameStore.selectedMinionSource === 'tavern'" class="action-button" @click="buySelectedMinion">
+          <button
+            v-if="gameStore.selectedMinionSource === 'tavern'"
+            class="action-button"
+            @click="buySelectedMinion"
+          >
             <span class="cost">{{ gameStore.selectedMinion.cost }}</span>
             购买
           </button>
           <!-- 战场上的随从点击操作按钮 -->
-          <button v-else-if="gameStore.selectedMinionSource === 'battlefield'" class="action-button" @click="sellSelectedMinion">
+          <button
+            v-else-if="gameStore.selectedMinionSource === 'battlefield'"
+            class="action-button"
+            @click="sellSelectedMinion"
+          >
             出售
           </button>
           <!-- 手牌上的随从点击操作按钮 -->
-          <button v-else-if="gameStore.selectedMinionSource === 'hand'" class="action-button" @click="placeMinionFromHand">
+          <button
+            v-else-if="gameStore.selectedMinionSource === 'hand'"
+            class="action-button"
+            @click="placeMinionFromHand"
+          >
             放置随从
           </button>
           <button class="action-button cancel-button" @click="cancelSelect">取消选择</button>
@@ -143,9 +164,9 @@
         <Battlefield />
         <!-- 手牌组件 -->
         <Hand />
-        
+
         <!-- 返回英雄选择 -->
-        <div style="text-align: center; margin-top: 20px;">
+        <div style="text-align: center; margin-top: 20px">
           <button @click="returnToHeroSelection">返回英雄选择</button>
         </div>
       </div>
@@ -167,18 +188,17 @@ import Battlefield from './Battlefield.vue';
 import { Hero } from '../game/Hero';
 import { Tavern } from '../game/Tavern';
 
-
 const gameStore = useGameStore();
 
 // 从JSON文件加载英雄数据，并随机选择3个
 const loadHeroes = () => {
   // 复制英雄数据
   const allHeroes = [...heroesData] as any[];
-  
+
   // 随机选择3个英雄
   const shuffledHeroes = allHeroes.sort(() => 0.5 - Math.random());
   const selectedHeroes = shuffledHeroes.slice(0, 3);
-  
+
   // 存入store
   gameStore.setAvailableHeroes(selectedHeroes);
 };
@@ -211,14 +231,14 @@ const createMinionPool = () => {
 const initGame = (hero: any) => {
   // 创建随从池
   const minionPool = createMinionPool();
-  
+
   // 转换heroPowerList为heroPower对象
   const heroPowerData = hero.heroPowerList?.[0] || {
     name: '未知技能',
     text: '无描述',
-    manaCost: 0
+    manaCost: 0,
   };
-  
+
   // 创建符合Hero类的hero对象
   const heroObj = {
     ...hero,
@@ -229,16 +249,16 @@ const initGame = (hero: any) => {
       cost: heroPowerData.manaCost,
       cooldown: 0,
       currentCooldown: 0,
-      use: () => {}
-    }
+      use: () => {},
+    },
   };
-  
+
   // 创建玩家
   const player = new Player('player-1', heroObj as Hero, true);
-  
+
   // 创建酒馆
   const tavern = new Tavern(1, minionPool);
-  
+
   // 创建AI玩家
   const aiPlayers = [];
   for (let i = 0; i < 7; i++) {
@@ -246,9 +266,9 @@ const initGame = (hero: any) => {
     const aiHeroPowerData = aiHeroData.heroPowerList?.[0] || {
       name: '未知技能',
       text: '无描述',
-      manaCost: 0
+      manaCost: 0,
     };
-    
+
     const aiHeroObj = {
       ...aiHeroData,
       heroPower: {
@@ -258,13 +278,13 @@ const initGame = (hero: any) => {
         cost: aiHeroPowerData.manaCost,
         cooldown: 0,
         currentCooldown: 0,
-        use: () => {}
-      }
+        use: () => {},
+      },
     };
-    
+
     aiPlayers.push(new AIPlayer(`ai-${i + 1}`, aiHeroObj as Hero));
   }
-  
+
   // 初始化store
   gameStore.initGame(player, tavern, aiPlayers);
 };
@@ -358,6 +378,16 @@ const placeMinionFromHand = () => {
 const cancelSelect = () => {
   gameStore.cancelSelectMinion();
 };
+
+// 计算属性：是否处于英雄选择阶段
+const isHeroSelection = computed(() => {
+  return gameStore.gameState === 'hero_selection';
+});
+
+// 计算属性：是否处于游戏中
+const isInGame = computed(() => {
+  return gameStore.gameState === 'in_game';
+});
 </script>
 
 <style scoped>
@@ -527,7 +557,9 @@ const cancelSelect = () => {
   gap: 10px;
 }
 
-.gold-info, .turn-info, .hero-info {
+.gold-info,
+.turn-info,
+.hero-info {
   display: flex;
   flex-direction: column;
   align-items: center;

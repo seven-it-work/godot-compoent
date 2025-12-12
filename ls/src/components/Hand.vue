@@ -1,38 +1,25 @@
 <template>
   <div class="hand-container">
     <!-- 手牌区域 -->
-    <div 
-      class="hand-area"
-      @dragover.prevent
-      @drop="onDrop($event, 'hand')"
-    >
+    <div class="hand-area" @dragover.prevent @drop="onDrop($event, 'hand')">
       <!-- 随从手牌，动态生成 -->
-      <div 
-        v-for="(minion, index) in player?.bench" 
+      <div
+        v-for="(minion, index) in player?.bench"
         :key="minion.id || index"
         class="hand-slot"
         draggable="true"
         @dragstart="onDragStart($event, 'hand', index, minion)"
       >
-        <MinionCard 
-          :minion="minion" 
-          @click="selectMinion(minion, index)"
-        />
+        <MinionCard :minion="minion" @click="selectMinion(minion, index)" />
       </div>
-      
+
       <!-- 空手牌槽，根据剩余空间动态生成 -->
-      <div 
-        v-for="index in emptySlots" 
-        :key="`empty-${index}`"
-        class="hand-slot empty"
-      >
+      <div v-for="index in emptySlots" :key="`empty-${index}`" class="hand-slot empty">
         <div class="empty-slot">
           <span>空</span>
         </div>
       </div>
     </div>
-    
-    
   </div>
 </template>
 
@@ -45,8 +32,6 @@ import MinionCard from './MinionCard.vue';
 // 使用游戏store
 const gameStore = useGameStore();
 const { player } = gameStore;
-
-
 
 // 计算空手牌槽数量
 const emptySlots = computed(() => {
@@ -61,16 +46,17 @@ const selectMinion = (minion: Minion, index: number) => {
   gameStore.selectMinion(minion, index, 'hand');
 };
 
-
-
 // 拖拽开始事件
 const onDragStart = (event: DragEvent, source: string, index: number, minion: any) => {
-  event.dataTransfer?.setData('text/plain', JSON.stringify({
-    source,
-    index,
-    minionId: minion.id,
-    strId: minion.strId
-  }));
+  event.dataTransfer?.setData(
+    'text/plain',
+    JSON.stringify({
+      source,
+      index,
+      minionId: minion.id,
+      strId: minion.strId,
+    })
+  );
 };
 
 // 拖拽放置事件

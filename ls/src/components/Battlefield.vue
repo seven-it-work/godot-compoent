@@ -5,14 +5,25 @@
       <!-- 玩家随从区域 -->
       <div class="player-minions" @dragover.prevent @drop="onDrop($event, 'battlefield')">
         <!-- 固定7个格子，每个格子对应一个位置 -->
-        <div v-for="slotIndex in 7" :key="slotIndex" class="player-minion-slot"
-          :class="{ 'empty': !playerMinions?.[slotIndex - 1] }"
-          @click="selectPlayerMinion(playerMinions?.[slotIndex - 1], slotIndex - 1)" draggable="true"
-          @dragstart="onDragStart($event, 'battlefield', slotIndex - 1, playerMinions?.[slotIndex - 1])"
-          @dragover.prevent="onDragOver($event, slotIndex - 1)" @drop.prevent="onDrop($event, slotIndex - 1)">
+        <div
+          v-for="slotIndex in 7"
+          :key="slotIndex"
+          class="player-minion-slot"
+          :class="{ empty: !playerMinions?.[slotIndex - 1] }"
+          @click="selectPlayerMinion(playerMinions?.[slotIndex - 1], slotIndex - 1)"
+          draggable="true"
+          @dragstart="
+            onDragStart($event, 'battlefield', slotIndex - 1, playerMinions?.[slotIndex - 1])
+          "
+          @dragover.prevent="onDragOver($event, slotIndex - 1)"
+          @drop.prevent="onDrop($event, slotIndex - 1)"
+        >
           <!-- 如果该位置有随从，渲染随从卡片 -->
-          <MinionCard v-if="playerMinions?.[slotIndex - 1]" :minion="playerMinions[slotIndex - 1] as Minion"
-            :is-selected="gameStore.selectedMinion?.id === playerMinions[slotIndex - 1]?.id" />
+          <MinionCard
+            v-if="playerMinions?.[slotIndex - 1]"
+            :minion="playerMinions[slotIndex - 1] as Minion"
+            :is-selected="gameStore.selectedMinion?.id === playerMinions[slotIndex - 1]?.id"
+          />
           <!-- 如果该位置没有随从，渲染空槽 -->
           <div v-else class="empty-slot">
             <span>空</span>
@@ -20,8 +31,6 @@
         </div>
       </div>
     </div>
-
-
   </div>
 </template>
 
@@ -48,12 +57,15 @@ const onDragStart = (event: DragEvent, source: string, index: number, minion: an
   if (source === 'battlefield') {
     dragStartIndex.value = index;
   }
-  event.dataTransfer?.setData('text/plain', JSON.stringify({
-    source,
-    index,
-    minionId: minion.id,
-    strId: minion.strId
-  }));
+  event.dataTransfer?.setData(
+    'text/plain',
+    JSON.stringify({
+      source,
+      index,
+      minionId: minion.id,
+      strId: minion.strId,
+    })
+  );
 };
 
 // 拖拽经过事件

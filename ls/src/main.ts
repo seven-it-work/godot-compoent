@@ -1,11 +1,13 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-import './style.css'
-import 'ant-design-vue/dist/reset.css'
-import App from './App.vue'
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import './style.css';
+import Antd from 'ant-design-vue';
+import 'ant-design-vue/dist/reset.css';
+import App from './App.vue';
 
-const app = createApp(App)
-const pinia = createPinia()
+const app = createApp(App);
+const pinia = createPinia();
 
-app.use(pinia)
-app.mount('#app')
+app.use(pinia);
+app.use(Antd);
+app.mount('#app');

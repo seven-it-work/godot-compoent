@@ -24,8 +24,8 @@ const heroesData = sourceData.data.hero.map(hero => {
       type: hero.heroPower?.typeCN?.toLowerCase() || 'passive',
       cost: hero.heroPower?.cost || 0,
       cooldown: hero.heroPower?.cooldown || 0,
-      currentCooldown: 0
-    }
+      currentCooldown: 0,
+    },
   };
 });
 
@@ -33,26 +33,29 @@ const heroesData = sourceData.data.hero.map(hero => {
 const minionsData = sourceData.data.minion.map(minion => {
   // 将mechanics转换为keywords
   const mechanicsMap = {
-    'TAUNT': 'taunt',
-    'DIVINE_SHIELD': 'divine_shield',
-    'WINDFURY': 'windfury',
-    'REBORN': 'reborn',
-    'STEALTH': 'stealth',
-    'CHARGE': 'charge',
-    'POISONOUS': 'poisonous',
-    'IMMUNE': 'immune'
+    TAUNT: 'taunt',
+    DIVINE_SHIELD: 'divine_shield',
+    WINDFURY: 'windfury',
+    REBORN: 'reborn',
+    STEALTH: 'stealth',
+    CHARGE: 'charge',
+    POISONOUS: 'poisonous',
+    IMMUNE: 'immune',
   };
-  
-  const keywords = minion.mechanics?.map(mechanic => {
-    return mechanicsMap[mechanic] || '';
-  }).filter(Boolean) || [];
-  
+
+  const keywords =
+    minion.mechanics
+      ?.map(mechanic => {
+        return mechanicsMap[mechanic] || '';
+      })
+      .filter(Boolean) || [];
+
   // 确定随从类型
   let type = 'all';
   if (minion.minionTypes && minion.minionTypes.length > 0 && minion.minionTypes[0] !== 'none') {
     type = minion.minionTypes[0];
   }
-  
+
   return {
     id: `minion-${minion.id}`,
     name: minion.nameCN,
@@ -62,7 +65,7 @@ const minionsData = sourceData.data.minion.map(minion => {
     health: minion.health || 0,
     cost: minion.cost || minion.tier || 1, // 使用cost字段或星级作为花费
     keywords: keywords,
-    effects: []
+    effects: [],
   };
 });
 

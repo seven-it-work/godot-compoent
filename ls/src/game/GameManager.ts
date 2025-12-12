@@ -15,7 +15,7 @@ export const GameState = {
   HERO_SELECTION: 'hero_selection' as GameState,
   IN_GAME: 'in_game' as GameState,
   BATTLE_PHASE: 'battle_phase' as GameState,
-  GAME_OVER: 'game_over' as GameState
+  GAME_OVER: 'game_over' as GameState,
 } as const;
 
 // 游戏管理器类
@@ -86,7 +86,7 @@ export class GameManager {
   // 开始新回合
   startNewTurn(): void {
     this.turn++;
-    
+
     // 重置所有玩家的金币和状态
     this.players.forEach(player => {
       if (!player.isDead) {

@@ -21,8 +21,6 @@ interface Hero {
   heroPower: HeroPower;
 }
 
-
-
 // 游戏状态类型
 type GameState = 'hero_selection' | 'in_game' | 'battle_phase' | 'game_over';
 
@@ -49,27 +47,27 @@ export const useGameStore = defineStore('game', {
     // 选中的随从索引
     selectedMinionIndex: null as number | null,
     // 选中的随从来源
-    selectedMinionSource: null as 'tavern' | 'battlefield' | 'hand' | null
+    selectedMinionSource: null as 'tavern' | 'battlefield' | 'hand' | null,
   }),
-  
+
   actions: {
     // 设置选中的英雄
     selectHero(hero: Hero) {
       this.selectedHero = hero;
       this.gameState = 'in_game';
     },
-    
+
     // 设置可用英雄
     setAvailableHeroes(heroes: Hero[]) {
       this.availableHeroes = heroes;
     },
-    
+
     // 返回英雄选择
     returnToHeroSelection() {
       this.selectedHero = null;
       this.gameState = 'hero_selection';
     },
-    
+
     // 初始化游戏
     initGame(player: Player, tavern: Tavern, aiPlayers: Player[]) {
       this.player = player;
@@ -77,7 +75,7 @@ export const useGameStore = defineStore('game', {
       this.aiPlayers = aiPlayers;
       this.currentTurn = 1;
     },
-    
+
     // 刷新酒馆
     refreshTavern() {
       if (this.tavern && this.player) {
@@ -86,7 +84,7 @@ export const useGameStore = defineStore('game', {
         }
       }
     },
-    
+
     // 升级酒馆
     upgradeTavern() {
       if (this.player) {
@@ -98,21 +96,21 @@ export const useGameStore = defineStore('game', {
       }
       return false;
     },
-    
+
     // 冻结酒馆
     freezeTavern() {
       if (this.tavern) {
         this.tavern.freeze();
       }
     },
-    
+
     // 解冻酒馆
     unfreezeTavern() {
       if (this.tavern) {
         this.tavern.unfreeze();
       }
     },
-    
+
     // 购买随从
     buyMinion(index: number) {
       if (this.tavern && this.player) {
@@ -132,7 +130,7 @@ export const useGameStore = defineStore('game', {
       }
       return false;
     },
-    
+
     // 结束回合
     endTurn() {
       if (this.player) {
@@ -144,7 +142,7 @@ export const useGameStore = defineStore('game', {
         }
       }
     },
-    
+
     // 将 bench 中的随从放到战场上
     placeMinionFromBench(index: number, position: number) {
       if (this.player) {
@@ -152,7 +150,7 @@ export const useGameStore = defineStore('game', {
       }
       return false;
     },
-    
+
     // 出售随从
     sellMinion(type: 'minion' | 'bench', index: number) {
       if (this.player) {
@@ -160,7 +158,7 @@ export const useGameStore = defineStore('game', {
       }
       return false;
     },
-    
+
     // 将战场上的随从放回 bench
     returnMinionToBench(position: number) {
       if (this.player) {
@@ -168,7 +166,7 @@ export const useGameStore = defineStore('game', {
       }
       return false;
     },
-    
+
     // 重新排序战场上的随从
     reorderMinions(fromIndex: number, toIndex: number) {
       if (this.player) {
@@ -176,19 +174,19 @@ export const useGameStore = defineStore('game', {
       }
       return false;
     },
-    
+
     // 选择随从
     selectMinion(minion: Minion, index: number, source: 'tavern' | 'battlefield' | 'hand') {
       this.selectedMinion = minion;
       this.selectedMinionIndex = index;
       this.selectedMinionSource = source;
     },
-    
+
     // 取消选择随从
     cancelSelectMinion() {
       this.selectedMinion = null;
       this.selectedMinionIndex = null;
       this.selectedMinionSource = null;
-    }
-  }
+    },
+  },
 });

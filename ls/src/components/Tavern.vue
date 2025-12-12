@@ -1,27 +1,25 @@
 <template>
-  <div 
-    class="tavern-container"
-    @dragover.prevent="onDragOver"
-    @drop="onDrop($event, 'tavern')"
-  >
+  <div class="tavern-container" @dragover.prevent="onDragOver" @drop="onDrop($event, 'tavern')">
     <!-- 可用随从区 -->
     <div class="minions-area">
       <!-- 固定7个格子，每个格子对应一个位置 -->
-      <div 
-        v-for="slotIndex in 7" 
+      <div
+        v-for="slotIndex in 7"
         :key="slotIndex"
         class="minion-slot"
-        :class="{ 'empty': !tavern?.availableMinions?.[slotIndex - 1] }"
+        :class="{ empty: !tavern?.availableMinions?.[slotIndex - 1] }"
         draggable="true"
-        @dragstart="onDragStart($event, 'tavern', slotIndex - 1, tavern?.availableMinions?.[slotIndex - 1])"
+        @dragstart="
+          onDragStart($event, 'tavern', slotIndex - 1, tavern?.availableMinions?.[slotIndex - 1])
+        "
       >
         <!-- 如果该位置有随从，渲染随从卡片 -->
-          <MinionCard 
-            v-if="tavern?.availableMinions?.[slotIndex - 1]"
-            :minion="tavern.availableMinions[slotIndex - 1] as Minion" 
-            :is-selected="gameStore.selectedMinion?.id === tavern.availableMinions[slotIndex - 1]?.id"
-            @click="selectMinion(tavern.availableMinions[slotIndex - 1] as Minion, slotIndex - 1)"
-          />
+        <MinionCard
+          v-if="tavern?.availableMinions?.[slotIndex - 1]"
+          :minion="tavern.availableMinions[slotIndex - 1] as Minion"
+          :is-selected="gameStore.selectedMinion?.id === tavern.availableMinions[slotIndex - 1]?.id"
+          @click="selectMinion(tavern.availableMinions[slotIndex - 1] as Minion, slotIndex - 1)"
+        />
         <!-- 如果该位置没有随从，渲染空槽 -->
         <div v-else class="empty-slot">
           <span>空</span>
@@ -54,12 +52,15 @@ const selectMinion = (minion: Minion, index: number) => {
 
 // 拖拽开始事件
 const onDragStart = (event: DragEvent, source: string, index: number, minion: any) => {
-  event.dataTransfer?.setData('text/plain', JSON.stringify({
-    source,
-    index,
-    minionId: minion.id,
-    strId: minion.strId
-  }));
+  event.dataTransfer?.setData(
+    'text/plain',
+    JSON.stringify({
+      source,
+      index,
+      minionId: minion.id,
+      strId: minion.strId,
+    })
+  );
 };
 
 // 拖拽经过事件

@@ -105,19 +105,19 @@ export class Player {
       if (index < 0 || index >= this.minions.length) {
         return false;
       }
-      
+
       // 检查要出售的位置是否有随从
       if (this.minions[index] === null) {
         return false;
       }
-      
+
       // 将该位置设置为null，而不是使用splice
       this.minions[index] = null;
     } else {
       if (index < 0 || index >= this.bench.length) {
         return false;
       }
-      
+
       // 手牌不是固定数组，直接移除
       this.bench.splice(index, 1);
     }
@@ -135,7 +135,7 @@ export class Player {
   upgradeTavern(): boolean {
     const upgradeCosts = [0, 5, 7, 8, 10, 12, 12];
     const cost = upgradeCosts[this.tavernLevel] || 0;
-    
+
     if (this.gold < cost) {
       return false;
     }
@@ -152,7 +152,7 @@ export class Player {
   // 刷新酒馆
   refreshTavern(): boolean {
     const refreshCost = 1;
-    
+
     if (this.gold < refreshCost) {
       return false;
     }
@@ -166,12 +166,12 @@ export class Player {
     // 重置金币
     this.turn += 1;
     this.gold = Math.min(3 + Math.floor((this.turn - 1) / 1), this.maxGold);
-    
+
     // 重置随从状态
     this.minions.forEach(minion => {
       minion.hasAttacked = false;
     });
-    
+
     // 重置技能冷却
     if (this.hero.heroPower.currentCooldown > 0) {
       this.hero.heroPower.currentCooldown -= 1;
@@ -182,13 +182,13 @@ export class Player {
   checkTriple(): Minion | null {
     // 统计 bench 中的随从数量
     const minionCounts: { [key: string]: number } = {};
-    
+
     this.bench.forEach(minion => {
       if (!minion.isGolden) {
         minionCounts[minion.id] = (minionCounts[minion.id] || 0) + 1;
       }
     });
-    
+
     // 检查是否有三连
     for (const [minionIdStr, count] of Object.entries(minionCounts)) {
       if (count >= 3) {
@@ -200,7 +200,7 @@ export class Player {
         }
       }
     }
-    
+
     return null;
   }
 
@@ -209,11 +209,11 @@ export class Player {
     // 找到3个相同的随从
     const id = parseInt(minionId);
     const targetMinions = this.bench.filter(minion => minion.id === id && !minion.isGolden);
-    
+
     if (targetMinions.length < 3 || !targetMinions[0]) {
       return null;
     }
-    
+
     // 移除这3个随从
     for (let i = 0; i < 3; i++) {
       const index = this.bench.findIndex(minion => minion === targetMinions[i]);
@@ -221,14 +221,14 @@ export class Player {
         this.bench.splice(index, 1);
       }
     }
-    
+
     // 创建金色随从
     const goldenMinion = targetMinions[0].clone();
     goldenMinion.upgradeToGolden();
-    
+
     // 将金色随从放到 bench
     this.bench.push(goldenMinion);
-    
+
     return goldenMinion;
   }
 
@@ -237,21 +237,26 @@ export class Player {
     this.hero.takeDamage(damage);
     this.isDead = this.hero.isDead;
   }
-  
+
   // 重新排序战场上的随从
   reorderMinions(fromIndex: number, toIndex: number): boolean {
-    if (fromIndex < 0 || fromIndex >= this.minions.length || toIndex < 0 || toIndex >= this.minions.length) {
+    if (
+      fromIndex < 0 ||
+      fromIndex >= this.minions.length ||
+      toIndex < 0 ||
+      toIndex >= this.minions.length
+    ) {
       return false;
     }
-    
+
     // 检查原位置是否有随从
     if (this.minions[fromIndex] === null) {
       return false;
     }
-    
+
     // 保存要移动的随从
     const movedMinion = this.minions[fromIndex];
-    
+
     // 检查目标位置是否为空
     if (this.minions[toIndex] === null) {
       // 如果目标位置为空，直接移动
@@ -263,14 +268,14 @@ export class Player {
       const targetMinion = this.minions[toIndex];
       this.minions[fromIndex] = targetMinion;
       this.minions[toIndex] = movedMinion;
-      
+
       // 更新位置
       if (targetMinion) {
         targetMinion.position = fromIndex;
       }
       movedMinion.position = toIndex;
     }
-    
+
     return true;
   }
 }

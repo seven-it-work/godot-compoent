@@ -5,7 +5,7 @@ export type HeroPowerType = 'passive' | 'active' | 'channel';
 export const HeroPowerType = {
   PASSIVE: 'passive' as HeroPowerType,
   ACTIVE: 'active' as HeroPowerType,
-  CHANNEL: 'channel' as HeroPowerType
+  CHANNEL: 'channel' as HeroPowerType,
 } as const;
 
 // 英雄技能接口
@@ -114,16 +114,9 @@ export class Hero {
     // 克隆英雄技能
     const clonedHeroPower = {
       ...this.heroPower,
-      use: this.heroPower.use
+      use: this.heroPower.use,
     };
-    
-    return new Hero(
-      this.id,
-      this.name,
-      this.health,
-      clonedHeroPower,
-      this.armor,
-      this.isPlayer
-    );
+
+    return new Hero(this.id, this.name, this.health, clonedHeroPower, this.armor, this.isPlayer);
   }
 }

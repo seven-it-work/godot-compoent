@@ -22,7 +22,7 @@ export class BattleSystem {
     while (player1Minions.length > 0 && player2Minions.length > 0) {
       // 玩家1的随从攻击玩家2的随从
       this.executeAttackRound(player1Minions, player2Minions);
-      
+
       // 如果玩家2还有随从，玩家2的随从攻击玩家1的随从
       if (player2Minions.length > 0) {
         this.executeAttackRound(player2Minions, player1Minions);
@@ -56,7 +56,7 @@ export class BattleSystem {
       loser,
       damageDealt,
       winnerMinionsLeft,
-      loserMinionsLeft
+      loserMinionsLeft,
     };
   }
 
@@ -65,7 +65,7 @@ export class BattleSystem {
     // 遍历所有攻击者，执行攻击
     for (let i = 0; i < attackers.length; i++) {
       const attacker = attackers[i];
-      
+
       // 如果攻击者不存在或已经死亡，跳过
       if (!attacker || attacker.health <= 0) {
         continue;
@@ -74,7 +74,7 @@ export class BattleSystem {
       // 检查攻击者是否可以攻击
       const hasWindfury = attacker.keywords.includes(MinionKeyword.WINDFURY as any);
       const hasSuperWindfury = attacker.keywords.includes(MinionKeyword.SUPER_WINDFURY as any);
-      
+
       // 普通随从每回合只能攻击一次
       if (!hasWindfury && !hasSuperWindfury && attacker.hasAttacked) {
         continue;
@@ -90,13 +90,13 @@ export class BattleSystem {
       if (!defender) {
         break;
       }
-      
+
       // 执行攻击
       this.executeAttack(attacker, defender);
-      
+
       // 设置攻击状态为已攻击
       attacker.hasAttacked = true;
-      
+
       // 如果目标死亡，从防御者列表中移除
       if (defender.health <= 0) {
         defenders.splice(targetIndex, 1);

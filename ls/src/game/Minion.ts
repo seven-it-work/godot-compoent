@@ -1,5 +1,16 @@
 // 随从类型
-export type MinionType = 'beast' | 'mech' | 'dragon' | 'murloc' | 'demon' | 'elemental' | 'pirate' | 'undead' | 'naga' | 'quilboar' | 'all';
+export type MinionType =
+  | 'beast'
+  | 'mech'
+  | 'dragon'
+  | 'murloc'
+  | 'demon'
+  | 'elemental'
+  | 'pirate'
+  | 'undead'
+  | 'naga'
+  | 'quilboar'
+  | 'all';
 
 // 随从类型常量
 export const MinionType = {
@@ -13,11 +24,20 @@ export const MinionType = {
   UNDEAD: 'undead' as MinionType,
   NAGA: 'naga' as MinionType,
   QUILBOAR: 'quilboar' as MinionType,
-  ALL: 'all' as MinionType
+  ALL: 'all' as MinionType,
 } as const;
 
 // 随从关键词
-export type MinionKeyword = 'taunt' | 'divine_shield' | 'windfury' | 'super_windfury' | 'stealth' | 'charge' | 'poisonous' | 'reborn' | 'immune';
+export type MinionKeyword =
+  | 'taunt'
+  | 'divine_shield'
+  | 'windfury'
+  | 'super_windfury'
+  | 'stealth'
+  | 'charge'
+  | 'poisonous'
+  | 'reborn'
+  | 'immune';
 
 // 随从关键词常量
 export const MinionKeyword = {
@@ -29,7 +49,7 @@ export const MinionKeyword = {
   CHARGE: 'charge' as MinionKeyword,
   POISONOUS: 'poisonous' as MinionKeyword,
   REBORN: 'reborn' as MinionKeyword,
-  IMMUNE: 'immune' as MinionKeyword
+  IMMUNE: 'immune' as MinionKeyword,
 } as const;
 
 // 升级卡片接口
@@ -69,7 +89,7 @@ export class Minion {
   minionTypes: string[];
   minionTypesCN: string[];
   upgradeCard?: UpgradeCard;
-  
+
   // 游戏状态属性
   cost: number;
   keywords: MinionKeyword[];
@@ -80,7 +100,7 @@ export class Minion {
   hasDivineShield: boolean;
   hasReborn: boolean;
   maxHealth: number;
-  
+
   // 静态计数器，用于生成唯一实例ID
   private static instanceCounter: number = 0;
   instanceId: string;
@@ -120,7 +140,7 @@ export class Minion {
     this.minionTypes = minionTypes;
     this.minionTypesCN = minionTypesCN;
     this.upgradeCard = upgradeCard;
-    
+
     // 游戏状态属性
     this.cost = 3; // 默认cost为3
     this.keywords = Minion.mapMechanicsToKeywords(mechanics);
@@ -131,24 +151,24 @@ export class Minion {
     this.hasDivineShield = this.keywords.includes(MinionKeyword.DIVINE_SHIELD);
     this.hasReborn = this.keywords.includes(MinionKeyword.REBORN);
     this.maxHealth = health;
-    
+
     // 生成唯一实例ID
     this.instanceId = `${strId}-${Minion.instanceCounter++}`;
   }
-  
+
   // 将mechanics映射为keywords
   private static mapMechanicsToKeywords(mechanics: string[]): MinionKeyword[] {
     const mechanicsMap: Record<string, MinionKeyword> = {
-      'TAUNT': MinionKeyword.TAUNT,
-      'DIVINE_SHIELD': MinionKeyword.DIVINE_SHIELD,
-      'WINDFURY': MinionKeyword.WINDFURY,
-      'REBORN': MinionKeyword.REBORN,
-      'STEALTH': MinionKeyword.STEALTH,
-      'CHARGE': MinionKeyword.CHARGE,
-      'POISONOUS': MinionKeyword.POISONOUS,
-      'IMMUNE': MinionKeyword.IMMUNE
+      TAUNT: MinionKeyword.TAUNT,
+      DIVINE_SHIELD: MinionKeyword.DIVINE_SHIELD,
+      WINDFURY: MinionKeyword.WINDFURY,
+      REBORN: MinionKeyword.REBORN,
+      STEALTH: MinionKeyword.STEALTH,
+      CHARGE: MinionKeyword.CHARGE,
+      POISONOUS: MinionKeyword.POISONOUS,
+      IMMUNE: MinionKeyword.IMMUNE,
     };
-    
+
     const keywords: MinionKeyword[] = [];
     for (const mechanic of mechanics) {
       const keyword = mechanicsMap[mechanic];

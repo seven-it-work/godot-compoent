@@ -7,7 +7,7 @@ const MINION_POOL_LIMITS = {
   3: 13,
   4: 11,
   5: 9,
-  6: 6
+  6: 6,
 };
 
 // 酒馆类
@@ -29,7 +29,7 @@ export class Tavern {
     this.refreshCost = 1;
     this.upgradeCosts = [0, 5, 7, 8, 10, 12, 12];
     this.minionCounts = new Map();
-    
+
     // 初始化随从池计数
     this.initializeMinionCounts();
     // 初始化时刷新一次酒馆
@@ -43,7 +43,7 @@ export class Tavern {
     this.minionPool.forEach(minion => {
       idCounts.set(minion.id, (idCounts.get(minion.id) || 0) + 1);
     });
-    
+
     // 设置每个随从的初始数量（不超过星级限制）
     idCounts.forEach((count, id) => {
       const minion = this.minionPool.find(m => m.id === id);
@@ -62,7 +62,7 @@ export class Tavern {
 
     // 清空现有随从
     this.availableMinions = [];
-    
+
     // 根据酒馆等级设置显示的随从数量
     let minionsToShow = 3; // 默认1级酒馆
     switch (this.level) {
@@ -81,7 +81,7 @@ export class Tavern {
         minionsToShow = 6;
         break;
     }
-    
+
     // 从随从池中随机选择随从
     for (let i = 0; i < minionsToShow; i++) {
       const minion = this.selectRandomMinion();
@@ -98,20 +98,20 @@ export class Tavern {
       const count = this.minionCounts.get(minion.id.toString()) || 0;
       return minion.tier <= this.level && count > 0;
     });
-    
+
     if (availableMinions.length === 0) {
       return null;
     }
-    
+
     // 随机选择
     const randomIndex = Math.floor(Math.random() * availableMinions.length);
     const selectedMinion = availableMinions[randomIndex];
-    
+
     if (selectedMinion) {
       // 克隆并返回
       return selectedMinion.clone();
     }
-    
+
     return null;
   }
 
@@ -138,7 +138,7 @@ export class Tavern {
     if (this.level >= 6) {
       return -1;
     }
-    
+
     return this.upgradeCosts[this.level] || 0;
   }
 
@@ -167,37 +167,35 @@ export class Tavern {
     if (index < 0 || index >= this.availableMinions.length) {
       return null;
     }
-    
+
     const minion = this.availableMinions[index];
     if (minion) {
       // 将该位置设置为undefined，而不是使用splice移除，这样可以保持固定位置
       this.availableMinions[index] = undefined as any;
-      
+
       // 从公共池中扣除该随从
       const currentCount = this.minionCounts.get(minion.id.toString()) || 0;
       if (currentCount > 0) {
         this.minionCounts.set(minion.id.toString(), currentCount - 1);
       }
-      
+
       // 不自动刷新，让空位显示为空
       // 只有当玩家主动刷新酒馆时，才会出现新的卡片
-      
+
       return minion;
     }
     return null;
   }
 
-  
-  
   // 获取随从在公共池中的剩余数量
   getMinionRemainingCount(minionId: string): number {
     return this.minionCounts.get(minionId) || 0;
   }
-  
+
   // 获取当前酒馆等级可刷新的随从星级概率
   getStarProbabilities(): Map<number, number> {
     const probs = new Map<number, number>();
-    
+
     switch (this.level) {
       case 1:
         probs.set(1, 1.0);
@@ -230,7 +228,7 @@ export class Tavern {
         probs.set(6, 0.2);
         break;
     }
-    
+
     return probs;
   }
 }
