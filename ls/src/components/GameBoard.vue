@@ -193,7 +193,7 @@ import { useGameStore } from '../stores/game';
 import { Player } from '../game/Player';
 import { AIPlayer } from '../game/AIPlayer';
 import { Minion } from '../game/Minion';
-import { WrathWeaver } from '../game/minion/WrathWeaver';
+import { minionClassMapByStrId } from '../game/minion/MinionClassMap';
 import TavernVue from './Tavern.vue';
 import Hand from './Hand.vue';
 import Battlefield from './Battlefield.vue';
@@ -225,39 +225,40 @@ const loadHeroes = () => {
   gameStore.setAvailableHeroes(selectedHeroes);
 };
 
-// 随从类映射 - 用于根据strId或nameCN创建对应子类
-const minionClassMap: Record<string, typeof Minion> = {
-  wrathweaver: WrathWeaver,
-  愤怒编织者: WrathWeaver,
-};
-
-// 从JSON数据创建随从池
+// 从已开发的随从类创建随从池
 const createMinionPool = () => {
-  return minionsData.map(minionData => {
-    // 根据strId或nameCN获取对应的随从类
-    const MinionClass =
-      minionClassMap[minionData.strId] || minionClassMap[minionData.nameCN] || Minion;
+  // 只使用已开发的随从类，直接使用minionClassMapByStrId的键
+  const developedStrIds = Object.keys(minionClassMapByStrId);
 
-    // 实例化对应的随从类
-    return new MinionClass(
-      minionData.id,
-      minionData.strId,
-      minionData.cardType,
-      minionData.name,
-      minionData.nameCN,
-      minionData.text,
-      minionData.mechanics || [],
-      minionData.referencedTags || [],
-      minionData.img,
-      minionData.art,
-      minionData.tier,
-      minionData.health,
-      minionData.attack,
-      minionData.minionTypes,
-      minionData.minionTypesCN,
-      minionData.upgradeCard
-    );
-  });
+  // 从json数据中过滤出已开发的随从
+  return minionsData
+    .filter(minionData => {
+      return developedStrIds.includes(minionData.strId);
+    })
+    .map(minionData => {
+      // 根据strId获取对应的随从类
+      const MinionClass = minionClassMapByStrId[minionData.strId] || Minion;
+
+      // 实例化对应的随从类
+      return new MinionClass(
+        minionData.id,
+        minionData.strId,
+        minionData.cardType,
+        minionData.name,
+        minionData.nameCN,
+        minionData.text,
+        minionData.mechanics || [],
+        minionData.referencedTags || [],
+        minionData.img,
+        minionData.art,
+        minionData.tier,
+        minionData.health,
+        minionData.attack,
+        minionData.minionTypes,
+        minionData.minionTypesCN,
+        minionData.upgradeCard
+      );
+    });
 };
 
 // 初始化游戏

@@ -124,15 +124,7 @@ export const useGameStore = defineStore('game', {
             const removedMinion = this.tavern.buyMinion(index);
             if (removedMinion) {
               // 执行招募操作
-              if (this.player.recruitMinion(removedMinion)) {
-                // 购买成功后，触发当前玩家所有场上随从的onCardPlayed方法
-                this.player.minions.forEach(fieldMinion => {
-                  if (fieldMinion) {
-                    fieldMinion.onCardPlayed(removedMinion, this);
-                  }
-                });
-                return true;
-              }
+              return this.player.recruitMinion(removedMinion);
             }
           }
         }
