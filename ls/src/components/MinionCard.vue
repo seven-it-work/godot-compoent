@@ -10,9 +10,7 @@
     </div>
 
     <!-- 随从类型 -->
-    <div class="minion-type">
-      {{ minion.minionTypesCN.join('/') || '中立' }}
-    </div>
+    <div class="minion-type">{{ minion.minionTypesCN.join('/') || '中立' }} {{ minion.id }}</div>
 
     <!-- 随从名称 -->
     <div class="minion-name">

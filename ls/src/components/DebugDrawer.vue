@@ -1,0 +1,289 @@
+<template>
+  <Drawer
+    :open="debugDrawerVisible"
+    title="调试信息"
+    placement="left"
+    @update:open="$emit('update:debugDrawerVisible', $event)"
+    @close="$emit('close')"
+  >
+    <div class="debug-info">
+      <h3>调试功能</h3>
+
+      <!-- 设置当前金币 -->
+      <div class="debug-section">
+        <h4>设置当前金币</h4>
+        <div class="debug-control">
+          <input
+            type="number"
+            v-model.number="currentGold"
+            min="0"
+            placeholder="输入金币数量"
+            class="debug-input"
+          />
+          <button @click="setCurrentGold" class="debug-button">设置</button>
+        </div>
+      </div>
+
+      <!-- 设置当前最大金币 -->
+      <div class="debug-section">
+        <h4>设置当前最大金币</h4>
+        <div class="debug-control">
+          <input
+            type="number"
+            v-model.number="maxGold"
+            min="1"
+            max="10"
+            placeholder="输入最大金币数量"
+            class="debug-input"
+          />
+          <button @click="setMaxGold" class="debug-button">设置</button>
+        </div>
+      </div>
+
+      <!-- 添加随从到酒馆 -->
+      <div class="debug-section">
+        <h4>添加随从到酒馆</h4>
+
+        <!-- 搜索框 -->
+        <div class="debug-control">
+          <input type="text" v-model="searchQuery" placeholder="搜索随从..." class="debug-input" />
+        </div>
+
+        <!-- 随从列表 -->
+        <div class="minion-list">
+          <div
+            v-for="minion in filteredMinions"
+            :key="minion.id"
+            class="minion-item"
+            @click="addSpecificMinionToTavern(minion)"
+          >
+            <span class="minion-name">{{ minion.nameCN || minion.name }}</span>
+            <span class="minion-tier">{{ minion.tier }}星</span>
+          </div>
+
+          <!-- 没有找到随从时的提示 -->
+          <div v-if="filteredMinions.length === 0" class="no-minions">没有找到匹配的随从</div>
+        </div>
+      </div>
+    </div>
+  </Drawer>
+</template>
+
+<script setup lang="ts">
+import { Drawer } from 'ant-design-vue';
+import { ref, watch, computed } from 'vue';
+import { useGameStore } from '../stores/game';
+import { Minion } from '../game/Minion';
+
+// 定义组件的属性
+interface Props {
+  debugDrawerVisible: boolean;
+  gameState: string;
+  currentTurn: number;
+}
+
+// 使用组件的属性
+const _props = defineProps<Props>();
+
+// 使用游戏store
+const gameStore = useGameStore();
+
+// 响应式变量
+const currentGold = ref(gameStore.player?.gold || 0);
+const maxGold = ref(gameStore.player?.maxGold || 10);
+const searchQuery = ref('');
+
+// 监听player变化，更新局部变量
+watch(
+  () => gameStore.player,
+  newPlayer => {
+    if (newPlayer) {
+      currentGold.value = newPlayer.gold;
+      maxGold.value = newPlayer.maxGold;
+    }
+  },
+  { deep: true }
+);
+
+// 定义组件的事件
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const emit = defineEmits<{
+  (e: 'close'): void;
+  (e: 'update:debugDrawerVisible', value: boolean): void;
+}>();
+
+// 设置当前金币
+const setCurrentGold = () => {
+  gameStore.setCurrentGold(currentGold.value);
+};
+
+// 设置最大金币
+const setMaxGold = () => {
+  gameStore.setMaxGold(maxGold.value);
+};
+
+// 过滤后的随从列表
+const filteredMinions = computed(() => {
+  if (!gameStore.minionPool || !searchQuery.value.trim()) {
+    return gameStore.minionPool || [];
+  }
+
+  const query = searchQuery.value.toLowerCase().trim();
+  return (gameStore.minionPool || []).filter(minion => {
+    // 同时搜索中文名称和英文名称，支持模糊查询
+    return (
+      minion.name.toLowerCase().includes(query) ||
+      (minion.nameCN && minion.nameCN.toLowerCase().includes(query))
+    );
+  });
+});
+
+// 添加特定随从到酒馆
+const addSpecificMinionToTavern = (minion: Minion) => {
+  console.log('addSpecificMinionToTavern被调用');
+  console.log('gameStore.tavern:', gameStore.tavern);
+  console.log('minion:', minion);
+  if (gameStore.tavern) {
+    console.log('开始添加随从...');
+    // 克隆随从对象，避免修改原对象
+    const newMinion = minion.clone();
+    console.log('克隆后的随从:', newMinion);
+    const success = gameStore.tavern.debugAddMinion(newMinion);
+    if (success) {
+      console.log('添加随从完成');
+    } else {
+      console.log('酒馆已满，无法添加随从');
+    }
+  } else {
+    console.log('gameStore.tavern不存在，无法添加随从');
+  }
+};
+</script>
+
+<style scoped>
+/* 调试抽屉样式 */
+.debug-info {
+  padding: 10px 0;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+.debug-info h3 {
+  margin: 15px 0 10px 0;
+  font-size: 16px;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.debug-info h4 {
+  margin: 10px 0 5px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.debug-section {
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.debug-control {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.debug-input {
+  flex: 1;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+.debug-button {
+  padding: 5px 15px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.debug-button:hover {
+  background-color: #45a049;
+}
+
+/* 随从列表样式 */
+.minion-list {
+  margin-top: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  background-color: white;
+}
+
+.minion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.minion-item:hover {
+  background-color: #f5f5f5;
+}
+
+.minion-item:last-child {
+  border-bottom: none;
+}
+
+.minion-name {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.minion-tier {
+  font-size: 12px;
+  color: #ffd700;
+  font-weight: bold;
+  background-color: #333;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.no-minions {
+  padding: 15px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}
+
+.debug-info p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.debug-minion-item {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #666;
+  padding-left: 10px;
+}
+
+.debug-minion-item span:first-child {
+  font-weight: bold;
+  color: #333;
+}
+</style>

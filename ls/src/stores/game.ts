@@ -69,11 +69,12 @@ export const useGameStore = defineStore('game', {
     },
 
     // 初始化游戏
-    initGame(player: Player, tavern: Tavern, aiPlayers: Player[]) {
+    initGame(player: Player, tavern: Tavern, aiPlayers: Player[], minionPool: Minion[]) {
       this.player = player;
       this.tavern = tavern;
       this.aiPlayers = aiPlayers;
       this.currentTurn = 1;
+      this.minionPool = minionPool;
     },
 
     // 刷新酒馆
@@ -145,9 +146,17 @@ export const useGameStore = defineStore('game', {
 
     // 将 bench 中的随从放到战场上
     placeMinionFromBench(index: number, position: number) {
+      console.log('gameStore.placeMinionFromBench被调用');
+      console.log('index:', index);
+      console.log('position:', position);
+      console.log('player:', this.player);
       if (this.player) {
-        return this.player.placeMinionFromBench(index, position);
+        console.log('调用player.placeMinionFromBench...');
+        const success = this.player.placeMinionFromBench(index, position);
+        console.log('player.placeMinionFromBench返回:', success);
+        return success;
       }
+      console.log('player不存在，无法放置随从');
       return false;
     },
 
@@ -187,6 +196,34 @@ export const useGameStore = defineStore('game', {
       this.selectedMinion = null;
       this.selectedMinionIndex = null;
       this.selectedMinionSource = null;
+    },
+
+    // 调试功能 - 设置当前金币
+    setCurrentGold(gold: number) {
+      if (this.player) {
+        this.player.gold = gold;
+      }
+    },
+
+    // 调试功能 - 设置当前最大金币
+    setMaxGold(maxGold: number) {
+      if (this.player) {
+        this.player.maxGold = maxGold;
+      }
+    },
+
+    // 调试功能 - 添加随从到酒馆
+    addMinionToTavern() {
+      if (this.tavern && this.minionPool.length > 0) {
+        // 随机从随从池中选择一个随从
+        const randomIndex = Math.floor(Math.random() * this.minionPool.length);
+        const randomMinion = this.minionPool[randomIndex];
+        if (randomMinion) {
+          // 复制随从对象，避免修改原对象
+          const newMinion = randomMinion.clone();
+          this.tavern.debugAddMinion(newMinion);
+        }
+      }
     },
   },
 });

@@ -5,7 +5,7 @@
       <!-- 随从手牌，动态生成 -->
       <div
         v-for="(minion, index) in player?.bench"
-        :key="minion.id || index"
+        :key="minion.instanceId || index"
         class="hand-slot"
         draggable="true"
         @dragstart="onDragStart($event, 'hand', index, minion)"
@@ -48,12 +48,19 @@ const selectMinion = (minion: Minion, index: number) => {
 
 // 拖拽开始事件
 const onDragStart = (event: DragEvent, source: string, index: number, minion: any) => {
+  // 只有当minion存在时才执行拖拽逻辑
+  if (!minion) {
+    // 阻止默认拖拽行为
+    event.preventDefault();
+    return;
+  }
+
   event.dataTransfer?.setData(
     'text/plain',
     JSON.stringify({
       source,
       index,
-      minionId: minion.id,
+      minionId: minion.instanceId,
       strId: minion.strId,
     })
   );
@@ -64,16 +71,20 @@ const onDrop = (event: DragEvent, target: string) => {
   event.preventDefault();
   const data = event.dataTransfer?.getData('text/plain');
   if (data) {
-    const dragData = JSON.parse(data);
-    // 如果是从酒馆拖拽到手牌，执行购买操作
-    if (dragData.source === 'tavern' && target === 'hand') {
-      // 找到对应的酒馆随从索引
-      const tavernIndex = dragData.index;
-      // 购买随从，只有当条件满足时，卡片才会从酒馆移除
-      const success = gameStore.buyMinion(tavernIndex);
-      if (!success) {
-        console.log('购买失败，可能是金币不足或手牌已满');
+    try {
+      const dragData = JSON.parse(data);
+      // 如果是从酒馆拖拽到手牌，执行购买操作
+      if (dragData.source === 'tavern' && target === 'hand') {
+        // 找到对应的酒馆随从索引
+        const tavernIndex = dragData.index;
+        // 购买随从，只有当条件满足时，卡片才会从酒馆移除
+        const success = gameStore.buyMinion(tavernIndex);
+        if (!success) {
+          console.log('购买失败，可能是金币不足或手牌已满');
+        }
       }
+    } catch (_error) {
+      // console.error('无效的拖拽数据:', error);
     }
   }
 };

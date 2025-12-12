@@ -48,33 +48,54 @@ export class Player {
 
   // 将 bench 中的随从放到战场上
   placeMinionFromBench(index: number, position: number): boolean {
+    console.log('Player.placeMinionFromBench被调用');
+    console.log('index:', index);
+    console.log('position:', position);
+    console.log('bench:', this.bench);
+    console.log('minions:', this.minions);
+
     if (index < 0 || index >= this.bench.length) {
+      console.log('index超出bench范围，返回false');
       return false;
     }
 
     if (position < 0 || position >= 7) {
+      console.log('position超出minions范围，返回false');
       return false;
     }
 
     const minion = this.bench[index];
     if (minion) {
+      console.log('获取到的minion:', minion);
       // 检查目标位置是否为空
       if (this.minions[position] === null) {
+        console.log(`目标位置${position}为空，直接放置`);
         this.bench.splice(index, 1);
         this.minions[position] = minion;
         minion.position = position;
+        console.log('放置成功，返回true');
+        console.log('放置后的bench:', this.bench);
+        console.log('放置后的minions:', this.minions);
         return true;
       } else {
+        console.log(`目标位置${position}已有随从，从第一个位置开始找第一个空位置`);
         // 如果目标位置已有随从，从第一个位置开始找第一个空位置
         for (let i = 0; i < 7; i++) {
           if (this.minions[i] === null) {
+            console.log(`找到空位置${i}，放置随从`);
             this.bench.splice(index, 1);
             this.minions[i] = minion;
             minion.position = i;
+            console.log('放置成功，返回true');
+            console.log('放置后的bench:', this.bench);
+            console.log('放置后的minions:', this.minions);
             return true;
           }
         }
+        console.log('没有找到空位置，返回false');
       }
+    } else {
+      console.log('minion不存在，返回false');
     }
     return false;
   }
@@ -187,16 +208,17 @@ export class Player {
 
     this.bench.forEach(minion => {
       if (!minion.isGolden) {
-        minionCounts[minion.id] = (minionCounts[minion.id] || 0) + 1;
+        minionCounts[minion.strId] = (minionCounts[minion.strId] || 0) + 1;
       }
     });
 
     // 检查是否有三连
-    for (const [minionIdStr, count] of Object.entries(minionCounts)) {
+    for (const [minionStrId, count] of Object.entries(minionCounts)) {
       if (count >= 3) {
         // 找到对应的随从
-        const minionId = parseInt(minionIdStr);
-        const targetMinion = this.bench.find(minion => minion.id === minionId && !minion.isGolden);
+        const targetMinion = this.bench.find(
+          minion => minion.strId === minionStrId && !minion.isGolden
+        );
         if (targetMinion) {
           return targetMinion;
         }
@@ -207,10 +229,11 @@ export class Player {
   }
 
   // 执行三连合成
-  performTriple(minionId: string): Minion | null {
+  performTriple(minionStrId: string): Minion | null {
     // 找到3个相同的随从
-    const id = parseInt(minionId);
-    const targetMinions = this.bench.filter(minion => minion.id === id && !minion.isGolden);
+    const targetMinions = this.bench.filter(
+      minion => minion.strId === minionStrId && !minion.isGolden
+    );
 
     if (targetMinions.length < 3 || !targetMinions[0]) {
       return null;

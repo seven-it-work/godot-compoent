@@ -11,10 +11,12 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AButton: typeof import('ant-design-vue/es')['Button']
     ACard: typeof import('ant-design-vue/es')['Card']
     ACol: typeof import('ant-design-vue/es')['Col']
     ARow: typeof import('ant-design-vue/es')['Row']
     Battlefield: typeof import('./src/components/Battlefield.vue')['default']
+    DebugDrawer: typeof import('./src/components/DebugDrawer.vue')['default']
     GameBoard: typeof import('./src/components/GameBoard.vue')['default']
     Hand: typeof import('./src/components/Hand.vue')['default']
     MinionCard: typeof import('./src/components/MinionCard.vue')['default']

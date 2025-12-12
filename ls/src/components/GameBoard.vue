@@ -155,6 +155,9 @@
           </button>
           <button class="action-button cancel-button" @click="cancelSelect">取消选择</button>
         </div>
+
+        <!-- 调试按钮 -->
+        <a-button @click="showDebugDrawer">调试</a-button>
       </div>
       <!-- 右边70% 主界面 -->
       <div class="right-section">
@@ -171,11 +174,19 @@
         </div>
       </div>
     </div>
+
+    <!-- 调试抽屉组件 -->
+    <DebugDrawer
+      v-model:debug-drawer-visible="debugDrawerVisible"
+      :game-state="gameStore.gameState"
+      :current-turn="gameStore.currentTurn"
+      @close="closeDebugDrawer"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import heroesData from '../data/heroes.json';
 import minionsData from '../data/minions.json';
 import { useGameStore } from '../stores/game';
@@ -187,8 +198,18 @@ import Hand from './Hand.vue';
 import Battlefield from './Battlefield.vue';
 import { Hero } from '../game/Hero';
 import { Tavern } from '../game/Tavern';
+import DebugDrawer from './DebugDrawer.vue';
 
 const gameStore = useGameStore();
+
+// 调试抽屉控制
+const debugDrawerVisible = ref(false);
+const showDebugDrawer = () => {
+  debugDrawerVisible.value = true;
+};
+const closeDebugDrawer = () => {
+  debugDrawerVisible.value = false;
+};
 
 // 从JSON文件加载英雄数据，并随机选择3个
 const loadHeroes = () => {
@@ -286,7 +307,7 @@ const initGame = (hero: any) => {
   }
 
   // 初始化store
-  gameStore.initGame(player, tavern, aiPlayers);
+  gameStore.initGame(player, tavern, aiPlayers, minionPool);
 };
 
 // 组件挂载时加载英雄数据
@@ -368,9 +389,18 @@ const sellSelectedMinion = () => {
 
 // 从手牌放置随从到战场
 const placeMinionFromHand = () => {
+  console.log('placeMinionFromHand被调用');
+  console.log('selectedMinion:', gameStore.selectedMinion);
+  console.log('selectedMinionIndex:', gameStore.selectedMinionIndex);
   if (gameStore.selectedMinion && gameStore.selectedMinionIndex !== null) {
-    gameStore.placeMinionFromBench(gameStore.selectedMinionIndex, 0);
+    console.log('开始从手牌放置随从到战场...');
+    const success = gameStore.placeMinionFromBench(gameStore.selectedMinionIndex, 0);
+    console.log('放置随从结果:', success ? '成功' : '失败');
+    console.log('取消选择随从...');
     gameStore.cancelSelectMinion();
+    console.log('placeMinionFromHand执行完成');
+  } else {
+    console.log('selectedMinion或selectedMinionIndex为空，无法放置随从');
   }
 };
 

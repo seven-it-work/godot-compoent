@@ -17,7 +17,10 @@
         <MinionCard
           v-if="tavern?.availableMinions?.[slotIndex - 1]"
           :minion="tavern.availableMinions[slotIndex - 1] as Minion"
-          :is-selected="gameStore.selectedMinion?.id === tavern.availableMinions[slotIndex - 1]?.id"
+          :is-selected="
+            gameStore.selectedMinion?.instanceId ===
+            tavern.availableMinions[slotIndex - 1]?.instanceId
+          "
           @click="selectMinion(tavern.availableMinions[slotIndex - 1] as Minion, slotIndex - 1)"
         />
         <!-- 如果该位置没有随从，渲染空槽 -->
@@ -52,12 +55,15 @@ const selectMinion = (minion: Minion, index: number) => {
 
 // 拖拽开始事件
 const onDragStart = (event: DragEvent, source: string, index: number, minion: any) => {
+  if (!minion) {
+    return;
+  }
   event.dataTransfer?.setData(
     'text/plain',
     JSON.stringify({
       source,
       index,
-      minionId: minion.id,
+      minionId: minion.instanceId,
       strId: minion.strId,
     })
   );
@@ -73,10 +79,14 @@ const onDrop = (event: DragEvent, target: string) => {
   event.preventDefault();
   const data = event.dataTransfer?.getData('text/plain');
   if (data) {
-    const dragData = JSON.parse(data);
-    // 如果是从战场拖拽到酒馆，执行出售操作
-    if (dragData.source === 'battlefield' && target === 'tavern') {
-      gameStore.sellMinion('minion', dragData.index);
+    try {
+      const dragData = JSON.parse(data);
+      // 如果是从战场拖拽到酒馆，执行出售操作
+      if (dragData.source === 'battlefield' && target === 'tavern') {
+        gameStore.sellMinion('minion', dragData.index);
+      }
+    } catch (_error) {
+      // console.error('无效的拖拽数据:', error);
     }
   }
 };

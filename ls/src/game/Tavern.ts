@@ -14,7 +14,7 @@ const MINION_POOL_LIMITS = {
 export class Tavern {
   level: number;
   minionPool: Minion[];
-  availableMinions: Minion[];
+  availableMinions: (Minion | null)[];
   isFrozen: boolean;
   refreshCost: number;
   upgradeCosts: number[];
@@ -24,7 +24,8 @@ export class Tavern {
   constructor(level: number = 1, minionPool: Minion[] = []) {
     this.level = level;
     this.minionPool = minionPool;
-    this.availableMinions = [];
+    // 固定7个位置，默认null
+    this.availableMinions = new Array(7).fill(null);
     this.isFrozen = false;
     this.refreshCost = 1;
     this.upgradeCosts = [0, 5, 7, 8, 10, 12, 12];
@@ -60,34 +61,10 @@ export class Tavern {
       return;
     }
 
-    // 清空现有随从
-    this.availableMinions = [];
-
-    // 根据酒馆等级设置显示的随从数量
-    let minionsToShow = 3; // 默认1级酒馆
-    switch (this.level) {
-      case 1:
-        minionsToShow = 3;
-        break;
-      case 2:
-      case 3:
-        minionsToShow = 4;
-        break;
-      case 4:
-      case 5:
-        minionsToShow = 5;
-        break;
-      case 6:
-        minionsToShow = 6;
-        break;
-    }
-
-    // 从随从池中随机选择随从
+    // 从随从池中随机选择随从，替换对应位置的随从
+    const minionsToShow = this.getMinionsToShowCount();
     for (let i = 0; i < minionsToShow; i++) {
-      const minion = this.selectRandomMinion();
-      if (minion) {
-        this.availableMinions.push(minion);
-      }
+      this.availableMinions[i] = this.selectRandomMinion();
     }
   }
 
@@ -170,8 +147,8 @@ export class Tavern {
 
     const minion = this.availableMinions[index];
     if (minion) {
-      // 将该位置设置为undefined，而不是使用splice移除，这样可以保持固定位置
-      this.availableMinions[index] = undefined as any;
+      // 将该位置设置为null，而不是使用splice移除，这样可以保持固定位置
+      this.availableMinions[index] = null;
 
       // 从公共池中扣除该随从
       const currentCount = this.minionCounts.get(minion.id.toString()) || 0;
@@ -230,5 +207,20 @@ export class Tavern {
     }
 
     return probs;
+  }
+
+  // 调试专用 - 添加随从到酒馆
+  debugAddMinion(minion: Minion): boolean {
+    // 找到第一个空位置（null）
+    const emptyIndex = this.availableMinions.findIndex(m => m === null);
+
+    if (emptyIndex !== -1) {
+      // 如果有空位置，将随从添加到该位置
+      this.availableMinions[emptyIndex] = minion;
+      return true;
+    } else {
+      // 如果没有空位置，不能添加
+      return false;
+    }
   }
 }
