@@ -3,7 +3,7 @@
     <!-- 玩家区域 -->
     <div class="player-area">
       <!-- 玩家随从区域 -->
-      <div class="player-minions" @dragover.prevent @drop="onDrop($event, 'battlefield')">
+      <div class="player-minions" @dragover.prevent>
         <!-- 固定7个格子，每个格子对应一个位置 -->
         <div
           v-for="slotIndex in 7"

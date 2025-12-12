@@ -124,7 +124,15 @@ export const useGameStore = defineStore('game', {
             const removedMinion = this.tavern.buyMinion(index);
             if (removedMinion) {
               // 执行招募操作
-              return this.player.recruitMinion(removedMinion);
+              if (this.player.recruitMinion(removedMinion)) {
+                // 购买成功后，触发当前玩家所有场上随从的onCardPlayed方法
+                this.player.minions.forEach(fieldMinion => {
+                  if (fieldMinion) {
+                    fieldMinion.onCardPlayed(removedMinion, this);
+                  }
+                });
+                return true;
+              }
             }
           }
         }
@@ -152,8 +160,22 @@ export const useGameStore = defineStore('game', {
       console.log('player:', this.player);
       if (this.player) {
         console.log('调用player.placeMinionFromBench...');
+        // 先获取要放置的随从，用于后续触发事件
+        const minionToPlace = this.player.bench[index];
         const success = this.player.placeMinionFromBench(index, position);
         console.log('player.placeMinionFromBench返回:', success);
+
+        // 放置成功后，触发当前玩家所有场上随从的onCardPlayed方法
+        if (success && minionToPlace) {
+          console.log('放置成功，触发所有场上随从的onCardPlayed事件');
+          this.player.minions.forEach(fieldMinion => {
+            if (fieldMinion && fieldMinion !== minionToPlace) {
+              console.log('调用场上随从的onCardPlayed:', fieldMinion.nameCN);
+              fieldMinion.onCardPlayed(minionToPlace, this);
+            }
+          });
+        }
+
         return success;
       }
       console.log('player不存在，无法放置随从');

@@ -291,7 +291,8 @@ export class Minion {
    * @使用方式：当需要创建随从副本时调用，如购买随从或战斗时复制随从
    */
   clone(): Minion {
-    return new Minion(
+    // 使用当前实例的构造函数创建副本，确保子类也能正确克隆
+    return new (this.constructor as typeof Minion)(
       this.id,
       this.strId,
       this.cardType,
@@ -309,5 +310,16 @@ export class Minion {
       [...this.minionTypesCN], // 深拷贝中文随从类型列表
       this.upgradeCard
     );
+  }
+
+  /**
+   * 卡牌被使用时触发 - 可由子类重写以实现特定效果
+   * @param _card - 使用的卡牌实例
+   * @param _game - 游戏管理器或store实例
+   * @使用方式：当玩家从手牌将随从拖拽到战场时触发
+   * 用于实现"在你使用一张卡牌后"的效果
+   */
+  onCardPlayed(_card: any, _game: any): void {
+    // 默认实现为空，由子类根据需要重写
   }
 }
