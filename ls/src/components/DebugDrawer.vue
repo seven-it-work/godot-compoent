@@ -49,6 +49,25 @@
           <input type="text" v-model="searchQuery" placeholder="搜索随从..." class="debug-input" />
         </div>
 
+        <!-- 筛选下拉框 -->
+        <div class="debug-control">
+          <select v-model="selectedMechanic" class="debug-input">
+            <option value="">全部属性</option>
+            <option value="battlecry">战吼</option>
+            <option value="deathtrattle">亡语</option>
+            <option value="taunt">嘲讽</option>
+            <option value="divine_shield">圣盾</option>
+            <option value="windfury">风怒</option>
+            <option value="super_windfury">超级风怒</option>
+            <option value="stealth">潜行</option>
+            <option value="charge">冲锋</option>
+            <option value="poisonous">剧毒</option>
+            <option value="reborn">复生</option>
+            <option value="immune">免疫</option>
+            <option value="magnetic">磁力</option>
+          </select>
+        </div>
+
         <!-- 随从列表 -->
         <div class="minion-list">
           <div
@@ -92,6 +111,7 @@ const gameStore = useGameStore();
 const currentGold = ref(gameStore.player?.gold || 0);
 const maxGold = ref(gameStore.player?.maxGold || 10);
 const searchQuery = ref('');
+const selectedMechanic = ref(''); // 用于筛选的机制
 
 // 监听player变化，更新局部变量
 watch(
@@ -124,17 +144,23 @@ const setMaxGold = () => {
 
 // 过滤后的随从列表
 const filteredMinions = computed(() => {
-  if (!gameStore.minionPool || !searchQuery.value.trim()) {
-    return gameStore.minionPool || [];
+  if (!gameStore.minionPool) {
+    return [];
   }
 
   const query = searchQuery.value.toLowerCase().trim();
-  return (gameStore.minionPool || []).filter(minion => {
-    // 同时搜索中文名称和英文名称，支持模糊查询
-    return (
+  return gameStore.minionPool.filter(minion => {
+    // 搜索条件
+    const matchesSearch = !query ||
       minion.name.toLowerCase().includes(query) ||
-      (minion.nameCN && minion.nameCN.toLowerCase().includes(query))
-    );
+      (minion.nameCN && minion.nameCN.toLowerCase().includes(query));
+
+    // 机制筛选条件
+    const matchesMechanic = !selectedMechanic.value ||
+      (minion.mechanics && minion.mechanics.includes(selectedMechanic.value.toUpperCase())) ||
+      (minion.keywords && minion.keywords.includes(selectedMechanic.value));
+
+    return matchesSearch && matchesMechanic;
   });
 });
 
