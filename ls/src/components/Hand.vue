@@ -144,12 +144,16 @@ const onDrop = (event: DragEvent, target: string) => {
 <style scoped>
 .hand-container {
   background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-  border-radius: 15px;
+  border-radius: 0;
   color: #2c3e50;
-  margin: 20px 0;
-  padding: 20px;
+  margin: 0;
+  padding: 15px;
+  box-sizing: border-box;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid #ffd591;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .hand-title {
@@ -172,11 +176,14 @@ const onDrop = (event: DragEvent, target: string) => {
   background: rgba(255, 255, 255, 0.7);
   border-radius: 12px;
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+  flex: 1;
+  overflow: auto;
 }
 
 .hand-slot {
-  width: 100px;
-  height: 150px;
+  /* 使用flex-grow和flex-basis实现响应式宽度 */
+  flex: 1 0 calc(10% - 13.5px); /* 10个槽，减去间距 */
+  height: auto;
   position: relative;
   transition: all 0.2s ease;
 }

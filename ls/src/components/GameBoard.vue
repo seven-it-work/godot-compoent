@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="game-root">
     <!-- 选择英雄界面 -->
     <a-row v-if="isHeroSelection">
       <a-col
@@ -283,11 +283,6 @@
         <Battlefield />
         <!-- 手牌组件 -->
         <Hand />
-
-        <!-- 返回英雄选择 -->
-        <div style="text-align: center; margin-top: 20px">
-          <button @click="returnToHeroSelection">返回英雄选择</button>
-        </div>
       </div>
     </div>
 
@@ -567,13 +562,6 @@ const selectHero = (heroId: string) => {
   }
 };
 
-// 返回英雄选择
-const returnToHeroSelection = () => {
-  gameStore.returnToHeroSelection();
-  // 重新随机选择3个英雄
-  loadHeroes();
-};
-
 // 结束回合
 const endTurn = () => {
   gameStore.endTurn();
@@ -677,30 +665,109 @@ const isInGame = computed(() => {
 </script>
 
 <style scoped>
-/* 游戏主界面布局 */
-.game-layout {
+/* 游戏根容器 - 参考demo.html的container样式 */
+.game-root {
+  height: 100%; /* 继承父容器高度 */
   display: flex;
-  width: 100%;
-  height: 100%;
-  min-height: 1500px; /* 确保至少有设计高度 */
+  flex-direction: column;
+  overflow: hidden;
 }
 
-/* 左边30% 操作区域 */
+/* 游戏主界面布局 - 响应式设计 */
+.game-layout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  grid-template-rows: 1fr;
+  width: 100%;
+  height: 100%;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* 左边操作区域 - 固定宽度，适应卡片游戏特性 */
 .left-section {
-  width: 25%;
   background-color: #f0f2f5;
-  padding: 20px;
+  padding: 15px;
   border-right: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
+  overflow-y: auto;
+  /* 确保在小屏幕上也有良好的显示 */
+  min-width: 200px;
+  max-width: 300px;
 }
 
-/* 右边70% 主内容区域 */
+/* 右边主内容区域 - 自适应宽度 */
 .right-section {
-  width: 75%;
   background-color: #ffffff;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 酒馆、战场、手牌组件均分高度 - 响应式调整 */
+.right-section > * {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* 确保每个区域都能适应内容 */
+  overflow: hidden;
+}
+
+/* 响应式设计 - 针对不同屏幕尺寸调整布局 */
+@media (max-width: 1200px) {
+  .game-layout {
+    grid-template-columns: 200px 1fr;
+  }
+
+  .left-section {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* 移动端布局 - 垂直排列 */
+  .game-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .left-section {
+    max-height: 200px;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .player-info,
+  .tavern-actions,
+  .tavern-header {
+    flex: 1;
+    min-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-layout {
+    grid-template-rows: auto 1fr;
+  }
+
+  .left-section {
+    max-height: 150px;
+    padding: 5px;
+  }
+
+  .player-info,
+  .tavern-actions,
+  .tavern-header {
+    min-width: 120px;
+  }
 }
 
 /* 酒馆标题和等级样式 */

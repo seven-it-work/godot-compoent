@@ -2,17 +2,16 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import GameBoard from './components/GameBoard.vue';
 
-// 设计分辨率 - 游戏的原始设计尺寸
-const DESIGN_WIDTH = 2000;
-const DESIGN_HEIGHT = 1500;
+// 设计分辨率 - 4:3 宽高比
+const DESIGN_WIDTH = 1920;
+const DESIGN_HEIGHT = 1440;
 
 // 容器引用
 const gameContainer = ref<HTMLElement | null>(null);
 const scale = ref(1);
-const offsetX = ref(0);
 const offsetY = ref(0);
 
-// 计算缩放比例并应用
+// 计算缩放比例并应用等比例缩放 - 基于宽度优先，等比缩放，垂直居中
 const calculateScale = () => {
   if (!gameContainer.value) return;
 
@@ -20,26 +19,29 @@ const calculateScale = () => {
   const windowWidth = window.innerWidth;
   const windowHeight = window.innerHeight;
 
-  // 总是以宽度为基准进行缩放，确保游戏宽度充满整个窗口
-  let newScale = windowWidth / DESIGN_WIDTH;
-
-  // 计算垂直居中偏移量
+  // 计算缩放比例，基于宽度优先，确保宽度充满屏幕
+  const newScale = windowWidth / DESIGN_WIDTH;
+  // 等比计算高度
   const scaledHeight = DESIGN_HEIGHT * newScale;
+
+  // 垂直居中计算（上下留白）
   const newOffsetY = Math.max(0, (windowHeight - scaledHeight) / 2);
 
   scale.value = newScale;
-  offsetX.value = 0; // 宽度充满，水平偏移为0
   offsetY.value = newOffsetY;
 };
 
 // 监听窗口大小变化
 onMounted(() => {
+  // 立即执行一次
   calculateScale();
   window.addEventListener('resize', calculateScale);
+  window.addEventListener('orientationchange', calculateScale);
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', calculateScale);
+  window.removeEventListener('orientationchange', calculateScale);
 });
 </script>
 
@@ -50,10 +52,11 @@ onUnmounted(() => {
       ref="gameContainer"
       class="game-container"
       :style="{
-        transform: `scale(${scale}) translate(${offsetX}px, ${offsetY}px)`,
-        transformOrigin: 'top left',
         width: `${DESIGN_WIDTH}px`,
         height: `${DESIGN_HEIGHT}px`,
+        transform: `scale(${scale})`,
+        left: '0',
+        top: `${offsetY}px`,
       }"
     >
       <GameBoard />
@@ -69,9 +72,20 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
+html,
 body {
   overflow: hidden;
   background-color: #000;
+  width: 100%;
+  height: 100%;
+}
+
+/* 确保viewport正确设置 */
+@viewport {
+  width: device-width;
+  initial-scale: 1;
+  maximum-scale: 1;
+  user-scalable: no;
 }
 </style>
 
@@ -81,17 +95,21 @@ body {
   height: 100vh;
   overflow: hidden;
   background-color: #000;
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
   position: relative;
+  /* 确保app元素占据整个视口 */
+  margin: 0;
+  padding: 0;
 }
 
 .game-container {
   background-color: #1a1a1a;
   position: absolute;
-  top: 0;
   left: 0;
+  top: 0;
   transition: transform 0.3s ease;
+  /* 确保游戏容器能完全显示 */
+  overflow: hidden;
+  /* 以左上角为缩放原点 */
+  transform-origin: 0 0;
 }
 </style>

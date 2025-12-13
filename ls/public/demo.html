@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>三个div平分屏幕高度</title>
+  <style>
+    /* 清除默认边距，避免额外空间导致滚动条 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box; /* 确保padding不影响元素总高度 */
+    }
+
+    /* 父容器占满整个屏幕高度 */
+    .container {
+      height: 100vh; /* 100vh = 屏幕可见区域高度 */
+      display: flex; /* 启用flex布局 */
+      flex-direction: column; /* 子元素垂直排列 */
+    }
+
+    /* 三个子div平均分配高度 */
+    .box {
+      flex: 1; /* 每个子元素占父容器剩余高度的1份，3个元素即各占1/3 */
+    }
+
+    /* 给三个div添加不同背景色，方便观察效果 */
+    .box1 { background: #f0f0f0; }
+    .box2 { background: #e0e0e0; }
+    .box3 { background: #d0d0d0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="box box1"></div>
+    <div class="box box2"></div>
+    <div class="box box3"></div>
+  </div>
+</body>
+</html>
