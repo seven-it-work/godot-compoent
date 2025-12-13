@@ -1,7 +1,11 @@
 <template>
   <div
     class="minion-card"
-    :class="{ 'opponent-minion': isOpponent, selected: isSelected }"
+    :class="{
+      'opponent-minion': isOpponent,
+      selected: isSelected,
+      'highlighted-target': isHighlighted,
+    }"
     @click="$emit('click')"
   >
     <!-- 随从星级 -->
@@ -51,6 +55,7 @@ interface Props {
   minion: Minion;
   isOpponent?: boolean;
   isSelected?: boolean;
+  isHighlighted?: boolean;
   showBuyIndicator?: boolean;
 }
 
@@ -63,6 +68,7 @@ const emit = defineEmits(['click']);
 const props = withDefaults(defineProps<Props>(), {
   isOpponent: false,
   isSelected: false,
+  isHighlighted: false,
   showBuyIndicator: false,
 });
 
@@ -127,6 +133,23 @@ const getKeywordName = (keyword: string) => {
 .selected {
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
   border-color: #ffd700;
+}
+
+/* 高亮目标样式 - 用于法术选择目标时 */
+.highlighted-target {
+  box-shadow: 0 0 25px rgba(76, 175, 80, 0.9);
+  border-color: #4caf50;
+  animation: pulse 0.6s infinite alternate;
+}
+
+/* 高亮脉冲动画 */
+@keyframes pulse {
+  from {
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+  }
+  to {
+    box-shadow: 0 0 35px rgba(76, 175, 80, 1);
+  }
 }
 
 .minion-star {

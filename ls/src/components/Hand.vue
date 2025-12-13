@@ -58,8 +58,9 @@ const selectCard = (card: Card, index: number) => {
   // 使用gameStore管理选中的卡片，来源为hand
   if (card.cardType === 'minion') {
     gameStore.selectMinion(card as Minion, index, 'hand');
+  } else if (card.cardType === 'spell') {
+    gameStore.selectSpell(card as Spell, index);
   }
-  // 法术卡片的选择逻辑可以在这里扩展
 };
 
 // 拖拽开始事件
@@ -71,17 +72,48 @@ const onDragStart = (event: DragEvent, source: string, index: number, card: any)
     return;
   }
 
-  event.dataTransfer?.setData(
-    'text/plain',
-    JSON.stringify({
-      source,
-      index,
-      cardId: card.id,
-      strId: card.strId,
-      cardType: card.cardType,
-    })
-  );
+  if (card.cardType === 'spell') {
+    // 法术卡片拖拽，使用自定义逻辑
+    gameStore.startSpellDrag(event, card, index);
+    event.preventDefault(); // 阻止默认拖拽行为
+  } else {
+    // 其他卡片类型使用原有拖拽逻辑
+    event.dataTransfer?.setData(
+      'text/plain',
+      JSON.stringify({
+        source,
+        index,
+        cardId: card.id,
+        strId: card.strId,
+        cardType: card.cardType,
+      })
+    );
+  }
 };
+
+// 鼠标移动事件 - 更新拖拽箭头位置
+const onMouseMove = (event: MouseEvent) => {
+  gameStore.updateSpellDrag(event);
+};
+
+// 鼠标释放事件 - 结束法术拖拽
+const onMouseUp = (event: MouseEvent) => {
+  if (gameStore.spellUsageState === 'selecting_target' && gameStore.dragArrow.visible) {
+    // 结束拖拽，这里需要判断是否命中了有效目标
+    gameStore.endSpellDrag(event as any, null); // 暂时传入null，后续需要添加目标检测
+  }
+};
+
+// 添加全局鼠标事件监听
+window.addEventListener('mousemove', onMouseMove);
+window.addEventListener('mouseup', onMouseUp);
+
+// 组件卸载时移除事件监听
+import { onUnmounted } from 'vue';
+onUnmounted(() => {
+  window.removeEventListener('mousemove', onMouseMove);
+  window.removeEventListener('mouseup', onMouseUp);
+});
 
 // 拖拽放置事件
 const onDrop = (event: DragEvent, target: string) => {

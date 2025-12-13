@@ -11,6 +11,23 @@ export type SpellEffectType =
   | 'special';
 
 /**
+ * 法术使用范围类型 - 定义法术可以使用的范围
+ */
+export type SpellTargetScope = 'battlefield' | 'tavern' | 'both';
+
+/**
+ * 法术目标类型 - 定义法术可以选择的目标类型
+ */
+export type SpellTargetType =
+  | 'minion'
+  | 'hero'
+  | 'all_minions'
+  | 'self'
+  | 'friendly'
+  | 'enemy'
+  | 'any';
+
+/**
  * 法术效果接口 - 定义法术效果的数据结构
  */
 export interface SpellEffect {
@@ -18,6 +35,17 @@ export interface SpellEffect {
   value: any; // 效果值
   duration?: number; // 持续回合数
   target?: 'self' | 'friendly' | 'enemy' | 'all'; // 效果目标
+}
+
+/**
+ * 法术使用范围接口 - 定义法术可以使用的范围和目标选择规则
+ */
+export interface SpellTargetSelection {
+  scope: SpellTargetScope; // 使用范围：战场、酒馆或两者
+  targetType: SpellTargetType; // 目标类型：随从、英雄等
+  requiresTarget: boolean; // 是否需要选择目标
+  multipleTargets?: boolean; // 是否可以选择多个目标
+  maxTargets?: number; // 最大选择目标数量
 }
 
 /**
@@ -32,6 +60,8 @@ export class Spell extends Card {
   duration: number;
   /** 已存在回合数 - 法术已经存在的回合数 */
   turnsExisted: number;
+  /** 目标选择规则 - 法术的使用范围和目标选择规则 */
+  targetSelection: SpellTargetSelection;
 
   /**
    * 法术构造函数
@@ -40,6 +70,7 @@ export class Spell extends Card {
    * @param description - 法术效果描述
    * @param type - 法术类型
    * @param effects - 法术效果列表
+   * @param targetSelection - 目标选择规则
    * @param duration - 持续回合数
    * @param isTemporary - 是否为临时法术
    */
@@ -49,6 +80,11 @@ export class Spell extends Card {
     description: string,
     type: 'shaping' | 'normal' | 'hero_power',
     effects: SpellEffect[],
+    targetSelection: SpellTargetSelection = {
+      scope: 'battlefield',
+      targetType: 'minion',
+      requiresTarget: true,
+    },
     duration: number = 0,
     isTemporary: boolean = false
   ) {
@@ -74,6 +110,7 @@ export class Spell extends Card {
     this.effects = effects;
     this.duration = duration;
     this.turnsExisted = 0;
+    this.targetSelection = targetSelection;
   }
 
   /**

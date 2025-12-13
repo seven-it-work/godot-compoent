@@ -27,6 +27,9 @@
             :is-selected="
               gameStore.selectedMinion?.instanceId === playerMinions[slotIndex - 1]?.instanceId
             "
+            :is-highlighted="
+              isMinionHighlighted(playerMinions[slotIndex - 1], 'battlefield', slotIndex - 1)
+            "
           />
           <!-- 如果该位置没有随从，渲染空槽 -->
           <div v-else class="empty-slot">
@@ -150,9 +153,33 @@ const onDrop = (event: DragEvent, targetOrIndex: string | number) => {
 // 选择玩家随从
 const selectPlayerMinion = (minion: Minion | undefined, index: number) => {
   if (minion) {
-    // 使用gameStore管理选中的随从，来源为战场
-    gameStore.selectMinion(minion, index, 'battlefield');
+    // 如果当前处于法术选择目标状态，选择该随从作为目标
+    if (gameStore.spellUsageState === 'selecting_target' && gameStore.selectedSpell) {
+      // 查找该随从是否在可用目标列表中
+      const target = gameStore.highlightedTargets.find(
+        t => t.source === 'battlefield' && t.index === index && t.target === minion
+      );
+
+      if (target) {
+        gameStore.selectSpellTarget(target);
+      }
+    } else {
+      // 否则正常选择随从
+      gameStore.selectMinion(minion, index, 'battlefield');
+    }
   }
+};
+
+// 判断随从是否为高亮目标
+const isMinionHighlighted = (minion: any, source: string, index: number) => {
+  if (!gameStore.selectedSpell || gameStore.spellUsageState !== 'selecting_target') {
+    return false;
+  }
+
+  // 检查该随从是否在高亮目标列表中
+  return gameStore.highlightedTargets.some(
+    target => target.source === source && target.index === index && target.target === minion
+  );
 };
 </script>
 

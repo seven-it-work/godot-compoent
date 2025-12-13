@@ -182,6 +182,33 @@
       :current-turn="gameStore.currentTurn"
       @close="closeDebugDrawer"
     />
+
+    <!-- 拖拽箭头 - 用于法术拖拽时的视觉反馈 -->
+    <svg
+      v-if="gameStore.dragArrow.visible"
+      class="drag-arrow"
+      :style="{
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        width: '100vw',
+        height: '100vh',
+        pointerEvents: 'none',
+        zIndex: 9999,
+      }"
+    >
+      <line
+        :x1="gameStore.dragArrow.startX"
+        :y1="gameStore.dragArrow.startY"
+        :x2="gameStore.dragArrow.endX"
+        :y2="gameStore.dragArrow.endY"
+        stroke="#ff6b6b"
+        stroke-width="3"
+        stroke-linecap="round"
+      />
+      <!-- 箭头头部 -->
+      <polygon :points="getArrowHeadPoints(gameStore.dragArrow)" fill="#ff6b6b" />
+    </svg>
   </div>
 </template>
 
@@ -202,6 +229,29 @@ import { Tavern } from '../game/Tavern';
 import DebugDrawer from './DebugDrawer.vue';
 
 const gameStore = useGameStore();
+
+// 计算箭头头部的坐标点
+const getArrowHeadPoints = (arrow: {
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+}) => {
+  const { startX, startY, endX, endY } = arrow;
+  const arrowSize = 10;
+
+  // 计算箭头方向角
+  const angle = Math.atan2(endY - startY, endX - startX);
+
+  // 计算箭头头部的三个点
+  const points = [
+    `${endX},${endY}`,
+    `${endX - arrowSize * Math.cos(angle - Math.PI / 6)},${endY - arrowSize * Math.sin(angle - Math.PI / 6)}`,
+    `${endX - arrowSize * Math.cos(angle + Math.PI / 6)},${endY - arrowSize * Math.sin(angle + Math.PI / 6)}`,
+  ];
+
+  return points.join(' ');
+};
 
 // 调试抽屉控制
 const debugDrawerVisible = ref(false);

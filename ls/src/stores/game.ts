@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { Minion } from '../game/Minion';
 import { Player } from '../game/Player';
 import { Tavern } from '../game/Tavern';
+import { Spell } from '../game/Spell';
 
 // 英雄类型定义
 interface HeroPower {
@@ -48,7 +49,76 @@ export const useGameStore = defineStore('game', {
     selectedMinionIndex: null as number | null,
     // 选中的随从来源
     selectedMinionSource: null as 'tavern' | 'battlefield' | 'hand' | null,
+    // 选中的法术
+    selectedSpell: null as Spell | null,
+    // 选中的法术索引
+    selectedSpellIndex: null as number | null,
+    // 法术使用状态：准备使用、选择目标中
+    spellUsageState: 'idle' as 'idle' | 'selecting_target' | 'casting',
+    // 高亮的目标列表
+    highlightedTargets: [] as any[],
+    // 拖拽箭头状态
+    dragArrow: {
+      visible: false,
+      startX: 0,
+      startY: 0,
+      endX: 0,
+      endY: 0,
+    } as {
+      visible: boolean;
+      startX: number;
+      startY: number;
+      endX: number;
+      endY: number;
+    },
   }),
+
+  getters: {
+    // 获取当前可选择的目标列表
+    availableTargets: state => {
+      if (!state.selectedSpell || state.spellUsageState !== 'selecting_target') {
+        return [];
+      }
+
+      const targets: any[] = [];
+      const spell = state.selectedSpell;
+
+      // 根据法术使用范围和目标类型收集可用目标
+      if (spell.targetSelection.scope === 'battlefield' || spell.targetSelection.scope === 'both') {
+        // 战场上的随从
+        if (state.player) {
+          state.player.minions.forEach((minion, index) => {
+            if (this.isValidTarget(minion, spell.targetSelection.targetType)) {
+              targets.push({
+                type: 'minion',
+                source: 'battlefield',
+                index,
+                target: minion,
+              });
+            }
+          });
+        }
+      }
+
+      if (spell.targetSelection.scope === 'tavern' || spell.targetSelection.scope === 'both') {
+        // 酒馆中的随从
+        if (state.tavern) {
+          state.tavern.availableMinions.forEach((minion, index) => {
+            if (this.isValidTarget(minion, spell.targetSelection.targetType)) {
+              targets.push({
+                type: 'minion',
+                source: 'tavern',
+                index,
+                target: minion,
+              });
+            }
+          });
+        }
+      }
+
+      return targets;
+    },
+  },
 
   actions: {
     // 设置选中的英雄
@@ -222,6 +292,160 @@ export const useGameStore = defineStore('game', {
       this.selectedMinion = null;
       this.selectedMinionIndex = null;
       this.selectedMinionSource = null;
+    },
+
+    // 验证目标是否有效
+    isValidTarget(target: any, targetType: string): boolean {
+      if (!target) return false;
+
+      switch (targetType) {
+        case 'minion':
+          return target.cardType === 'minion';
+        case 'hero':
+          return target.cardType === 'hero';
+        case 'all_minions':
+          return target.cardType === 'minion';
+        case 'self':
+          return target.owner === this.player;
+        case 'friendly':
+          return target.owner === this.player;
+        case 'enemy':
+          return target.owner !== this.player;
+        case 'any':
+          return true;
+        default:
+          return false;
+      }
+    },
+
+    // 选中法术
+    selectSpell(spell: Spell, index: number) {
+      this.selectedSpell = spell;
+      this.selectedSpellIndex = index;
+      this.spellUsageState = 'selecting_target';
+
+      // 计算并高亮可用目标
+      this.calculateHighlightedTargets();
+    },
+
+    // 取消选中法术
+    cancelSelectSpell() {
+      this.selectedSpell = null;
+      this.selectedSpellIndex = null;
+      this.spellUsageState = 'idle';
+      this.highlightedTargets = [];
+      this.dragArrow.visible = false;
+    },
+
+    // 计算并更新高亮目标
+    calculateHighlightedTargets() {
+      if (!this.selectedSpell) {
+        this.highlightedTargets = [];
+        return;
+      }
+
+      const targets: any[] = [];
+      const spell = this.selectedSpell;
+
+      // 根据法术使用范围和目标类型收集可用目标
+      if (spell.targetSelection.scope === 'battlefield' || spell.targetSelection.scope === 'both') {
+        // 战场上的随从
+        if (this.player) {
+          this.player.minions.forEach((minion, index) => {
+            if (this.isValidTarget(minion, spell.targetSelection.targetType)) {
+              targets.push({
+                type: 'minion',
+                source: 'battlefield',
+                index,
+                target: minion,
+              });
+            }
+          });
+        }
+      }
+
+      if (spell.targetSelection.scope === 'tavern' || spell.targetSelection.scope === 'both') {
+        // 酒馆中的随从
+        if (this.tavern) {
+          this.tavern.availableMinions.forEach((minion, index) => {
+            if (this.isValidTarget(minion, spell.targetSelection.targetType)) {
+              targets.push({
+                type: 'minion',
+                source: 'tavern',
+                index,
+                target: minion,
+              });
+            }
+          });
+        }
+      }
+
+      this.highlightedTargets = targets;
+    },
+
+    // 开始拖拽法术
+    startSpellDrag(event: DragEvent, spell: Spell, index: number) {
+      this.selectSpell(spell, index);
+
+      // 记录拖拽起始位置
+      this.dragArrow.visible = true;
+      this.dragArrow.startX = event.clientX;
+      this.dragArrow.startY = event.clientY;
+      this.dragArrow.endX = event.clientX;
+      this.dragArrow.endY = event.clientY;
+    },
+
+    // 更新拖拽箭头位置
+    updateSpellDrag(event: MouseEvent) {
+      if (this.dragArrow.visible) {
+        this.dragArrow.endX = event.clientX;
+        this.dragArrow.endY = event.clientY;
+      }
+    },
+
+    // 结束法术拖拽
+    endSpellDrag(_event: DragEvent, target: any) {
+      this.dragArrow.visible = false;
+
+      if (target && this.selectedSpell) {
+        this.castSpell(target);
+      } else {
+        this.cancelSelectSpell();
+      }
+    },
+
+    // 点击选择目标
+    selectSpellTarget(target: any) {
+      if (this.spellUsageState === 'selecting_target' && this.selectedSpell) {
+        this.castSpell(target);
+      }
+    },
+
+    // 释放法术
+    castSpell(target: any) {
+      if (!this.selectedSpell || !this.player || !target) {
+        this.cancelSelectSpell();
+        return;
+      }
+
+      this.spellUsageState = 'casting';
+
+      try {
+        // 执行法术效果
+        this.selectedSpell.execute(target.target);
+
+        // 从手牌中移除法术
+        if (this.selectedSpellIndex !== null) {
+          this.player.cards.splice(this.selectedSpellIndex, 1);
+        }
+
+        console.log(`法术释放成功: ${this.selectedSpell.nameCN} 目标: ${target.target.nameCN}`);
+      } catch (error) {
+        console.error('法术释放失败:', error);
+      } finally {
+        // 重置法术使用状态
+        this.cancelSelectSpell();
+      }
     },
 
     // 调试功能 - 设置当前金币
