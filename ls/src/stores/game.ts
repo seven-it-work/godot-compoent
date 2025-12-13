@@ -406,7 +406,7 @@ export const useGameStore = defineStore('game', {
     // 结束法术拖拽
     endSpellDrag(_event: DragEvent, target: any) {
       this.dragArrow.visible = false;
-
+      
       if (target && this.selectedSpell) {
         this.castSpell(target);
       } else {

@@ -21,9 +21,7 @@
             gameStore.selectedMinion?.instanceId ===
             tavern.availableMinions[slotIndex - 1]?.instanceId
           "
-          :is-highlighted="
-            isMinionHighlighted(tavern.availableMinions[slotIndex - 1], 'tavern', slotIndex - 1)
-          "
+          :is-highlighted="isMinionHighlighted(tavern.availableMinions[slotIndex - 1], 'tavern', slotIndex - 1)"
           @click="selectMinion(tavern.availableMinions[slotIndex - 1] as Minion, slotIndex - 1)"
         />
         <!-- 如果该位置没有随从，渲染空槽 -->
@@ -50,10 +48,10 @@ const selectMinion = (minion: Minion, index: number) => {
   // 如果当前处于法术选择目标状态，选择该随从作为目标
   if (gameStore.spellUsageState === 'selecting_target' && gameStore.selectedSpell) {
     // 查找该随从是否在可用目标列表中
-    const target = gameStore.highlightedTargets.find(
-      t => t.source === 'tavern' && t.index === index && t.target === minion
+    const target = gameStore.highlightedTargets.find(t => 
+      t.source === 'tavern' && t.index === index && t.target === minion
     );
-
+    
     if (target) {
       gameStore.selectSpellTarget(target);
     }
@@ -74,10 +72,12 @@ const isMinionHighlighted = (minion: any, source: string, index: number) => {
   if (!gameStore.selectedSpell || gameStore.spellUsageState !== 'selecting_target') {
     return false;
   }
-
+  
   // 检查该随从是否在高亮目标列表中
-  return gameStore.highlightedTargets.some(
-    target => target.source === source && target.index === index && target.target === minion
+  return gameStore.highlightedTargets.some(target => 
+    target.source === source && 
+    target.index === index && 
+    target.target === minion
   );
 };
 
