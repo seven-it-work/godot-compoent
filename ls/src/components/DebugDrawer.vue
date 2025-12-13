@@ -40,9 +40,18 @@
         </div>
       </div>
 
-      <!-- 添加随从到酒馆 -->
+      <!-- 添加随从到不同位置 -->
       <div class="debug-section">
-        <h4>添加随从到酒馆</h4>
+        <h4>添加随从到</h4>
+
+        <!-- 添加位置选择 -->
+        <div class="debug-control">
+          <select v-model="selectedLocation" class="debug-input">
+            <option value="tavern">酒馆</option>
+            <option value="battlefield">战场</option>
+            <option value="hand">手牌</option>
+          </select>
+        </div>
 
         <!-- 搜索框 -->
         <div class="debug-control">
@@ -74,7 +83,7 @@
             v-for="minion in filteredMinions"
             :key="minion.id"
             class="minion-item"
-            @click="addSpecificMinionToTavern(minion as Minion)"
+            @click="addSpecificMinion(minion as Minion)"
           >
             <span class="minion-name">{{ minion.nameCN || minion.name }}</span>
             <span class="minion-tier">{{ minion.tier }}星</span>
@@ -112,6 +121,7 @@ const currentGold = ref(gameStore.player?.gold || 0);
 const maxGold = ref(gameStore.player?.maxGold || 10);
 const searchQuery = ref('');
 const selectedMechanic = ref(''); // 用于筛选的机制
+const selectedLocation = ref('tavern'); // 添加位置选择：酒馆、战场、手牌
 
 // 监听player变化，更新局部变量
 watch(
@@ -166,24 +176,65 @@ const filteredMinions = computed(() => {
   });
 });
 
-// 添加特定随从到酒馆
-const addSpecificMinionToTavern = (minion: Minion) => {
-  console.log('addSpecificMinionToTavern被调用');
-  console.log('gameStore.tavern:', gameStore.tavern);
+// 添加特定随从到不同位置
+const addSpecificMinion = (minion: Minion) => {
+  console.log(`addSpecificMinion被调用，添加到${selectedLocation.value}`);
   console.log('minion:', minion);
-  if (gameStore.tavern) {
-    console.log('开始添加随从...');
-    // 克隆随从对象，避免修改原对象
-    const newMinion = minion.clone();
-    console.log('克隆后的随从:', newMinion);
-    const success = gameStore.tavern.debugAddMinion(newMinion);
-    if (success) {
-      console.log('添加随从完成');
-    } else {
-      console.log('酒馆已满，无法添加随从');
-    }
-  } else {
-    console.log('gameStore.tavern不存在，无法添加随从');
+
+  // 克隆随从对象，避免修改原对象
+  const newMinion = minion.clone();
+  console.log('克隆后的随从:', newMinion);
+
+  let success = false;
+
+  switch (selectedLocation.value) {
+    case 'tavern':
+      console.log('开始添加随从到酒馆...');
+      console.log('gameStore.tavern:', gameStore.tavern);
+      if (gameStore.tavern) {
+        success = gameStore.tavern.debugAddMinion(newMinion);
+        if (success) {
+          console.log('添加随从到酒馆完成');
+        } else {
+          console.log('酒馆已满，无法添加随从');
+        }
+      } else {
+        console.log('gameStore.tavern不存在，无法添加随从');
+      }
+      break;
+
+    case 'battlefield':
+      console.log('开始添加随从到战场...');
+      console.log('gameStore.player:', gameStore.player);
+      if (gameStore.player) {
+        success = gameStore.player.summonMinion(newMinion, null);
+        if (success) {
+          console.log('添加随从到战场完成');
+        } else {
+          console.log('战场已满，无法添加随从');
+        }
+      } else {
+        console.log('gameStore.player不存在，无法添加随从');
+      }
+      break;
+
+    case 'hand':
+      console.log('开始添加随从到手牌...');
+      console.log('gameStore.player:', gameStore.player);
+      if (gameStore.player) {
+        success = gameStore.player.addMinionToHand(newMinion);
+        if (success) {
+          console.log('添加随从到手牌完成');
+        } else {
+          console.log('手牌已满，无法添加随从');
+        }
+      } else {
+        console.log('gameStore.player不存在，无法添加随从');
+      }
+      break;
+
+    default:
+      console.log('未知的添加位置:', selectedLocation.value);
   }
 };
 </script>
