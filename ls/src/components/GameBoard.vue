@@ -193,7 +193,7 @@ import { useGameStore } from '../stores/game';
 import { Player } from '../game/Player';
 import { AIPlayer } from '../game/AIPlayer';
 import { Minion } from '../game/Minion';
-import { minionClassMapByStrId } from '../game/minion/MinionClassMap';
+import { minionClassMapByStrId, isTavernMinion } from '../game/minion/MinionClassMap';
 import TavernVue from './Tavern.vue';
 import Hand from './Hand.vue';
 import Battlefield from './Battlefield.vue';
@@ -230,10 +230,39 @@ const createMinionPool = () => {
   // 只使用已开发的随从类，直接使用minionClassMapByStrId的键
   const developedStrIds = Object.keys(minionClassMapByStrId);
 
-  // 从json数据中过滤出已开发的随从
-  return minionsData
+  // 辅助函数：递归提取所有随从数据（包括tokens中的）
+  const extractAllMinions = (data: any[]): any[] => {
+    let allMinions: any[] = [];
+    
+    data.forEach(item => {
+      // 添加当前item
+      allMinions.push(item);
+      
+      // 递归处理tokens
+      if (item.tokens && Array.isArray(item.tokens)) {
+        allMinions = allMinions.concat(extractAllMinions(item.tokens));
+      }
+      
+      // 递归处理upgradeCard
+      if (item.upgradeCard) {
+        allMinions.push(item.upgradeCard);
+        if (item.upgradeCard.tokens && Array.isArray(item.upgradeCard.tokens)) {
+          allMinions = allMinions.concat(extractAllMinions(item.upgradeCard.tokens));
+        }
+      }
+    });
+    
+    return allMinions;
+  };
+
+  // 提取所有随从数据（包括top-level和tokens中的）
+  const allMinionData = extractAllMinions(minionsData);
+
+  // 从所有数据中过滤出已开发的随从
+  const globalMinionPool = allMinionData
     .filter(minionData => {
-      return developedStrIds.includes(minionData.strId);
+      // 只处理随从类型，并且strId在已开发列表中
+      return minionData.cardType === 'minion' && developedStrIds.includes(minionData.strId);
     })
     .map(minionData => {
       // 根据strId获取对应的随从类
@@ -259,12 +288,22 @@ const createMinionPool = () => {
         minionData.upgradeCard
       );
     });
+
+  // 创建酒馆专用随从池 - 只包含可以在酒馆中出现的随从
+  const tavernMinionPool = globalMinionPool.filter(minion => {
+    // 检查该随从是否标记为可以在酒馆中出现
+    // 默认值为true，确保没有标记的随从也能在酒馆中出现
+    return isTavernMinion[minion.strId] !== false;
+  });
+
+  // 返回两个池：全局池和酒馆专用池
+  return { globalMinionPool, tavernMinionPool };
 };
 
 // 初始化游戏
 const initGame = (hero: any) => {
-  // 创建随从池
-  const minionPool = createMinionPool();
+  // 创建随从池 - 获取全局池和酒馆专用池
+  const { globalMinionPool, tavernMinionPool } = createMinionPool();
 
   // 转换heroPowerList为heroPower对象
   const heroPowerData = hero.heroPowerList?.[0] || {
@@ -290,8 +329,8 @@ const initGame = (hero: any) => {
   // 创建玩家
   const player = new Player('player-1', heroObj as Hero, true);
 
-  // 创建酒馆
-  const tavern = new Tavern(1, minionPool);
+  // 创建酒馆 - 使用酒馆专用池
+  const tavern = new Tavern(1, tavernMinionPool);
 
   // 创建AI玩家
   const aiPlayers = [];
@@ -319,8 +358,8 @@ const initGame = (hero: any) => {
     aiPlayers.push(new AIPlayer(`ai-${i + 1}`, aiHeroObj as Hero));
   }
 
-  // 初始化store
-  gameStore.initGame(player, tavern, aiPlayers, minionPool);
+  // 初始化store - 使用全局池作为游戏的主随从池
+  gameStore.initGame(player, tavern, aiPlayers, globalMinionPool);
 };
 
 // 组件挂载时加载英雄数据
@@ -407,7 +446,7 @@ const placeMinionFromHand = () => {
   console.log('selectedMinionIndex:', gameStore.selectedMinionIndex);
   if (gameStore.selectedMinion && gameStore.selectedMinionIndex !== null) {
     console.log('开始从手牌放置随从到战场...');
-    const success = gameStore.placeMinionFromBench(gameStore.selectedMinionIndex, 0);
+    const success = gameStore.placeMinionFromHand(gameStore.selectedMinionIndex, 0);
     console.log('放置随从结果:', success ? '成功' : '失败');
     console.log('取消选择随从...');
     gameStore.cancelSelectMinion();

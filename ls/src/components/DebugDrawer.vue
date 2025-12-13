@@ -74,7 +74,7 @@
             v-for="minion in filteredMinions"
             :key="minion.id"
             class="minion-item"
-            @click="addSpecificMinionToTavern(minion)"
+            @click="addSpecificMinionToTavern(minion as Minion)"
           >
             <span class="minion-name">{{ minion.nameCN || minion.name }}</span>
             <span class="minion-tier">{{ minion.tier }}星</span>
@@ -92,7 +92,7 @@
 import { Drawer } from 'ant-design-vue';
 import { ref, watch, computed } from 'vue';
 import { useGameStore } from '../stores/game';
-import { Minion } from '../game/Minion';
+import { Minion, MinionKeyword } from '../game/Minion';
 
 // 定义组件的属性
 interface Props {
@@ -158,7 +158,7 @@ const filteredMinions = computed(() => {
     // 机制筛选条件
     const matchesMechanic = !selectedMechanic.value ||
       (minion.mechanics && minion.mechanics.includes(selectedMechanic.value.toUpperCase())) ||
-      (minion.keywords && minion.keywords.includes(selectedMechanic.value));
+      (minion.keywords && minion.keywords.includes(selectedMechanic.value as MinionKeyword));
 
     return matchesSearch && matchesMechanic;
   });

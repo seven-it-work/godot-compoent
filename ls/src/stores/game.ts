@@ -119,7 +119,7 @@ export const useGameStore = defineStore('game', {
         const minion = this.tavern.availableMinions[index];
         if (minion) {
           // 检查是否可以购买（金币足够，手牌有空间）
-          if (this.player.gold >= minion.cost && this.player.bench.length < 7) {
+          if (this.player.gold >= minion.cost && this.player.hand.length < 7) {
             // 从酒馆中移除该随从
             const removedMinion = this.tavern.buyMinion(index);
             if (removedMinion) {
@@ -144,18 +144,18 @@ export const useGameStore = defineStore('game', {
       }
     },
 
-    // 将 bench 中的随从放到战场上
-    placeMinionFromBench(index: number, position: number) {
-      console.log('gameStore.placeMinionFromBench被调用');
+    // 将手牌中的随从放到战场上
+    placeMinionFromHand(index: number, position: number) {
+      console.log('gameStore.placeMinionFromHand被调用');
       console.log('index:', index);
       console.log('position:', position);
       console.log('player:', this.player);
       if (this.player) {
-        console.log('调用player.placeMinionFromBench...');
+        console.log('调用player.placeMinionFromHand...');
         // 先获取要放置的随从，用于后续触发事件
-        const minionToPlace = this.player.bench[index];
-        const success = this.player.placeMinionFromBench(index, position);
-        console.log('player.placeMinionFromBench返回:', success);
+        const minionToPlace = this.player.hand[index];
+        const success = this.player.placeMinionFromHand(index, position);
+        console.log('player.placeMinionFromHand返回:', success);
 
         // 放置成功后，触发所有效果
         if (success && minionToPlace) {
@@ -164,8 +164,12 @@ export const useGameStore = defineStore('game', {
           // 1. 触发放置随从的onMinionPlayed事件（使用本随从事件）
           console.log('触发随从onMinionPlayed事件:', minionToPlace.nameCN);
           minionToPlace.onMinionPlayed(this);
+          
+          // 2. 触发放置随从的battlecry事件（战吼效果）
+          console.log('触发随从battlecry事件:', minionToPlace.nameCN);
+          minionToPlace.battlecry(this);
 
-          // 2. 触发当前玩家所有场上随从的onCardPlayed方法（使用其他卡片事件）
+          // 3. 触发当前玩家所有场上随从的onCardPlayed方法（使用其他卡片事件）
           console.log('触发所有场上随从的onCardPlayed事件');
           this.player.minions.forEach(fieldMinion => {
             if (fieldMinion && fieldMinion !== minionToPlace) {
@@ -182,17 +186,17 @@ export const useGameStore = defineStore('game', {
     },
 
     // 出售随从
-    sellMinion(type: 'minion' | 'bench', index: number) {
+    sellMinion(type: 'minion' | 'hand', index: number) {
       if (this.player) {
         return this.player.sellMinion(type, index);
       }
       return false;
     },
 
-    // 将战场上的随从放回 bench
-    returnMinionToBench(position: number) {
+    // 将战场上的随从放回手牌
+    returnMinionToHand(position: number) {
       if (this.player) {
-        return this.player.returnMinionToBench(position);
+        return this.player.returnMinionToHand(position);
       }
       return false;
     },

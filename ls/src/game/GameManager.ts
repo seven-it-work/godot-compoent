@@ -286,7 +286,7 @@ export class GameManager {
   }
 
   /**
-   * 购买随从 - 从酒馆购买随从到玩家的bench
+   * 购买随从 - 从酒馆购买随从到玩家的hand
    * @param player - 请求购买随从的玩家
    * @param minionIndex - 要购买的随从在酒馆中的索引
    * @returns 是否成功购买随从
@@ -354,15 +354,15 @@ export class GameManager {
       actions.push('buy_minion');
     }
 
-    if (player.bench.length > 0 && player.minions.length < 7) {
+    if (player.hand.length > 0 && player.minions.length < 7) {
       actions.push('place_minion');
     }
 
-    if (player.minions.length > 0 && player.bench.length < 7) {
+    if (player.minions.length > 0 && player.hand.length < 7) {
       actions.push('return_minion');
     }
 
-    if (player.minions.length > 0 || player.bench.length > 0) {
+    if (player.minions.length > 0 || player.hand.length > 0) {
       actions.push('sell_minion');
     }
 

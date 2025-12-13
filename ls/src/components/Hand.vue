@@ -4,13 +4,13 @@
     <div class="hand-area" @dragover.prevent @drop="onDrop($event, 'hand')">
       <!-- 随从手牌，动态生成 -->
       <div
-        v-for="(minion, index) in player?.bench"
-        :key="minion.instanceId || index"
-        class="hand-slot"
-        draggable="true"
-        @dragstart="onDragStart($event, 'hand', index, minion)"
-      >
-        <MinionCard :minion="minion" @click="selectMinion(minion, index)" />
+          v-for="(minion, index) in player?.hand"
+          :key="minion.instanceId || index"
+          class="hand-slot"
+          draggable="true"
+          @dragstart="onDragStart($event, 'hand', index, minion)"
+        >
+          <MinionCard :minion="minion as Minion" @click="selectMinion(minion as Minion, index)" />
       </div>
 
       <!-- 空手牌槽，根据剩余空间动态生成 -->
@@ -35,9 +35,9 @@ const { player } = gameStore;
 
 // 计算空手牌槽数量
 const emptySlots = computed(() => {
-  const maxBenchSlots = 7;
-  const currentMinions = player?.bench.length || 0;
-  return Math.max(0, maxBenchSlots - currentMinions);
+  const maxHandSlots = 7;
+  const currentMinions = player?.hand.length || 0;
+  return Math.max(0, maxHandSlots - currentMinions);
 });
 
 // 选择随从

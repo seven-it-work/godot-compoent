@@ -127,7 +127,7 @@ export class AIPlayer extends Player {
         break;
       case AIDifficulty.MEDIUM:
         // 根据现有随从数量和质量调整概率
-        if (this.bench.length < 3) {
+        if (this.hand.length < 3) {
           refreshChance = 0.6;
         } else {
           refreshChance = 0.3;
@@ -137,10 +137,10 @@ export class AIPlayer extends Player {
         // 更复杂的刷新策略
         const hasGoodMinion =
           this.gameManager?.tavern.availableMinions.some(
-            minion => minion.tier >= this.tavernLevel || minion.attack + minion.health >= 6
+            minion => minion && (minion.tier >= this.tavernLevel || minion.attack + minion.health >= 6)
           ) || false;
 
-        if (!hasGoodMinion && this.bench.length < 5) {
+        if (!hasGoodMinion && this.hand.length < 5) {
           refreshChance = 0.8;
         } else {
           refreshChance = 0.2;
@@ -168,9 +168,9 @@ export class AIPlayer extends Player {
       const minion = this.gameManager.tavern.availableMinions[i];
 
       // 决定是否购买该随从
-      if (this.shouldBuyMinion(minion)) {
+      if (minion && this.shouldBuyMinion(minion)) {
         // 尝试购买
-        if (minion && this.gold >= minion.cost && this.bench.length < 7) {
+        if (this.gold >= minion.cost && this.hand.length < 7) {
           this.gameManager.buyMinion(this, i);
           i--; // 因为购买后数组会变化，需要调整索引
         }
@@ -238,7 +238,7 @@ export class AIPlayer extends Player {
   }
 
   /**
-   * 决定如何布置随从 - 将bench中的随从放到战场上
+   * 决定如何布置随从 - 将hand中的随从放到战场上
    * @private - 内部方法，仅供AI类使用
    */
   private decidePlaceMinions(): void {
@@ -246,11 +246,11 @@ export class AIPlayer extends Player {
     // 中等AI：简单的位置策略
     // 困难AI：更智能的位置策略
 
-    // 将bench中的随从放到战场上
-    while (this.bench.length > 0 && this.minions.length < 7) {
-      const randomIndex = Math.floor(Math.random() * this.bench.length);
+    // 将hand中的随从放到战场上
+    while (this.hand.length > 0 && this.minions.length < 7) {
+      const randomIndex = Math.floor(Math.random() * this.hand.length);
       const randomPosition = Math.floor(Math.random() * (this.minions.length + 1));
-      this.placeMinionFromBench(randomIndex, randomPosition);
+      this.placeMinionFromHand(randomIndex, randomPosition);
     }
 
     // 根据AI难度调整随从位置
@@ -309,11 +309,11 @@ export class AIPlayer extends Player {
    * @private - 内部方法，仅供AI类使用
    */
   private decideSellMinions(): void {
-    // 遍历bench和战场上的随从，决定是否出售
-    for (let i = this.bench.length - 1; i >= 0; i--) {
-      const minion = this.bench[i];
+    // 遍历hand和战场上的随从，决定是否出售
+    for (let i = this.hand.length - 1; i >= 0; i--) {
+      const minion = this.hand[i];
       if (minion && this.shouldSellMinion(minion)) {
-        this.sellMinion('bench', i);
+        this.sellMinion('hand', i);
       }
     }
 
@@ -346,7 +346,7 @@ export class AIPlayer extends Player {
         break;
       case AIDifficulty.MEDIUM:
         // 中等AI：考虑价值和当前情况
-        if (minionValue < 4 && this.bench.length >= 6) {
+        if (minionValue < 4 && this.hand.length >= 6) {
           sellChance = 0.7;
         } else {
           sellChance = 0.1;
@@ -360,9 +360,9 @@ export class AIPlayer extends Player {
 
         const isLowValue = minionValue < 5;
         const needsGold = this.gold < 5;
-        const benchFull = this.bench.length >= 7;
+        const handFull = this.hand.length >= 7;
 
-        if (isLowValue && (needsGold || benchFull)) {
+        if (isLowValue && (needsGold || handFull)) {
           sellChance = 0.9;
         } else {
           sellChance = 0.1;

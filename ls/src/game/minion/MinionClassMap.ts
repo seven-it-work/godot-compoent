@@ -7,6 +7,7 @@ import { DeepSeaAngler } from './DeepSeaAngler';
 import { PickyEater } from './PickyEater';
 import { RisenRider } from './RisenRider';
 import { Alleycat } from './Alleycat';
+import { Tabbycat } from './Tabbycat';
 import { DozyWhelp } from './DozyWhelp';
 import { SouthseaBusker } from './SouthseaBusker';
 import { Lullabot } from './Lullabot';
@@ -38,6 +39,8 @@ export const minionClassMapByStrId: Record<string, typeof Minion> = {
   BG25_001: RisenRider,
   // 雄斑虎
   BG_CFM_315: Alleycat,
+  // 雌斑虎
+  BG_CFM_315t: Tabbycat,
   // 瞌睡雏龙
   BG24_300: DozyWhelp,
   // 南海卖艺者
@@ -80,6 +83,8 @@ export const minionClassMapByChineseName: Record<string, typeof Minion> = {
   复活的骑兵: RisenRider,
   // 雄斑虎
   雄斑虎: Alleycat,
+  // 雌斑虎
+  雌斑虎: Tabbycat,
   // 瞌睡雏龙
   瞌睡雏龙: DozyWhelp,
   // 南海卖艺者
@@ -100,4 +105,50 @@ export const minionClassMapByChineseName: Record<string, typeof Minion> = {
   嗡鸣害虫: BuzzingVermin,
   // 沙丘土著
   沙丘土著: DuneDweller,
+};
+
+/**
+ * 随从酒馆标记映射 - 标记哪些随从可以在酒馆中出现
+ * true: 可以在酒馆中出现
+ * false: 不能在酒馆中出现（如token随从）
+ */
+export const isTavernMinion: Record<string, boolean> = {
+  // 愤怒编织者
+  BGS_004: true,
+  // 熔融岩石
+  BGS_127: true,
+  // 剃刀沼泽地卜师
+  BG20_100: true,
+  // 晾膘的游客
+  BG20_301: true,
+  // 深海钓客
+  BG23_004: true,
+  // 挑食魔犬
+  BG24_009: true,
+  // 复活的骑兵
+  BG25_001: true,
+  // 雄斑虎 - 可以在酒馆中出现
+  BG_CFM_315: true,
+  // 雌斑虎 - 不能在酒馆中出现（token随从）
+  BG_CFM_315t: false,
+  // 瞌睡雏龙
+  BG24_300: true,
+  // 南海卖艺者
+  BG26_135: true,
+  // 催眠机器人
+  BG26_146: true,
+  // 魔刃豹
+  BG26_800: true,
+  // 无害的骨颅
+  BG28_300: true,
+  // 错巢龙崽
+  BG29_814: true,
+  // 拔线机
+  BG29_611: true,
+  // 气泡枪手
+  BG31_149: true,
+  // 嗡鸣害虫
+  BG31_803: true,
+  // 沙丘土著
+  BG31_815: true,
 };

@@ -8,10 +8,26 @@ export class DozyWhelp extends Minion {
    * 构造函数 - 初始化随从的关键词
    * @param 所有父类构造函数参数
    */
-  constructor(...args: any[]) {
-    super(...args);
-    // 瞌睡雏龙具有嘲讽关键词
-    this.keywords = [...this.keywords, 'taunt'];
+  constructor(
+    id: number,
+    strId: string,
+    cardType: string,
+    name: string,
+    nameCN: string,
+    text: string,
+    mechanics: string[],
+    referencedTags: string[],
+    img: string,
+    art: string,
+    tier: number,
+    health: number,
+    attack: number,
+    minionTypes: string[],
+    minionTypesCN: string[],
+    upgradeCard?: any
+  ) {
+    super(id, strId, cardType, name, nameCN, text, mechanics, referencedTags, img, art, tier, health, attack, minionTypes, minionTypesCN, upgradeCard);
+    // 瞌睡雏龙没有特殊关键词
   }
 
   /**

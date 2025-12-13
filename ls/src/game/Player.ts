@@ -12,8 +12,17 @@ export class Player {
   hero: Hero;
   /** 战场上的随从 - 固定7个位置，null表示该位置为空 */
   minions: (Minion | null)[];
-  /** 随从替补席 - 等待上场的随从列表 */
-  bench: Minion[];
+  /** 手牌 - 等待上场的随从列表
+   * 统一添加入口：
+   * - recruitMinion()：从酒馆招募随从到手牌
+   * - returnMinionToHand()：将战场上的随从放回手牌
+   * - performTriple()：合成三连后将金色随从放到手牌
+   * 统一删除入口：
+   * - placeMinionFromHand()：将手牌随从放到战场
+   * - sellMinion(type: 'hand')：出售手牌随从
+   * - performTriple()：合成三连时移除3个基础随从
+   * 请不要直接使用this.hand.push或this.hand.splice操作 */
+  hand: Minion[];
   /** 酒馆等级 - 玩家酒馆的等级（1-6） */
   tavernLevel: number;
   /** 当前金币 - 玩家拥有的金币 */
@@ -47,7 +56,7 @@ export class Player {
     this.id = id;
     this.hero = hero;
     this.minions = new Array(7).fill(null) as (Minion | null)[]; // 初始化为7个空位置
-    this.bench = []; // 初始化为空替补席
+    this.hand = []; // 初始化为空手牌
     this.tavernLevel = 1; // 初始酒馆等级为1
     this.gold = 3; // 初始金币为3
     this.maxGold = 10; // 最大金币为10
@@ -62,7 +71,109 @@ export class Player {
   }
 
   /**
-   * 招募随从到替补席 - 消耗金币将随从添加到替补席
+   * 召唤随从到战场 - 统一的战场召唤入口
+   * @param minion - 要召唤的随从实例
+   * @param referencePosition - 参考位置（触发召唤的随从位置）
+   * @returns 是否成功召唤
+   * @使用方式：当需要在战场上召唤随从时调用（如战吼、亡语、手牌召唤）
+   */
+  public summonMinion(minion: Minion, referencePosition: number | null): boolean {
+    // 检查战场是否已满
+    const emptyPositions = this.minions.filter(pos => pos === null).length;
+    if (emptyPositions === 0) {
+      return false;
+    }
+
+    // 确定召唤位置
+    let summonPosition: number | null = null;
+    
+    if (referencePosition !== null && referencePosition >= 0 && referencePosition < 7) {
+      // 在参考位置后面查找空位置
+      for (let i = referencePosition + 1; i < 7; i++) {
+        if (this.minions[i] === null) {
+          summonPosition = i;
+          break;
+        }
+      }
+      
+      // 如果参考位置后面没有空位置，从第一个位置开始查找
+      if (summonPosition === null) {
+        for (let i = 0; i < referencePosition + 1; i++) {
+          if (this.minions[i] === null) {
+            summonPosition = i;
+            break;
+          }
+        }
+      }
+    } else {
+      // 参考位置无效，从第一个空位置开始插入
+      for (let i = 0; i < 7; i++) {
+        if (this.minions[i] === null) {
+          summonPosition = i;
+          break;
+        }
+      }
+    }
+
+    // 如果没有找到空位置（理论上不会发生，因为前面已经检查过）
+    if (summonPosition === null) {
+      return false;
+    }
+
+    // 召唤随从到战场
+    this.minions[summonPosition] = minion;
+    // 更新随从位置
+    minion.position = summonPosition;
+    return true;
+  }
+
+  /**
+   * 添加随从到手牌 - 统一的手牌添加入口
+   * @param minion - 要添加的随从实例
+   * @returns 是否成功添加
+   * @使用方式：当需要将随从添加到手牌时调用（内部方法）
+   */
+  private addHandMinion(minion: Minion): boolean {
+    // 检查手牌是否已满
+    if (this.hand.length >= 7) {
+      return false;
+    }
+    
+    // 添加到手牌
+    this.hand.push(minion);
+    return true;
+  }
+
+  /**
+   * 直接添加随从到手牌 - 用于特殊效果（如战吼）的手牌添加入口
+   * @param minion - 要添加的随从实例
+   * @returns 是否成功添加
+   * @使用方式：当通过特殊效果（如战吼、亡语）获得随从时调用
+   */
+  public addMinionToHand(minion: Minion): boolean {
+    // 使用统一的内部添加入口
+    return this.addHandMinion(minion);
+  }
+
+  /**
+   * 从手牌移除随从 - 统一的手牌删除入口
+   * @param index - 要移除的随从索引
+   * @returns 是否成功移除
+   * @使用方式：当需要从手牌移除随从时调用（内部方法）
+   */
+  private removeHandMinion(index: number): boolean {
+    // 检查索引是否超出手牌范围
+    if (index < 0 || index >= this.hand.length) {
+      return false;
+    }
+    
+    // 从手牌移除
+    this.hand.splice(index, 1);
+    return true;
+  }
+
+  /**
+   * 招募随从到手牌 - 消耗金币将随从添加到手牌
    * @param minion - 要招募的随从实例
    * @returns 是否成功招募
    * @使用方式：当玩家从酒馆购买随从时调用
@@ -73,103 +184,82 @@ export class Player {
       return false;
     }
 
-    // 检查替补席是否已满
-    if (this.bench.length >= 7) {
+    // 检查手牌是否已满
+    if (this.hand.length >= 7) {
       return false;
     }
 
     // 扣除金币
     this.gold -= minion.cost;
-    // 添加到替补席
-    this.bench.push(minion);
-    return true;
+    // 添加到手牌（使用统一入口）
+    return this.addHandMinion(minion);
   }
 
   /**
-   * 将替补席中的随从放到战场上 - 将替补席的随从移动到战场上的指定位置
-   * @param index - 替补席中随从的索引
+   * 将手牌中的随从放到战场上 - 将手牌的随从移动到战场上的指定位置
+   * @param index - 手牌中随从的索引
    * @param position - 战场上的目标位置
    * @returns 是否成功放置
-   * @使用方式：当玩家从替补席拖动随从到战场时调用
+   * @使用方式：当玩家从手牌拖动随从到战场时调用
    */
-  placeMinionFromBench(index: number, position: number): boolean {
-    // 调试日志
-    console.log('Player.placeMinionFromBench被调用');
-    console.log('index:', index);
-    console.log('position:', position);
-    console.log('bench:', this.bench);
-    console.log('minions:', this.minions);
-
-    // 检查索引是否超出替补席范围
-    if (index < 0 || index >= this.bench.length) {
-      console.log('index超出bench范围，返回false');
+  placeMinionFromHand(index: number, position: number): boolean {
+    // 检查索引是否超出手牌范围
+    if (index < 0 || index >= this.hand.length) {
       return false;
     }
 
     // 检查位置是否超出战场范围
     if (position < 0 || position >= 7) {
-      console.log('position超出minions范围，返回false');
       return false;
     }
 
-    const minion = this.bench[index];
+    const minion = this.hand[index];
     if (minion) {
-      console.log('获取到的minion:', minion);
       // 检查目标位置是否为空
       if (this.minions[position] === null) {
-        console.log(`目标位置${position}为空，直接放置`);
-        // 从替补席移除
-        this.bench.splice(index, 1);
+        // 从手牌移除（使用统一入口）
+        if (!this.removeHandMinion(index)) {
+          return false;
+        }
         // 放置到战场
         this.minions[position] = minion;
         // 更新随从位置
         minion.position = position;
-
-        console.log('放置成功，返回true');
-        console.log('放置后的bench:', this.bench);
-        console.log('放置后的minions:', this.minions);
         return true;
       } else {
-        console.log(`目标位置${position}已有随从，从第一个位置开始找第一个空位置`);
         // 如果目标位置已有随从，从第一个位置开始找第一个空位置
         for (let i = 0; i < 7; i++) {
           if (this.minions[i] === null) {
-            console.log(`找到空位置${i}，放置随从`);
-            // 从替补席移除
-            this.bench.splice(index, 1);
+            // 从手牌移除（使用统一入口）
+            if (!this.removeHandMinion(index)) {
+              return false;
+            }
             // 放置到战场空位置
             this.minions[i] = minion;
             // 更新随从位置
             minion.position = i;
-
-            console.log('放置成功，返回true');
-            console.log('放置后的bench:', this.bench);
-            console.log('放置后的minions:', this.minions);
             return true;
           }
         }
-        console.log('没有找到空位置，返回false');
       }
-    } else {
-      console.log('minion不存在，返回false');
     }
     return false;
   }
 
   /**
-   * 将战场上的随从放回替补席 - 将战场上的随从移动到替补席
+   * 将战场上的随从放回手牌 - 将战场上的随从移动到手牌
    * @param position - 战场上的目标位置
    * @returns 是否成功放回
-   * @使用方式：当玩家从战场拖动随从到替补席时调用
+   * @使用方式：当玩家从战场拖动随从到手牌时调用
    */
-  returnMinionToBench(position: number): boolean {
+  returnMinionToHand(position: number): boolean {
     // 检查位置是否超出战场范围
     if (position < 0 || position >= 7) {
       return false;
     }
 
-    // 检查替补席是否已满
-    if (this.bench.length >= 7) {
+    // 检查手牌是否已满
+    if (this.hand.length >= 7) {
       return false;
     }
 
@@ -177,23 +267,27 @@ export class Player {
     if (minion) {
       // 从战场移除
       this.minions[position] = null;
-      // 添加到替补席
-      this.bench.push(minion);
-      // 更新随从位置
-      minion.position = null;
-      return true;
+      // 添加到手牌（使用统一入口）
+      if (this.addHandMinion(minion)) {
+        // 更新随从位置
+        minion.position = null;
+        return true;
+      }
+      // 如果添加失败，将随从放回战场
+      this.minions[position] = minion;
+      return false;
     }
     return false;
   }
 
   /**
-   * 出售随从 - 出售战场上或替补席上的随从，获得金币
-   * @param type - 随从类型（'minion'表示战场，'bench'表示替补席）
+   * 出售随从 - 出售战场上或手牌上的随从，获得金币
+   * @param type - 随从类型（'minion'表示战场，'hand'表示手牌）
    * @param index - 随从索引
    * @returns 是否成功出售
    * @使用方式：当玩家点击随从选择出售时调用
    */
-  sellMinion(type: 'minion' | 'bench', index: number): boolean {
+  sellMinion(type: 'minion' | 'hand', index: number): boolean {
     if (type === 'minion') {
       // 出售战场上的随从
       if (index < 0 || index >= this.minions.length) {
@@ -208,13 +302,15 @@ export class Player {
       // 将该位置设置为null
       this.minions[index] = null;
     } else {
-      // 出售替补席上的随从
-      if (index < 0 || index >= this.bench.length) {
+      // 出售手牌上的随从
+      if (index < 0 || index >= this.hand.length) {
         return false;
       }
 
-      // 手牌不是固定数组，直接移除
-      this.bench.splice(index, 1);
+      // 从手牌移除（使用统一入口）
+      if (!this.removeHandMinion(index)) {
+        return false;
+      }
     }
 
     // 获得金币
@@ -298,15 +394,15 @@ export class Player {
   }
 
   /**
-   * 检查三连 - 检查替补席中是否有三个相同的随从
+   * 检查三连 - 检查手牌中是否有三个相同的随从
    * @returns 可以合成三连的随从实例，没有则返回null
    * @使用方式：当玩家招募新随从后调用，检查是否可以合成三连
    */
   checkTriple(): Minion | null {
-    // 统计替补席中的随从数量
+    // 统计手牌中的随从数量
     const minionCounts: { [key: string]: number } = {};
 
-    this.bench.forEach(minion => {
+    this.hand.forEach(minion => {
       if (!minion.isGolden) {
         minionCounts[minion.strId] = (minionCounts[minion.strId] || 0) + 1;
       }
@@ -316,7 +412,7 @@ export class Player {
     for (const [minionStrId, count] of Object.entries(minionCounts)) {
       if (count >= 3) {
         // 找到对应的随从
-        const targetMinion = this.bench.find(
+        const targetMinion = this.hand.find(
           minion => minion.strId === minionStrId && !minion.isGolden
         );
         if (targetMinion) {
@@ -336,7 +432,7 @@ export class Player {
    */
   performTriple(minionStrId: string): Minion | null {
     // 找到3个相同的随从
-    const targetMinions = this.bench.filter(
+    const targetMinions = this.hand.filter(
       minion => minion.strId === minionStrId && !minion.isGolden
     );
 
@@ -345,11 +441,11 @@ export class Player {
       return null;
     }
 
-    // 移除这3个随从
+    // 移除这3个随从（使用统一入口）
     for (let i = 0; i < 3; i++) {
-      const index = this.bench.findIndex(minion => minion === targetMinions[i]);
+      const index = this.hand.findIndex(minion => minion === targetMinions[i]);
       if (index !== -1) {
-        this.bench.splice(index, 1);
+        this.removeHandMinion(index);
       }
     }
 
@@ -357,8 +453,8 @@ export class Player {
     const goldenMinion = targetMinions[0].clone();
     goldenMinion.upgradeToGolden();
 
-    // 将金色随从放到替补席
-    this.bench.push(goldenMinion);
+    // 将金色随从放到手牌（使用统一入口）
+    this.addHandMinion(goldenMinion);
 
     return goldenMinion;
   }
@@ -434,14 +530,10 @@ export class Player {
     if (this.spells.length < this.maxSpells) {
       // 直接添加到法术列表
       this.spells.push(spell);
-      console.log(`成功添加法术: ${spell.nameCN}，当前法术数量: ${this.spells.length}`);
       return true;
     } else {
       // 法术列表已满，添加到待处理队列
       this.pendingSpells.push(spell);
-      console.log(
-        `法术列表已满，将法术 ${spell.nameCN} 添加到待处理队列，队列长度: ${this.pendingSpells.length}`
-      );
       return false;
     }
   }
@@ -467,7 +559,6 @@ export class Player {
       if (success) {
         // 从法术列表中移除该法术
         this.spells.splice(spellIndex, 1);
-        console.log(`成功执行法术: ${spell.nameCN}，当前法术数量: ${this.spells.length}`);
 
         // 尝试添加待处理的法术
         this.tryAddPendingSpells();
@@ -495,7 +586,6 @@ export class Player {
         // 添加到法术列表
         this.spells.push(spell);
         addedCount++;
-        console.log(`从待处理队列添加法术: ${spell.nameCN}，当前法术数量: ${this.spells.length}`);
       }
     }
 
@@ -518,7 +608,6 @@ export class Player {
         // 法术返回true，表示需要移除
         this.spells.splice(i, 1);
         removedCount++;
-        console.log(`回合结束，移除临时法术: ${spell.nameCN}`);
       }
     }
 

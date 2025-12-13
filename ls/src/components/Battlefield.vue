@@ -10,7 +10,7 @@
           :key="slotIndex"
           class="player-minion-slot"
           :class="{ empty: !playerMinions?.[slotIndex - 1] }"
-          @click="selectPlayerMinion(playerMinions?.[slotIndex - 1] || undefined, slotIndex - 1)"
+          @click="selectPlayerMinion((playerMinions?.[slotIndex - 1] as Minion | undefined), slotIndex - 1)"
           :draggable="!!playerMinions?.[slotIndex - 1]"
           @dragstart="
             onDragStart($event, 'battlefield', slotIndex - 1, playerMinions?.[slotIndex - 1])
@@ -124,7 +124,7 @@ const onDrop = (event: DragEvent, targetOrIndex: string | number) => {
         // 战场有7个固定位置，检查是否有空位(null值)
         if (minions.some(slot => slot === null)) {
           // 放置随从到指定位置或第一个空位置
-          gameStore.placeMinionFromBench(dragData.index, targetIndex);
+          gameStore.placeMinionFromHand(dragData.index, targetIndex);
         }
       }
       // 如果是战场内部拖拽，执行重新排序

@@ -8,9 +8,25 @@ export class RisenRider extends Minion {
    * 构造函数 - 初始化随从的关键词
    * @param 所有父类构造函数参数
    */
-  constructor(...args: any[]) {
-    super(...args);
-    // 复活的骑兵具有嘲讽和复生关键词
-    this.keywords = [...this.keywords, 'taunt', 'reborn'];
+  constructor(
+    id: number,
+    strId: string,
+    cardType: string,
+    name: string,
+    nameCN: string,
+    text: string,
+    mechanics: string[],
+    referencedTags: string[],
+    img: string,
+    art: string,
+    tier: number,
+    health: number,
+    attack: number,
+    minionTypes: string[],
+    minionTypesCN: string[],
+    upgradeCard?: any
+  ) {
+    super(id, strId, cardType, name, nameCN, text, mechanics, referencedTags, img, art, tier, health, attack, minionTypes, minionTypesCN, upgradeCard);
+    // 复活的骑兵没有特殊关键词
   }
 }

@@ -136,7 +136,7 @@ export class Minion {
   isGolden: boolean;
   /** 是否被冻结 - 冻结状态的随从无法攻击或被操作 */
   isFrozen: boolean;
-  /** 位置 - 随从在战场上的位置索引，null表示在bench上 */
+  /** 位置 - 随从在战场上的位置索引，null表示在hand上 */
   position: number | null;
   /** 是否已经攻击 - 记录随从是否在当前回合已经攻击过 */
   hasAttacked: boolean;
@@ -226,7 +226,7 @@ export class Minion {
     this.keywords = Minion.mapMechanicsToKeywords(mechanics); // 将机制映射为关键词
     this.isGolden = false; // 默认不是金色随从
     this.isFrozen = false; // 默认不处于冻结状态
-    this.position = null; // 默认位置为null（在bench上）
+    this.position = null; // 默认位置为null（在hand上）
     this.hasAttacked = false; // 默认未攻击
     this.hasDivineShield = this.keywords.includes(MinionKeyword.DIVINE_SHIELD); // 检查是否有圣盾
     this.hasReborn = this.keywords.includes(MinionKeyword.REBORN); // 检查是否有复生
