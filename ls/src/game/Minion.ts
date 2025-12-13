@@ -144,6 +144,8 @@ export class Minion {
   hasDivineShield: boolean;
   /** 是否有复生 - 记录随从当前是否具有复生效果 */
   hasReborn: boolean;
+  /** 是否已授予塑造法术 - 记录随从是否已经生成过塑造法术 */
+  hasGrantedShapingSpell: boolean;
   /** 当前生命值 - 随从当前的生命值 */
   health: number;
   /** 攻击力 - 随从的攻击力（包含所有加成） */
@@ -230,6 +232,7 @@ export class Minion {
     this.hasAttacked = false; // 默认未攻击
     this.hasDivineShield = this.keywords.includes(MinionKeyword.DIVINE_SHIELD); // 检查是否有圣盾
     this.hasReborn = this.keywords.includes(MinionKeyword.REBORN); // 检查是否有复生
+    this.hasGrantedShapingSpell = false; // 是否已授予塑造法术（默认未授予）
     this.buffs = []; // 初始化加成列表为空数组
 
     // 初始化实际属性

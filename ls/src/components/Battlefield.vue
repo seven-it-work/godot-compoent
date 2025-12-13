@@ -158,8 +158,6 @@ const selectPlayerMinion = (minion: Minion | undefined, index: number) => {
 
 <style scoped>
 .battlefield-container {
-  margin: 20px 0;
-  padding: 10px;
   background-color: transparent;
   border-radius: 10px;
   color: black;

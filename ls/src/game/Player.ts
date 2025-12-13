@@ -368,6 +368,22 @@ export class Player {
   }
 
   /**
+   * 开始回合 - 处理回合开始时的逻辑
+   * @使用方式：当玩家回合开始时调用
+   */
+  startTurn(): void {
+    // 重置所有随从的塑造法术授予状态
+    this.minions.forEach(minion => {
+      if (minion) {
+        minion.hasGrantedShapingSpell = false;
+      }
+    });
+
+    // 尝试添加待处理的法术
+    this.tryAddPendingSpells();
+  }
+
+  /**
    * 结束回合 - 重置金币、随从状态和技能冷却
    * @使用方式：当玩家结束当前回合时调用
    */

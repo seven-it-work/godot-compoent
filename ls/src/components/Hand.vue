@@ -92,15 +92,12 @@ const onDrop = (event: DragEvent, target: string) => {
 
 <style scoped>
 .hand-container {
-  margin: 20px 0;
-  padding: 10px;
   background-color: transparent;
   border-radius: 10px;
   color: black;
 }
 
 .hand-title {
-  margin: 0 0 15px 0;
   text-align: center;
   color: #ffd700;
   font-size: 20px;
@@ -111,7 +108,6 @@ const onDrop = (event: DragEvent, target: string) => {
   gap: 10px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 15px;
 }
 
 .hand-slot {

@@ -482,7 +482,7 @@ const isInGame = computed(() => {
 
 /* 左边30% 操作区域 */
 .left-section {
-  width: 30%;
+  width: 25%;
   background-color: #f0f2f5;
   padding: 20px;
   border-right: 1px solid #e0e0e0;
@@ -493,9 +493,8 @@ const isInGame = computed(() => {
 
 /* 右边70% 主内容区域 */
 .right-section {
-  width: 70%;
+  width: 75%;
   background-color: #ffffff;
-  padding: 20px;
   overflow-y: auto;
 }
 

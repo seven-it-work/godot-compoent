@@ -95,7 +95,6 @@ const onDrop = (event: DragEvent, target: string) => {
 <style scoped>
 .tavern-container {
   margin: 0;
-  padding: 20px;
   background-color: transparent;
   color: black;
   box-sizing: border-box;
@@ -106,7 +105,6 @@ const onDrop = (event: DragEvent, target: string) => {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 20px;
   flex-wrap: wrap;
 }
 
