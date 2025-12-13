@@ -116,12 +116,41 @@ const _props = defineProps<Props>();
 // 使用游戏store
 const gameStore = useGameStore();
 
+// 从localStorage读取保存的搜索配置
+const loadSearchConfig = () => {
+  const savedConfig = localStorage.getItem('debugDrawerSearchConfig');
+  if (savedConfig) {
+    try {
+      return JSON.parse(savedConfig);
+    } catch (error) {
+      console.error('读取搜索配置失败:', error);
+      return {};
+    }
+  }
+  return {};
+};
+
+// 保存搜索配置到localStorage
+const saveSearchConfig = () => {
+  const config = {
+    searchQuery: searchQuery.value,
+    selectedMechanic: selectedMechanic.value,
+    selectedLocation: selectedLocation.value,
+    savedAt: new Date().toISOString(),
+  };
+  localStorage.setItem('debugDrawerSearchConfig', JSON.stringify(config));
+  console.log('搜索配置已保存到localStorage:', config);
+};
+
 // 响应式变量
 const currentGold = ref(gameStore.player?.gold || 0);
 const maxGold = ref(gameStore.player?.maxGold || 10);
-const searchQuery = ref('');
-const selectedMechanic = ref(''); // 用于筛选的机制
-const selectedLocation = ref('tavern'); // 添加位置选择：酒馆、战场、手牌
+
+// 从localStorage加载搜索配置
+const savedConfig = loadSearchConfig();
+const searchQuery = ref(savedConfig.searchQuery || '');
+const selectedMechanic = ref(savedConfig.selectedMechanic || ''); // 用于筛选的机制
+const selectedLocation = ref(savedConfig.selectedLocation || 'tavern'); // 添加位置选择：酒馆、战场、手牌
 
 // 监听player变化，更新局部变量
 watch(
@@ -131,6 +160,15 @@ watch(
       currentGold.value = newPlayer.gold;
       maxGold.value = newPlayer.maxGold;
     }
+  },
+  { deep: true }
+);
+
+// 监听搜索配置变化，自动保存到localStorage
+watch(
+  [searchQuery, selectedMechanic, selectedLocation],
+  () => {
+    saveSearchConfig();
   },
   { deep: true }
 );

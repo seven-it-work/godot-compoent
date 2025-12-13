@@ -99,8 +99,10 @@ const onMouseMove = (event: MouseEvent) => {
 // 鼠标释放事件 - 结束法术拖拽
 const onMouseUp = (event: MouseEvent) => {
   if (gameStore.spellUsageState === 'selecting_target' && gameStore.dragArrow.visible) {
-    // 结束拖拽，这里需要判断是否命中了有效目标
-    gameStore.endSpellDrag(event as any, null); // 暂时传入null，后续需要添加目标检测
+    // 检测鼠标位置下的有效目标
+    const target = gameStore.detectTargetAtPosition(event.clientX, event.clientY);
+    // 结束拖拽，传入检测到的目标
+    gameStore.endSpellDrag(event as any, target);
   }
 };
 

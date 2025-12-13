@@ -27,6 +27,11 @@ export class DeepSeaAngler extends Minion {
           { type: 'max_health_bonus', value: 2, duration: 1, target: 'friendly' },
           { type: 'keyword', value: 'taunt', duration: 1, target: 'friendly' },
         ],
+        {
+          scope: 'both', // 允许作用于战场和酒馆中的随从
+          targetType: 'minion',
+          requiresTarget: true,
+        },
         1,
         true
       );
