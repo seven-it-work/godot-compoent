@@ -30,7 +30,6 @@ export class DeepSeaAngler extends Minion {
         1,
         true
       );
-
       // 将法术添加到玩家的法术列表中
       const added = game.player.addSpell(shapingSpell);
       if (added) {

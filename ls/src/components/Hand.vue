@@ -2,15 +2,25 @@
   <div class="hand-container">
     <!-- 手牌区域 -->
     <div class="hand-area" @dragover.prevent @drop="onDrop($event, 'hand')">
-      <!-- 随从手牌，动态生成 -->
+      <!-- 所有手牌，动态生成 -->
       <div
-        v-for="(minion, index) in player?.cards.filter(card => card.cardType === 'minion')"
-        :key="minion.id || index"
+        v-for="(card, index) in player?.cards"
+        :key="card.id || index"
         class="hand-slot"
         draggable="true"
-        @dragstart="onDragStart($event, 'hand', index, minion)"
+        @dragstart="onDragStart($event, 'hand', index, card)"
       >
-        <MinionCard :minion="minion as Minion" @click="selectMinion(minion as Minion, index)" />
+        <!-- 根据卡片类型渲染不同的组件 -->
+        <MinionCard
+          v-if="card.cardType === 'minion'"
+          :minion="card as Minion"
+          @click="selectCard(card, index)"
+        />
+        <SpellCard
+          v-else-if="card.cardType === 'spell'"
+          :spell="card as Spell"
+          @click="selectCard(card, index)"
+        />
       </div>
 
       <!-- 空手牌槽，根据剩余空间动态生成 -->
@@ -26,8 +36,11 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useGameStore } from '../stores/game';
+import { Card } from '../game/Card';
 import { Minion } from '../game/Minion';
+import { Spell } from '../game/Spell';
 import MinionCard from './MinionCard.vue';
+import SpellCard from './SpellCard.vue';
 
 // 使用游戏store
 const gameStore = useGameStore();
@@ -35,21 +48,24 @@ const { player } = gameStore;
 
 // 计算空手牌槽数量
 const emptySlots = computed(() => {
-  const maxHandSlots = 7;
-  const currentMinions = player?.cards.filter(card => card.cardType === 'minion').length || 0;
-  return Math.max(0, maxHandSlots - currentMinions);
+  const maxHandSlots = 10;
+  const currentCards = player?.cards.length || 0;
+  return Math.max(0, maxHandSlots - currentCards);
 });
 
-// 选择随从
-const selectMinion = (minion: Minion, index: number) => {
-  // 使用gameStore管理选中的随从，来源为hand
-  gameStore.selectMinion(minion, index, 'hand');
+// 选择卡片
+const selectCard = (card: Card, index: number) => {
+  // 使用gameStore管理选中的卡片，来源为hand
+  if (card.cardType === 'minion') {
+    gameStore.selectMinion(card as Minion, index, 'hand');
+  }
+  // 法术卡片的选择逻辑可以在这里扩展
 };
 
 // 拖拽开始事件
-const onDragStart = (event: DragEvent, source: string, index: number, minion: any) => {
-  // 只有当minion存在时才执行拖拽逻辑
-  if (!minion) {
+const onDragStart = (event: DragEvent, source: string, index: number, card: any) => {
+  // 只有当card存在时才执行拖拽逻辑
+  if (!card) {
     // 阻止默认拖拽行为
     event.preventDefault();
     return;
@@ -60,8 +76,9 @@ const onDragStart = (event: DragEvent, source: string, index: number, minion: an
     JSON.stringify({
       source,
       index,
-      minionId: minion.instanceId,
-      strId: minion.strId,
+      cardId: card.id,
+      strId: card.strId,
+      cardType: card.cardType,
     })
   );
 };

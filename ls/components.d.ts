@@ -20,6 +20,7 @@ declare module 'vue' {
     GameBoard: typeof import('./src/components/GameBoard.vue')['default']
     Hand: typeof import('./src/components/Hand.vue')['default']
     MinionCard: typeof import('./src/components/MinionCard.vue')['default']
+    SpellCard: typeof import('./src/components/SpellCard.vue')['default']
     Tavern: typeof import('./src/components/Tavern.vue')['default']
   }
 }
