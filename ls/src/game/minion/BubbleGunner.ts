@@ -5,11 +5,41 @@ import { Minion, MinionKeyword } from '../Minion';
  */
 export class BubbleGunner extends Minion {
   constructor(
-    id: number, strId: string, cardType: string, name: string, nameCN: string, text: string,
-    mechanics: string[], referencedTags: string[], img: string, art: string, tier: number,
-    health: number, attack: number, minionTypes: string[], minionTypesCN: string[], upgradeCard?: any
+    id: number,
+    strId: string,
+    cardType: string,
+    name: string,
+    nameCN: string,
+    text: string,
+    mechanics: string[],
+    referencedTags: string[],
+    img: string,
+    art: string,
+    tier: number,
+    health: number,
+    attack: number,
+    minionTypes: string[],
+    minionTypesCN: string[],
+    upgradeCard?: any
   ) {
-    super(id, strId, cardType, name, nameCN, text, mechanics, referencedTags, img, art, tier, health, attack, minionTypes, minionTypesCN, upgradeCard);
+    super(
+      id,
+      strId,
+      cardType,
+      name,
+      nameCN,
+      text,
+      mechanics,
+      referencedTags,
+      img,
+      art,
+      tier,
+      health,
+      attack,
+      minionTypes,
+      minionTypesCN,
+      upgradeCard
+    );
   }
 
   /**
@@ -21,7 +51,7 @@ export class BubbleGunner extends Minion {
   battlecry(_game?: any): void {
     // 战吼：获得一个随机额外关键词
     console.log('气泡枪手：获得一个随机额外关键词');
-    
+
     // 定义所有可能的关键词列表
     const allKeywords: MinionKeyword[] = [
       MinionKeyword.TAUNT,
@@ -32,35 +62,33 @@ export class BubbleGunner extends Minion {
       MinionKeyword.CHARGE,
       MinionKeyword.POISONOUS,
       MinionKeyword.REBORN,
-      MinionKeyword.IMMUNE
+      MinionKeyword.IMMUNE,
     ];
-    
+
     // 过滤掉已经拥有的关键词
-    const availableKeywords = allKeywords.filter(keyword => 
-      !this.keywords.includes(keyword)
-    );
-    
+    const availableKeywords = allKeywords.filter(keyword => !this.keywords.includes(keyword));
+
     // 如果没有可用的新关键词，直接返回
     if (availableKeywords.length === 0) {
       console.log('气泡枪手已经拥有所有关键词，无法获得新关键词');
       return;
     }
-    
+
     // 随机选择一个新关键词
     const randomIndex = Math.floor(Math.random() * availableKeywords.length);
     const newKeyword = availableKeywords[randomIndex];
-    
+
     // 添加新关键词（确保有值）
     if (newKeyword) {
       this.keywords.push(newKeyword);
-      
+
       // 根据关键词设置对应属性
       if (newKeyword === MinionKeyword.DIVINE_SHIELD) {
         this.hasDivineShield = true;
       } else if (newKeyword === MinionKeyword.REBORN) {
         this.hasReborn = true;
       }
-      
+
       // 输出获得的关键词
       console.log(`气泡枪手获得了新关键词：${newKeyword}`);
     }

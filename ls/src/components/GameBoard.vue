@@ -233,16 +233,16 @@ const createMinionPool = () => {
   // 辅助函数：递归提取所有随从数据（包括tokens中的）
   const extractAllMinions = (data: any[]): any[] => {
     let allMinions: any[] = [];
-    
+
     data.forEach(item => {
       // 添加当前item
       allMinions.push(item);
-      
+
       // 递归处理tokens
       if (item.tokens && Array.isArray(item.tokens)) {
         allMinions = allMinions.concat(extractAllMinions(item.tokens));
       }
-      
+
       // 递归处理upgradeCard
       if (item.upgradeCard) {
         allMinions.push(item.upgradeCard);
@@ -251,7 +251,7 @@ const createMinionPool = () => {
         }
       }
     });
-    
+
     return allMinions;
   };
 

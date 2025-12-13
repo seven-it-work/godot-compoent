@@ -137,7 +137,8 @@ export class AIPlayer extends Player {
         // 更复杂的刷新策略
         const hasGoodMinion =
           this.gameManager?.tavern.availableMinions.some(
-            minion => minion && (minion.tier >= this.tavernLevel || minion.attack + minion.health >= 6)
+            minion =>
+              minion && (minion.tier >= this.tavernLevel || minion.attack + minion.health >= 6)
           ) || false;
 
         if (!hasGoodMinion && this.hand.length < 5) {

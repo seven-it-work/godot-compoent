@@ -26,7 +26,24 @@ export class RisenRider extends Minion {
     minionTypesCN: string[],
     upgradeCard?: any
   ) {
-    super(id, strId, cardType, name, nameCN, text, mechanics, referencedTags, img, art, tier, health, attack, minionTypes, minionTypesCN, upgradeCard);
+    super(
+      id,
+      strId,
+      cardType,
+      name,
+      nameCN,
+      text,
+      mechanics,
+      referencedTags,
+      img,
+      art,
+      tier,
+      health,
+      attack,
+      minionTypes,
+      minionTypesCN,
+      upgradeCard
+    );
     // 复活的骑兵没有特殊关键词
   }
 }

@@ -1,7 +1,12 @@
 /**
  * 法术效果类型 - 定义法术可以产生的效果类型
  */
-export type SpellEffectType = 'attack_bonus' | 'health_bonus' | 'max_health_bonus' | 'keyword' | 'special';
+export type SpellEffectType =
+  | 'attack_bonus'
+  | 'health_bonus'
+  | 'max_health_bonus'
+  | 'keyword'
+  | 'special';
 
 /**
  * 法术效果接口 - 定义法术效果的数据结构

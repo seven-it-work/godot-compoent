@@ -35,5 +35,4 @@ export class DeepSeaAngler extends Minion {
       game.player.addSpell(shapingSpell);
     }
   }
-
 }

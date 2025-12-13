@@ -26,7 +26,24 @@ export class BuzzingVermin extends Minion {
     minionTypesCN: string[],
     upgradeCard?: any
   ) {
-    super(id, strId, cardType, name, nameCN, text, mechanics, referencedTags, img, art, tier, health, attack, minionTypes, minionTypesCN, upgradeCard);
+    super(
+      id,
+      strId,
+      cardType,
+      name,
+      nameCN,
+      text,
+      mechanics,
+      referencedTags,
+      img,
+      art,
+      tier,
+      health,
+      attack,
+      minionTypes,
+      minionTypesCN,
+      upgradeCard
+    );
     // 嗡鸣害虫具有嘲讽和亡语关键词
     this.keywords = [...this.keywords, MinionKeyword.TAUNT];
   }

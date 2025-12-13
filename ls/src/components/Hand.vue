@@ -4,13 +4,13 @@
     <div class="hand-area" @dragover.prevent @drop="onDrop($event, 'hand')">
       <!-- 随从手牌，动态生成 -->
       <div
-          v-for="(minion, index) in player?.hand"
-          :key="minion.instanceId || index"
-          class="hand-slot"
-          draggable="true"
-          @dragstart="onDragStart($event, 'hand', index, minion)"
-        >
-          <MinionCard :minion="minion as Minion" @click="selectMinion(minion as Minion, index)" />
+        v-for="(minion, index) in player?.hand"
+        :key="minion.instanceId || index"
+        class="hand-slot"
+        draggable="true"
+        @dragstart="onDragStart($event, 'hand', index, minion)"
+      >
+        <MinionCard :minion="minion as Minion" @click="selectMinion(minion as Minion, index)" />
       </div>
 
       <!-- 空手牌槽，根据剩余空间动态生成 -->

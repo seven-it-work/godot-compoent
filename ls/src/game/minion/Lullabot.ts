@@ -26,7 +26,24 @@ export class Lullabot extends Minion {
     minionTypesCN: string[],
     upgradeCard?: any
   ) {
-    super(id, strId, cardType, name, nameCN, text, mechanics, referencedTags, img, art, tier, health, attack, minionTypes, minionTypesCN, upgradeCard);
+    super(
+      id,
+      strId,
+      cardType,
+      name,
+      nameCN,
+      text,
+      mechanics,
+      referencedTags,
+      img,
+      art,
+      tier,
+      health,
+      attack,
+      minionTypes,
+      minionTypesCN,
+      upgradeCard
+    );
     // 催眠机器人具有磁力关键词
     // 注意：磁力不是MinionKeyword枚举中的值，所以这里不添加到keywords数组
   }

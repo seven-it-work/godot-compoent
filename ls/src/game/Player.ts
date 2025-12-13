@@ -86,7 +86,7 @@ export class Player {
 
     // 确定召唤位置
     let summonPosition: number | null = null;
-    
+
     if (referencePosition !== null && referencePosition >= 0 && referencePosition < 7) {
       // 在参考位置后面查找空位置
       for (let i = referencePosition + 1; i < 7; i++) {
@@ -95,7 +95,7 @@ export class Player {
           break;
         }
       }
-      
+
       // 如果参考位置后面没有空位置，从第一个位置开始查找
       if (summonPosition === null) {
         for (let i = 0; i < referencePosition + 1; i++) {
@@ -138,7 +138,7 @@ export class Player {
     if (this.hand.length >= 7) {
       return false;
     }
-    
+
     // 添加到手牌
     this.hand.push(minion);
     return true;
@@ -166,7 +166,7 @@ export class Player {
     if (index < 0 || index >= this.hand.length) {
       return false;
     }
-    
+
     // 从手牌移除
     this.hand.splice(index, 1);
     return true;

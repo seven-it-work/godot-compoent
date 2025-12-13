@@ -55,7 +55,9 @@ export class PickyEater extends Minion {
       // 从酒馆中移除被吞食的随从
       tavern.setAvailableMinion(eatenMinionIndex, null);
 
-      console.log(`挑食魔犬吞食了${eatenMinion.nameCN || eatenMinion.name}，获得了${attackBonus}攻击力和${healthBonus}生命值`);
+      console.log(
+        `挑食魔犬吞食了${eatenMinion.nameCN || eatenMinion.name}，获得了${attackBonus}攻击力和${healthBonus}生命值`
+      );
     }
   }
 }

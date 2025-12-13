@@ -26,7 +26,24 @@ export class DozyWhelp extends Minion {
     minionTypesCN: string[],
     upgradeCard?: any
   ) {
-    super(id, strId, cardType, name, nameCN, text, mechanics, referencedTags, img, art, tier, health, attack, minionTypes, minionTypesCN, upgradeCard);
+    super(
+      id,
+      strId,
+      cardType,
+      name,
+      nameCN,
+      text,
+      mechanics,
+      referencedTags,
+      img,
+      art,
+      tier,
+      health,
+      attack,
+      minionTypes,
+      minionTypesCN,
+      upgradeCard
+    );
     // 瞌睡雏龙没有特殊关键词
   }
 

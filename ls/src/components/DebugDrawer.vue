@@ -151,12 +151,14 @@ const filteredMinions = computed(() => {
   const query = searchQuery.value.toLowerCase().trim();
   return gameStore.minionPool.filter(minion => {
     // 搜索条件
-    const matchesSearch = !query ||
+    const matchesSearch =
+      !query ||
       minion.name.toLowerCase().includes(query) ||
       (minion.nameCN && minion.nameCN.toLowerCase().includes(query));
 
     // 机制筛选条件
-    const matchesMechanic = !selectedMechanic.value ||
+    const matchesMechanic =
+      !selectedMechanic.value ||
       (minion.mechanics && minion.mechanics.includes(selectedMechanic.value.toUpperCase())) ||
       (minion.keywords && minion.keywords.includes(selectedMechanic.value as MinionKeyword));
 

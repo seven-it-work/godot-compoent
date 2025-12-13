@@ -164,7 +164,7 @@ export const useGameStore = defineStore('game', {
           // 1. 触发放置随从的onMinionPlayed事件（使用本随从事件）
           console.log('触发随从onMinionPlayed事件:', minionToPlace.nameCN);
           minionToPlace.onMinionPlayed(this);
-          
+
           // 2. 触发放置随从的battlecry事件（战吼效果）
           console.log('触发随从battlecry事件:', minionToPlace.nameCN);
           minionToPlace.battlecry(this);

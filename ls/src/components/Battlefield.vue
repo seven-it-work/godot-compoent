@@ -10,7 +10,9 @@
           :key="slotIndex"
           class="player-minion-slot"
           :class="{ empty: !playerMinions?.[slotIndex - 1] }"
-          @click="selectPlayerMinion((playerMinions?.[slotIndex - 1] as Minion | undefined), slotIndex - 1)"
+          @click="
+            selectPlayerMinion(playerMinions?.[slotIndex - 1] as Minion | undefined, slotIndex - 1)
+          "
           :draggable="!!playerMinions?.[slotIndex - 1]"
           @dragstart="
             onDragStart($event, 'battlefield', slotIndex - 1, playerMinions?.[slotIndex - 1])
