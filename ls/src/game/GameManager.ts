@@ -303,7 +303,6 @@ export class GameManager {
     }
 
     // 购买成功后，直接招募随从到替补席
-    // 注意：onCardPlayed只有在从手牌到战场时才会触发，购买时不触发
     return player.recruitMinion(minion);
   }
 

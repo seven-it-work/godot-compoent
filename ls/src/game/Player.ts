@@ -1,5 +1,6 @@
 import { Hero } from './Hero';
 import { Minion } from './Minion';
+import { Spell } from './Spell';
 
 /**
  * 玩家类 - 定义玩家的数据结构和行为
@@ -29,6 +30,12 @@ export class Player {
   winStreak: number;
   /** 连败次数 - 连续失败的次数 */
   lossStreak: number;
+  /** 法术列表 - 玩家拥有的法术列表 */
+  spells: Spell[];
+  /** 待添加法术队列 - 当手牌满时，等待添加的法术列表 */
+  pendingSpells: Spell[];
+  /** 最大法术数量 - 玩家能拥有的最大法术数量 */
+  maxSpells: number;
 
   /**
    * 玩家构造函数
@@ -49,6 +56,9 @@ export class Player {
     this.isPlayer = isPlayer; // 是否为玩家
     this.winStreak = 0; // 初始连胜为0
     this.lossStreak = 0; // 初始连败为0
+    this.spells = []; // 初始法术列表为空
+    this.pendingSpells = []; // 初始待添加法术队列为空
+    this.maxSpells = 7; // 最大法术数量为7
   }
 
   /**
@@ -114,6 +124,7 @@ export class Player {
         this.minions[position] = minion;
         // 更新随从位置
         minion.position = position;
+
         console.log('放置成功，返回true');
         console.log('放置后的bench:', this.bench);
         console.log('放置后的minions:', this.minions);
@@ -130,6 +141,7 @@ export class Player {
             this.minions[i] = minion;
             // 更新随从位置
             minion.position = i;
+
             console.log('放置成功，返回true');
             console.log('放置后的bench:', this.bench);
             console.log('放置后的minions:', this.minions);
@@ -280,6 +292,9 @@ export class Player {
     if (this.hero.heroPower.currentCooldown > 0) {
       this.hero.heroPower.currentCooldown -= 1;
     }
+
+    // 处理法术（移除临时法术，尝试添加待处理法术）
+    this.onTurnEndSpells();
   }
 
   /**
@@ -406,5 +421,110 @@ export class Player {
     }
 
     return true;
+  }
+
+  /**
+   * 添加法术到法术列表 - 将法术添加到玩家的法术列表中
+   * @param spell - 要添加的法术实例
+   * @returns 是否成功添加
+   * @使用方式：当玩家获得新法术时调用
+   */
+  addSpell(spell: Spell): boolean {
+    // 检查法术列表是否已满
+    if (this.spells.length < this.maxSpells) {
+      // 直接添加到法术列表
+      this.spells.push(spell);
+      console.log(`成功添加法术: ${spell.nameCN}，当前法术数量: ${this.spells.length}`);
+      return true;
+    } else {
+      // 法术列表已满，添加到待处理队列
+      this.pendingSpells.push(spell);
+      console.log(
+        `法术列表已满，将法术 ${spell.nameCN} 添加到待处理队列，队列长度: ${this.pendingSpells.length}`
+      );
+      return false;
+    }
+  }
+
+  /**
+   * 执行法术 - 对目标随从执行法术效果
+   * @param spellIndex - 法术在列表中的索引
+   * @param target - 目标随从
+   * @returns 是否成功执行
+   * @使用方式：当玩家使用法术时调用
+   */
+  executeSpell(spellIndex: number, target: Minion): boolean {
+    // 检查索引是否有效
+    if (spellIndex < 0 || spellIndex >= this.spells.length) {
+      return false;
+    }
+
+    const spell = this.spells[spellIndex];
+    // 执行法术效果
+    if (spell) {
+      const success = spell.execute(target);
+
+      if (success) {
+        // 从法术列表中移除该法术
+        this.spells.splice(spellIndex, 1);
+        console.log(`成功执行法术: ${spell.nameCN}，当前法术数量: ${this.spells.length}`);
+
+        // 尝试添加待处理的法术
+        this.tryAddPendingSpells();
+      }
+
+      return success;
+    }
+
+    return false;
+  }
+
+  /**
+   * 尝试添加待处理的法术 - 当法术列表有空位时，从待处理队列添加法术
+   * @returns 添加的法术数量
+   * @使用方式：当法术列表有空位时调用
+   */
+  tryAddPendingSpells(): number {
+    let addedCount = 0;
+
+    // 循环尝试添加待处理法术，直到法术列表已满或待处理队列为空
+    while (this.spells.length < this.maxSpells && this.pendingSpells.length > 0) {
+      // 从待处理队列取出第一个法术
+      const spell = this.pendingSpells.shift();
+      if (spell) {
+        // 添加到法术列表
+        this.spells.push(spell);
+        addedCount++;
+        console.log(`从待处理队列添加法术: ${spell.nameCN}，当前法术数量: ${this.spells.length}`);
+      }
+    }
+
+    return addedCount;
+  }
+
+  /**
+   * 回合结束时处理法术 - 处理临时法术和持续效果
+   * @returns 移除的法术数量
+   * @使用方式：当回合结束时调用
+   */
+  onTurnEndSpells(): number {
+    let removedCount = 0;
+
+    // 处理法术列表中的临时法术
+    for (let i = this.spells.length - 1; i >= 0; i--) {
+      const spell = this.spells[i];
+      // 调用法术的onTurnEnd方法
+      if (spell && spell.onTurnEnd()) {
+        // 法术返回true，表示需要移除
+        this.spells.splice(i, 1);
+        removedCount++;
+        console.log(`回合结束，移除临时法术: ${spell.nameCN}`);
+      }
+    }
+
+    // 处理完临时法术后，尝试添加待处理的法术
+    this.tryAddPendingSpells();
+
+    return removedCount;
   }
 }

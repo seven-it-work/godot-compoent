@@ -157,9 +157,16 @@ export const useGameStore = defineStore('game', {
         const success = this.player.placeMinionFromBench(index, position);
         console.log('player.placeMinionFromBench返回:', success);
 
-        // 放置成功后，触发当前玩家所有场上随从的onCardPlayed方法
+        // 放置成功后，触发所有效果
         if (success && minionToPlace) {
-          console.log('放置成功，触发所有场上随从的onCardPlayed事件');
+          console.log('放置成功，触发所有效果');
+
+          // 1. 触发放置随从的onMinionPlayed事件（使用本随从事件）
+          console.log('触发随从onMinionPlayed事件:', minionToPlace.nameCN);
+          minionToPlace.onMinionPlayed(this);
+
+          // 2. 触发当前玩家所有场上随从的onCardPlayed方法（使用其他卡片事件）
+          console.log('触发所有场上随从的onCardPlayed事件');
           this.player.minions.forEach(fieldMinion => {
             if (fieldMinion && fieldMinion !== minionToPlace) {
               console.log('调用场上随从的onCardPlayed:', fieldMinion.nameCN);

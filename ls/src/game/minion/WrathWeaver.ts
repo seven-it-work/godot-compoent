@@ -5,13 +5,13 @@ import { Minion } from '../Minion';
  */
 export class WrathWeaver extends Minion {
   /**
-   * 重写卡牌被使用时触发的方法
+   * 重写其他卡牌被使用时触发的方法
    * @param card - 使用的卡牌实例
    * @param game - 游戏管理器或store实例
-   * @使用方式：当玩家使用任何卡牌时，愤怒编织者的此方法会被调用
+   * @使用方式：当玩家使用其他卡牌时，愤怒编织者的此方法会被调用
    */
-  onCardPlayed(card: any, game: any): void {
-    console.log('WrathWeaver.onCardPlayed被调用');
+  onOtherCardPlayed(card: any, game: any): void {
+    console.log('WrathWeaver.onOtherCardPlayed被调用');
     console.log('使用的卡牌:', card.nameCN, card.minionTypes);
     // 愤怒编织者自己的判断条件：检查是否为恶魔牌
     if (card.cardType === 'demon' || (card.minionTypes && card.minionTypes.includes('demon'))) {
@@ -30,11 +30,15 @@ export class WrathWeaver extends Minion {
             console.log('伤害后生命值:', currentPlayer.hero.health);
           }
 
-          // 获得+2/+1
+          // 获得+2/+1 - 使用新的加成系统
           console.log('愤怒编织者获得+2/+1，当前属性:', this.attack, '/', this.health);
-          this.attack += 2;
-          this.health += 1;
-          this.maxHealth += 1;
+          this.addBuff({
+            id: `wrathweaver_buff_${Date.now()}`,
+            source: '愤怒编织者',
+            attackBonus: 2,
+            healthBonus: 1,
+            maxHealthBonus: 1,
+          });
           console.log('属性提升后:', this.attack, '/', this.health);
         } else {
           console.log('未找到当前玩家');

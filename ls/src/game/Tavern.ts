@@ -30,6 +30,10 @@ export class Tavern {
   upgradeCosts: number[];
   /** 随从计数映射 - 记录每个随从ID在公共池中的剩余数量 */
   private minionCounts: Map<string, number>;
+  /** 元素加成 - 记录酒馆中元素随从获得的加成值 */
+  private elementalBonus: { attack: number; health: number };
+  /** 元素加成来源计数 - 记录产生元素加成的来源数量 */
+  private elementalBonusSources: number;
 
   /**
    * 酒馆构造函数
@@ -45,6 +49,9 @@ export class Tavern {
     this.refreshCost = 1;
     this.upgradeCosts = [0, 5, 7, 8, 10, 12, 12];
     this.minionCounts = new Map();
+    // 元素加成初始化
+    this.elementalBonus = { attack: 0, health: 0 };
+    this.elementalBonusSources = 0;
 
     // 初始化随从池计数
     this.initializeMinionCounts();
@@ -74,6 +81,29 @@ export class Tavern {
   }
 
   /**
+   * 设置可用随从 - 为指定位置设置随从并应用加成
+   * @param index - 位置索引
+   * @param minion - 要设置的随从
+   * @使用方式：作为设置availableMinions的单一入口
+   */
+  setAvailableMinion(index: number, minion: Minion | null): void {
+    this.availableMinions[index] = minion;
+    // 如果是元素随从且不为null，应用元素加成
+    if (minion && minion.minionTypes.includes(MinionType.ELEMENTAL)) {
+      // 移除旧的元素加成
+      minion.removeBuff('elemental_tavern_bonus');
+      // 添加新的元素加成
+      minion.addBuff({
+        id: 'elemental_tavern_bonus',
+        source: '酒馆元素加成',
+        attackBonus: this.elementalBonus.attack,
+        healthBonus: this.elementalBonus.health,
+        maxHealthBonus: this.elementalBonus.health,
+      });
+    }
+  }
+
+  /**
    * 刷新酒馆中的随从 - 从随从池中随机选择随从填充到可用随从列表
    * @使用方式：当玩家点击刷新酒馆按钮或游戏自动刷新时调用
    */
@@ -86,7 +116,8 @@ export class Tavern {
     // 从随从池中随机选择随从，替换对应位置的随从
     const minionsToShow = this.getMinionsToShowCount();
     for (let i = 0; i < minionsToShow; i++) {
-      this.availableMinions[i] = this.selectRandomMinion();
+      const minion = this.selectRandomMinion();
+      this.setAvailableMinion(i, minion);
     }
   }
 
@@ -203,7 +234,7 @@ export class Tavern {
     const minion = this.availableMinions[index];
     if (minion) {
       // 将该位置设置为null，而不是使用splice移除，这样可以保持固定位置
-      this.availableMinions[index] = null;
+      this.setAvailableMinion(index, null);
 
       // 从公共池中扣除该随从
       const currentCount = this.minionCounts.get(minion.id.toString()) || 0;
@@ -274,6 +305,69 @@ export class Tavern {
   }
 
   /**
+   * 添加元素加成来源 - 增加酒馆中元素随从的加成
+   * @param attackBonus - 攻击力加成值
+   * @param healthBonus - 生命值加成值
+   * @returns 是否成功添加
+   * @使用方式：当触发元素加成效果时调用
+   */
+  addElementalBonusSource(attackBonus: number, healthBonus: number): boolean {
+    this.elementalBonusSources++;
+    // 更新总加成值
+    this.elementalBonus.attack += attackBonus;
+    this.elementalBonus.health += healthBonus;
+    // 应用加成到当前酒馆中的所有元素随从
+    this.availableMinions.forEach(minion => {
+      if (minion && minion.minionTypes.includes(MinionType.ELEMENTAL)) {
+        this.applyElementalBonuses(minion);
+      }
+    });
+    return true;
+  }
+
+  /**
+   * 移除元素加成来源 - 减少酒馆中元素随从的加成
+   * @param attackBonus - 要移除的攻击力加成值
+   * @param healthBonus - 要移除的生命值加成值
+   * @returns 是否成功移除
+   * @使用方式：当元素加成效果结束时调用
+   */
+  removeElementalBonusSource(attackBonus: number, healthBonus: number): boolean {
+    if (this.elementalBonusSources <= 0) {
+      return false;
+    }
+    this.elementalBonusSources--;
+    // 更新总加成值
+    this.elementalBonus.attack = Math.max(0, this.elementalBonus.attack - attackBonus);
+    this.elementalBonus.health = Math.max(0, this.elementalBonus.health - healthBonus);
+    // 重新应用加成到当前酒馆中的所有元素随从
+    this.availableMinions.forEach(minion => {
+      if (minion && minion.minionTypes.includes(MinionType.ELEMENTAL)) {
+        this.applyElementalBonuses(minion);
+      }
+    });
+    return true;
+  }
+
+  /**
+   * 应用元素加成 - 为单个元素随从添加或更新加成
+   * @param minion - 要应用加成的随从
+   * @使用方式：当随从被添加到酒馆或元素加成值变化时调用
+   */
+  applyElementalBonuses(minion: Minion): void {
+    // 移除旧的元素加成
+    minion.removeBuff('elemental_tavern_bonus');
+    // 添加新的元素加成
+    minion.addBuff({
+      id: 'elemental_tavern_bonus',
+      source: '酒馆元素加成',
+      attackBonus: this.elementalBonus.attack,
+      healthBonus: this.elementalBonus.health,
+      maxHealthBonus: this.elementalBonus.health,
+    });
+  }
+
+  /**
    * 调试专用 - 添加随从到酒馆
    * @param minion - 要添加的随从实例
    * @returns 是否成功添加
@@ -285,7 +379,7 @@ export class Tavern {
 
     if (emptyIndex !== -1) {
       // 如果有空位置，将随从添加到该位置
-      this.availableMinions[emptyIndex] = minion;
+      this.setAvailableMinion(emptyIndex, minion);
       return true;
     } else {
       // 如果没有空位置，不能添加
