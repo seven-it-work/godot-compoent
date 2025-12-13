@@ -28,7 +28,7 @@ type GameState = 'hero_selection' | 'in_game' | 'battle_phase' | 'game_over';
 export const useGameStore = defineStore('game', {
   state: () => ({
     // 游戏状态
-    gameState: 'hero_selection' as GameState,
+    gameState: 'hero_selection' as GameState | 'battle_phase' | 'battle_result',
     // 选中的英雄
     selectedHero: null as Hero | null,
     // 可用英雄数据
@@ -63,7 +63,7 @@ export const useGameStore = defineStore('game', {
       startX: 0,
       startY: 0,
       endX: 0,
-      endY: 0,
+      endY: 0
     } as {
       visible: boolean;
       startX: number;
@@ -71,6 +71,8 @@ export const useGameStore = defineStore('game', {
       endX: number;
       endY: number;
     },
+    // 战斗结果
+    battleResult: null as any,
   }),
 
   getters: {
@@ -203,16 +205,75 @@ export const useGameStore = defineStore('game', {
       return false;
     },
 
-    // 结束回合
+    // 结束回合 - 进入战斗阶段
     endTurn() {
       if (this.player) {
+        // 执行玩家回合结束逻辑
         this.player.endTurn();
-        this.currentTurn += 1;
-        // 解冻酒馆
-        if (this.tavern) {
-          this.tavern.unfreeze();
-        }
+        
+        // 进入战斗阶段
+        console.log('进入战斗阶段...');
+        this.gameState = 'battle_phase';
+        
+        // 简单模拟战斗，选择第一个AI玩家作为对手
+        setTimeout(() => {
+          console.log('执行战斗...');
+          this.executeBattle();
+        }, 1000);
       }
+    },
+
+    // 执行战斗
+    executeBattle() {
+      if (!this.player || this.aiPlayers.length === 0) {
+        console.error('战斗条件不满足：缺少玩家或AI对手');
+        this.returnFromBattle();
+        return;
+      }
+
+      // 选择第一个AI玩家作为对手
+      const opponent = this.aiPlayers[0];
+      
+      console.log(`开始战斗：${this.player.hero.name} vs ${opponent.hero.name}`);
+      
+      // 这里可以调用BattleSystem.executeBattle()来执行实际战斗
+      // 暂时使用模拟结果
+      const battleResult = {
+        winner: this.player,
+        loser: opponent,
+        damageDealt: 2,
+        winnerMinionsLeft: 3,
+        loserMinionsLeft: 0
+      };
+      
+      this.battleResult = battleResult;
+      this.gameState = 'battle_result';
+      
+      console.log('战斗结束，结果:', battleResult);
+      console.log('切换到战斗结果页面');
+    },
+
+    // 从战斗返回，开始新回合
+    returnFromBattle() {
+      console.log('从战斗返回，开始新回合');
+      
+      // 增加回合数
+      this.currentTurn += 1;
+      
+      // 解冻酒馆
+      if (this.tavern) {
+        this.tavern.unfreeze();
+      }
+      
+      // 开始新回合
+      if (this.player) {
+        this.player.startTurn();
+      }
+      
+      // 切换回游戏状态
+      this.gameState = 'in_game';
+      this.battleResult = null;
+      console.log('新回合开始，回合数:', this.currentTurn);
     },
 
     // 将手牌中的随从放到战场上
