@@ -1,4 +1,5 @@
 import { Minion, MinionKeyword } from '../Minion';
+import { CardType } from '../Card';
 
 /**
  * 嗡鸣害虫类 - 继承自Minion，实现嗡鸣害虫的特殊效果
@@ -11,7 +12,7 @@ export class BuzzingVermin extends Minion {
   constructor(
     id: number,
     strId: string,
-    cardType: string,
+    cardType: CardType,
     name: string,
     nameCN: string,
     text: string,

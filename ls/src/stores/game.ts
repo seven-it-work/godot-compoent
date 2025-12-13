@@ -119,7 +119,8 @@ export const useGameStore = defineStore('game', {
         const minion = this.tavern.availableMinions[index];
         if (minion) {
           // 检查是否可以购买（金币足够，手牌有空间）
-          if (this.player.gold >= minion.cost && this.player.hand.length < 7) {
+          const playerMinionCards = this.player.cards.filter(card => card.cardType === 'minion');
+          if (this.player.gold >= minion.cost && playerMinionCards.length < 7) {
             // 从酒馆中移除该随从
             const removedMinion = this.tavern.buyMinion(index);
             if (removedMinion) {
@@ -153,7 +154,7 @@ export const useGameStore = defineStore('game', {
       if (this.player) {
         console.log('调用player.placeMinionFromHand...');
         // 先获取要放置的随从，用于后续触发事件
-        const minionToPlace = this.player.hand[index];
+        const minionToPlace = this.player.cards[index];
         const success = this.player.placeMinionFromHand(index, position);
         console.log('player.placeMinionFromHand返回:', success);
 

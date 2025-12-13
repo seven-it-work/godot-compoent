@@ -5,8 +5,8 @@
     @click="$emit('click')"
   >
     <!-- 随从星级 -->
-    <div class="minion-star" :style="{ backgroundColor: getStarColor(minion.tier) }">
-      {{ minion.tier }}
+    <div class="minion-star" :style="{ backgroundColor: getStarColor(minion.tier || 1) }">
+      {{ minion.tier || 1 }}
     </div>
 
     <!-- 随从类型 -->

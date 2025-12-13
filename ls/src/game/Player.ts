@@ -1,6 +1,7 @@
 import { Hero } from './Hero';
 import { Minion } from './Minion';
 import { Spell } from './Spell';
+import { Card } from './Card';
 
 /**
  * 玩家类 - 定义玩家的数据结构和行为
@@ -12,17 +13,19 @@ export class Player {
   hero: Hero;
   /** 战场上的随从 - 固定7个位置，null表示该位置为空 */
   minions: (Minion | null)[];
-  /** 手牌 - 等待上场的随从列表
+  /** 手牌 - 等待上场的卡片列表（包含随从和法术）
    * 统一添加入口：
    * - recruitMinion()：从酒馆招募随从到手牌
    * - returnMinionToHand()：将战场上的随从放回手牌
    * - performTriple()：合成三连后将金色随从放到手牌
+   * - addCard()：添加新卡片到手牌
    * 统一删除入口：
    * - placeMinionFromHand()：将手牌随从放到战场
    * - sellMinion(type: 'hand')：出售手牌随从
    * - performTriple()：合成三连时移除3个基础随从
-   * 请不要直接使用this.hand.push或this.hand.splice操作 */
-  hand: Minion[];
+   * - executeCard()：使用卡片后移除
+   * 请不要直接使用this.cards.push或this.cards.splice操作 */
+  cards: Card[];
   /** 酒馆等级 - 玩家酒馆的等级（1-6） */
   tavernLevel: number;
   /** 当前金币 - 玩家拥有的金币 */
@@ -39,12 +42,10 @@ export class Player {
   winStreak: number;
   /** 连败次数 - 连续失败的次数 */
   lossStreak: number;
-  /** 法术列表 - 玩家拥有的法术列表 */
-  spells: Spell[];
-  /** 待添加法术队列 - 当手牌满时，等待添加的法术列表 */
-  pendingSpells: Spell[];
-  /** 最大法术数量 - 玩家能拥有的最大法术数量 */
-  maxSpells: number;
+  /** 待添加卡片队列 - 当手牌满时，等待添加的卡片列表 */
+  pendingCards: Card[];
+  /** 最大手牌数量 - 玩家能拥有的最大手牌数量 */
+  maxCards: number;
 
   /**
    * 玩家构造函数
@@ -56,7 +57,7 @@ export class Player {
     this.id = id;
     this.hero = hero;
     this.minions = new Array(7).fill(null) as (Minion | null)[]; // 初始化为7个空位置
-    this.hand = []; // 初始化为空手牌
+    this.cards = []; // 初始化为空手牌
     this.tavernLevel = 1; // 初始酒馆等级为1
     this.gold = 3; // 初始金币为3
     this.maxGold = 10; // 最大金币为10
@@ -65,9 +66,8 @@ export class Player {
     this.isPlayer = isPlayer; // 是否为玩家
     this.winStreak = 0; // 初始连胜为0
     this.lossStreak = 0; // 初始连败为0
-    this.spells = []; // 初始法术列表为空
-    this.pendingSpells = []; // 初始待添加法术队列为空
-    this.maxSpells = 7; // 最大法术数量为7
+    this.pendingCards = []; // 初始待添加卡片队列为空
+    this.maxCards = 7; // 最大手牌数量为7
   }
 
   /**
@@ -128,20 +128,38 @@ export class Player {
   }
 
   /**
-   * 添加随从到手牌 - 统一的手牌添加入口
-   * @param minion - 要添加的随从实例
+   * 添加卡片到手牌 - 统一的手牌添加入口
+   * @param card - 要添加的卡片实例（随从或法术）
    * @returns 是否成功添加
-   * @使用方式：当需要将随从添加到手牌时调用（内部方法）
+   * @使用方式：当需要将卡片添加到手牌时调用（内部方法）
    */
-  private addHandMinion(minion: Minion): boolean {
+  private addCard(card: Card): boolean {
     // 检查手牌是否已满
-    if (this.hand.length >= 7) {
+    if (this.cards.length >= this.maxCards) {
       return false;
     }
 
     // 添加到手牌
-    this.hand.push(minion);
+    this.cards.push(card);
     return true;
+  }
+
+  /**
+   * 直接添加卡片到手牌 - 用于特殊效果（如战吼）的手牌添加入口
+   * @param card - 要添加的卡片实例（随从或法术）
+   * @returns 是否成功添加
+   * @使用方式：当通过特殊效果（如战吼、亡语）获得卡片时调用
+   */
+  public addCardToHand(card: Card): boolean {
+    // 检查手牌是否已满
+    if (this.cards.length >= this.maxCards) {
+      // 手牌已满，添加到待处理队列
+      this.pendingCards.push(card);
+      return false;
+    }
+
+    // 直接添加到手牌
+    return this.addCard(card);
   }
 
   /**
@@ -151,24 +169,28 @@ export class Player {
    * @使用方式：当通过特殊效果（如战吼、亡语）获得随从时调用
    */
   public addMinionToHand(minion: Minion): boolean {
-    // 使用统一的内部添加入口
-    return this.addHandMinion(minion);
+    // 调用统一的卡片添加入口
+    return this.addCardToHand(minion);
   }
 
   /**
-   * 从手牌移除随从 - 统一的手牌删除入口
-   * @param index - 要移除的随从索引
+   * 从手牌移除卡片 - 统一的手牌删除入口
+   * @param index - 要移除的卡片索引
    * @returns 是否成功移除
-   * @使用方式：当需要从手牌移除随从时调用（内部方法）
+   * @使用方式：当需要从手牌移除卡片时调用（内部方法）
    */
-  private removeHandMinion(index: number): boolean {
+  private removeCard(index: number): boolean {
     // 检查索引是否超出手牌范围
-    if (index < 0 || index >= this.hand.length) {
+    if (index < 0 || index >= this.cards.length) {
       return false;
     }
 
     // 从手牌移除
-    this.hand.splice(index, 1);
+    this.cards.splice(index, 1);
+
+    // 尝试添加待处理的卡片
+    this.tryAddPendingCards();
+
     return true;
   }
 
@@ -185,14 +207,14 @@ export class Player {
     }
 
     // 检查手牌是否已满
-    if (this.hand.length >= 7) {
+    if (this.cards.length >= this.maxCards) {
       return false;
     }
 
     // 扣除金币
     this.gold -= minion.cost;
     // 添加到手牌（使用统一入口）
-    return this.addHandMinion(minion);
+    return this.addCard(minion);
   }
 
   /**
@@ -204,7 +226,7 @@ export class Player {
    */
   placeMinionFromHand(index: number, position: number): boolean {
     // 检查索引是否超出手牌范围
-    if (index < 0 || index >= this.hand.length) {
+    if (index < 0 || index >= this.cards.length) {
       return false;
     }
 
@@ -213,12 +235,14 @@ export class Player {
       return false;
     }
 
-    const minion = this.hand[index];
-    if (minion) {
+    const card = this.cards[index];
+    // 确保是随从类型且card不为undefined
+    if (card && card.cardType === 'minion') {
+      const minion = card as Minion;
       // 检查目标位置是否为空
       if (this.minions[position] === null) {
         // 从手牌移除（使用统一入口）
-        if (!this.removeHandMinion(index)) {
+        if (!this.removeCard(index)) {
           return false;
         }
         // 放置到战场
@@ -231,7 +255,7 @@ export class Player {
         for (let i = 0; i < 7; i++) {
           if (this.minions[i] === null) {
             // 从手牌移除（使用统一入口）
-            if (!this.removeHandMinion(index)) {
+            if (!this.removeCard(index)) {
               return false;
             }
             // 放置到战场空位置
@@ -259,7 +283,7 @@ export class Player {
     }
 
     // 检查手牌是否已满
-    if (this.hand.length >= 7) {
+    if (this.cards.length >= this.maxCards) {
       return false;
     }
 
@@ -268,7 +292,7 @@ export class Player {
       // 从战场移除
       this.minions[position] = null;
       // 添加到手牌（使用统一入口）
-      if (this.addHandMinion(minion)) {
+      if (this.addCard(minion)) {
         // 更新随从位置
         minion.position = null;
         return true;
@@ -303,12 +327,18 @@ export class Player {
       this.minions[index] = null;
     } else {
       // 出售手牌上的随从
-      if (index < 0 || index >= this.hand.length) {
+      if (index < 0 || index >= this.cards.length) {
+        return false;
+      }
+
+      // 确保是随从类型
+      const card = this.cards[index];
+      if (card && card.cardType !== 'minion') {
         return false;
       }
 
       // 从手牌移除（使用统一入口）
-      if (!this.removeHandMinion(index)) {
+      if (!this.removeCard(index)) {
         return false;
       }
     }
@@ -379,8 +409,8 @@ export class Player {
       }
     });
 
-    // 尝试添加待处理的法术
-    this.tryAddPendingSpells();
+    // 尝试添加待处理的卡片
+    this.tryAddPendingCards();
   }
 
   /**
@@ -405,8 +435,8 @@ export class Player {
       this.hero.heroPower.currentCooldown -= 1;
     }
 
-    // 处理法术（移除临时法术，尝试添加待处理法术）
-    this.onTurnEndSpells();
+    // 处理卡片（移除临时法术，尝试添加待处理卡片）
+    this.onTurnEndCards();
   }
 
   /**
@@ -418,9 +448,12 @@ export class Player {
     // 统计手牌中的随从数量
     const minionCounts: { [key: string]: number } = {};
 
-    this.hand.forEach(minion => {
-      if (!minion.isGolden) {
-        minionCounts[minion.strId] = (minionCounts[minion.strId] || 0) + 1;
+    this.cards.forEach(card => {
+      if (card.cardType === 'minion') {
+        const minion = card as Minion;
+        if (!minion.isGolden) {
+          minionCounts[minion.strId] = (minionCounts[minion.strId] || 0) + 1;
+        }
       }
     });
 
@@ -428,9 +461,12 @@ export class Player {
     for (const [minionStrId, count] of Object.entries(minionCounts)) {
       if (count >= 3) {
         // 找到对应的随从
-        const targetMinion = this.hand.find(
-          minion => minion.strId === minionStrId && !minion.isGolden
-        );
+        const targetMinion = this.cards.find(
+          card =>
+            card.cardType === 'minion' &&
+            (card as Minion).strId === minionStrId &&
+            !(card as Minion).isGolden
+        ) as Minion;
         if (targetMinion) {
           return targetMinion;
         }
@@ -448,9 +484,12 @@ export class Player {
    */
   performTriple(minionStrId: string): Minion | null {
     // 找到3个相同的随从
-    const targetMinions = this.hand.filter(
-      minion => minion.strId === minionStrId && !minion.isGolden
-    );
+    const targetMinions = this.cards.filter(
+      card =>
+        card.cardType === 'minion' &&
+        (card as Minion).strId === minionStrId &&
+        !(card as Minion).isGolden
+    ) as Minion[];
 
     // 检查是否有足够的随从进行合成
     if (targetMinions.length < 3 || !targetMinions[0]) {
@@ -459,18 +498,18 @@ export class Player {
 
     // 移除这3个随从（使用统一入口）
     for (let i = 0; i < 3; i++) {
-      const index = this.hand.findIndex(minion => minion === targetMinions[i]);
+      const index = this.cards.findIndex(card => card === targetMinions[i]);
       if (index !== -1) {
-        this.removeHandMinion(index);
+        this.removeCard(index);
       }
     }
 
     // 创建金色随从
-    const goldenMinion = targetMinions[0].clone();
+    const goldenMinion = targetMinions[0].clone() as Minion;
     goldenMinion.upgradeToGolden();
 
     // 将金色随从放到手牌（使用统一入口）
-    this.addHandMinion(goldenMinion);
+    this.addCard(goldenMinion);
 
     return goldenMinion;
   }
@@ -536,21 +575,26 @@ export class Player {
   }
 
   /**
-   * 添加法术到法术列表 - 将法术添加到玩家的法术列表中
+   * 添加法术到手牌 - 将法术添加到玩家的手牌中
    * @param spell - 要添加的法术实例
    * @returns 是否成功添加
    * @使用方式：当玩家获得新法术时调用
    */
   addSpell(spell: Spell): boolean {
-    // 检查法术列表是否已满
-    if (this.spells.length < this.maxSpells) {
-      // 直接添加到法术列表
-      this.spells.push(spell);
+    // 检查手牌是否已满
+    if (this.cards.length < this.maxCards) {
+      // 直接添加到手牌
+      this.cards.push(spell);
       return true;
     } else {
-      // 法术列表已满，添加到待处理队列
-      this.pendingSpells.push(spell);
-      return false;
+      // 手牌已满，只有塑造法术（shaping）才添加到待处理队列
+      if (spell.type === 'shaping') {
+        this.pendingCards.push(spell);
+        return false;
+      } else {
+        // 其他类型的法术直接丢弃
+        return false;
+      }
     }
   }
 
@@ -563,21 +607,23 @@ export class Player {
    */
   executeSpell(spellIndex: number, target: Minion): boolean {
     // 检查索引是否有效
-    if (spellIndex < 0 || spellIndex >= this.spells.length) {
+    if (spellIndex < 0 || spellIndex >= this.cards.length) {
       return false;
     }
 
-    const spell = this.spells[spellIndex];
-    // 执行法术效果
-    if (spell) {
+    const card = this.cards[spellIndex];
+    // 确保是法术类型且card不为undefined
+    if (card && card.cardType === 'spell') {
+      const spell = card as Spell;
+      // 执行法术效果
       const success = spell.execute(target);
 
       if (success) {
-        // 从法术列表中移除该法术
-        this.spells.splice(spellIndex, 1);
+        // 从手牌中移除该法术
+        this.cards.splice(spellIndex, 1);
 
-        // 尝试添加待处理的法术
-        this.tryAddPendingSpells();
+        // 尝试添加待处理的卡片
+        this.tryAddPendingCards();
       }
 
       return success;
@@ -587,20 +633,20 @@ export class Player {
   }
 
   /**
-   * 尝试添加待处理的法术 - 当法术列表有空位时，从待处理队列添加法术
-   * @returns 添加的法术数量
-   * @使用方式：当法术列表有空位时调用
+   * 尝试添加待处理的卡片 - 当手牌有空位时，从待处理队列添加卡片
+   * @returns 添加的卡片数量
+   * @使用方式：当手牌有空位时调用
    */
-  tryAddPendingSpells(): number {
+  tryAddPendingCards(): number {
     let addedCount = 0;
 
-    // 循环尝试添加待处理法术，直到法术列表已满或待处理队列为空
-    while (this.spells.length < this.maxSpells && this.pendingSpells.length > 0) {
-      // 从待处理队列取出第一个法术
-      const spell = this.pendingSpells.shift();
-      if (spell) {
-        // 添加到法术列表
-        this.spells.push(spell);
+    // 循环尝试添加待处理卡片，直到手牌已满或待处理队列为空
+    while (this.cards.length < this.maxCards && this.pendingCards.length > 0) {
+      // 从待处理队列取出第一张卡片
+      const card = this.pendingCards.shift();
+      if (card) {
+        // 添加到手牌
+        this.cards.push(card);
         addedCount++;
       }
     }
@@ -609,26 +655,29 @@ export class Player {
   }
 
   /**
-   * 回合结束时处理法术 - 处理临时法术和持续效果
-   * @returns 移除的法术数量
+   * 回合结束时处理卡片 - 处理临时法术和持续效果
+   * @returns 移除的卡片数量
    * @使用方式：当回合结束时调用
    */
-  onTurnEndSpells(): number {
+  onTurnEndCards(): number {
     let removedCount = 0;
 
-    // 处理法术列表中的临时法术
-    for (let i = this.spells.length - 1; i >= 0; i--) {
-      const spell = this.spells[i];
-      // 调用法术的onTurnEnd方法
-      if (spell && spell.onTurnEnd()) {
-        // 法术返回true，表示需要移除
-        this.spells.splice(i, 1);
-        removedCount++;
+    // 处理手牌中的临时法术
+    for (let i = this.cards.length - 1; i >= 0; i--) {
+      const card = this.cards[i];
+      if (card && card.cardType === 'spell') {
+        const spell = card as Spell;
+        // 调用法术的onTurnEnd方法
+        if (spell.onTurnEnd()) {
+          // 法术返回true，表示需要移除
+          this.cards.splice(i, 1);
+          removedCount++;
+        }
       }
     }
 
-    // 处理完临时法术后，尝试添加待处理的法术
-    this.tryAddPendingSpells();
+    // 处理完临时法术后，尝试添加待处理的卡片
+    this.tryAddPendingCards();
 
     return removedCount;
   }

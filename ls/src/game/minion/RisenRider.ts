@@ -1,4 +1,5 @@
 import { Minion } from '../Minion';
+import { CardType } from '../Card';
 
 /**
  * 复活的骑兵类 - 继承自Minion，实现复活的骑兵的特殊效果
@@ -11,7 +12,7 @@ export class RisenRider extends Minion {
   constructor(
     id: number,
     strId: string,
-    cardType: string,
+    cardType: CardType,
     name: string,
     nameCN: string,
     text: string,

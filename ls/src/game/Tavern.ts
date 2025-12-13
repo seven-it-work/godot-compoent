@@ -65,7 +65,7 @@ export class Tavern {
    */
   private initializeMinionCounts(): void {
     // 按ID分组计数
-    const idCounts = new Map<number, number>();
+    const idCounts = new Map<string | number, number>();
     this.minionPool.forEach(minion => {
       idCounts.set(minion.id, (idCounts.get(minion.id) || 0) + 1);
     });
@@ -74,7 +74,8 @@ export class Tavern {
     idCounts.forEach((count, id) => {
       const minion = this.minionPool.find(m => m.id === id);
       if (minion) {
-        const limit = (MINION_POOL_LIMITS as any)[minion.tier] || 0;
+        const tier = minion.tier || 1;
+        const limit = (MINION_POOL_LIMITS as any)[tier] || 0;
         this.minionCounts.set(id.toString(), Math.min(count, limit));
       }
     });
@@ -130,7 +131,7 @@ export class Tavern {
     // 获取可选择的随从（星级不超过酒馆等级，且池中有剩余）
     const availableMinions = this.minionPool.filter(minion => {
       const count = this.minionCounts.get(minion.id.toString()) || 0;
-      return minion.tier <= this.level && count > 0;
+      return (minion.tier || 1) <= this.level && count > 0;
     });
 
     if (availableMinions.length === 0) {

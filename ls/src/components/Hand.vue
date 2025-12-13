@@ -4,8 +4,8 @@
     <div class="hand-area" @dragover.prevent @drop="onDrop($event, 'hand')">
       <!-- 随从手牌，动态生成 -->
       <div
-        v-for="(minion, index) in player?.hand"
-        :key="minion.instanceId || index"
+        v-for="(minion, index) in player?.cards.filter(card => card.cardType === 'minion')"
+        :key="minion.id || index"
         class="hand-slot"
         draggable="true"
         @dragstart="onDragStart($event, 'hand', index, minion)"
@@ -36,7 +36,7 @@ const { player } = gameStore;
 // 计算空手牌槽数量
 const emptySlots = computed(() => {
   const maxHandSlots = 7;
-  const currentMinions = player?.hand.length || 0;
+  const currentMinions = player?.cards.filter(card => card.cardType === 'minion').length || 0;
   return Math.max(0, maxHandSlots - currentMinions);
 });
 

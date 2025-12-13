@@ -1,4 +1,5 @@
 import { Minion } from '../Minion';
+import { CardType } from '../Card';
 
 /**
  * 瞌睡雏龙类 - 继承自Minion，实现瞌睡雏龙的特殊效果
@@ -11,7 +12,7 @@ export class DozyWhelp extends Minion {
   constructor(
     id: number,
     strId: string,
-    cardType: string,
+    cardType: CardType,
     name: string,
     nameCN: string,
     text: string,

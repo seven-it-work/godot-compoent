@@ -354,15 +354,19 @@ export class GameManager {
       actions.push('buy_minion');
     }
 
-    if (player.hand.length > 0 && player.minions.length < 7) {
+    // 检查手牌中是否有随从卡片且战场未满
+    const playerMinionCards = player.cards.filter(card => card.cardType === 'minion');
+    if (playerMinionCards.length > 0 && player.minions.length < 7) {
       actions.push('place_minion');
     }
 
-    if (player.minions.length > 0 && player.hand.length < 7) {
+    // 检查战场是否有随从且手牌未满
+    if (player.minions.length > 0 && player.cards.length < 7) {
       actions.push('return_minion');
     }
 
-    if (player.minions.length > 0 || player.hand.length > 0) {
+    // 检查战场是否有随从或手牌中有随从卡片
+    if (player.minions.length > 0 || playerMinionCards.length > 0) {
       actions.push('sell_minion');
     }
 

@@ -1,4 +1,5 @@
 import { Minion, MinionKeyword } from '../Minion';
+import { CardType } from '../Card';
 
 /**
  * 气泡枪手类 - 继承自Minion，实现气泡枪手的特殊效果
@@ -7,7 +8,7 @@ export class BubbleGunner extends Minion {
   constructor(
     id: number,
     strId: string,
-    cardType: string,
+    cardType: CardType,
     name: string,
     nameCN: string,
     text: string,

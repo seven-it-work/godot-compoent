@@ -1,3 +1,5 @@
+import { Card, CardType } from './Card';
+
 /**
  * 法术效果类型 - 定义法术可以产生的效果类型
  */
@@ -21,13 +23,7 @@ export interface SpellEffect {
 /**
  * 法术类 - 定义法术的数据结构和行为
  */
-export class Spell {
-  /** 法术ID - 唯一标识符 */
-  id: string;
-  /** 法术名称 - 法术的中文名称 */
-  nameCN: string;
-  /** 法术描述 - 法术的效果描述 */
-  description: string;
+export class Spell extends Card {
   /** 法术类型 - 塑造法术、普通法术等 */
   type: 'shaping' | 'normal' | 'hero_power';
   /** 法术效果列表 - 法术产生的效果 */
@@ -36,8 +32,6 @@ export class Spell {
   duration: number;
   /** 已存在回合数 - 法术已经存在的回合数 */
   turnsExisted: number;
-  /** 是否为临时法术 - 临时法术在结束回合时会消失 */
-  isTemporary: boolean;
 
   /**
    * 法术构造函数
@@ -50,7 +44,7 @@ export class Spell {
    * @param isTemporary - 是否为临时法术
    */
   constructor(
-    id: string,
+    id: string | number,
     nameCN: string,
     description: string,
     type: 'shaping' | 'normal' | 'hero_power',
@@ -58,14 +52,28 @@ export class Spell {
     duration: number = 0,
     isTemporary: boolean = false
   ) {
-    this.id = id;
-    this.nameCN = nameCN;
-    this.description = description;
+    // 调用父类构造函数，初始化公共属性
+    super(
+      id,
+      id.toString(), // strId
+      CardType.SPELL, // cardType
+      '', // name (英文名称，暂时为空)
+      nameCN, // nameCN
+      description, // text (描述作为文本)
+      [], // mechanics
+      [], // referencedTags
+      '', // img
+      '', // art
+      undefined, // tier (法术没有星级)
+      0, // cost (默认消耗为0)
+      isTemporary
+    );
+
+    // 初始化法术特有属性
     this.type = type;
     this.effects = effects;
     this.duration = duration;
     this.turnsExisted = 0;
-    this.isTemporary = isTemporary;
   }
 
   /**

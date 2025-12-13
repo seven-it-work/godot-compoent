@@ -1,3 +1,5 @@
+import { Card, CardType } from './Card';
+
 /**
  * 随从类型 - 定义随从的种族类型
  */
@@ -97,29 +99,7 @@ export interface UpgradeCard {
 /**
  * 随从类 - 定义随从的数据结构和行为
  */
-export class Minion {
-  /** 随从ID - 唯一标识符 */
-  id: number;
-  /** 随从字符串ID - 用于标识随从类型 */
-  strId: string;
-  /** 卡片类型 - 如"minion" */
-  cardType: string;
-  /** 英文名称 - 随从的英文名称 */
-  name: string;
-  /** 中文名称 - 随从的中文名称 */
-  nameCN: string;
-  /** 英文描述 - 随从的英文描述 */
-  text: string;
-  /** 机制列表 - 随从拥有的机制 */
-  mechanics: string[];
-  /** 引用标签 - 随从引用的游戏标签 */
-  referencedTags: string[];
-  /** 卡片图片URL - 随从卡片的图片链接 */
-  img: string;
-  /** 卡片艺术图URL - 随从卡片的艺术图链接 */
-  art: string;
-  /** 星级 - 随从的星级（1-6） */
-  tier: number;
+export class Minion extends Card {
   /** 随从类型列表 - 随从所属的类型列表 */
   minionTypes: string[];
   /** 中文随从类型列表 - 中文显示的随从类型列表 */
@@ -128,8 +108,6 @@ export class Minion {
   upgradeCard?: UpgradeCard;
 
   // 游戏状态属性
-  /** 消耗 - 招募该随从所需的金币 */
-  cost: number;
   /** 关键词列表 - 随从拥有的关键词 */
   keywords: MinionKeyword[];
   /** 是否为金色 - 金色随从拥有更强的属性 */
@@ -186,9 +164,9 @@ export class Minion {
    * @param upgradeCard - 升级卡片（可选）
    */
   constructor(
-    id: number,
+    id: string | number,
     strId: string,
-    cardType: string,
+    cardType: CardType,
     name: string,
     nameCN: string,
     text: string,
@@ -203,18 +181,23 @@ export class Minion {
     minionTypesCN: string[],
     upgradeCard?: UpgradeCard
   ) {
+    super(
+      id,
+      strId,
+      cardType,
+      name,
+      nameCN,
+      text,
+      mechanics,
+      referencedTags,
+      img,
+      art,
+      tier,
+      3,
+      false
+    );
+
     // 原始卡片属性初始化
-    this.id = id;
-    this.strId = strId;
-    this.cardType = cardType;
-    this.name = name;
-    this.nameCN = nameCN;
-    this.text = text;
-    this.mechanics = mechanics;
-    this.referencedTags = referencedTags;
-    this.img = img;
-    this.art = art;
-    this.tier = tier;
     this.minionTypes = minionTypes;
     this.minionTypesCN = minionTypesCN;
     this.upgradeCard = upgradeCard;
@@ -224,7 +207,6 @@ export class Minion {
     this.baseMaxHealth = health;
 
     // 游戏状态属性初始化
-    this.cost = 3; // 默认消耗为3金币
     this.keywords = Minion.mapMechanicsToKeywords(mechanics); // 将机制映射为关键词
     this.isGolden = false; // 默认不是金色随从
     this.isFrozen = false; // 默认不处于冻结状态
@@ -334,7 +316,7 @@ export class Minion {
       [...this.referencedTags], // 深拷贝引用标签
       this.img,
       this.art,
-      this.tier,
+      this.tier || 1,
       this.health,
       this.attack,
       [...this.minionTypes], // 深拷贝随从类型列表

@@ -127,7 +127,8 @@ export class AIPlayer extends Player {
         break;
       case AIDifficulty.MEDIUM:
         // 根据现有随从数量和质量调整概率
-        if (this.hand.length < 3) {
+        const minionCards = this.cards.filter(card => card.cardType === 'minion');
+        if (minionCards.length < 3) {
           refreshChance = 0.6;
         } else {
           refreshChance = 0.3;
@@ -138,10 +139,12 @@ export class AIPlayer extends Player {
         const hasGoodMinion =
           this.gameManager?.tavern.availableMinions.some(
             minion =>
-              minion && (minion.tier >= this.tavernLevel || minion.attack + minion.health >= 6)
+              minion &&
+              ((minion.tier || 1) >= this.tavernLevel || minion.attack + minion.health >= 6)
           ) || false;
 
-        if (!hasGoodMinion && this.hand.length < 5) {
+        const hardModeMinionCards = this.cards.filter(card => card.cardType === 'minion');
+        if (!hasGoodMinion && hardModeMinionCards.length < 5) {
           refreshChance = 0.8;
         } else {
           refreshChance = 0.2;
@@ -171,7 +174,8 @@ export class AIPlayer extends Player {
       // 决定是否购买该随从
       if (minion && this.shouldBuyMinion(minion)) {
         // 尝试购买
-        if (this.gold >= minion.cost && this.hand.length < 7) {
+        const minionCards = this.cards.filter(card => card.cardType === 'minion');
+        if (this.gold >= minion.cost && minionCards.length < 7) {
           this.gameManager.buyMinion(this, i);
           i--; // 因为购买后数组会变化，需要调整索引
         }
@@ -203,7 +207,7 @@ export class AIPlayer extends Player {
         break;
       case AIDifficulty.MEDIUM:
         // 中等AI：考虑价值和星级
-        if (minion.tier >= this.tavernLevel) {
+        if ((minion.tier || 1) >= this.tavernLevel) {
           buyChance = 0.8;
         } else if (minionValue >= 5) {
           buyChance = 0.6;
@@ -228,7 +232,7 @@ export class AIPlayer extends Player {
         }
 
         // 考虑星级优势
-        valueScore += (minion.tier - this.tavernLevel) * 2;
+        valueScore += ((minion.tier || 1) - this.tavernLevel) * 2;
 
         // 计算购买概率
         buyChance = Math.min(valueScore / 10, 1);
@@ -248,10 +252,13 @@ export class AIPlayer extends Player {
     // 困难AI：更智能的位置策略
 
     // 将hand中的随从放到战场上
-    while (this.hand.length > 0 && this.minions.length < 7) {
-      const randomIndex = Math.floor(Math.random() * this.hand.length);
+    const minionCards = this.cards.filter(card => card.cardType === 'minion');
+    while (minionCards.length > 0 && this.minions.length < 7) {
+      // 找到第一个随从卡片的索引
+      const cardIndex = this.cards.findIndex(card => card.cardType === 'minion');
+      if (cardIndex === -1) break;
       const randomPosition = Math.floor(Math.random() * (this.minions.length + 1));
-      this.placeMinionFromHand(randomIndex, randomPosition);
+      this.placeMinionFromHand(cardIndex, randomPosition);
     }
 
     // 根据AI难度调整随从位置
@@ -311,10 +318,14 @@ export class AIPlayer extends Player {
    */
   private decideSellMinions(): void {
     // 遍历hand和战场上的随从，决定是否出售
-    for (let i = this.hand.length - 1; i >= 0; i--) {
-      const minion = this.hand[i];
-      if (minion && this.shouldSellMinion(minion)) {
-        this.sellMinion('hand', i);
+    // 倒序遍历手牌，找到所有随从类型卡片并评估是否出售
+    for (let i = this.cards.length - 1; i >= 0; i--) {
+      const card = this.cards[i];
+      if (card && card.cardType === 'minion') {
+        const minion = card as Minion;
+        if (this.shouldSellMinion(minion)) {
+          this.sellMinion('hand', i);
+        }
       }
     }
 
@@ -339,6 +350,8 @@ export class AIPlayer extends Player {
 
     const minionValue = minion.attack + minion.health;
     let sellChance = 0;
+    // 统一获取手牌中的随从卡片数量，避免重复声明
+    const minionCards = this.cards.filter(card => card.cardType === 'minion');
 
     switch (this.difficulty) {
       case AIDifficulty.EASY:
@@ -347,7 +360,7 @@ export class AIPlayer extends Player {
         break;
       case AIDifficulty.MEDIUM:
         // 中等AI：考虑价值和当前情况
-        if (minionValue < 4 && this.hand.length >= 6) {
+        if (minionValue < 4 && minionCards.length >= 6) {
           sellChance = 0.7;
         } else {
           sellChance = 0.1;
@@ -361,7 +374,7 @@ export class AIPlayer extends Player {
 
         const isLowValue = minionValue < 5;
         const needsGold = this.gold < 5;
-        const handFull = this.hand.length >= 7;
+        const handFull = minionCards.length >= 7;
 
         if (isLowValue && (needsGold || handFull)) {
           sellChance = 0.9;
