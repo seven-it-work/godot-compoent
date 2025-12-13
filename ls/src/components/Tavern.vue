@@ -122,37 +122,67 @@ const onDrop = (event: DragEvent, target: string) => {
 
 <style scoped>
 .tavern-container {
-  margin: 0;
-  background-color: transparent;
-  color: black;
+  margin: 20px 0;
+  background: linear-gradient(135deg, #e6e9f0 0%, #eef1f5 100%);
+  color: #2c3e50;
   box-sizing: border-box;
   overflow: auto;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #dcdfe6;
 }
 
 .minions-area {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 15px;
   flex-wrap: wrap;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .minion-slot {
   width: 100px;
   height: 150px;
   position: relative;
+  transition: all 0.2s ease;
+}
+
+.minion-slot:hover {
+  transform: scale(1.02);
 }
 
 .minion-slot.empty {
-  background-color: rgba(0, 0, 0, 0.05);
-  border: 2px dashed rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
+  background: linear-gradient(135deg, #f0f2f5 0%, #e6e8eb 100%);
+  border: 2px dashed #c0c4cc;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.minion-slot.empty:hover {
+  background: linear-gradient(135deg, #e8f0fe 0%, #d9ecff 100%);
+  border-color: #409eff;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.2);
 }
 
 .empty-slot {
-  font-size: 18px;
-  color: rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  color: #909399;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+
+.minion-slot.empty:hover .empty-slot {
+  color: #409eff;
+  font-size: 16px;
 }
 </style>

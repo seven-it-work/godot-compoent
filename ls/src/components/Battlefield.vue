@@ -185,16 +185,24 @@ const isMinionHighlighted = (minion: any, source: string, index: number) => {
 
 <style scoped>
 .battlefield-container {
-  background-color: transparent;
-  border-radius: 10px;
-  color: black;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 15px;
+  color: #2c3e50;
+  margin: 20px 0;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #b3d8ff;
 }
 
 .battlefield-title {
   margin: 0 0 15px 0;
   text-align: center;
-  color: #ffd700;
-  font-size: 20px;
+  color: #1976d2;
+  font-size: 22px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
 /* 玩家区域 */
@@ -206,81 +214,117 @@ const isMinionHighlighted = (minion: any, source: string, index: number) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
-  margin-top: 10px;
+  gap: 20px;
+  margin-top: 15px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .player-name {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
-  color: black;
+  color: #2c3e50;
 }
 
 .player-health {
   display: flex;
-  gap: 5px;
-  font-size: 14px;
+  gap: 8px;
+  font-size: 16px;
   color: #666;
+  font-weight: 500;
 }
 
 /* 随从区域 */
 .player-minions {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   justify-content: center;
   flex-wrap: wrap;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .player-minion-slot {
   width: 100px;
   height: 150px;
   position: relative;
+  transition: all 0.2s ease;
+}
+
+.player-minion-slot:hover {
+  transform: scale(1.02);
 }
 
 .player-minion-slot.empty {
-  background-color: rgba(0, 0, 0, 0.05);
-  border: 2px dashed rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
+  background: linear-gradient(135deg, #f0f2f5 0%, #e6e8eb 100%);
+  border: 2px dashed #c0c4cc;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.player-minion-slot.empty:hover {
+  background: linear-gradient(135deg, #e8f0fe 0%, #d9ecff 100%);
+  border-color: #409eff;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.2);
 }
 
 .empty-slot {
-  font-size: 18px;
-  color: rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  color: #909399;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+
+.player-minion-slot.empty:hover .empty-slot {
+  color: #409eff;
+  font-size: 16px;
 }
 
 /* 操作提示 */
 .action-hint {
   text-align: center;
-  padding: 10px;
-  background-color: rgba(255, 255, 255, 0.9);
-  border: 2px solid rgba(0, 0, 0, 0.3);
-  border-radius: 5px;
+  padding: 15px;
+  background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+  border: 2px solid #ffe082;
+  border-radius: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
   flex-wrap: wrap;
-  margin-top: 15px;
-  color: black;
+  margin-top: 20px;
+  color: #2c3e50;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .action-button {
-  padding: 8px 15px;
+  padding: 10px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: 25px;
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
-  background-color: #4caf50;
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
   color: white;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .action-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #5cb85c 0%, #4cae4c 100%);
 }
 </style>
