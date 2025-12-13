@@ -121,21 +121,40 @@ export class Spell extends Card {
   execute(target: any): boolean {
     // 为目标随从应用所有效果
     this.effects.forEach(effect => {
-      if (effect.type === 'attack_bonus') {
-        // 增加攻击力
-        target.attack += effect.value;
+      // 生成唯一的buff ID
+      const buffId = `spell-${this.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      if (effect.type === 'attack_bonus' || effect.type === 'max_health_bonus') {
+        // 创建buff对象
+        const buff = {
+          id: buffId,
+          source: this.nameCN,
+          attackBonus: effect.type === 'attack_bonus' ? effect.value : 0,
+          healthBonus: 0,
+          maxHealthBonus: effect.type === 'max_health_bonus' ? effect.value : 0,
+          type: 'temporary', // 法术效果默认是临时的
+          turnsRemaining: effect.duration || 0,
+        };
+
+        // 使用addBuff方法添加加成
+        target.addBuff(buff);
       } else if (effect.type === 'health_bonus') {
-        // 增加当前生命值
-        target.health += effect.value;
-      } else if (effect.type === 'max_health_bonus') {
-        // 增加最大生命值
-        target.maxHealth += effect.value;
-        // 同步当前生命值
+        // 直接增加当前生命值，这是允许的
         target.health += effect.value;
       } else if (effect.type === 'keyword') {
-        // 添加关键词
-        if (!target.keywords.includes(effect.value)) {
-          target.keywords.push(effect.value);
+        // 添加临时关键词
+        if (!target.temporaryKeywords.includes(effect.value)) {
+          target.temporaryKeywords.push(effect.value);
+          // 清除缓存以更新关键词
+          if (target.clearCache) {
+            target.clearCache();
+          }
+          // 更新相关标志
+          if (effect.value === 'divine_shield') {
+            target.hasDivineShield = true;
+          } else if (effect.value === 'reborn') {
+            target.hasReborn = true;
+          }
         }
       }
     });

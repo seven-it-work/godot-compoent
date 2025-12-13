@@ -108,8 +108,10 @@ export class Minion extends Card {
   upgradeCard?: UpgradeCard;
 
   // 游戏状态属性
-  /** 关键词列表 - 随从拥有的关键词 */
-  keywords: MinionKeyword[];
+  /** 永久关键词列表 - 随从拥有的永久关键词（通过mechanics映射或永久效果获得） */
+  permanentKeywords: MinionKeyword[];
+  /** 临时关键词列表 - 随从拥有的临时关键词（通过临时效果获得，回合结束时移除） */
+  temporaryKeywords: MinionKeyword[];
   /** 是否为金色 - 金色随从拥有更强的属性 */
   isGolden: boolean;
   /** 是否被冻结 - 冻结状态的随从无法攻击或被操作 */
@@ -126,23 +128,38 @@ export class Minion extends Card {
   hasGrantedShapingSpell: boolean;
   /** 当前生命值 - 随从当前的生命值 */
   health: number;
-  /** 攻击力 - 随从的攻击力（包含所有加成） */
-  attack: number;
-  /** 最大生命值 - 随从的最大生命值（包含加成） */
-  maxHealth: number;
-
   /** 基础攻击力 - 随从的原始攻击力，不包含任何加成 */
   private baseAttack: number;
   /** 基础最大生命值 - 随从的原始最大生命值，不包含任何加成 */
   private baseMaxHealth: number;
 
-  /** 加成列表 - 存储所有应用于该随从的属性加成 */
-  buffs: MinionBuff[];
+  /** 永久加成列表 - 存储应用于该随从的永久属性加成（不会在回合结束时移除） */
+  permanentBuffs: MinionBuff[];
+  /** 临时加成列表 - 存储应用于该随从的临时属性加成（回合结束时自动移除） */
+  temporaryBuffs: MinionBuff[];
+
+  /** 属性缓存机制 - 用于优化属性计算性能 */
+  /** 攻击力缓存 - 缓存当前计算的攻击力，null表示需要重新计算 */
+  private attackCache: number | null = null;
+  /** 最大生命值缓存 - 缓存当前计算的最大生命值，null表示需要重新计算 */
+  private maxHealthCache: number | null = null;
+  /** 关键词缓存 - 缓存当前所有关键词（永久+临时），null表示需要重新计算 */
+  private keywordsCache: MinionKeyword[] | null = null;
 
   /** 静态计数器 - 用于生成唯一的实例ID */
   private static instanceCounter: number = 0;
   /** 实例ID - 每个随从实例的唯一标识符 */
   instanceId: string;
+
+  /**
+   * 清除属性缓存 - 在加成变化、关键词变化或回合开始/结束时调用
+   * @注意事项：每当添加/移除加成、修改关键词、开始/结束回合时，必须调用此方法以确保属性计算准确
+   */
+  private clearCache(): void {
+    this.attackCache = null;
+    this.maxHealthCache = null;
+    this.keywordsCache = null;
+  }
 
   /**
    * 随从构造函数
@@ -207,20 +224,20 @@ export class Minion extends Card {
     this.baseMaxHealth = health;
 
     // 游戏状态属性初始化
-    this.keywords = Minion.mapMechanicsToKeywords(mechanics); // 将机制映射为关键词
+    this.permanentKeywords = Minion.mapMechanicsToKeywords(mechanics); // 将机制映射为永久关键词
+    this.temporaryKeywords = []; // 初始化临时关键词列表为空数组
     this.isGolden = false; // 默认不是金色随从
     this.isFrozen = false; // 默认不处于冻结状态
     this.position = null; // 默认位置为null（在hand上）
     this.hasAttacked = false; // 默认未攻击
-    this.hasDivineShield = this.keywords.includes(MinionKeyword.DIVINE_SHIELD); // 检查是否有圣盾
-    this.hasReborn = this.keywords.includes(MinionKeyword.REBORN); // 检查是否有复生
+    this.hasDivineShield = this.permanentKeywords.includes(MinionKeyword.DIVINE_SHIELD); // 检查是否有圣盾
+    this.hasReborn = this.permanentKeywords.includes(MinionKeyword.REBORN); // 检查是否有复生
     this.hasGrantedShapingSpell = false; // 是否已授予塑造法术（默认未授予）
-    this.buffs = []; // 初始化加成列表为空数组
+    this.permanentBuffs = []; // 初始化永久加成列表为空数组
+    this.temporaryBuffs = []; // 初始化临时加成列表为空数组
 
     // 初始化实际属性
     this.health = health;
-    this.attack = attack;
-    this.maxHealth = health;
 
     // 生成唯一实例ID
     this.instanceId = `${strId}-${Minion.instanceCounter++}`;
@@ -252,6 +269,137 @@ export class Minion extends Card {
       }
     }
     return keywords;
+  }
+
+  /**
+   * 计算攻击力 - 累加所有攻击力加成（永久+临时）
+   * @returns 包含所有加成的攻击力
+   * @private - 内部方法，仅在需要重新计算攻击力时调用
+   */
+  private calculateAttack(): number {
+    // 计算永久加成
+    const permanentAttackBonus = this.permanentBuffs.reduce(
+      (total, buff) => total + buff.attackBonus,
+      0
+    );
+    // 计算临时加成
+    const temporaryAttackBonus = this.temporaryBuffs.reduce(
+      (total, buff) => total + buff.attackBonus,
+      0
+    );
+    return this.baseAttack + permanentAttackBonus + temporaryAttackBonus;
+  }
+
+  /**
+   * 计算最大生命值 - 累加所有最大生命值加成（永久+临时）
+   * @returns 包含所有加成的最大生命值
+   * @private - 内部方法，仅在需要重新计算最大生命值时调用
+   */
+  private calculateMaxHealth(): number {
+    // 计算永久加成
+    const permanentMaxHealthBonus = this.permanentBuffs.reduce(
+      (total, buff) => total + buff.maxHealthBonus,
+      0
+    );
+    // 计算临时加成
+    const temporaryMaxHealthBonus = this.temporaryBuffs.reduce(
+      (total, buff) => total + buff.maxHealthBonus,
+      0
+    );
+    return this.baseMaxHealth + permanentMaxHealthBonus + temporaryMaxHealthBonus;
+  }
+
+  /**
+   * 获取攻击力 - 使用实时计算+缓存的方式获取攻击力
+   * @returns 包含所有加成的攻击力
+   * @注意事项：如果加成或基础属性发生变化，缓存会自动失效并重新计算
+   */
+  getAttack(): number {
+    if (this.attackCache === null) {
+      this.attackCache = this.calculateAttack();
+    }
+    return this.attackCache;
+  }
+
+  /**
+   * 获取最大生命值 - 使用实时计算+缓存的方式获取最大生命值
+   * @returns 包含所有加成的最大生命值
+   * @注意事项：如果加成或基础属性发生变化，缓存会自动失效并重新计算
+   */
+  getMaxHealth(): number {
+    if (this.maxHealthCache === null) {
+      this.maxHealthCache = this.calculateMaxHealth();
+    }
+    return this.maxHealthCache;
+  }
+
+  /**
+   * 获取所有关键词 - 使用实时计算+缓存的方式获取所有关键词（永久+临时）
+   * @returns 所有关键词列表
+   * @注意事项：如果永久或临时关键词发生变化，缓存会自动失效并重新计算
+   */
+  getKeywords(): MinionKeyword[] {
+    if (this.keywordsCache === null) {
+      this.keywordsCache = [...this.permanentKeywords, ...this.temporaryKeywords];
+    }
+    return this.keywordsCache;
+  }
+
+  /**
+   * 攻击力访问器 - 兼容现有代码，返回计算后的攻击力
+   * @returns 包含所有加成的攻击力
+   */
+  get attack(): number {
+    return this.getAttack();
+  }
+
+  /**
+   * 攻击力设置器 - 兼容现有代码，禁止直接设置攻击力
+   * @param _value - 未使用的参数，仅用于兼容现有代码
+   * @throws 不允许直接设置攻击力
+   */
+  set attack(_value: number) {
+    console.warn('不允许直接设置攻击力，请使用addBuff/removeBuff方法修改');
+    // 可以选择忽略或抛出错误
+    // throw new Error('不允许直接设置攻击力，请使用addBuff/removeBuff方法修改');
+  }
+
+  /**
+   * 最大生命值访问器 - 兼容现有代码，返回计算后的最大生命值
+   * @returns 包含所有加成的最大生命值
+   */
+  get maxHealth(): number {
+    return this.getMaxHealth();
+  }
+
+  /**
+   * 最大生命值设置器 - 兼容现有代码，禁止直接设置最大生命值
+   * @param _value - 未使用的参数，仅用于兼容现有代码
+   * @throws 不允许直接设置最大生命值
+   */
+  set maxHealth(_value: number) {
+    console.warn('不允许直接设置最大生命值，请使用addBuff/removeBuff方法修改');
+    // 可以选择忽略或抛出错误
+    // throw new Error('不允许直接设置最大生命值，请使用addBuff/removeBuff方法修改');
+  }
+
+  /**
+   * 关键词访问器 - 兼容现有代码，返回所有关键词
+   * @returns 所有关键词列表
+   */
+  get keywords(): MinionKeyword[] {
+    return this.getKeywords();
+  }
+
+  /**
+   * 关键词设置器 - 兼容现有代码，禁止直接设置关键词
+   * @param _value - 未使用的参数，仅用于兼容现有代码
+   * @throws 不允许直接设置关键词
+   */
+  set keywords(_value: MinionKeyword[]) {
+    console.warn('不允许直接设置关键词，请使用相关方法修改');
+    // 可以选择忽略或抛出错误
+    // throw new Error('不允许直接设置关键词，请使用相关方法修改');
   }
 
   /**
@@ -287,14 +435,15 @@ export class Minion extends Card {
     if (this.upgradeCard) {
       this.isGolden = true; // 设置为金色随从
       // 更新属性为金色版本属性
-      this.attack = this.upgradeCard.attack;
+      this.baseAttack = this.upgradeCard.attack;
+      this.baseMaxHealth = this.upgradeCard.health;
       this.health = this.upgradeCard.health;
-      this.maxHealth = this.upgradeCard.health;
       this.text = this.upgradeCard.text;
       this.mechanics = this.upgradeCard.mechanics;
-      this.keywords = Minion.mapMechanicsToKeywords(this.upgradeCard.mechanics);
-      this.hasDivineShield = this.keywords.includes(MinionKeyword.DIVINE_SHIELD);
-      this.hasReborn = this.keywords.includes(MinionKeyword.REBORN);
+      this.permanentKeywords = Minion.mapMechanicsToKeywords(this.upgradeCard.mechanics);
+      this.hasDivineShield = this.permanentKeywords.includes(MinionKeyword.DIVINE_SHIELD);
+      this.hasReborn = this.permanentKeywords.includes(MinionKeyword.REBORN);
+      this.clearCache(); // 清除缓存，确保属性重新计算
     }
   }
 
@@ -318,7 +467,7 @@ export class Minion extends Card {
       this.art,
       this.tier || 1,
       this.health,
-      this.attack,
+      this.getAttack(), // 使用计算后的攻击力
       [...this.minionTypes], // 深拷贝随从类型列表
       [...this.minionTypesCN], // 深拷贝中文随从类型列表
       this.upgradeCard
@@ -326,57 +475,52 @@ export class Minion extends Card {
   }
 
   /**
-   * 计算攻击力 - 累加所有攻击力加成
-   * @returns 包含所有加成的攻击力
+   * 重置临时效果 - 清除所有临时加成和临时关键词
+   * @returns 重置的效果数量
+   * @使用方式：在回合结束或需要清除临时效果时调用
    */
-  private calculateAttack(): number {
-    const totalAttackBonus = this.buffs.reduce((total, buff) => total + buff.attackBonus, 0);
-    return this.baseAttack + totalAttackBonus;
-  }
+  resetTemporaryEffects(): { buffsRemoved: number; keywordsRemoved: number } {
+    const buffsRemoved = this.temporaryBuffs.length;
+    const keywordsRemoved = this.temporaryKeywords.length;
 
-  /**
-   * 计算最大生命值 - 累加所有最大生命值加成
-   * @returns 包含所有加成的最大生命值
-   */
-  private calculateMaxHealth(): number {
-    const totalMaxHealthBonus = this.buffs.reduce((total, buff) => total + buff.maxHealthBonus, 0);
-    return this.baseMaxHealth + totalMaxHealthBonus;
-  }
+    // 清空临时加成和临时关键词数组
+    this.temporaryBuffs = [];
+    this.temporaryKeywords = [];
 
-  /**
-   * 重新计算并更新所有属性值 - 当加成列表发生变化时调用
-   * @使用方式：当添加或移除加成时调用
-   */
-  updateStats(): void {
-    // 更新攻击力（包含加成）
-    this.attack = this.calculateAttack();
-    // 更新最大生命值（包含加成）
-    const newMaxHealth = this.calculateMaxHealth();
-    const healthDiff = newMaxHealth - this.maxHealth;
-    this.maxHealth = newMaxHealth;
-    // 同步当前生命值，保持比例
-    if (healthDiff > 0) {
-      this.health += healthDiff;
-    }
+    // 清除缓存，确保属性重新计算
+    this.clearCache();
+
+    // 更新相关标志
+    this.hasDivineShield = this.permanentKeywords.includes(MinionKeyword.DIVINE_SHIELD);
+    this.hasReborn = this.permanentKeywords.includes(MinionKeyword.REBORN);
+
+    return { buffsRemoved, keywordsRemoved };
   }
 
   /**
    * 添加加成 - 为随从添加一个属性加成
    * @param buff - 要添加的加成对象
    * @returns 是否成功添加
+   * @注意事项：根据buff.type自动区分永久和临时加成，默认永久
    */
   addBuff(buff: MinionBuff): boolean {
+    // 确定加成类型
+    const isTemporary = buff.type === 'temporary';
+    const targetBuffsArray = isTemporary ? this.temporaryBuffs : this.permanentBuffs;
+
     // 检查是否已存在相同ID的加成
-    const existingIndex = this.buffs.findIndex(b => b.id === buff.id);
+    const existingIndex = targetBuffsArray.findIndex(b => b.id === buff.id);
     if (existingIndex >= 0) {
       // 如果已存在，更新该加成
-      this.buffs[existingIndex] = { ...this.buffs[existingIndex], ...buff };
+      targetBuffsArray[existingIndex] = { ...targetBuffsArray[existingIndex], ...buff };
     } else {
       // 如果不存在，添加新加成
-      this.buffs.push(buff);
+      targetBuffsArray.push(buff);
     }
-    // 更新属性值
-    this.updateStats();
+
+    // 清除缓存，确保属性重新计算
+    this.clearCache();
+
     return true;
   }
 
@@ -384,16 +528,74 @@ export class Minion extends Card {
    * 移除加成 - 从随从移除一个属性加成
    * @param buffId - 要移除的加成ID
    * @returns 是否成功移除
+   * @注意事项：同时检查永久和临时加成列表
    */
   removeBuff(buffId: string): boolean {
-    const initialLength = this.buffs.length;
-    this.buffs = this.buffs.filter(buff => buff.id !== buffId);
-    if (this.buffs.length < initialLength) {
-      // 更新属性值
-      this.updateStats();
-      return true;
+    let removed = false;
+
+    // 检查并移除永久加成
+    const permanentInitialLength = this.permanentBuffs.length;
+    this.permanentBuffs = this.permanentBuffs.filter(buff => buff.id !== buffId);
+    removed = removed || this.permanentBuffs.length < permanentInitialLength;
+
+    // 检查并移除临时加成
+    const temporaryInitialLength = this.temporaryBuffs.length;
+    this.temporaryBuffs = this.temporaryBuffs.filter(buff => buff.id !== buffId);
+    removed = removed || this.temporaryBuffs.length < temporaryInitialLength;
+
+    // 如果有加成被移除，清除缓存
+    if (removed) {
+      this.clearCache();
     }
-    return false;
+
+    return removed;
+  }
+
+  /**
+   * 移除所有临时加成 - 清空临时加成数组
+   * @returns 移除的加成数量
+   * @使用方式：在回合结束或需要清除临时加成时调用
+   */
+  removeTemporaryBuffs(): number {
+    const removedCount = this.temporaryBuffs.length;
+    this.temporaryBuffs = [];
+
+    // 清除缓存，确保属性重新计算
+    this.clearCache();
+
+    return removedCount;
+  }
+
+  /**
+   * 移除所有临时关键词 - 清空临时关键词数组
+   * @returns 移除的关键词数量
+   * @使用方式：在回合结束或需要清除临时关键词时调用
+   */
+  removeTemporaryKeywords(): number {
+    const removedCount = this.temporaryKeywords.length;
+    this.temporaryKeywords = [];
+
+    // 清除缓存，确保关键词重新计算
+    this.clearCache();
+
+    // 更新相关标志
+    this.hasDivineShield = this.permanentKeywords.includes(MinionKeyword.DIVINE_SHIELD);
+    this.hasReborn = this.permanentKeywords.includes(MinionKeyword.REBORN);
+
+    return removedCount;
+  }
+
+  /**
+   * 回合开始时处理 - 清除所有临时加成和关键词
+   * @使用方式：在新回合开始时调用
+   */
+  onTurnStart(): void {
+    // 使用重置临时效果方法处理
+    const result = this.resetTemporaryEffects();
+    // 将日志输出放在方法内部
+    console.log(
+      `${this.nameCN} 移除了 ${result.buffsRemoved} 个临时加成和 ${result.keywordsRemoved} 个临时关键词`
+    );
   }
 
   /**

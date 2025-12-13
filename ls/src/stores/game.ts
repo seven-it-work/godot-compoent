@@ -63,7 +63,7 @@ export const useGameStore = defineStore('game', {
       startX: 0,
       startY: 0,
       endX: 0,
-      endY: 0
+      endY: 0,
     } as {
       visible: boolean;
       startX: number;
@@ -85,12 +85,36 @@ export const useGameStore = defineStore('game', {
       const targets: any[] = [];
       const spell = state.selectedSpell;
 
+      // 内部辅助函数：验证目标是否有效
+      const isValidTarget = (target: any, targetType: string): boolean => {
+        if (!target) return false;
+
+        switch (targetType) {
+          case 'minion':
+            return target.cardType === 'minion';
+          case 'hero':
+            return target.cardType === 'hero';
+          case 'all_minions':
+            return target.cardType === 'minion';
+          case 'self':
+            return target.owner === state.player;
+          case 'friendly':
+            return target.owner === state.player;
+          case 'enemy':
+            return target.owner !== state.player;
+          case 'any':
+            return true;
+          default:
+            return false;
+        }
+      };
+
       // 根据法术使用范围和目标类型收集可用目标
       if (spell.targetSelection.scope === 'battlefield' || spell.targetSelection.scope === 'both') {
         // 战场上的随从
         if (state.player) {
-          state.player.minions.forEach((minion, index) => {
-            if (this.isValidTarget(minion, spell.targetSelection.targetType)) {
+          state.player.minions.forEach((minion: any, index: number) => {
+            if (isValidTarget(minion, spell.targetSelection.targetType)) {
               targets.push({
                 type: 'minion',
                 source: 'battlefield',
@@ -105,8 +129,8 @@ export const useGameStore = defineStore('game', {
       if (spell.targetSelection.scope === 'tavern' || spell.targetSelection.scope === 'both') {
         // 酒馆中的随从
         if (state.tavern) {
-          state.tavern.availableMinions.forEach((minion, index) => {
-            if (this.isValidTarget(minion, spell.targetSelection.targetType)) {
+          state.tavern.availableMinions.forEach((minion: any, index: number) => {
+            if (isValidTarget(minion, spell.targetSelection.targetType)) {
               targets.push({
                 type: 'minion',
                 source: 'tavern',
@@ -210,11 +234,11 @@ export const useGameStore = defineStore('game', {
       if (this.player) {
         // 执行玩家回合结束逻辑
         this.player.endTurn();
-        
+
         // 进入战斗阶段
         console.log('进入战斗阶段...');
         this.gameState = 'battle_phase';
-        
+
         // 简单模拟战斗，选择第一个AI玩家作为对手
         setTimeout(() => {
           console.log('执行战斗...');
@@ -233,9 +257,9 @@ export const useGameStore = defineStore('game', {
 
       // 选择第一个AI玩家作为对手
       const opponent = this.aiPlayers[0];
-      
-      console.log(`开始战斗：${this.player.hero.name} vs ${opponent.hero.name}`);
-      
+
+      console.log(`开始战斗：${this.player.hero.name} vs ${opponent?.hero?.name || '未知对手'}`);
+
       // 这里可以调用BattleSystem.executeBattle()来执行实际战斗
       // 暂时使用模拟结果
       const battleResult = {
@@ -243,12 +267,12 @@ export const useGameStore = defineStore('game', {
         loser: opponent,
         damageDealt: 2,
         winnerMinionsLeft: 3,
-        loserMinionsLeft: 0
+        loserMinionsLeft: 0,
       };
-      
+
       this.battleResult = battleResult;
       this.gameState = 'battle_result';
-      
+
       console.log('战斗结束，结果:', battleResult);
       console.log('切换到战斗结果页面');
     },
@@ -256,20 +280,22 @@ export const useGameStore = defineStore('game', {
     // 从战斗返回，开始新回合
     returnFromBattle() {
       console.log('从战斗返回，开始新回合');
-      
+
       // 增加回合数
       this.currentTurn += 1;
-      
+
       // 解冻酒馆
       if (this.tavern) {
         this.tavern.unfreeze();
+        // 移除酒馆中所有随从的临时加成和关键词
+        this.tavern.onTurnStart();
       }
-      
-      // 开始新回合
+
+      // 开始新回合 - 移除战场和手牌中随从的临时加成和关键词
       if (this.player) {
         this.player.startTurn();
       }
-      
+
       // 切换回游戏状态
       this.gameState = 'in_game';
       this.battleResult = null;
@@ -290,23 +316,29 @@ export const useGameStore = defineStore('game', {
         console.log('player.placeMinionFromHand返回:', success);
 
         // 放置成功后，触发所有效果
-        if (success && minionToPlace) {
+        if (success && minionToPlace && minionToPlace.cardType === 'minion') {
           console.log('放置成功，触发所有效果');
+          // 将minionToPlace类型断言为Minion，因为我们已经检查了cardType === 'minion'
+          const placedMinion = minionToPlace as any;
 
           // 1. 触发放置随从的onMinionPlayed事件（使用本随从事件）
-          console.log('触发随从onMinionPlayed事件:', minionToPlace.nameCN);
-          minionToPlace.onMinionPlayed(this);
+          console.log('触发随从onMinionPlayed事件:', placedMinion.nameCN);
+          if (typeof placedMinion.onMinionPlayed === 'function') {
+            placedMinion.onMinionPlayed(this);
+          }
 
           // 2. 触发放置随从的battlecry事件（战吼效果）
-          console.log('触发随从battlecry事件:', minionToPlace.nameCN);
-          minionToPlace.battlecry(this);
+          console.log('触发随从battlecry事件:', placedMinion.nameCN);
+          if (typeof placedMinion.battlecry === 'function') {
+            placedMinion.battlecry(this);
+          }
 
           // 3. 触发当前玩家所有场上随从的onCardPlayed方法（使用其他卡片事件）
           console.log('触发所有场上随从的onCardPlayed事件');
           this.player.minions.forEach(fieldMinion => {
-            if (fieldMinion && fieldMinion !== minionToPlace) {
+            if (fieldMinion && fieldMinion !== placedMinion) {
               console.log('调用场上随从的onCardPlayed:', fieldMinion.nameCN);
-              fieldMinion.onCardPlayed(minionToPlace, this);
+              fieldMinion.onCardPlayed(placedMinion, this);
             }
           });
         }
@@ -408,12 +440,36 @@ export const useGameStore = defineStore('game', {
       const targets: any[] = [];
       const spell = this.selectedSpell;
 
+      // 内部辅助函数：验证目标是否有效
+      const isValidTarget = (target: any, targetType: string): boolean => {
+        if (!target) return false;
+
+        switch (targetType) {
+          case 'minion':
+            return target.cardType === 'minion';
+          case 'hero':
+            return target.cardType === 'hero';
+          case 'all_minions':
+            return target.cardType === 'minion';
+          case 'self':
+            return target.owner === this.player;
+          case 'friendly':
+            return target.owner === this.player;
+          case 'enemy':
+            return target.owner !== this.player;
+          case 'any':
+            return true;
+          default:
+            return false;
+        }
+      };
+
       // 根据法术使用范围和目标类型收集可用目标
       if (spell.targetSelection.scope === 'battlefield' || spell.targetSelection.scope === 'both') {
         // 战场上的随从
         if (this.player) {
-          this.player.minions.forEach((minion, index) => {
-            if (this.isValidTarget(minion, spell.targetSelection.targetType)) {
+          this.player.minions.forEach((minion: any, index: number) => {
+            if (isValidTarget(minion, spell.targetSelection.targetType)) {
               targets.push({
                 type: 'minion',
                 source: 'battlefield',
@@ -428,8 +484,8 @@ export const useGameStore = defineStore('game', {
       if (spell.targetSelection.scope === 'tavern' || spell.targetSelection.scope === 'both') {
         // 酒馆中的随从
         if (this.tavern) {
-          this.tavern.availableMinions.forEach((minion, index) => {
-            if (this.isValidTarget(minion, spell.targetSelection.targetType)) {
+          this.tavern.availableMinions.forEach((minion: any, index: number) => {
+            if (isValidTarget(minion, spell.targetSelection.targetType)) {
               targets.push({
                 type: 'minion',
                 source: 'tavern',
@@ -529,6 +585,8 @@ export const useGameStore = defineStore('game', {
       // 遍历所有目标元素，检查鼠标是否在元素范围内
       for (let i = 0; i < targetElements.length; i++) {
         const element = targetElements[i];
+        if (!element) continue; // 检查元素是否存在
+
         const rect = element.getBoundingClientRect();
 
         // 检查鼠标坐标是否在元素范围内

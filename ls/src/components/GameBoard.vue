@@ -51,12 +51,7 @@
           <h2>酒馆</h2>
           <div class="tavern-level">
             <span class="level-text">等级 {{ gameStore.player?.tavernLevel || 1 }}</span>
-            <div class="level-bar">
-              <div
-                class="level-progress"
-                :style="{ width: `${((gameStore.player?.tavernLevel || 1) / 6) * 100}%` }"
-              ></div>
-            </div>
+            <div class="turn-info">第几回合: {{ gameStore.currentTurn || 1 }}</div>
           </div>
         </div>
 
@@ -124,6 +119,127 @@
           </button>
         </div>
 
+        <!-- 选择的卡片信息 -->
+        <div v-if="gameStore.selectedMinion || gameStore.selectedSpell" class="selected-card-info">
+          <!-- 卡片类型 -->
+          <div class="card-info-section">
+            <div class="section-title">卡片类型</div>
+            <div class="section-content">
+              <span v-if="gameStore.selectedMinion" class="card-type minion-type">
+                {{ gameStore.selectedMinion.cardType === 'minion' ? '随从' : '其他' }}
+              </span>
+              <span v-else-if="gameStore.selectedSpell" class="card-type spell-type">
+                {{ gameStore.selectedSpell.type === 'shaping' ? '塑造法术' : '法术' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- 卡片属性加成 -->
+          <div class="card-info-section">
+            <div class="section-title">属性加成</div>
+            <div class="section-content">
+              <!-- 永久属性加成 -->
+              <div
+                v-if="
+                  gameStore.selectedMinion && gameStore.selectedMinion.permanentBuffs?.length > 0
+                "
+                class="buff-group permanent-buffs"
+              >
+                <div class="buff-type-label">永久加成：</div>
+                <div class="buff-list">
+                  <div
+                    v-for="buff in gameStore.selectedMinion.permanentBuffs"
+                    :key="buff.id"
+                    class="buff-item"
+                  >
+                    <span class="buff-name">{{ buff.source }}</span>
+                    <span class="buff-value">
+                      <span v-if="buff.attackBonus !== 0">攻+{{ buff.attackBonus }}</span>
+                      <span v-if="buff.healthBonus !== 0">血+{{ buff.healthBonus }}</span>
+                      <span v-if="buff.maxHealthBonus !== 0">最大血+{{ buff.maxHealthBonus }}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 临时属性加成 -->
+              <div
+                v-if="
+                  gameStore.selectedMinion && gameStore.selectedMinion.temporaryBuffs?.length > 0
+                "
+                class="buff-group temporary-buffs"
+              >
+                <div class="buff-type-label">临时加成：</div>
+                <div class="buff-list">
+                  <div
+                    v-for="buff in gameStore.selectedMinion.temporaryBuffs"
+                    :key="buff.id"
+                    class="buff-item"
+                  >
+                    <span class="buff-name">{{ buff.source }}</span>
+                    <span class="buff-value">
+                      <span v-if="buff.attackBonus !== 0">攻+{{ buff.attackBonus }}</span>
+                      <span v-if="buff.healthBonus !== 0">血+{{ buff.healthBonus }}</span>
+                      <span v-if="buff.maxHealthBonus !== 0">最大血+{{ buff.maxHealthBonus }}</span>
+                      <span v-if="buff.turnsRemaining" class="buff-duration"
+                        >({{ buff.turnsRemaining }}回合)</span
+                      >
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 无属性加成 -->
+              <div v-else-if="gameStore.selectedMinion" class="no-buffs">无属性加成</div>
+              <div v-else-if="gameStore.selectedSpell" class="spell-effects">
+                <span>法术效果：{{ gameStore.selectedSpell.text }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 卡片关键词加成 -->
+          <div class="card-info-section" v-if="gameStore.selectedMinion">
+            <div class="section-title">关键词加成</div>
+            <div class="section-content">
+              <!-- 永久关键词加成 -->
+              <div
+                v-if="gameStore.selectedMinion.permanentKeywords?.length > 0"
+                class="keyword-group permanent-keywords"
+              >
+                <div class="keyword-type-label">永久关键词：</div>
+                <div class="keyword-list">
+                  <span
+                    v-for="keyword in gameStore.selectedMinion.permanentKeywords"
+                    :key="keyword"
+                    class="keyword-item permanent-keyword"
+                  >
+                    {{ mapKeywordToCN(keyword) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- 临时关键词加成 -->
+              <div
+                v-if="gameStore.selectedMinion.temporaryKeywords?.length > 0"
+                class="keyword-group temporary-keywords"
+              >
+                <div class="keyword-type-label">临时关键词：</div>
+                <div class="keyword-list">
+                  <span
+                    v-for="keyword in gameStore.selectedMinion.temporaryKeywords"
+                    :key="keyword"
+                    class="keyword-item temporary-keyword"
+                  >
+                    {{ mapKeywordToCN(keyword) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- 无关键词加成 -->
+              <div v-else class="no-keywords">无关键词加成</div>
+            </div>
+          </div>
+        </div>
         <!-- 操作提示 -->
         <div v-if="gameStore.selectedMinion" class="action-hint">
           <!-- 选择的卡牌详情 -->
@@ -172,6 +288,28 @@
         <div style="text-align: center; margin-top: 20px">
           <button @click="returnToHeroSelection">返回英雄选择</button>
         </div>
+      </div>
+    </div>
+
+    <!-- 战斗结果界面 -->
+    <div class="battle-result" v-else-if="gameStore.gameState === 'battle_result'">
+      <div class="battle-result-content">
+        <h2>战斗结束</h2>
+        <div class="result-info">
+          <div class="winner-info">
+            <h3>{{ gameStore.battleResult?.winner?.hero?.name || '玩家' }} 获胜！</h3>
+            <p>剩余随从: {{ gameStore.battleResult?.winnerMinionsLeft || 0 }}</p>
+          </div>
+          <div class="vs">VS</div>
+          <div class="loser-info">
+            <h3>{{ gameStore.battleResult?.loser?.hero?.name || '对手' }} 失败</h3>
+            <p>剩余随从: {{ gameStore.battleResult?.loserMinionsLeft || 0 }}</p>
+          </div>
+        </div>
+        <div class="damage-info">
+          <p>造成伤害: {{ gameStore.battleResult?.damageDealt || 0 }}</p>
+        </div>
+        <button class="continue-button" @click="gameStore.returnFromBattle">继续游戏</button>
       </div>
     </div>
 
@@ -511,6 +649,22 @@ const cancelSelect = () => {
   gameStore.cancelSelectMinion();
 };
 
+// 关键词中文映射
+const mapKeywordToCN = (keyword: string): string => {
+  const keywordMap: Record<string, string> = {
+    taunt: '嘲讽',
+    divine_shield: '圣盾',
+    windfury: '风怒',
+    super_windfury: '超级风怒',
+    stealth: '潜行',
+    charge: '冲锋',
+    poisonous: '剧毒',
+    reborn: '复生',
+    immune: '免疫',
+  };
+  return keywordMap[keyword] || keyword;
+};
+
 // 计算属性：是否处于英雄选择阶段
 const isHeroSelection = computed(() => {
   return gameStore.gameState === 'hero_selection';
@@ -527,7 +681,8 @@ const isInGame = computed(() => {
 .game-layout {
   display: flex;
   width: 100%;
-  height: 100vh;
+  height: 100%;
+  min-height: 1500px; /* 确保至少有设计高度 */
 }
 
 /* 左边30% 操作区域 */
@@ -771,5 +926,186 @@ const isInGame = computed(() => {
   color: #9b59b6;
   font-size: 24px;
   margin: 0 0 10px 0;
+}
+
+/* 选中卡片信息样式 */
+.selected-card-info {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 15px;
+  border-radius: 10px;
+  margin: 15px 0;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  color: black;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.selected-card-info h3 {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+  font-size: 18px;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.card-info-section {
+  margin-bottom: 15px;
+}
+
+.card-info-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #34495e;
+  font-size: 14px;
+}
+
+.section-content {
+  padding-left: 10px;
+  font-size: 14px;
+}
+
+/* 卡片类型样式 */
+.card-type {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.minion-type {
+  background-color: #4caf50;
+  color: white;
+}
+
+.spell-type {
+  background-color: #2196f3;
+  color: white;
+}
+
+/* 属性加成样式 */
+.buff-group {
+  margin-bottom: 8px;
+}
+
+.buff-group:last-child {
+  margin-bottom: 0;
+}
+
+.buff-type-label {
+  font-weight: bold;
+  margin-right: 8px;
+  color: #555;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+.permanent-buffs .buff-type-label {
+  color: #4caf50;
+}
+
+.temporary-buffs .buff-type-label {
+  color: #ff9800;
+}
+
+.buff-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.buff-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.buff-name {
+  font-size: 12px;
+  color: #666;
+}
+
+.buff-value {
+  font-weight: bold;
+  font-size: 12px;
+  color: #333;
+  display: flex;
+  gap: 10px;
+}
+
+.buff-duration {
+  font-size: 11px;
+  color: #ff9800;
+}
+
+/* 关键词加成样式 */
+.keyword-group {
+  margin-bottom: 8px;
+}
+
+.keyword-group:last-child {
+  margin-bottom: 0;
+}
+
+.keyword-type-label {
+  font-weight: bold;
+  margin-right: 8px;
+  color: #555;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+.permanent-keywords .keyword-type-label {
+  color: #4caf50;
+}
+
+.temporary-keywords .keyword-type-label {
+  color: #ff9800;
+}
+
+.keyword-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.keyword-item {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.permanent-keyword {
+  background-color: #e8f5e8;
+  color: #4caf50;
+  border: 1px solid #c8e6c9;
+}
+
+.temporary-keyword {
+  background-color: #fff3e0;
+  color: #ff9800;
+  border: 1px solid #ffe0b2;
+}
+
+/* 无加成样式 */
+.no-buffs,
+.no-keywords,
+.spell-effects {
+  color: #666;
+  font-style: italic;
+  padding: 5px 0;
+}
+
+.spell-effects {
+  font-style: normal;
+  color: #2196f3;
 }
 </style>

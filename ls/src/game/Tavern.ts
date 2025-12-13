@@ -387,4 +387,16 @@ export class Tavern {
       return false;
     }
   }
+
+  /**
+   * 回合开始时处理 - 移除酒馆中所有随从的临时加成和关键词
+   */
+  onTurnStart(): void {
+    // 遍历酒馆中所有随从，移除临时加成和关键词
+    this.availableMinions.forEach(minion => {
+      if (minion) {
+        minion.onTurnStart();
+      }
+    });
+  }
 }

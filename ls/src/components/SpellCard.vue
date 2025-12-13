@@ -2,7 +2,7 @@
   <div class="spell-card">
     <div class="spell-card-inner">
       <div class="spell-name">{{ spell.nameCN }}</div>
-      <div class="spell-description">{{ spell.description }}</div>
+      <div class="spell-description">{{ spell.text }}</div>
       <div class="spell-type">{{ spell.type === 'shaping' ? '塑造法术' : '法术' }}</div>
     </div>
   </div>

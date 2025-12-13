@@ -409,6 +409,21 @@ export class Player {
       }
     });
 
+    // 1. 移除战场上所有随从的临时加成和关键词
+    this.minions.forEach(minion => {
+      if (minion) {
+        minion.onTurnStart();
+      }
+    });
+
+    // 2. 移除手牌中所有随从的临时加成和关键词
+    this.cards.forEach(card => {
+      if (card.cardType === 'minion') {
+        const minion = card as Minion;
+        minion.onTurnStart();
+      }
+    });
+
     // 尝试添加待处理的卡片
     this.tryAddPendingCards();
   }
