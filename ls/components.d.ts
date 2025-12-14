@@ -16,10 +16,13 @@ declare module 'vue' {
     ACol: typeof import('ant-design-vue/es')['Col']
     ARow: typeof import('ant-design-vue/es')['Row']
     Battlefield: typeof import('./src/components/Battlefield.vue')['default']
+    Card: typeof import('./src/components/Card.vue')['default']
     DebugDrawer: typeof import('./src/components/DebugDrawer.vue')['default']
     GameBoard: typeof import('./src/components/GameBoard.vue')['default']
     Hand: typeof import('./src/components/Hand.vue')['default']
     MinionCard: typeof import('./src/components/MinionCard.vue')['default']
+    RouterLink: typeof import('vue-router')['RouterLink']
+    RouterView: typeof import('vue-router')['RouterView']
     SpellCard: typeof import('./src/components/SpellCard.vue')['default']
     Tavern: typeof import('./src/components/Tavern.vue')['default']
   }

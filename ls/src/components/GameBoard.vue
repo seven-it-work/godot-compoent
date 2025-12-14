@@ -667,10 +667,9 @@ const isInGame = computed(() => {
 <style scoped>
 /* 游戏根容器 - 参考demo.html的container样式 */
 .game-root {
-  height: 100%; /* 继承父容器高度 */
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: auto;
 }
 
 /* 游戏主界面布局 - 响应式设计 */
@@ -678,23 +677,18 @@ const isInGame = computed(() => {
   display: grid;
   grid-template-rows: 1fr auto;
   grid-template-columns: 1fr;
-  width: 100%;
-  height: 100%;
   gap: 0;
-  overflow: hidden;
+  overflow: auto;
 }
 
 /* 下方操作区域 - 自适应高度 */
 .left-section {
   background-color: #f0f2f5;
-  padding: 15px;
   border-top: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
   gap: 15px;
   overflow-y: auto;
-  /* 确保操作区域有合适的高度 */
-  max-height: 300px;
 }
 
 /* 上方主内容区域 - 自适应高度 */
@@ -703,18 +697,10 @@ const isInGame = computed(() => {
   overflow-y: auto;
 }
 
-
 /* 响应式设计 - 针对不同屏幕尺寸调整布局 */
-@media (max-width: 1200px) {
-  .left-section {
-    padding: 10px;
-  }
-}
-
 @media (max-width: 768px) {
   /* 移动端布局 - 调整操作区域高度 */
   .left-section {
-    max-height: 250px;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
@@ -729,25 +715,11 @@ const isInGame = computed(() => {
   }
 }
 
-@media (max-width: 480px) {
-  .left-section {
-    max-height: 200px;
-    padding: 5px;
-  }
-
-  .player-info,
-  .tavern-actions,
-  .tavern-header {
-    min-width: 120px;
-  }
-}
-
 /* 酒馆标题和等级样式 */
 .tavern-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
 }
 
 .tavern-header h2 {
@@ -768,31 +740,15 @@ const isInGame = computed(() => {
   color: black;
 }
 
-.level-bar {
-  width: 150px;
-  height: 8px;
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.level-progress {
-  height: 100%;
-  background-color: #ffd700;
-  transition: width 0.3s ease;
-}
-
 /* 操作按钮区样式 */
 .tavern-actions {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .action-button {
-  padding: 10px 20px;
   border: none;
   border-radius: 5px;
   font-size: 16px;
@@ -846,7 +802,6 @@ const isInGame = computed(() => {
 /* 操作提示样式 */
 .action-hint {
   text-align: center;
-  padding: 10px;
   background-color: rgba(255, 255, 255, 0.9);
   border: 2px solid rgba(0, 0, 0, 0.3);
   border-radius: 5px;
@@ -856,7 +811,6 @@ const isInGame = computed(() => {
   gap: 15px;
   flex-wrap: wrap;
   color: black;
-  margin-top: 15px;
 }
 
 .cancel-button {
@@ -873,10 +827,7 @@ const isInGame = computed(() => {
   flex-direction: column;
   align-items: center;
   background-color: rgba(255, 255, 255, 0.9);
-  padding: 15px;
   border-radius: 10px;
-  margin: 20px auto;
-  max-width: 100%;
   color: black;
   border: 2px solid rgba(0, 0, 0, 0.3);
   gap: 10px;
@@ -893,7 +844,6 @@ const isInGame = computed(() => {
 .label {
   font-size: 14px;
   color: #666;
-  margin-bottom: 5px;
 }
 
 .value {
@@ -905,7 +855,6 @@ const isInGame = computed(() => {
 .hero-name {
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 5px;
   color: black;
 }
 
@@ -919,9 +868,6 @@ const isInGame = computed(() => {
 /* 结束回合按钮样式 */
 .end-turn-button {
   display: block;
-  width: 200px;
-  margin: 0 auto;
-  padding: 15px;
   background-color: #f44336;
   color: white;
   border: none;
@@ -940,15 +886,12 @@ const isInGame = computed(() => {
 
 /* 英雄选择界面样式 */
 .hero-initial {
-  width: 100px;
-  height: 100px;
   background-color: #7f8c8d;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 15px;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .hero-initial div {
@@ -964,52 +907,38 @@ const isInGame = computed(() => {
 .hero-info h2 {
   color: #9b59b6;
   font-size: 24px;
-  margin: 0 0 10px 0;
 }
 
 /* 选中卡片信息样式 */
 .selected-card-info {
   background-color: rgba(255, 255, 255, 0.9);
-  padding: 15px;
   border-radius: 10px;
-  margin: 15px 0;
   border: 2px solid rgba(0, 0, 0, 0.3);
   color: black;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .selected-card-info h3 {
-  margin: 0 0 15px 0;
   color: #2c3e50;
   font-size: 18px;
   text-align: center;
   border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 10px;
 }
 
-.card-info-section {
-  margin-bottom: 15px;
-}
-
-.card-info-section:last-child {
-  margin-bottom: 0;
-}
+/* 卡片信息区域 */
 
 .section-title {
   font-weight: bold;
-  margin-bottom: 8px;
   color: #34495e;
   font-size: 14px;
 }
 
 .section-content {
-  padding-left: 10px;
   font-size: 14px;
 }
 
 /* 卡片类型样式 */
 .card-type {
-  padding: 4px 8px;
   border-radius: 12px;
   font-weight: bold;
   font-size: 12px;
@@ -1027,20 +956,12 @@ const isInGame = computed(() => {
 }
 
 /* 属性加成样式 */
-.buff-group {
-  margin-bottom: 8px;
-}
-
-.buff-group:last-child {
-  margin-bottom: 0;
-}
+/* 属性加成组 */
 
 .buff-type-label {
   font-weight: bold;
-  margin-right: 8px;
   color: #555;
   display: inline-block;
-  margin-bottom: 5px;
 }
 
 .permanent-buffs .buff-type-label {
@@ -1085,20 +1006,12 @@ const isInGame = computed(() => {
 }
 
 /* 关键词加成样式 */
-.keyword-group {
-  margin-bottom: 8px;
-}
-
-.keyword-group:last-child {
-  margin-bottom: 0;
-}
+/* 关键词加成组 */
 
 .keyword-type-label {
   font-weight: bold;
-  margin-right: 8px;
   color: #555;
   display: inline-block;
-  margin-bottom: 5px;
 }
 
 .permanent-keywords .keyword-type-label {
@@ -1116,7 +1029,6 @@ const isInGame = computed(() => {
 }
 
 .keyword-item {
-  padding: 4px 8px;
   border-radius: 12px;
   font-size: 12px;
   font-weight: bold;
@@ -1140,7 +1052,6 @@ const isInGame = computed(() => {
 .spell-effects {
   color: #666;
   font-style: italic;
-  padding: 5px 0;
 }
 
 .spell-effects {

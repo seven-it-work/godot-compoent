@@ -350,28 +350,21 @@ const addSpecificMinion = (minion: Minion) => {
 <style scoped>
 /* 调试抽屉样式 */
 .debug-info {
-  padding: 10px 0;
-  max-height: calc(100vh - 100px);
   overflow-y: auto;
 }
 
 .debug-info h3 {
-  margin: 15px 0 10px 0;
   font-size: 16px;
   color: #333;
   border-bottom: 1px solid #eee;
-  padding-bottom: 5px;
 }
 
 .debug-info h4 {
-  margin: 10px 0 5px 0;
   font-size: 14px;
   color: #555;
 }
 
 .debug-section {
-  margin-bottom: 15px;
-  padding: 10px;
   background-color: #f9f9f9;
   border-radius: 5px;
 }
@@ -380,19 +373,16 @@ const addSpecificMinion = (minion: Minion) => {
   display: flex;
   gap: 10px;
   align-items: center;
-  margin-top: 5px;
 }
 
 .debug-input {
   flex: 1;
-  padding: 5px 10px;
   border: 1px solid #ddd;
   border-radius: 3px;
   font-size: 14px;
 }
 
 .debug-button {
-  padding: 5px 15px;
   background-color: #4caf50;
   color: white;
   border: none;
@@ -408,8 +398,6 @@ const addSpecificMinion = (minion: Minion) => {
 
 /* 随从列表样式 */
 .minion-list {
-  margin-top: 10px;
-  max-height: 300px;
   overflow-y: auto;
   border: 1px solid #ddd;
   border-radius: 3px;
@@ -420,7 +408,6 @@ const addSpecificMinion = (minion: Minion) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 10px;
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -445,12 +432,10 @@ const addSpecificMinion = (minion: Minion) => {
   color: #ffd700;
   font-weight: bold;
   background-color: #333;
-  padding: 2px 6px;
   border-radius: 10px;
 }
 
 .no-minions {
-  padding: 15px;
   text-align: center;
   color: #999;
   font-size: 14px;
@@ -461,19 +446,10 @@ const addSpecificMinion = (minion: Minion) => {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin-bottom: 10px;
-}
-
-.ratio-buttons .debug-button {
-  margin-bottom: 5px;
 }
 
 .ratio-buttons .debug-button.active {
   background-color: #2196f3;
-}
-
-.custom-ratio {
-  margin-top: 10px;
 }
 
 .custom-ratio .debug-control {
@@ -483,25 +459,6 @@ const addSpecificMinion = (minion: Minion) => {
 }
 
 .custom-ratio .debug-control span {
-  margin: 0 5px;
   color: #555;
-}
-
-.debug-info p {
-  margin: 5px 0;
-  font-size: 14px;
-  color: #666;
-}
-
-.debug-minion-item {
-  margin: 5px 0;
-  font-size: 14px;
-  color: #666;
-  padding-left: 10px;
-}
-
-.debug-minion-item span:first-child {
-  font-weight: bold;
-  color: #333;
 }
 </style>

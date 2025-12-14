@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue';
-import GameBoard from './components/GameBoard.vue';
 
 // 设计分辨率 - 4:3 宽高比
 const DESIGN_WIDTH = 1920;
@@ -101,7 +100,7 @@ onUnmounted(() => {
         top: `${offsetY}px`,
       }"
     >
-      <GameBoard />
+      <router-view />
     </div>
 
     <!-- 缩放模式切换按钮 -->
@@ -125,7 +124,7 @@ onUnmounted(() => {
 
 html,
 body {
-  overflow: hidden;
+  overflow: auto;
   background-color: #000;
   width: 100%;
   height: 100%;
@@ -144,7 +143,7 @@ body {
 .app {
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  overflow: auto;
   background-color: #000;
   position: relative;
   /* 确保app元素占据整个视口 */
@@ -159,7 +158,7 @@ body {
   top: 0;
   transition: transform 0.3s ease;
   /* 确保游戏容器能完全显示 */
-  overflow: hidden;
+  overflow: auto;
   /* 以左上角为缩放原点 */
   transform-origin: 0 0;
 }

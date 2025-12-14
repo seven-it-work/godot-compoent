@@ -155,8 +155,6 @@ const onDrop = (event: DragEvent, target: string) => {
   background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
   border-radius: 0;
   color: #2c3e50;
-  margin: 0;
-  padding: 15px;
   box-sizing: border-box;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid #ffd591;
@@ -164,23 +162,11 @@ const onDrop = (event: DragEvent, target: string) => {
   flex-direction: column;
 }
 
-.hand-title {
-  text-align: center;
-  color: #e65100;
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 15px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-}
-
 .hand-area {
   display: flex;
   gap: 15px;
   justify-content: center;
   flex-wrap: wrap;
-  padding: 15px;
   background: rgba(255, 255, 255, 0.7);
   border-radius: 12px;
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
@@ -190,8 +176,6 @@ const onDrop = (event: DragEvent, target: string) => {
 
 .hand-slot {
   /* 使用flex-grow和flex-basis实现响应式宽度 */
-  flex: 1 0 calc(10% - 13.5px); /* 10个槽，减去间距 */
-  height: auto;
   position: relative;
   transition: all 0.2s ease;
 }
@@ -230,50 +214,5 @@ const onDrop = (event: DragEvent, target: string) => {
 .hand-slot.empty:hover .empty-slot {
   color: #409eff;
   font-size: 16px;
-}
-
-.action-hint {
-  text-align: center;
-  padding: 15px;
-  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
-  border: 2px solid #a5d6a7;
-  border-radius: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-top: 20px;
-  color: #2c3e50;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.action-button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 25px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-  color: white;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.action-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(135deg, #5cb85c 0%, #4cae4c 100%);
-}
-
-.sell-button {
-  background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
-}
-
-.sell-button:hover {
-  background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
 }
 </style>

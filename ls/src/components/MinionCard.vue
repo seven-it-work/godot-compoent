@@ -105,11 +105,8 @@ const getKeywordName = (keyword: string) => {
 
 <style scoped>
 .minion-card {
-  width: 100%;
-  height: 100%;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   border-radius: 12px;
-  padding: 12px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -163,8 +160,6 @@ const getKeywordName = (keyword: string) => {
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  width: 32px;
-  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -186,22 +181,15 @@ const getKeywordName = (keyword: string) => {
   text-align: center;
   font-size: 11px;
   color: #555;
-  margin-top: 22px;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
-
-.opponent-minion .minion-type {
-  margin-top: 0;
-  margin-bottom: 22px;
 }
 
 .minion-name {
   text-align: center;
   font-size: 16px;
   font-weight: bold;
-  margin: 8px 0;
   color: #2c3e50;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
@@ -211,8 +199,6 @@ const getKeywordName = (keyword: string) => {
   justify-content: space-around;
   font-size: 20px;
   font-weight: bold;
-  margin: 12px 0;
-  padding: 8px 0;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 8px;
 }
@@ -220,7 +206,6 @@ const getKeywordName = (keyword: string) => {
 .attack {
   color: #e74c3c;
   background: rgba(231, 76, 60, 0.1);
-  padding: 4px 12px;
   border-radius: 12px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
@@ -228,7 +213,6 @@ const getKeywordName = (keyword: string) => {
 .health {
   color: #27ae60;
   background: rgba(39, 174, 96, 0.1);
-  padding: 4px 12px;
   border-radius: 12px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
@@ -238,15 +222,12 @@ const getKeywordName = (keyword: string) => {
   flex-wrap: wrap;
   gap: 6px;
   justify-content: center;
-  margin: 8px 0;
-  padding: 5px;
   background: rgba(255, 255, 255, 0.5);
   border-radius: 8px;
 }
 
 .keyword-tag {
   font-size: 10px;
-  padding: 3px 8px;
   background-color: #3498db;
   border-radius: 12px;
   color: white;
@@ -259,7 +240,6 @@ const getKeywordName = (keyword: string) => {
 .buy-indicator {
   background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
   color: #2c3e50;
-  padding: 6px;
   border-radius: 8px;
   text-align: center;
   font-weight: bold;
@@ -274,7 +254,6 @@ const getKeywordName = (keyword: string) => {
 
 .buy-indicator .cost {
   background: rgba(255, 255, 255, 0.9);
-  padding: 2px 6px;
   border-radius: 10px;
   font-size: 11px;
 }
@@ -282,12 +261,10 @@ const getKeywordName = (keyword: string) => {
 .minion-status {
   background: linear-gradient(135deg, #95a5a6 0%, #bdc3c7 100%);
   color: white;
-  padding: 3px 10px;
   border-radius: 12px;
   font-size: 11px;
   font-weight: bold;
   text-align: center;
-  margin-top: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);

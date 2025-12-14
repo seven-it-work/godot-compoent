@@ -20,17 +20,14 @@ const { spell } = defineProps<Props>();
 
 <style scoped>
 .spell-card {
-  width: 100%;
-  height: 100%;
   background-color: #0066cc;
   border: 2px solid #003366;
   border-radius: 10px;
-  padding: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   transition: transform 0.2s ease;
   position: relative;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .spell-card:hover {
@@ -39,7 +36,6 @@ const { spell } = defineProps<Props>();
 }
 
 .spell-card-inner {
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -50,9 +46,8 @@ const { spell } = defineProps<Props>();
   font-weight: bold;
   color: white;
   text-align: center;
-  margin-bottom: 5px;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: auto;
   text-overflow: ellipsis;
 }
 
@@ -65,7 +60,7 @@ const { spell } = defineProps<Props>();
   align-items: center;
   justify-content: center;
   line-height: 1.2;
-  overflow: hidden;
+  overflow: auto;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 4;
@@ -76,7 +71,6 @@ const { spell } = defineProps<Props>();
   font-size: 10px;
   color: #ffff00;
   text-align: center;
-  margin-top: 5px;
   font-weight: bold;
 }
 </style>
