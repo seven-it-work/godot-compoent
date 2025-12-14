@@ -162,7 +162,6 @@ const onDrop = (event: DragEvent, target: string) => {
   border: 1px solid #ffd591;
   display: flex;
   flex-direction: column;
-  height: 100%;
 }
 
 .hand-title {

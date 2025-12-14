@@ -135,7 +135,6 @@ const onDrop = (event: DragEvent, target: string) => {
   padding: 15px;
   display: flex;
   flex-direction: column;
-  height: 100%;
   border: 1px solid #dcdfe6;
 }
 

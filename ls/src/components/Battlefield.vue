@@ -199,7 +199,6 @@ const isMinionHighlighted = (minion: any, source: string, index: number) => {
   border: 1px solid #b3d8ff;
   display: flex;
   flex-direction: column;
-  height: 100%;
 }
 
 .battlefield-title {
