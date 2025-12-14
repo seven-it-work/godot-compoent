@@ -1,15 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
-// 设计分辨率 - 4:3 宽高比
-const DESIGN_WIDTH = 1920;
-const DESIGN_HEIGHT = 1440;
+const DESIGN_WIDTH = 2622;
+const DESIGN_HEIGHT = 1206;
 
-// 缩放模式：
-// fit（完全显示，留边）
-// fill（充满屏幕，可能裁剪）
-// width-fill（宽度填充，高度按比例缩放）
-const mode = ref<'fit' | 'fill' | 'width-fill'>('fit');
+// 固定为fit模式：完全显示，确保内容完整，不裁剪
 
 // 容器引用
 const gameContainer = ref<HTMLElement | null>(null);
@@ -31,26 +26,12 @@ const calculateScale = () => {
 
   let newScale: number;
 
-  if (mode.value === 'fit') {
-    // fit 模式：完全显示，确保内容完整，不裁剪
-    if (windowRatio > designRatio) {
-      // 窗口更宽，基于高度计算缩放比例
-      newScale = windowHeight / DESIGN_HEIGHT;
-    } else {
-      // 窗口更高或等比例，基于宽度计算缩放比例
-      newScale = windowWidth / DESIGN_WIDTH;
-    }
-  } else if (mode.value === 'fill') {
-    // fill 模式：充满屏幕，可能裁剪
-    if (windowRatio > designRatio) {
-      // 窗口更宽，基于宽度计算缩放比例（可能裁剪高度）
-      newScale = windowWidth / DESIGN_WIDTH;
-    } else {
-      // 窗口更高或等比例，基于高度计算缩放比例（可能裁剪宽度）
-      newScale = windowHeight / DESIGN_HEIGHT;
-    }
+  // fit 模式：完全显示，确保内容完整，不裁剪
+  if (windowRatio > designRatio) {
+    // 窗口更宽，基于高度计算缩放比例
+    newScale = windowHeight / DESIGN_HEIGHT;
   } else {
-    // width-fill 模式：宽度填充屏幕，高度按比例缩放
+    // 窗口更高或等比例，基于宽度计算缩放比例
     newScale = windowWidth / DESIGN_WIDTH;
   }
 
@@ -67,10 +48,7 @@ const calculateScale = () => {
   offsetY.value = newOffsetY;
 };
 
-// 监听模式变化，重新计算缩放比例
-watch(mode, () => {
-  calculateScale();
-});
+// 缩放模式固定，不再需要监听变化
 
 // 监听窗口大小变化
 onMounted(() => {
@@ -103,14 +81,7 @@ onUnmounted(() => {
       <router-view />
     </div>
 
-    <!-- 缩放模式切换按钮 -->
-    <div class="mode-switcher">
-      <button @click="mode = 'fit'" :class="{ active: mode === 'fit' }">Fit Mode</button>
-      <button @click="mode = 'fill'" :class="{ active: mode === 'fill' }">Fill Mode</button>
-      <button @click="mode = 'width-fill'" :class="{ active: mode === 'width-fill' }">
-        Width Fill Mode
-      </button>
-    </div>
+    <!-- 缩放模式固定为fit，移除切换按钮 -->
   </div>
 </template>
 
@@ -161,34 +132,5 @@ body {
   overflow: auto;
   /* 以左上角为缩放原点 */
   transform-origin: 0 0;
-}
-
-.mode-switcher {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 100;
-  display: flex;
-  gap: 10px;
-}
-
-.mode-switcher button {
-  padding: 8px 16px;
-  font-size: 14px;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  border: 1px solid #333;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.mode-switcher button:hover {
-  background-color: rgba(0, 0, 0, 0.8);
-}
-
-.mode-switcher button.active {
-  background-color: #1890ff;
-  border-color: #1890ff;
 }
 </style>

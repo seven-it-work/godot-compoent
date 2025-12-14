@@ -40,8 +40,8 @@ import Card from '../components/Card.vue';
 const mockMinion1 = {
   name: 'Alleycat',
   nameCN: '小巷幼猫',
-  attack: 1,
-  health: 1,
+  attack: 999991,
+  health: 19999999,
   tier: 1,
   minionTypesCN: ['野兽'],
   keywords: ['taunt', 'divine_shield'],
@@ -107,7 +107,6 @@ const mockSpell3 = {
 
 <style scoped>
 .test-index {
-  padding: 20px;
   color: white;
   text-align: center;
 }

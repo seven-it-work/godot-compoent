@@ -27,8 +27,6 @@
     <template v-else-if="cardType === 'spell'">
       <div class="spell-card-inner">
         <div class="spell-name">{{ spell.nameCN }}</div>
-        <div class="spell-description">{{ spell.text }}</div>
-        <div class="spell-type">{{ spell.type === 'shaping' ? '塑造法术' : '法术' }}</div>
       </div>
     </template>
   </div>
@@ -121,9 +119,8 @@ const handleClick = () => {
   transition: all 0.25s ease;
   position: relative;
   box-shadow: 0 0.8vmin 3.2vmin rgba(0, 0, 0, 0.15);
-  width: 61vmin;
-  height: 80vmin;
-  padding: 6vmin;
+  width: 35vmin;
+  height: 45vmin;
 }
 
 /* 随从卡片样式 */
@@ -202,7 +199,7 @@ const handleClick = () => {
 
 .minion-name {
   text-align: center;
-  font-size: 8vmin;
+  font-size: 12vmin;
   font-weight: bold;
   color: #2c3e50;
   text-shadow: 0 0.4vmin 0.8vmin rgba(255, 255, 255, 0.8);
@@ -212,27 +209,20 @@ const handleClick = () => {
 .minion-stats {
   display: flex;
   justify-content: space-around;
-  font-size: 12vmin;
+  font-size: 6vmin;
   font-weight: bold;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 4vmin;
-  padding: 2vmin 0;
 }
 
 .attack {
   color: #e74c3c;
   background: rgba(231, 76, 60, 0.1);
   border-radius: 6vmin;
-  text-shadow: 0 0.4vmin 0.8vmin rgba(0, 0, 0, 0.1);
-  padding: 0.8vmin 6vmin;
 }
 
 .health {
   color: #27ae60;
   background: rgba(39, 174, 96, 0.1);
   border-radius: 6vmin;
-  text-shadow: 0 0.4vmin 0.8vmin rgba(0, 0, 0, 0.1);
-  padding: 0.8vmin 6vmin;
 }
 
 .minion-keywords {
@@ -304,7 +294,10 @@ const handleClick = () => {
 .spell-card-inner {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  height: 100%;
 }
 
 .spell-name {
@@ -312,33 +305,5 @@ const handleClick = () => {
   font-weight: bold;
   color: white;
   text-align: center;
-  white-space: nowrap;
-  overflow: auto;
-  text-overflow: ellipsis;
-  margin-bottom: 4vmin;
-}
-
-.spell-description {
-  font-size: 6vmin;
-  color: #cccccc;
-  text-align: center;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1.4;
-  overflow: auto;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  margin-bottom: 4vmin;
-}
-
-.spell-type {
-  font-size: 4.8vmin;
-  color: #ffff00;
-  text-align: center;
-  font-weight: bold;
 }
 </style>
