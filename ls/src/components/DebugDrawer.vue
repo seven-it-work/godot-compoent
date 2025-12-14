@@ -9,6 +9,44 @@
     <div class="debug-info">
       <h3>调试功能</h3>
 
+      <!-- 宽高比调整控制区 -->
+      <div class="debug-section">
+        <h4>调整卡片宽高比</h4>
+        <div class="ratio-buttons">
+          <button
+            v-for="(ratio, key) in ratios"
+            :key="key"
+            @click="changeRatio(key)"
+            :class="{ active: selectedRatio === key }"
+            class="debug-button"
+          >
+            {{ ratio.label }}
+          </button>
+        </div>
+        <div class="custom-ratio">
+          <div class="debug-control">
+            <input
+              type="number"
+              v-model.number="customWidth"
+              placeholder="宽度"
+              min="1"
+              max="100"
+              class="debug-input"
+            />
+            <span>:</span>
+            <input
+              type="number"
+              v-model.number="customHeight"
+              placeholder="高度"
+              min="1"
+              max="100"
+              class="debug-input"
+            />
+            <button @click="applyCustomRatio" class="debug-button">应用</button>
+          </div>
+        </div>
+      </div>
+
       <!-- 设置当前金币 -->
       <div class="debug-section">
         <h4>设置当前金币</h4>
@@ -99,7 +137,7 @@
 
 <script setup lang="ts">
 import { Drawer } from 'ant-design-vue';
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, provide } from 'vue';
 import { useGameStore } from '../stores/game';
 import { Minion, MinionKeyword } from '../game/Minion';
 
@@ -115,6 +153,38 @@ const _props = defineProps<Props>();
 
 // 使用游戏store
 const gameStore = useGameStore();
+
+// 宽高比选项
+const ratios = {
+  '3/4': { label: '4:3 (默认)', value: '3/4' },
+  '1/1': { label: '1:1 正方形', value: '1/1' },
+  '2/3': { label: '3:2 宽屏', value: '2/3' },
+  '16/9': { label: '16:9 电影', value: '16/9' },
+  '21/9': { label: '21:9 超宽屏', value: '21/9' },
+  '9/16': { label: '16:9 手机', value: '9/16' },
+};
+
+// 当前选中的宽高比
+const selectedRatio = ref('3/4');
+
+// 自定义宽高比输入
+const customWidth = ref<number | null>(null);
+const customHeight = ref<number | null>(null);
+
+// 提供宽高比状态给子组件
+provide('cardRatio', selectedRatio);
+
+// 改变宽高比
+const changeRatio = (ratioKey: string) => {
+  selectedRatio.value = ratioKey;
+};
+
+// 应用自定义宽高比
+const applyCustomRatio = () => {
+  if (customWidth.value && customHeight.value && customWidth.value > 0 && customHeight.value > 0) {
+    selectedRatio.value = `${customWidth.value}/${customHeight.value}`;
+  }
+};
 
 // 从localStorage读取保存的搜索配置
 const loadSearchConfig = () => {
@@ -384,6 +454,37 @@ const addSpecificMinion = (minion: Minion) => {
   text-align: center;
   color: #999;
   font-size: 14px;
+}
+
+/* 宽高比控制样式 */
+.ratio-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.ratio-buttons .debug-button {
+  margin-bottom: 5px;
+}
+
+.ratio-buttons .debug-button.active {
+  background-color: #2196f3;
+}
+
+.custom-ratio {
+  margin-top: 10px;
+}
+
+.custom-ratio .debug-control {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.custom-ratio .debug-control span {
+  margin: 0 5px;
+  color: #555;
 }
 
 .debug-info p {

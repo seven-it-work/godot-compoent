@@ -7,6 +7,7 @@
         v-for="(card, index) in player?.cards"
         :key="card.id || index"
         class="hand-slot"
+        :style="{ aspectRatio: cardRatio }"
         draggable="true"
         @dragstart="onDragStart($event, 'hand', index, card)"
       >
@@ -24,7 +25,12 @@
       </div>
 
       <!-- 空手牌槽，根据剩余空间动态生成 -->
-      <div v-for="index in emptySlots" :key="`empty-${index}`" class="hand-slot empty">
+      <div
+        v-for="index in emptySlots"
+        :key="`empty-${index}`"
+        class="hand-slot empty"
+        :style="{ aspectRatio: cardRatio }"
+      >
         <div class="empty-slot">
           <span>空</span>
         </div>
@@ -34,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, inject, ref } from 'vue';
 import { useGameStore } from '../stores/game';
 import { Card } from '../game/Card';
 import { Minion } from '../game/Minion';
@@ -45,6 +51,9 @@ import SpellCard from './SpellCard.vue';
 // 使用游戏store
 const gameStore = useGameStore();
 const { player } = gameStore;
+
+// 从父组件注入宽高比状态
+const cardRatio = inject('cardRatio', ref('3/4'));
 
 // 计算空手牌槽数量
 const emptySlots = computed(() => {

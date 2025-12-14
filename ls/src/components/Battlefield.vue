@@ -10,6 +10,7 @@
           :key="slotIndex"
           class="player-minion-slot"
           :class="{ empty: !playerMinions?.[slotIndex - 1] }"
+          :style="{ aspectRatio: cardRatio }"
           @click="
             selectPlayerMinion(playerMinions?.[slotIndex - 1] as Minion | undefined, slotIndex - 1)
           "
@@ -42,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, inject } from 'vue';
 import { Minion } from '../game/Minion';
 import { useGameStore } from '../stores/game';
 import MinionCard from './MinionCard.vue';
@@ -50,6 +51,9 @@ import MinionCard from './MinionCard.vue';
 // 使用游戏store
 const gameStore = useGameStore();
 const { player } = gameStore;
+
+// 从父组件注入宽高比状态
+const cardRatio = inject('cardRatio', ref('3/4'));
 
 // 拖拽起始索引
 const dragStartIndex = ref<number | null>(null);

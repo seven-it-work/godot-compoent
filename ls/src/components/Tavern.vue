@@ -8,6 +8,7 @@
         :key="slotIndex"
         class="minion-slot"
         :class="{ empty: !tavern?.availableMinions?.[slotIndex - 1] }"
+        :style="{ aspectRatio: cardRatio }"
         draggable="true"
         @dragstart="
           onDragStart($event, 'tavern', slotIndex - 1, tavern?.availableMinions?.[slotIndex - 1])
@@ -36,11 +37,15 @@
 </template>
 
 <script setup lang="ts">
+import { inject, ref } from 'vue';
 import { Minion } from '../game/Minion';
 import { useGameStore } from '../stores/game';
 import MinionCard from './MinionCard.vue';
 
 const gameStore = useGameStore();
+
+// 从父组件注入宽高比状态
+const cardRatio = inject('cardRatio', ref('3/4'));
 
 // 从gameStore获取tavern
 const tavern = gameStore.tavern;
@@ -134,6 +139,97 @@ const onDrop = (event: DragEvent, target: string) => {
   border: 1px solid #dcdfe6;
 }
 
+/* 宽高比控制区域 */
+.ratio-controls {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ratio-controls h3 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+.ratio-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.ratio-buttons button {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border: 2px solid #dcdfe6;
+  border-radius: 8px;
+  padding: 8px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.ratio-buttons button:hover {
+  background: linear-gradient(135deg, #e0e6ed 0%, #a3b9d6 100%);
+  border-color: #409eff;
+  transform: translateY(-2px);
+}
+
+.ratio-buttons button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #409eff;
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.custom-ratio h4 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: #555;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-group input {
+  width: 60px;
+  padding: 8px;
+  border: 2px solid #dcdfe6;
+  border-radius: 6px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.input-group span {
+  font-size: 18px;
+  font-weight: bold;
+  color: #555;
+}
+
+.input-group button {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  border: none;
+  border-radius: 6px;
+  padding: 8px 15px;
+  font-size: 14px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.input-group button:hover {
+  background: linear-gradient(135deg, #369aff 0%, #00e5ff 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+}
+
 .minions-area {
   display: flex;
   justify-content: center;
@@ -150,9 +246,10 @@ const onDrop = (event: DragEvent, target: string) => {
 .minion-slot {
   /* 使用flex-grow和flex-basis实现响应式宽度 */
   flex: 1 0 calc(14% - 12px); /* 7个槽，减去间距 */
-  height: auto;
   position: relative;
   transition: all 0.2s ease;
+
+  height: auto;
 }
 
 .minion-slot:hover {
