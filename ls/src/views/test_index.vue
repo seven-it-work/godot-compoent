@@ -2,36 +2,27 @@
   <div class="main-frame">
     <div class="top-section">
       <!-- 酒馆区域 -->
-      <div class="row">
-        <HearthstoneCard v-for="i in 7" :key="`top-${i}`"></HearthstoneCard>
-      </div>
+      <HearthstoneTavern></HearthstoneTavern>
       <!-- end 酒馆区域 -->
-      <!-- 战场区域 -->
-      <div class="row">
-        <HearthstoneCard v-for="i in 7" :key="`middle-${i}`"></HearthstoneCard>
-      </div>
-      <!-- end 战场区域 -->
+      <!-- 炉石出战区域 -->
+      <HearthstoneBattlefield></HearthstoneBattlefield>
+      <!-- end 炉石出战区域 -->
     </div>
     <div class="bottom-section">
       <!-- 额外操作区域 -->
-      <div class="large-cell"></div>
+      <div class="large-cell">操作区域</div>
       <!-- end 额外操作区域 -->
       <!-- 手牌区域 -->
-      <div class="right-subsection">
-        <div class="row">
-          <HearthstoneCard v-for="i in 5" :key="`bottom-top-${i}`"></HearthstoneCard>
-        </div>
-        <div class="row">
-          <HearthstoneCard v-for="i in 5" :key="`bottom-bottom-${i}`"></HearthstoneCard>
-        </div>
-      </div>
+      <HearthstoneHand></HearthstoneHand>
       <!-- end 手牌区域 -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import HearthstoneCard from '../components/HearthstoneCard.vue';
+import HearthstoneBattlefield from '../components/HearthstoneBattlefield.vue';
+import HearthstoneHand from '../components/HearthstoneHand.vue';
+import HearthstoneTavern from '../components/HearthstoneTavern.vue';
 </script>
 
 <style scoped>
