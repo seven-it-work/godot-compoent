@@ -1,5 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
 // 定义路由配置
 const routes: RouteRecordRaw[] = [
@@ -14,9 +14,9 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/GameIndex.vue'),
   },
   {
-    path: '/test_idex',
-    name: '测试首页',
-    component: () => import('../views/test_index.vue'),
+    path: '/game-view',
+    name: '游戏视图',
+    component: () => import('../views/GameView.vue'),
   },
   {
     path: '/game',
