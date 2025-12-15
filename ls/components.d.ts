@@ -20,6 +20,7 @@ declare module 'vue' {
     DebugDrawer: typeof import('./src/components/DebugDrawer.vue')['default']
     GameBoard: typeof import('./src/components/GameBoard.vue')['default']
     Hand: typeof import('./src/components/Hand.vue')['default']
+    HearthstoneCard: typeof import('./src/components/HearthstoneCard.vue')['default']
     MinionCard: typeof import('./src/components/MinionCard.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

@@ -14,9 +14,9 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/GameIndex.vue'),
   },
   {
-    path: '/test-index',
+    path: '/test_idex',
     name: '测试首页',
-    component: () => import('../views/TestIndex.vue'),
+    component: () => import('../views/test_index.vue'),
   },
   {
     path: '/game',
