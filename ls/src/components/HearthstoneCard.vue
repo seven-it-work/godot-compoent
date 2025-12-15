@@ -115,7 +115,8 @@
 .card-bottom {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 20%;
 }
 
 /* 底部文本 */
@@ -124,6 +125,7 @@
   gap: 10%;
   font-size: 2vw;
   font-weight: bold;
+  justify-content: center;
 }
 
 .text-item {
