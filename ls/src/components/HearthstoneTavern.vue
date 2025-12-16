@@ -4,7 +4,7 @@
     <HearthstoneCard
       v-for="slotIndex in 7"
       :key="`tavern-${slotIndex}`"
-      :card="tavern?.availableMinions?.[slotIndex - 1] as Minion"
+      :card="tavern?.availableMinions?.[slotIndex - 1]"
       :is-selected="
         gameStore.selectedMinion?.instanceId ===
         tavern?.availableMinions?.[slotIndex - 1]?.instanceId
@@ -12,17 +12,17 @@
       :is-highlighted="
         isMinionHighlighted(tavern?.availableMinions?.[slotIndex - 1], 'tavern', slotIndex - 1)
       "
-      @click="selectMinion(tavern?.availableMinions?.[slotIndex - 1] as Minion, slotIndex - 1)"
+      @click="selectMinion(tavern?.availableMinions?.[slotIndex - 1], slotIndex - 1)"
       draggable="true"
       @dragstart="
         onDragStart($event, 'tavern', slotIndex - 1, tavern?.availableMinions?.[slotIndex - 1])
       "
+      :source="'tavern'"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Minion } from '../game/Minion';
 import { useGameStore } from '../stores/game';
 import HearthstoneCard from './HearthstoneCard.vue';
 
@@ -32,7 +32,7 @@ const gameStore = useGameStore();
 const tavern = gameStore.tavern;
 
 // 选择/取消选择随从
-const selectMinion = (minion: Minion, index: number) => {
+const selectMinion = (minion: any, index: number) => {
   // 如果当前处于法术选择目标状态，选择该随从作为目标
   if (gameStore.spellUsageState === 'selecting_target' && gameStore.selectedSpell) {
     // 查找该随从是否在可用目标列表中

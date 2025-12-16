@@ -56,11 +56,11 @@ const gameStore = useGameStore();
 
 // 定义组件属性
 const props = defineProps<{
-  card: Card | null;
+  card: Card | null | undefined;
   isSelected?: boolean;
   isHighlighted?: boolean;
   index?: number;
-  source: 'battlefield' | 'tavern' | 'hand' | null;
+  source: 'battlefield' | 'tavern' | 'hand' | undefined;
 }>();
 
 // 定义组件事件
