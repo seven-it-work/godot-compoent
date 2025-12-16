@@ -210,21 +210,36 @@ export const useGameStore = defineStore('game', {
 
     // 购买随从
     buyMinion(index: number) {
+      console.log(`[gameStore] 接收到购买请求，尝试购买酒馆第${index}个位置的随从`);
       if (this.tavern && this.player) {
         // 先获取要购买的随从，但不从酒馆中移除
         const minion = this.tavern.availableMinions[index];
         if (minion) {
+          console.log(`[gameStore] 找到要购买的随从: ${minion.name}，花费: ${minion.cost}`);
           // 检查是否可以购买（金币足够，手牌有空间）
           const playerMinionCards = this.player.cards.filter(card => card.cardType === 'minion');
+          console.log(`[gameStore] 玩家当前金币: ${this.player.gold}，手牌随从数量: ${playerMinionCards.length}`);
+          
           if (this.player.gold >= minion.cost && playerMinionCards.length < 7) {
+            console.log(`[gameStore] 购买条件满足，开始购买流程`);
             // 从酒馆中移除该随从
             const removedMinion = this.tavern.buyMinion(index);
             if (removedMinion) {
               // 执行招募操作
-              return this.player.recruitMinion(removedMinion);
+              const success = this.player.recruitMinion(removedMinion);
+              console.log(`[gameStore] 招募结果: ${success}`);
+              return success;
+            } else {
+              console.log(`[gameStore] 从酒馆移除随从失败`);
             }
+          } else {
+            console.log(`[gameStore] 购买条件不满足: ${this.player.gold < minion.cost ? '金币不足' : '手牌已满'}`);
           }
+        } else {
+          console.log(`[gameStore] 酒馆第${index}个位置没有随从`);
         }
+      } else {
+        console.log(`[gameStore] 酒馆或玩家未初始化`);
       }
       return false;
     },

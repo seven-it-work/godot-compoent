@@ -84,18 +84,18 @@ const onDrop = (event: DragEvent, target: string) => {
   if (data) {
     try {
       const dragData = JSON.parse(data);
+      console.log(`[拖拽放置] 从${dragData.source}拖拽第${dragData.index}个位置的卡牌到手牌`);
       // 如果是从酒馆拖拽到手牌，执行购买操作
       if (dragData.source === 'tavern' && target === 'hand') {
         // 找到对应的酒馆随从索引
         const tavernIndex = dragData.index;
+        console.log(`[购买随从] 尝试购买酒馆第${tavernIndex}个位置的随从`);
         // 购买随从，只有当条件满足时，卡片才会从酒馆移除
         const success = gameStore.buyMinion(tavernIndex);
-        if (!success) {
-          console.log('购买失败，可能是金币不足或手牌已满');
-        }
+        console.log(`[购买结果] ${success ? '购买成功' : '购买失败，可能是金币不足或手牌已满'}`);
       }
-    } catch (_error) {
-      // console.error('无效的拖拽数据:', error);
+    } catch (error) {
+      console.error('无效的拖拽数据:', error);
     }
   }
 };

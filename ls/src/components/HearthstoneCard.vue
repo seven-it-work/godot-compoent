@@ -117,22 +117,57 @@ const onDragStart = (event: DragEvent) => {
 
   isDragging.value = true;
 
+  // 设置自定义拖拽图像，解决拖拽对象过大问题
+  if (event.dataTransfer && event.target) {
+    // 创建一个新的拖拽图像元素
+    const dragImage = document.createElement('div');
+    dragImage.className = 'hearthstone-card-drag-image';
+    dragImage.textContent = props.card?.name || 'Card';
+
+    // 设置拖拽图像样式
+    dragImage.style.position = 'absolute';
+    dragImage.style.top = '-1000px';
+    dragImage.style.left = '-1000px';
+    dragImage.style.width = '150px';
+    dragImage.style.height = '200px';
+    dragImage.style.border = '2px solid #000';
+    dragImage.style.backgroundColor = '#e0e0e0';
+    dragImage.style.borderRadius = '8px';
+    dragImage.style.display = 'flex';
+    dragImage.style.alignItems = 'center';
+    dragImage.style.justifyContent = 'center';
+    dragImage.style.fontSize = '16px';
+    dragImage.style.fontWeight = 'bold';
+
+    // 将拖拽图像添加到文档中
+    document.body.appendChild(dragImage);
+
+    // 设置拖拽图像
+    event.dataTransfer.setDragImage(dragImage, 75, 100);
+
+    // 拖拽结束后移除拖拽图像
+    setTimeout(() => {
+      document.body.removeChild(dragImage);
+    }, 0);
+  }
+
   if (cardType === 'spell') {
     // 法术卡片拖拽，使用自定义逻辑
     gameStore.startSpellDrag(event, cardData, props.index || 0);
     event.preventDefault();
   } else {
     // 其他卡片类型使用原有拖拽逻辑
-    event.dataTransfer?.setData(
-      'text/plain',
-      JSON.stringify({
-        source: props.source || 'hand',
-        index: props.index || 0,
-        cardId: cardData.id || cardData.instanceId,
-        strId: cardData.strId,
-        cardType: cardType,
-      })
+    const dragData = {
+      source: props.source || 'hand',
+      index: props.index || 0,
+      cardId: cardData.id || cardData.instanceId,
+      strId: cardData.strId,
+      cardType: cardType,
+    };
+    console.log(
+      `[拖拽开始] 从${dragData.source}拖拽第${dragData.index}个位置的${dragData.cardType}`
     );
+    event.dataTransfer?.setData('text/plain', JSON.stringify(dragData));
   }
 };
 

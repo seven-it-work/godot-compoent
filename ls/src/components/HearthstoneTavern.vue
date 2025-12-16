@@ -5,6 +5,7 @@
       v-for="slotIndex in 7"
       :key="`tavern-${slotIndex}`"
       :card="tavern?.availableMinions?.[slotIndex - 1]"
+      :index="slotIndex - 1"
       :is-selected="
         gameStore.selectedMinion?.instanceId ===
         tavern?.availableMinions?.[slotIndex - 1]?.instanceId
