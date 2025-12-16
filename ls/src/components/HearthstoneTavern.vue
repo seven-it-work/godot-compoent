@@ -1,47 +1,32 @@
 <template>
   <div class="row" @dragover.prevent="onDragOver" @drop="onDrop($event, 'tavern')">
-    <!-- 固定7个格子，每个格子对应一个位置 -->
-    <div
+    <!-- 直接渲染7个HearthstoneCard组件 -->
+    <HearthstoneCard
       v-for="slotIndex in 7"
       :key="`tavern-${slotIndex}`"
-      class="card-slot"
-      :class="{ empty: !tavern?.availableMinions?.[slotIndex - 1] }"
+      :card="tavern?.availableMinions?.[slotIndex - 1] as Minion"
+      :is-selected="
+        gameStore.selectedMinion?.instanceId ===
+        tavern?.availableMinions?.[slotIndex - 1]?.instanceId
+      "
+      :is-highlighted="
+        isMinionHighlighted(tavern?.availableMinions?.[slotIndex - 1], 'tavern', slotIndex - 1)
+      "
+      @click="selectMinion(tavern?.availableMinions?.[slotIndex - 1] as Minion, slotIndex - 1)"
       draggable="true"
       @dragstart="
         onDragStart($event, 'tavern', slotIndex - 1, tavern?.availableMinions?.[slotIndex - 1])
       "
-    >
-      <!-- 如果该位置有随从，渲染随从卡片 -->
-      <HearthstoneCard
-        v-if="tavern?.availableMinions?.[slotIndex - 1]"
-        :minion="tavern.availableMinions[slotIndex - 1] as Minion"
-        :is-selected="
-          gameStore.selectedMinion?.instanceId ===
-          tavern.availableMinions[slotIndex - 1]?.instanceId
-        "
-        :is-highlighted="
-          isMinionHighlighted(tavern.availableMinions[slotIndex - 1], 'tavern', slotIndex - 1)
-        "
-        @click="selectMinion(tavern.availableMinions[slotIndex - 1] as Minion, slotIndex - 1)"
-      />
-      <!-- 如果该位置没有随从，渲染空槽 -->
-      <div v-else class="empty-slot">
-        <span>空</span>
-      </div>
-    </div>
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { inject, ref } from 'vue';
 import { Minion } from '../game/Minion';
 import { useGameStore } from '../stores/game';
 import HearthstoneCard from './HearthstoneCard.vue';
 
 const gameStore = useGameStore();
-
-// 从父组件注入宽高比状态
-const cardRatio = inject('cardRatio', ref('3/4'));
 
 // 从gameStore获取tavern
 const tavern = gameStore.tavern;
@@ -125,27 +110,7 @@ const onDrop = (event: DragEvent, target: string) => {
 .row {
   display: flex;
   flex: 1;
-}
-
-.card-slot {
-  flex: 1;
-  position: relative;
-  transition: all 0.2s ease;
-  margin: 0 5px;
-}
-
-.card-slot.empty {
-  border: 2px dashed #c0c4cc;
-  border-radius: 8px;
-  background-color: rgba(240, 242, 245, 0.5);
-  display: flex;
-  align-items: center;
+  gap: 15px;
   justify-content: center;
-}
-
-.empty-slot {
-  font-size: 10vh;
-  color: #909399;
-  font-weight: 500;
 }
 </style>

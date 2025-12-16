@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="props.card"
     class="hearthstone-card"
     :class="{ selected: isSelected, highlighted: isHighlighted }"
     @click="selectCard"
@@ -42,27 +43,24 @@
       </div>
     </div>
   </div>
+  <div v-else class="hearthstone-card hearthstone-card-empty">空</div>
 </template>
 
 <script setup lang="ts">
-import { defineEmits, defineProps } from 'vue';
 import type { Card } from '../game/Card';
 import type { Minion } from '../game/Minion';
 import type { Spell } from '../game/Spell';
 import { useGameStore } from '../stores/game';
-
 // 使用游戏store
 const gameStore = useGameStore();
 
 // 定义组件属性
 const props = defineProps<{
-  card?: Card;
-  minion?: Minion;
-  spell?: Spell;
+  card: Card | null;
   isSelected?: boolean;
   isHighlighted?: boolean;
   index?: number;
-  source?: string;
+  source: 'battlefield' | 'tavern' | 'hand' | null;
 }>();
 
 // 定义组件事件
@@ -77,14 +75,6 @@ const selectCard = () => {
       gameStore.selectSpell(props.card as Spell, props.index || 0);
     }
     emit('card-selected', props.card, props.index);
-  } else if (props.minion) {
-    // 向后兼容：如果直接传入minion属性
-    gameStore.selectMinion(props.minion, props.index || 0, props.source || 'hand');
-    emit('card-selected', props.minion, props.index);
-  } else if (props.spell) {
-    // 向后兼容：如果直接传入spell属性
-    gameStore.selectSpell(props.spell, props.index || 0);
-    emit('card-selected', props.spell, props.index);
   }
   emit('click');
 };
@@ -97,12 +87,6 @@ const onDragStart = (event: DragEvent) => {
   if (props.card) {
     cardData = props.card;
     cardType = props.card.cardType;
-  } else if (props.minion) {
-    cardData = props.minion;
-    cardType = 'minion';
-  } else if (props.spell) {
-    cardData = props.spell;
-    cardType = 'spell';
   }
 
   if (!cardData) {
@@ -133,8 +117,6 @@ const onDragStart = (event: DragEvent) => {
 const getCardTier = () => {
   if (props.card?.cardType === 'minion') {
     return (props.card as Minion).tier;
-  } else if (props.minion) {
-    return props.minion.tier;
   }
   return 2;
 };
@@ -143,10 +125,6 @@ const getCardTier = () => {
 const getCardCost = () => {
   if (props.card) {
     return props.card.cost;
-  } else if (props.minion) {
-    return props.minion.cost;
-  } else if (props.spell) {
-    return props.spell.cost;
   }
   return 1;
 };
@@ -155,10 +133,6 @@ const getCardCost = () => {
 const getCardName = () => {
   if (props.card) {
     return props.card.name;
-  } else if (props.minion) {
-    return props.minion.name;
-  } else if (props.spell) {
-    return props.spell.name;
   }
   return '名称';
 };
@@ -167,8 +141,6 @@ const getCardName = () => {
 const getCardAttack = () => {
   if (props.card?.cardType === 'minion') {
     return (props.card as Minion).attack;
-  } else if (props.minion) {
-    return props.minion.attack;
   }
   return 999999;
 };
@@ -177,8 +149,6 @@ const getCardAttack = () => {
 const getCardHealth = () => {
   if (props.card?.cardType === 'minion') {
     return (props.card as Minion).health;
-  } else if (props.minion) {
-    return props.minion.health;
   }
   return 999999;
 };
@@ -186,9 +156,7 @@ const getCardHealth = () => {
 // 获取卡片种族
 const getCardRace = () => {
   if (props.card?.cardType === 'minion') {
-    return (props.card as Minion).race;
-  } else if (props.minion) {
-    return props.minion.race;
+    return (props.card as Minion).minionTypes?.join('/');
   }
   return null;
 };
@@ -197,10 +165,6 @@ const getCardRace = () => {
 const getCardType = () => {
   if (props.card) {
     return props.card.cardType;
-  } else if (props.minion) {
-    return 'minion';
-  } else if (props.spell) {
-    return 'spell';
   }
   return null;
 };
@@ -318,5 +282,18 @@ const getCardType = () => {
 .hearthstone-card.highlighted {
   border-color: #409eff;
   box-shadow: 0 0 15px rgba(64, 158, 255, 0.7);
+}
+
+/* 空卡片样式 */
+.hearthstone-card-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10vh;
+  font-weight: 500;
+  color: #909399;
+  border: 2px dashed #c0c4cc;
+  border-radius: 8px;
+  background-color: rgba(240, 242, 245, 0.5);
 }
 </style>

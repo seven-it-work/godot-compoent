@@ -120,10 +120,8 @@ const createMinionPool = () => {
     })
     .filter((minion): minion is Minion => minion !== null);
 
-  // 酒馆专用池 - 只包含基础随从
-  const tavernMinionPool = globalMinionPool.filter(
-    minion => !minion.isToken && !minion.isHeroPowerMinion
-  );
+  // 酒馆专用池 - 使用全局池
+  const tavernMinionPool = globalMinionPool;
 
   // 返回两个池：全局池和酒馆专用池
   return { globalMinionPool, tavernMinionPool };
@@ -212,8 +210,10 @@ onMounted(() => {
     const randomIndex = Math.floor(Math.random() * gameStore.availableHeroes.length);
     const randomHero = gameStore.availableHeroes[randomIndex];
     // 选择并初始化英雄
-    selectHero(randomHero.id);
-    console.log('页面加载时随机选择了英雄:', randomHero.name);
+    if (randomHero) {
+      selectHero(randomHero.id);
+      console.log('页面加载时随机选择了英雄:', randomHero.name || '未知英雄');
+    }
   }
 });
 </script>
