@@ -10,7 +10,7 @@
     </div>
     <div class="bottom-section">
       <!-- 额外操作区域 -->
-      <div class="large-cell">操作区域</div>
+      <ActionArea></ActionArea>
       <!-- end 额外操作区域 -->
       <!-- 手牌区域 -->
       <HearthstoneHand></HearthstoneHand>
@@ -24,6 +24,7 @@ import { onMounted } from 'vue';
 import HearthstoneBattlefield from '../components/HearthstoneBattlefield.vue';
 import HearthstoneHand from '../components/HearthstoneHand.vue';
 import HearthstoneTavern from '../components/HearthstoneTavern.vue';
+import ActionArea from '../components/ActionArea.vue';
 import heroesData from '../data/heroes.json';
 import minionsData from '../data/minions.json';
 import { AIPlayer } from '../game/AIPlayer';

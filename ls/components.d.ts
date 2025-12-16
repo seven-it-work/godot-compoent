@@ -14,6 +14,7 @@ declare module 'vue' {
     AButton: typeof import('ant-design-vue/es')['Button']
     ACard: typeof import('ant-design-vue/es')['Card']
     ACol: typeof import('ant-design-vue/es')['Col']
+    ActionArea: typeof import('./src/components/ActionArea.vue')['default']
     ARow: typeof import('ant-design-vue/es')['Row']
     Battlefield: typeof import('./src/components/Battlefield.vue')['default']
     Card: typeof import('./src/components/Card.vue')['default']

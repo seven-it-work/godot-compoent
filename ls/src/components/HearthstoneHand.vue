@@ -103,6 +103,7 @@ const onDrop = (event: DragEvent, target: string) => {
 
 <style scoped>
 .right-subsection {
+  width: 70vw;
   flex: 1;
   display: flex;
   flex-direction: column;
