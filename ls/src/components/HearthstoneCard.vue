@@ -20,7 +20,7 @@
       <span class="circle-text big">{{ getCardTier() }}</span>
     </div>
     <!-- 酒馆购买花费 -->
-    <div class="corner-circle top-right">
+    <div v-if="props.source === 'tavern'" class="corner-circle top-right">
       <span class="circle-text big">{{ getCardCost() }}</span>
     </div>
 
@@ -32,8 +32,8 @@
       <slot></slot>
     </div>
 
-    <!-- 底部区域 -->
-    <div class="card-bottom">
+    <!-- 底部区域 - 只有随从才显示 -->
+    <div v-if="props.card?.cardType === 'minion'" class="card-bottom">
       <!-- 攻击力 -->
       <div class="corner-circle bottom-left">
         <span class="circle-text attack">{{ getCardAttack() }}</span>
@@ -42,7 +42,6 @@
       <!-- 种族 -->
       <div class="bottom-texts">
         <span v-if="getCardRace()" class="text-item">{{ getCardRace() }}</span>
-        <span v-if="getCardType()" class="text-item">{{ getCardType() }}</span>
       </div>
 
       <!-- 生命值 -->
@@ -205,7 +204,7 @@ const getCardCost = () => {
 // 获取卡片名称
 const getCardName = () => {
   if (props.card) {
-    return props.card.name;
+    return props.card.nameCN;
   }
   return '名称';
 };
@@ -229,15 +228,7 @@ const getCardHealth = () => {
 // 获取卡片种族
 const getCardRace = () => {
   if (props.card?.cardType === 'minion') {
-    return (props.card as Minion).minionTypes?.join('/');
-  }
-  return null;
-};
-
-// 获取卡片类型
-const getCardType = () => {
-  if (props.card) {
-    return props.card.cardType;
+    return (props.card as Minion).minionTypesCN?.join('/');
   }
   return null;
 };

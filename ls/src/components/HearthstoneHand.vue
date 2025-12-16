@@ -98,8 +98,8 @@ const onDrop = (event: DragEvent, target: string) => {
         const success = gameStore.buyMinion(tavernIndex);
         console.log(`[购买结果] ${success ? '购买成功' : '购买失败，可能是金币不足或手牌已满'}`);
       }
-    } catch (error) {
-      console.error('无效的拖拽数据:', error);
+    } catch (_error) {
+      // console.error('无效的拖拽数据:', error);
     }
   }
 };

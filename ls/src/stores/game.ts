@@ -230,19 +230,10 @@ export const useGameStore = defineStore('game', {
               const success = this.player.recruitMinion(removedMinion);
               console.log(`[gameStore] 招募结果: ${success}`);
 
-              // 手动触发响应式更新，确保cards数组变化被Vue检测到
+              // Pinia会自动处理响应式更新，不需要手动创建新对象
+              // 当player.cards在recruitMinion方法中被修改时，Pinia会检测到变化并更新视图
               if (success) {
-                // 使用$patch更新player状态，确保响应式
-                this.$patch(state => {
-                  // 创建一个新的player对象来确保响应式更新
-                  if (state.player) {
-                    state.player = {
-                      ...state.player,
-                      cards: [...state.player.cards],
-                      gold: state.player.gold,
-                    };
-                  }
-                });
+                console.log('购买成功，响应式更新将自动触发');
               }
 
               return success;
