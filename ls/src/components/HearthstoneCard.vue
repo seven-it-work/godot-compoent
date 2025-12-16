@@ -3,9 +3,10 @@
     v-if="props.card"
     class="hearthstone-card"
     :class="{ selected: isSelected, highlighted: isHighlighted }"
-    @click="selectCard"
+    @click="handleClick"
     draggable="true"
     @dragstart="onDragStart"
+    v-bind="$attrs"
   >
     <!-- 等级 -->
     <div class="corner-circle top-left">
@@ -43,7 +44,9 @@
       </div>
     </div>
   </div>
-  <div v-else class="hearthstone-card hearthstone-card-empty">空</div>
+  <div v-else class="hearthstone-card hearthstone-card-empty" :class="$attrs.class" v-bind="$attrs">
+    空
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -76,7 +79,12 @@ const selectCard = () => {
     }
     emit('card-selected', props.card, props.index);
   }
-  emit('click');
+};
+
+// 处理点击事件
+const handleClick = (event: MouseEvent) => {
+  selectCard();
+  emit('click', event);
 };
 
 // 拖拽开始事件
