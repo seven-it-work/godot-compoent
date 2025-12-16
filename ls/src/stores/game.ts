@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { Minion } from '../game/Minion';
 import { Player } from '../game/Player';
-import { Tavern } from '../game/Tavern';
 import { Spell } from '../game/Spell';
+import { Tavern } from '../game/Tavern';
 
 // 英雄类型定义
 interface HeroPower {
@@ -218,8 +218,10 @@ export const useGameStore = defineStore('game', {
           console.log(`[gameStore] 找到要购买的随从: ${minion.name}，花费: ${minion.cost}`);
           // 检查是否可以购买（金币足够，手牌有空间）
           const playerMinionCards = this.player.cards.filter(card => card.cardType === 'minion');
-          console.log(`[gameStore] 玩家当前金币: ${this.player.gold}，手牌随从数量: ${playerMinionCards.length}`);
-          
+          console.log(
+            `[gameStore] 玩家当前金币: ${this.player.gold}，手牌随从数量: ${playerMinionCards.length}`
+          );
+
           if (this.player.gold >= minion.cost && playerMinionCards.length < 7) {
             console.log(`[gameStore] 购买条件满足，开始购买流程`);
             // 从酒馆中移除该随从
@@ -228,12 +230,26 @@ export const useGameStore = defineStore('game', {
               // 执行招募操作
               const success = this.player.recruitMinion(removedMinion);
               console.log(`[gameStore] 招募结果: ${success}`);
+
+              // 手动触发响应式更新，确保cards数组变化被Vue检测到
+              if (success) {
+                // 使用$patch更新player状态，确保响应式
+                this.$patch(state => {
+                  // 重新赋值cards数组来确保响应式更新
+                  if (state.player) {
+                    state.player.cards = [...state.player.cards];
+                  }
+                });
+              }
+
               return success;
             } else {
               console.log(`[gameStore] 从酒馆移除随从失败`);
             }
           } else {
-            console.log(`[gameStore] 购买条件不满足: ${this.player.gold < minion.cost ? '金币不足' : '手牌已满'}`);
+            console.log(
+              `[gameStore] 购买条件不满足: ${this.player.gold < minion.cost ? '金币不足' : '手牌已满'}`
+            );
           }
         } else {
           console.log(`[gameStore] 酒馆第${index}个位置没有随从`);
