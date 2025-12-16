@@ -245,6 +245,8 @@ const getCardType = () => {
 
 <style scoped>
 .hearthstone-card {
+  height: 21vh;
+  width: 15vw;
   flex: 1;
   border: 2px solid #000;
   background-color: #e0e0e0;
@@ -258,9 +260,9 @@ const getCardType = () => {
 /* 角落圆形 */
 .corner-circle {
   position: absolute;
-  width: 5vw;
-  height: 9vh;
-  border-radius: 3vw;
+  width: 2.5vw;
+  height: 4vh;
+  border-radius: 2vw;
   border: 2px solid #000;
   background-color: white;
   display: flex;
@@ -290,7 +292,6 @@ const getCardType = () => {
 
 /* 圆形文本 */
 .circle-text {
-  font-size: 1vw;
   font-weight: bold;
   color: #000;
 }
@@ -298,7 +299,7 @@ const getCardType = () => {
 /* 卡牌名称 */
 .card-name {
   text-align: center;
-  font-size: 4vw;
+  font-size: 2vw;
   font-weight: bold;
   margin: 15% 0 5% 0;
 }
@@ -324,7 +325,7 @@ const getCardType = () => {
 .bottom-texts {
   display: flex;
   gap: 10%;
-  font-size: 2vw;
+  font-size: 1vw;
   font-weight: bold;
   justify-content: center;
 }
@@ -334,15 +335,15 @@ const getCardType = () => {
 }
 
 .attack {
-  font-size: 2vw;
+  font-size: 1vw;
   color: #ff5555;
 }
 .health {
-  font-size: 2vw;
+  font-size: 1vw;
   color: #55ff55;
 }
 .big {
-  font-size: 5vw;
+  font-size: 2vw;
 }
 
 /* 选中状态 */
