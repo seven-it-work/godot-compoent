@@ -48,28 +48,7 @@ const playerMinions = computed(() => {
   return player?.minions || [];
 });
 
-// 拖拽开始事件
-const onDragStart = (event: DragEvent, source: string, index: number, minion: any) => {
-  // 只有当minion存在时才执行拖拽逻辑
-  if (!minion) {
-    // 阻止默认拖拽行为
-    event.preventDefault();
-    return;
-  }
-
-  if (source === 'battlefield') {
-    dragStartIndex.value = index;
-  }
-  event.dataTransfer?.setData(
-    'text/plain',
-    JSON.stringify({
-      source,
-      index,
-      minionId: minion.instanceId,
-      strId: minion.strId,
-    })
-  );
-};
+// 拖拽开始事件将由HearthstoneCard组件内部处理
 
 // 拖拽经过事件
 const onDragOver = (event: DragEvent, _index: number) => {

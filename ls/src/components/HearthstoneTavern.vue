@@ -13,10 +13,6 @@
         isMinionHighlighted(tavern?.availableMinions?.[slotIndex - 1], 'tavern', slotIndex - 1)
       "
       @click="selectMinion(tavern?.availableMinions?.[slotIndex - 1], slotIndex - 1)"
-      draggable="true"
-      @dragstart="
-        onDragStart($event, 'tavern', slotIndex - 1, tavern?.availableMinions?.[slotIndex - 1])
-      "
       :source="'tavern'"
     />
   </div>
@@ -27,7 +23,7 @@ import { useGameStore } from '../stores/game';
 import HearthstoneCard from './HearthstoneCard.vue';
 
 const gameStore = useGameStore();
-
+console.log(gameStore);
 // 从gameStore获取tavern
 const tavern = gameStore.tavern;
 
@@ -42,15 +38,6 @@ const selectMinion = (minion: any, index: number) => {
 
     if (target) {
       gameStore.selectSpellTarget(target);
-    }
-  } else {
-    // 否则正常选择/取消选择随从
-    if (gameStore.selectedMinion && gameStore.selectedMinionIndex === index) {
-      // 取消选择
-      gameStore.cancelSelectMinion();
-    } else {
-      // 选择新的随从，来源为酒馆
-      gameStore.selectMinion(minion, index, 'tavern');
     }
   }
 };
@@ -67,21 +54,7 @@ const isMinionHighlighted = (minion: any, source: string, index: number) => {
   );
 };
 
-// 拖拽开始事件
-const onDragStart = (event: DragEvent, source: string, index: number, minion: any) => {
-  if (!minion) {
-    return;
-  }
-  event.dataTransfer?.setData(
-    'text/plain',
-    JSON.stringify({
-      source,
-      index,
-      minionId: minion.instanceId,
-      strId: minion.strId,
-    })
-  );
-};
+// 拖拽开始事件将由HearthstoneCard组件内部处理
 
 // 拖拽经过事件
 const onDragOver = (event: DragEvent) => {

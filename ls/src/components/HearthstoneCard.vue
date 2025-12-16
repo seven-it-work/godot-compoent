@@ -2,10 +2,17 @@
   <div
     v-if="props.card"
     class="hearthstone-card"
-    :class="{ selected: isSelected, highlighted: isHighlighted }"
+    :class="{
+      selected: isSelected,
+      highlighted: isHighlighted,
+      dragging: isDragging,
+    }"
     @click="handleClick"
     draggable="true"
     @dragstart="onDragStart"
+    @dragend="onDragEnd"
+    @mouseenter="onMouseEnter"
+    @mouseleave="onMouseLeave"
     v-bind="$attrs"
   >
     <!-- 等级 -->
@@ -50,6 +57,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import type { Card } from '../game/Card';
 import type { Minion } from '../game/Minion';
 import type { Spell } from '../game/Spell';
@@ -62,6 +70,7 @@ const props = defineProps<{
   card: Card | null | undefined;
   isSelected?: boolean;
   isHighlighted?: boolean;
+  isDragging?: boolean;
   index?: number;
   source: 'battlefield' | 'tavern' | 'hand' | undefined;
 }>();
@@ -87,6 +96,10 @@ const handleClick = (event: MouseEvent) => {
   emit('click', event);
 };
 
+// 定义组件状态
+const isDragging = ref(false);
+const isHovering = ref(false);
+
 // 拖拽开始事件
 const onDragStart = (event: DragEvent) => {
   let cardData: any = null;
@@ -101,6 +114,8 @@ const onDragStart = (event: DragEvent) => {
     event.preventDefault();
     return;
   }
+
+  isDragging.value = true;
 
   if (cardType === 'spell') {
     // 法术卡片拖拽，使用自定义逻辑
@@ -119,6 +134,21 @@ const onDragStart = (event: DragEvent) => {
       })
     );
   }
+};
+
+// 拖拽结束事件
+const onDragEnd = () => {
+  isDragging.value = false;
+};
+
+// 鼠标进入事件
+const onMouseEnter = () => {
+  isHovering.value = true;
+};
+
+// 鼠标离开事件
+const onMouseLeave = () => {
+  isHovering.value = false;
 };
 
 // 获取卡片等级
@@ -284,12 +314,36 @@ const getCardType = () => {
 .hearthstone-card.selected {
   border-color: #ffd700;
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+  transform: scale(1.05);
+  transition: all 0.2s ease;
 }
 
 /* 高亮状态 */
 .hearthstone-card.highlighted {
   border-color: #409eff;
   box-shadow: 0 0 15px rgba(64, 158, 255, 0.7);
+  transform: scale(1.03);
+  transition: all 0.2s ease;
+}
+
+/* 拖拽状态 */
+.hearthstone-card.dragging {
+  opacity: 0.7;
+  transform: scale(1.08) rotate(5deg);
+  transition: all 0.2s ease;
+  z-index: 100;
+}
+
+/* 悬停状态 */
+.hearthstone-card:hover:not(.dragging) {
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+/* 统一过渡动画 */
+.hearthstone-card {
+  transition: all 0.2s ease;
 }
 
 /* 空卡片样式 */

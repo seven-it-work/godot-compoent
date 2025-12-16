@@ -158,6 +158,7 @@ const initGame = (hero: any) => {
 
   // 创建酒馆 - 使用酒馆专用池
   const tavern = new Tavern(1, tavernMinionPool);
+  tavern.refresh();
 
   // 创建AI玩家
   const aiPlayers = [];

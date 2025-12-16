@@ -41,9 +41,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Card } from '../game/Card';
-import { Minion } from '../game/Minion';
-import { Spell } from '../game/Spell';
 import { useGameStore } from '../stores/game';
 import HearthstoneCard from './HearthstoneCard.vue';
 
@@ -77,16 +74,7 @@ const secondRowEmptySlots = computed(() => {
   return Math.max(0, maxSecondRowSlots - currentSecondRowCards);
 });
 
-// 选择卡片
-const selectCard = (card: Card | null, index: number) => {
-  if (card) {
-    if (card.cardType === 'minion') {
-      gameStore.selectMinion(card as Minion, index, 'hand');
-    } else if (card.cardType === 'spell') {
-      gameStore.selectSpell(card as Spell, index);
-    }
-  }
-};
+// 选择卡片功能现在由HearthstoneCard组件内部处理
 
 // 拖拽放置事件
 const onDrop = (event: DragEvent, target: string) => {
