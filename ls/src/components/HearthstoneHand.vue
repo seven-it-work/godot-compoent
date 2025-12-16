@@ -51,14 +51,14 @@ const player = computed(() => gameStore.player);
 
 // 计算第一行的卡牌（前5张）
 const firstRowCards = computed(() => {
-  if (!player?.cards) return [];
-  return player.cards.slice(0, 5);
+  if (!player.value?.cards) return [];
+  return player.value.cards.slice(0, 5);
 });
 
 // 计算第二行的卡牌（第6-10张）
 const secondRowCards = computed(() => {
-  if (!player?.cards) return [];
-  return player.cards.slice(5, 10);
+  if (!player.value?.cards) return [];
+  return player.value.cards.slice(5, 10);
 });
 
 // 计算第一行的空槽数量
@@ -75,7 +75,11 @@ const secondRowEmptySlots = computed(() => {
   return Math.max(0, maxSecondRowSlots - currentSecondRowCards);
 });
 
-// 选择卡片功能现在由HearthstoneCard组件内部处理
+// 选择卡片功能
+const selectCard = (card: any, index: number) => {
+  // 选择卡片的逻辑可以在这里添加
+  console.log(`选择了手牌中的第${index}个位置的卡片:`, card);
+};
 
 // 拖拽放置事件
 const onDrop = (event: DragEvent, target: string) => {

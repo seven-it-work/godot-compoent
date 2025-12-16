@@ -139,8 +139,8 @@ export class Player {
       return false;
     }
 
-    // 添加到手牌
-    this.cards.push(card);
+    // 创建新数组以确保响应式更新
+    this.cards = [...this.cards, card];
     return true;
   }
 
@@ -598,8 +598,8 @@ export class Player {
   addSpell(spell: Spell): boolean {
     // 检查手牌是否已满
     if (this.cards.length < this.maxCards) {
-      // 直接添加到手牌
-      this.cards.push(spell);
+      // 创建新数组以确保响应式更新
+      this.cards = [...this.cards, spell];
       return true;
     } else {
       // 手牌已满，只有塑造法术（shaping）才添加到待处理队列
@@ -660,8 +660,8 @@ export class Player {
       // 从待处理队列取出第一张卡片
       const card = this.pendingCards.shift();
       if (card) {
-        // 添加到手牌
-        this.cards.push(card);
+        // 创建新数组以确保响应式更新
+        this.cards = [...this.cards, card];
         addedCount++;
       }
     }
@@ -677,19 +677,24 @@ export class Player {
   onTurnEndCards(): number {
     let removedCount = 0;
 
-    // 处理手牌中的临时法术
-    for (let i = this.cards.length - 1; i >= 0; i--) {
-      const card = this.cards[i];
+    // 处理手牌中的临时法术，创建新数组以确保响应式更新
+    const newCards = [];
+    for (const card of this.cards) {
       if (card && card.cardType === 'spell') {
         const spell = card as Spell;
         // 调用法术的onTurnEnd方法
         if (spell.onTurnEnd()) {
           // 法术返回true，表示需要移除
-          this.cards.splice(i, 1);
           removedCount++;
+        } else {
+          newCards.push(card);
         }
+      } else {
+        newCards.push(card);
       }
     }
+
+    this.cards = newCards;
 
     // 处理完临时法术后，尝试添加待处理的卡片
     this.tryAddPendingCards();

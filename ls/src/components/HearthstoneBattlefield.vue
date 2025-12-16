@@ -10,18 +10,27 @@
         :index="slotIndex - 1"
         :source="'battlefield'"
         :is-selected="
-          playerMinions?.[slotIndex - 1] &&
-          gameStore.selectedMinion?.instanceId === playerMinions[slotIndex - 1]?.instanceId
+          Boolean(
+            playerMinions?.[slotIndex - 1] &&
+            gameStore.selectedMinion?.instanceId === playerMinions[slotIndex - 1]?.instanceId
+          )
         "
         :is-highlighted="
-          playerMinions?.[slotIndex - 1] &&
-          isMinionHighlighted(playerMinions[slotIndex - 1], 'battlefield', slotIndex - 1)
+          Boolean(
+            playerMinions?.[slotIndex - 1] &&
+            isMinionHighlighted(playerMinions[slotIndex - 1], 'battlefield', slotIndex - 1)
+          )
         "
         :class="{ empty: !playerMinions?.[slotIndex - 1] }"
-        @click="selectPlayerMinion(playerMinions?.[slotIndex - 1], slotIndex - 1)"
+        @click="selectPlayerMinion(playerMinions?.[slotIndex - 1] || undefined, slotIndex - 1)"
         :draggable="!!playerMinions?.[slotIndex - 1]"
         @dragstart="
-          onDragStart($event, 'battlefield', slotIndex - 1, playerMinions?.[slotIndex - 1])
+          onDragStart(
+            $event,
+            'battlefield',
+            slotIndex - 1,
+            playerMinions?.[slotIndex - 1] || undefined
+          )
         "
         @dragover.prevent="onDragOver($event, slotIndex - 1)"
         @drop.prevent="onDrop($event, slotIndex - 1)"
@@ -32,6 +41,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { Card } from '../game/Card';
 import { Minion } from '../game/Minion';
 import { useGameStore } from '../stores/game';
 import HearthstoneCard from './HearthstoneCard.vue';
@@ -44,9 +54,24 @@ const player = computed(() => gameStore.player);
 // 拖拽起始索引
 const dragStartIndex = ref<number | null>(null);
 
+// 拖拽开始事件
+const onDragStart = (event: DragEvent, source: string, index: number, minion: Card | undefined) => {
+  dragStartIndex.value = index;
+  if (event.dataTransfer && minion) {
+    event.dataTransfer.setData(
+      'text/plain',
+      JSON.stringify({
+        source,
+        index,
+        card: minion,
+      })
+    );
+  }
+};
+
 // 玩家随从
 const playerMinions = computed(() => {
-  return player?.minions || [];
+  return player.value?.minions || [];
 });
 
 // 拖拽开始事件将由HearthstoneCard组件内部处理
@@ -96,7 +121,9 @@ const onDrop = (event: DragEvent, targetOrIndex: string | number) => {
 
         // 检查战场是否还有空位置
         // 战场有7个固定位置，检查是否有空位(null值)
-        if (minions.some(slot => slot === null)) {
+        // 检查战场是否还有空位置
+        // 战场有7个固定位置，检查是否有空位(null值)
+        if (minions.some((slot: Card | null) => slot === null)) {
           // 放置随从到指定位置或第一个空位置
           gameStore.placeMinionFromHand(dragData.index, targetIndex);
         }
@@ -120,7 +147,7 @@ const onDrop = (event: DragEvent, targetOrIndex: string | number) => {
 };
 
 // 选择玩家随从
-const selectPlayerMinion = (minion: Minion | undefined, index: number) => {
+const selectPlayerMinion = (minion: Card | undefined, index: number) => {
   if (minion) {
     // 如果当前处于法术选择目标状态，选择该随从作为目标
     if (gameStore.spellUsageState === 'selecting_target' && gameStore.selectedSpell) {
@@ -134,7 +161,8 @@ const selectPlayerMinion = (minion: Minion | undefined, index: number) => {
       }
     } else {
       // 否则正常选择随从
-      gameStore.selectMinion(minion, index, 'battlefield');
+      // 确保是Minion类型
+      gameStore.selectMinion(minion as Minion, index, 'battlefield');
     }
   }
 };

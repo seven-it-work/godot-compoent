@@ -217,12 +217,11 @@ export const useGameStore = defineStore('game', {
         if (minion) {
           console.log(`[gameStore] 找到要购买的随从: ${minion.name}，花费: ${minion.cost}`);
           // 检查是否可以购买（金币足够，手牌有空间）
-          const playerMinionCards = this.player.cards.filter(card => card.cardType === 'minion');
           console.log(
-            `[gameStore] 玩家当前金币: ${this.player.gold}，手牌随从数量: ${playerMinionCards.length}`
+            `[gameStore] 玩家当前金币: ${this.player.gold}，手牌总数量: ${this.player.cards.length}`
           );
 
-          if (this.player.gold >= minion.cost && playerMinionCards.length < 7) {
+          if (this.player.gold >= minion.cost && this.player.cards.length < this.player.maxCards) {
             console.log(`[gameStore] 购买条件满足，开始购买流程`);
             // 从酒馆中移除该随从
             const removedMinion = this.tavern.buyMinion(index);
@@ -235,9 +234,13 @@ export const useGameStore = defineStore('game', {
               if (success) {
                 // 使用$patch更新player状态，确保响应式
                 this.$patch(state => {
-                  // 重新赋值cards数组来确保响应式更新
+                  // 创建一个新的player对象来确保响应式更新
                   if (state.player) {
-                    state.player.cards = [...state.player.cards];
+                    state.player = {
+                      ...state.player,
+                      cards: [...state.player.cards],
+                      gold: state.player.gold,
+                    };
                   }
                 });
               }
