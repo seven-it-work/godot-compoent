@@ -19,13 +19,14 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useGameStore } from '../stores/game';
 import HearthstoneCard from './HearthstoneCard.vue';
 
 const gameStore = useGameStore();
 console.log(gameStore);
-// 从gameStore获取tavern
-const tavern = gameStore.tavern;
+// 从gameStore获取tavern - 使用computed确保响应式更新
+const tavern = computed(() => gameStore.tavern);
 
 // 选择/取消选择随从
 const selectMinion = (minion: any, index: number) => {

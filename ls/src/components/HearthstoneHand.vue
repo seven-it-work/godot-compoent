@@ -46,7 +46,8 @@ import HearthstoneCard from './HearthstoneCard.vue';
 
 // 使用游戏store
 const gameStore = useGameStore();
-const { player } = gameStore;
+// 从gameStore获取player - 使用computed确保响应式更新
+const player = computed(() => gameStore.player);
 
 // 计算第一行的卡牌（前5张）
 const firstRowCards = computed(() => {
