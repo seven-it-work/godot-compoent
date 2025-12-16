@@ -27,7 +27,8 @@ import HearthstoneTavern from '../components/HearthstoneTavern.vue';
 import heroesData from '../data/heroes.json';
 import minionsData from '../data/minions.json';
 import { AIPlayer } from '../game/AIPlayer';
-import { Minion, minionClassMapByStrId } from '../game/Minion';
+import { Minion } from '../game/Minion';
+import { minionClassMapByStrId } from '../game/minion/MinionClassMap';
 import { Player } from '../game/Player';
 import { Tavern } from '../game/Tavern';
 import { useGameStore } from '../stores/game';
@@ -92,7 +93,24 @@ const createMinionPool = () => {
       const MinionClass = minionClassMapByStrId[minionData.strId];
       if (MinionClass) {
         try {
-          return new MinionClass();
+          return new MinionClass(
+            minionData.id,
+            minionData.strId,
+            minionData.cardType,
+            minionData.name,
+            minionData.nameCN,
+            minionData.text,
+            minionData.mechanics || [],
+            minionData.referencedTags || [],
+            minionData.img,
+            minionData.art,
+            minionData.tier,
+            minionData.health,
+            minionData.attack,
+            minionData.minionTypes || [],
+            minionData.minionTypesCN || [],
+            minionData.upgradeCard
+          );
         } catch (error) {
           console.error(`创建随从 ${minionData.strId} 实例时出错:`, error);
           return null;
