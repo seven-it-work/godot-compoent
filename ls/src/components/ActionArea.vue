@@ -31,7 +31,7 @@
     </div>
     <div class="card-info" v-if="selectedCard">
       <div class="card-left">
-        <div class="card-name big-size">名称：{{ selectedCard?.name || '休息休息吧' }}</div>
+        <div class="card-name big-size">名称：{{ selectedCard?.name || '' }}</div>
         <div class="card-name big-size">类型：{{ getCardTypeText }}</div>
         <div class="card-level big-size">等级：{{ selectedCard?.tier || 1 }}</div>
         <div class="card-cost big-size">花费：{{ selectedCard?.cost || 1 }}</div>
@@ -42,17 +42,11 @@
           生命值：{{ gameStore.selectedMinion.health || 0 }}
         </div>
         <div class="card-type big-size" v-if="gameStore.selectedMinion">
-          类型：{{ gameStore.selectedMinion.minionTypesCN?.join(' | ') || '野猪人 | 野兽' }}
+          类型：{{ gameStore.selectedMinion.minionTypesCN?.join(' | ') || '' }}
         </div>
       </div>
       <div class="card-right">
-        <div
-          class="card-description big-size"
-          v-html="
-            selectedCard?.text ||
-            '我是描述卡片的描述我可以很长很长很长很长很长很长很长很长我可以滚动'
-          "
-        ></div>
+        <div class="card-description big-size" v-html="selectedCard?.text || ''"></div>
         <div
           class="card-effects big-size"
           v-if="gameStore.selectedSpell"
@@ -61,14 +55,13 @@
       </div>
     </div>
     <div class="action-buttons">
-      <button class="action-button big-size" @click="endTurn">结束回合</button>
       <button
         class="action-button big-size"
         v-if="gameStore.selectedMinionSource === 'tavern'"
         @click="buySelectedMinion"
       >
-        <span class="cost">{{ gameStore.selectedMinion?.cost || 0 }}</span>
         购买
+        <span class="cost">({{ gameStore.selectedMinion?.cost || 0 }})</span>
       </button>
       <button
         class="action-button big-size"
@@ -84,6 +77,7 @@
       >
         出售
       </button>
+      <button class="action-button big-size" @click="endTurn">结束回合</button>
       <button class="action-button big-size">设置按钮</button>
       <button class="action-button big-size">调试按钮</button>
     </div>
