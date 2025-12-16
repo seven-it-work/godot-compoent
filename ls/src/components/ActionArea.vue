@@ -79,18 +79,36 @@
       </button>
       <button class="action-button big-size" @click="endTurn">结束回合</button>
       <button class="action-button big-size">设置按钮</button>
-      <button class="action-button big-size">调试按钮</button>
+      <button class="action-button big-size" @click="showDebugDrawer">调试按钮</button>
     </div>
   </div>
   <!-- end 额外操作区域 -->
+
+  <!-- 调试抽屉组件 -->
+  <DebugDrawer
+    v-model:debug-drawer-visible="debugDrawerVisible"
+    :game-state="gameStore.gameState"
+    :current-turn="gameStore.currentTurn"
+    @close="closeDebugDrawer"
+  />
 </template>
 
 <script setup lang="ts">
 // 操作区域组件
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useGameStore } from '../stores/game';
+import DebugDrawer from './DebugDrawer.vue';
 
 const gameStore = useGameStore();
+
+// 调试抽屉控制
+const debugDrawerVisible = ref(false);
+const showDebugDrawer = () => {
+  debugDrawerVisible.value = true;
+};
+const closeDebugDrawer = () => {
+  debugDrawerVisible.value = false;
+};
 
 // 计算属性：是否可以升级酒馆
 const canUpgrade = computed(() => {

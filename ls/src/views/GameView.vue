@@ -1,5 +1,5 @@
 <template>
-  <div class="main-frame">
+  <div class="main-frame" id="game-main">
     <div class="top-section">
       <!-- 酒馆区域 -->
       <HearthstoneTavern></HearthstoneTavern>
