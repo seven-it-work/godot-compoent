@@ -5,6 +5,7 @@ import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers';
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/temp_html/',
   plugins: [
     vue(),
     Components({
@@ -15,4 +16,4 @@ export default defineConfig({
       ],
     }),
   ],
-});
+});
