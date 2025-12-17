@@ -1,14 +1,6 @@
 <template>
   <div class="phaser-game-container">
     <div id="phaser-game" ref="gameContainer"></div>
-    <div class="game-controls">
-      <button @click="resetGame" class="control-button">重置游戏</button>
-
-      <button @click="addCard" class="control-button">添加新卡牌</button>
-
-      <p>点击并拖动卡牌来移动它们</p>
-      <p>将卡牌放置在右侧区域来翻转它们</p>
-    </div>
   </div>
 </template>
 
@@ -50,52 +42,47 @@ const cardData: CardData[] = [
   { id: 5, name: '圣骑士', value: 1, suit: 'minion', attack: 1, health: 1, description: '圣盾' },
 ];
 
-// 卡牌场景
+// 卡牌游戏场景
 class CardGameScene extends Phaser.Scene {
-  private cards: Phaser.GameObjects.Group;
-  private dropZone: Phaser.GameObjects.Rectangle;
-  private deckPosition: { x: number; y: number };
-  private handPosition: { x: number; y: number };
+  private cards!: Phaser.GameObjects.Group;
+  private dropZone!: Phaser.GameObjects.Zone;
+  private handPosition!: Phaser.Math.Vector2;
 
   constructor() {
     super('CardGameScene');
-
-    this.cards = new Phaser.GameObjects.Group(this);
-    this.dropZone = {} as Phaser.GameObjects.Rectangle;
-    this.deckPosition = { x: 100, y: 300 };
-    this.handPosition = { x: 150, y: 450 };
   }
 
-  // 预加载资源
-  preload() {
-    // 移除远程插件加载，避免网络延迟和性能问题
-  }
-
-  // 创建游戏场景
   create() {
-    // 创建背景
-    this.cameras.main.setBackgroundColor(0x2c3e50);
+    // 设置背景颜色
+    this.cameras.main.setBackgroundColor('#1a1a2e');
 
-    // 创建牌堆位置
-    this.add.text(this.deckPosition.x, this.deckPosition.y - 150, '牌堆', {
-      fontSize: '24px',
-      color: '#ffffff',
-    });
+    // 创建卡牌组
+    this.cards = this.add.group();
 
-    // 创建手牌位置
-    this.add.text(this.handPosition.x, this.handPosition.y + 120, '手牌', {
-      fontSize: '24px',
-      color: '#ffffff',
-    });
+    // 设置手牌位置（屏幕底部中央）
+    this.handPosition = new Phaser.Math.Vector2(
+      this.cameras.main.centerX - 300,
+      this.cameras.main.height - 100
+    );
 
-    // 创建放置区域（右侧区域）
-    this.dropZone = this.add.rectangle(600, 300, 200, 400, 0x3498db, 0.3);
-    this.dropZone.setStrokeStyle(2, 0x2980b9);
+    // 创建放置区域（屏幕右侧）
+    this.dropZone = this.add.zone(
+      this.cameras.main.width - 150,
+      this.cameras.main.centerY,
+      200,
+      this.cameras.main.height - 200
+    );
+    this.dropZone.setOrigin(0.5);
 
-    this.add.text(this.dropZone.x - 50, this.dropZone.y - 220, '放置区域', {
-      fontSize: '24px',
-      color: '#ffffff',
-    });
+    // 为放置区域添加视觉指示
+    const dropZoneGraphics = this.add.graphics();
+    dropZoneGraphics.lineStyle(2, 0x3498db, 1);
+    dropZoneGraphics.strokeRect(
+      this.dropZone.x - this.dropZone.width / 2,
+      this.dropZone.y - this.dropZone.height / 2,
+      this.dropZone.width,
+      this.dropZone.height
+    );
 
     // 创建5张卡牌
     cardData.forEach((card, index) => {
@@ -147,7 +134,7 @@ class CardGameScene extends Phaser.Scene {
             targets: gameObject,
             x: targetX,
             y: targetY,
-            duration: 300,
+            duration: 500,
             ease: 'Power2',
           });
         }
@@ -156,55 +143,58 @@ class CardGameScene extends Phaser.Scene {
     );
   }
 
-  // 创建单张卡牌（使用Phaser原生对象，提高性能）
+  // 创建卡牌
   createCard(card: CardData, index: number) {
-    // 创建一个容器来放置卡牌元素
-    const cardContainer = this.add.container(this.deckPosition.x, this.deckPosition.y);
+    // 创建卡牌容器
+    const cardContainer = this.add.container(
+      this.handPosition.x - 100 + index * 20,
+      this.handPosition.y - 50
+    );
 
-    // 创建卡牌背景（使用Phaser的图形对象）
+    // 创建卡牌背景
     const cardBackground = this.add.rectangle(0, 0, 120, 180, 0xffffff);
-    cardBackground.setStrokeStyle(2, 0x000000);
     cardBackground.setOrigin(0);
+    cardBackground.setStrokeStyle(2, 0x000000);
 
     // 创建卡牌头部
-    const cardHeader = this.add.rectangle(0, 0, 120, 30, 0x3498db);
+    const cardHeader = this.add.rectangle(0, 0, 120, 25, 0xe74c3c);
     cardHeader.setOrigin(0);
 
     // 创建卡牌名称文本
     const cardName = this.add.text(5, 5, card.name, {
-      fontSize: '12px',
-      color: '#ffffff',
+      fontSize: '14px', // 增加字体大小
+      color: '#ffffff' as any,
       fontWeight: 'bold',
-    } as any); // 使用类型断言避免TypeScript错误
+    } as any);
     cardName.setOrigin(0);
 
     // 创建卡牌数值
     const cardValue = this.add.text(100, 5, card.value.toString(), {
-      fontSize: '14px',
-      color: '#ffffff',
+      fontSize: '16px', // 增加字体大小
+      color: '#ffffff' as any,
       fontWeight: 'bold',
-    } as any); // 使用类型断言避免TypeScript错误
+    } as any);
     cardValue.setOrigin(0);
 
     // 创建卡牌类型
     const cardType = this.add.rectangle(0, 30, 50, 20, 0x2ecc71);
     cardType.setOrigin(0);
     const cardTypeText = this.add.text(5, 33, card.suit, {
-      fontSize: '10px',
-      color: '#ffffff',
+      fontSize: '12px', // 增加字体大小
+      color: '#ffffff' as any,
       fontWeight: 'bold',
-    } as any); // 使用类型断言避免TypeScript错误
+    } as any);
     cardTypeText.setOrigin(0);
 
     // 创建卡牌描述
     const cardDescription = this.add.text(5, 55, card.description || '无描述', {
-      fontSize: '9px',
-      color: '#000000',
+      fontSize: '11px', // 增加字体大小
+      color: '#000000' as any,
       wordWrap: {
         width: 110,
         useAdvancedWrap: true,
       },
-    } as any); // 使用类型断言避免TypeScript错误
+    } as any);
     cardDescription.setOrigin(0);
 
     // 如果是随从卡牌，添加攻击力和生命值
@@ -215,17 +205,17 @@ class CardGameScene extends Phaser.Scene {
       cardStatsBg.setOrigin(0);
 
       cardAttack = this.add.text(10, 155, card.attack.toString(), {
-        fontSize: '14px',
-        color: '#e74c3c',
+        fontSize: '16px', // 增加字体大小
+        color: '#e74c3c' as any,
         fontWeight: 'bold',
-      } as any); // 使用类型断言避免TypeScript错误
+      } as any);
       cardAttack.setOrigin(0);
 
       cardHealth = this.add.text(100, 155, card.health.toString(), {
-        fontSize: '14px',
-        color: '#27ae60',
+        fontSize: '16px', // 增加字体大小
+        color: '#27ae60' as any,
         fontWeight: 'bold',
-      } as any); // 使用类型断言避免TypeScript错误
+      } as any);
       cardHealth.setOrigin(0);
     }
 
@@ -368,117 +358,21 @@ onUnmounted(() => {
     game = null;
   }
 });
-
-// 重置游戏
-function resetGame() {
-  if (game) {
-    game.destroy(true);
-
-    if (gameContainer.value) {
-      const config = {
-        type: Phaser.AUTO,
-        // 设置为通用手机分辨率 (16:9 比例)
-        width: 1280,
-        height: 720,
-        parent: gameContainer.value as HTMLElement,
-        physics: {
-          default: 'arcade',
-          arcade: {
-            gravity: { y: 0 },
-            debug: false,
-          },
-        },
-        // 添加响应式设计
-        scale: {
-          mode: Phaser.Scale.FIT,
-          autoCenter: Phaser.Scale.CENTER_BOTH,
-          // 最小和最大尺寸
-          min: {
-            width: 800,
-            height: 450,
-          },
-          max: {
-            width: 1920,
-            height: 1080,
-          },
-        },
-        scene: CardGameScene,
-      } as any;
-
-      game = new Phaser.Game(config);
-    }
-  }
-}
-
-// 添加新卡牌
-function addCard() {
-  if (game) {
-    const scene = game.scene.getScene('CardGameScene') as any;
-
-    if (scene && scene.cards) {
-      const cardCount = scene.cards.getChildren().length;
-
-      const newCard: CardData = {
-        id: cardCount + 1,
-        name: `卡牌${cardCount + 1}`,
-        value: cardCount + 1,
-        suit: cardCount % 2 === 0 ? 'minion' : 'spell',
-        attack: cardCount % 2 === 0 ? Math.floor(Math.random() * 5) + 1 : undefined,
-        health: cardCount % 2 === 0 ? Math.floor(Math.random() * 5) + 1 : undefined,
-        description: `这是第${cardCount + 1}张卡牌`,
-      };
-
-      scene.createCard(newCard, cardCount);
-    }
-  }
-}
 </script>
 
 <style scoped>
 .phaser-game-container {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 20px;
-  background-color: #2c3e50;
-  border-radius: 8px;
-  margin: 20px;
-  color: white;
-  /* 确保容器不会导致页面滚动 */
-  max-width: 100vw;
-  max-height: 100vh;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  background-color: #1a1a2e;
   overflow: hidden;
 }
 
 #phaser-game {
-  border: 2px solid #3498db;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  /* 确保游戏区域不会超出容器 */
-  max-width: 100%;
-  max-height: calc(100vh - 200px);
-  overflow: hidden;
-}
-
-.game-controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.control-button {
-  padding: 10px 20px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
-}
-
-.control-button:hover {
-  background-color: #2980b9;
+  width: 100%;
+  height: 100%;
 }
 </style>
