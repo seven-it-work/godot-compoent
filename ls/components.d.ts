@@ -26,6 +26,7 @@ declare module 'vue' {
     HearthstoneHand: typeof import('./src/components/HearthstoneHand.vue')['default']
     HearthstoneTavern: typeof import('./src/components/HearthstoneTavern.vue')['default']
     MinionCard: typeof import('./src/components/MinionCard.vue')['default']
+    PhaserCardGame: typeof import('./src/components/PhaserCardGame.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SpellCard: typeof import('./src/components/SpellCard.vue')['default']

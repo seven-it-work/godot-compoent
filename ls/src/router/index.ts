@@ -28,6 +28,12 @@ const routes: RouteRecordRaw[] = [
     name: '关于',
     component: () => import('../views/About.vue'),
   },
+
+  {
+    path: '/phaser-game',
+    name: 'Phaser卡牌游戏',
+    component: () => import('../components/PhaserCardGame.vue'),
+  },
 ];
 
 // 创建路由实例
