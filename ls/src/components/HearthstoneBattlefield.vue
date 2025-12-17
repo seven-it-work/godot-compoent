@@ -121,8 +121,6 @@ const onDrop = (event: DragEvent, targetOrIndex: string | number) => {
 
         // 检查战场是否还有空位置
         // 战场有7个固定位置，检查是否有空位(null值)
-        // 检查战场是否还有空位置
-        // 战场有7个固定位置，检查是否有空位(null值)
         if (minions.some((slot: Card | null) => slot === null)) {
           // 放置随从到指定位置或第一个空位置
           gameStore.placeMinionFromHand(dragData.index, targetIndex);
@@ -178,6 +176,67 @@ const isMinionHighlighted = (minion: any, source: string, index: number) => {
     target => target.source === source && target.index === index && target.target === minion
   );
 };
+
+// 移除所有未使用的触摸事件相关代码
+/*
+// 处理touch事件
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartTime = 0;
+let isTouchDragging = false;
+
+// 触摸开始事件
+const onTouchStart = (event: TouchEvent) => {
+  const touch = event.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+  touchStartTime = Date.now();
+  isTouchDragging = false;
+};
+
+// 触摸移动事件
+const onTouchMove = (event: TouchEvent) => {
+  if (!isTouchDragging) {
+    const touch = event.touches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartX);
+    const deltaY = Math.abs(touch.clientY - touchStartY);
+
+    // 检测是否为拖拽动作
+    if (deltaX > 10 || deltaY > 10) {
+      isTouchDragging = true;
+      event.preventDefault();
+    }
+  } else {
+    event.preventDefault();
+  }
+};
+
+// 触摸结束事件
+const onTouchEnd = (event: TouchEvent) => {
+  if (isTouchDragging) {
+    isTouchDragging = false;
+    touchStartIndex = null;
+    touchStartCard = null;
+  }
+};
+
+// 初始化事件监听
+onMounted(() => {
+  // 添加touch事件监听
+  document.addEventListener('touchstart', onTouchStart, { passive: true });
+  document.addEventListener('touchmove', onTouchMove, { passive: false });
+  document.addEventListener('touchend', onTouchEnd, { passive: true });
+  document.addEventListener('touchcancel', onTouchEnd, { passive: true });
+});
+
+// 移除事件监听
+onUnmounted(() => {
+  document.removeEventListener('touchstart', onTouchStart);
+  document.removeEventListener('touchmove', onTouchMove);
+  document.removeEventListener('touchend', onTouchEnd);
+  document.removeEventListener('touchcancel', onTouchEnd);
+});
+*/
 </script>
 
 <style scoped>
@@ -190,6 +249,7 @@ const isMinionHighlighted = (minion: any, source: string, index: number) => {
   box-sizing: border-box;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid #b3d8ff;
+  touch-action: none; /* 禁用浏览器默认触摸行为 */
 }
 
 /* 玩家随从区域 */
@@ -202,5 +262,7 @@ const isMinionHighlighted = (minion: any, source: string, index: number) => {
   border-radius: 12px;
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
   flex: 1;
+  padding: 0 5%;
+  touch-action: none; /* 禁用浏览器默认触摸行为 */
 }
 </style>

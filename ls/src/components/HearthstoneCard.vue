@@ -1,6 +1,7 @@
 <template>
   <div
     v-if="props.card"
+    ref="cardElement"
     class="hearthstone-card"
     :class="{
       selected: isSelected,
@@ -8,9 +9,6 @@
       dragging: isDragging,
     }"
     @click="handleClick"
-    draggable="true"
-    @dragstart="onDragStart"
-    @dragend="onDragEnd"
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"
     v-bind="$attrs"
@@ -56,11 +54,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import interact from 'interactjs';
+import { onMounted, onUnmounted, ref } from 'vue';
 import type { Card } from '../game/Card';
 import type { Minion } from '../game/Minion';
 import type { Spell } from '../game/Spell';
 import { useGameStore } from '../stores/game';
+
 // 使用游戏store
 const gameStore = useGameStore();
 
@@ -98,6 +98,7 @@ const handleClick = (event: MouseEvent) => {
 // 定义组件状态
 const isDragging = ref(false);
 const isHovering = ref(false);
+const cardElement = ref<HTMLElement | null>(null);
 
 // 拖拽开始事件
 const onDragStart = (event: DragEvent) => {
@@ -232,6 +233,47 @@ const getCardRace = () => {
   }
   return null;
 };
+
+// 使用InteractJS初始化拖拽功能
+onMounted(() => {
+  if (cardElement.value) {
+    interact(cardElement.value).draggable({
+      inertia: true,
+      modifiers: [
+        interact.modifiers.restrictRect({
+          restriction: 'parent',
+          endOnly: true,
+        }),
+      ],
+      autoScroll: true,
+      listeners: {
+        start(event) {
+          onDragStart(event as unknown as DragEvent);
+        },
+        move(event) {
+          const target = event.target;
+
+          // 更新卡片位置
+          const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+          const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+          target.style.transform = `translate(${x}px, ${y}px)`;
+          target.setAttribute('data-x', x);
+          target.setAttribute('data-y', y);
+        },
+        end(_) {
+          onDragEnd();
+        },
+      },
+    });
+  }
+});
+
+onUnmounted(() => {
+  if (cardElement.value) {
+    interact(cardElement.value).unset();
+  }
+});
 </script>
 
 <style scoped>
@@ -246,6 +288,7 @@ const getCardRace = () => {
   flex-direction: column;
   min-height: 0;
   margin: 10px 20px;
+  touch-action: none; /* 禁用浏览器默认触摸行为 */
 }
 
 /* 角落圆形 */
@@ -384,5 +427,6 @@ const getCardRace = () => {
   border: 2px dashed #c0c4cc;
   border-radius: 8px;
   background-color: rgba(240, 242, 245, 0.5);
+  touch-action: none; /* 禁用浏览器默认触摸行为 */
 }
 </style>

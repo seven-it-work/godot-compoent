@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 const DESIGN_WIDTH = 2622;
 const DESIGN_HEIGHT = 1206;

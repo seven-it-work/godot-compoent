@@ -103,6 +103,63 @@ const onDrop = (event: DragEvent, target: string) => {
     }
   }
 };
+/*
+// 处理touch事件
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartTime = 0;
+let isTouchDragging = false;
+
+// 触摸开始事件
+const onTouchStart = (event: TouchEvent) => {
+  const touch = event.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+  touchStartTime = Date.now();
+  isTouchDragging = false;
+};
+
+// 触摸移动事件
+const onTouchMove = (event: TouchEvent) => {
+  if (!isTouchDragging) {
+    const touch = event.touches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartX);
+    const deltaY = Math.abs(touch.clientY - touchStartY);
+
+    // 检测是否为拖拽动作
+    if (deltaX > 10 || deltaY > 10) {
+      isTouchDragging = true;
+      event.preventDefault();
+    }
+  } else {
+    event.preventDefault();
+  }
+};
+
+// 触摸结束事件
+const onTouchEnd = (event: TouchEvent) => {
+  if (isTouchDragging) {
+    isTouchDragging = false;
+  }
+};
+
+// 初始化事件监听
+onMounted(() => {
+  // 添加touch事件监听
+  document.addEventListener('touchstart', onTouchStart, { passive: true });
+  document.addEventListener('touchmove', onTouchMove, { passive: false });
+  document.addEventListener('touchend', onTouchEnd, { passive: true });
+  document.addEventListener('touchcancel', onTouchEnd, { passive: true });
+});
+
+// 移除事件监听
+onUnmounted(() => {
+  document.removeEventListener('touchstart', onTouchStart);
+  document.removeEventListener('touchmove', onTouchMove);
+  document.removeEventListener('touchend', onTouchEnd);
+  document.removeEventListener('touchcancel', onTouchEnd);
+});
+*/
 </script>
 
 <style scoped>
@@ -112,10 +169,12 @@ const onDrop = (event: DragEvent, target: string) => {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  touch-action: none; /* 禁用浏览器默认触摸行为 */
 }
 
 .row {
   display: flex;
   flex: 1;
+  touch-action: none; /* 禁用浏览器默认触摸行为 */
 }
 </style>
