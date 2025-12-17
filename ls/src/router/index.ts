@@ -34,6 +34,11 @@ const routes: RouteRecordRaw[] = [
     name: 'Phaser卡牌游戏',
     component: () => import('../components/PhaserCardGame.vue'),
   },
+  {
+    path: '/vertical-hearthstone',
+    name: '竖屏炉石游戏',
+    component: () => import('../views/ls/index.vue'),
+  },
 ];
 
 // 创建路由实例
