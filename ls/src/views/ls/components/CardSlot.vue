@@ -6,6 +6,7 @@
       `position-${props.positionType}`,
       { empty: props.data === null || props.data === undefined },
     ]"
+    :data-card-id="cardId"
     :data-x="position.x"
     :data-y="position.y"
     :data-position-type="props.positionType"
@@ -47,6 +48,8 @@ const emit = defineEmits<{
   ): void;
   // 卡片移除事件
   (e: 'card-remove', cardId: string): void;
+  // 卡片交换事件
+  (e: 'card-swap', cardId: string, targetSlotIndex: number): void;
 }>();
 
 // 卡片位置状态
@@ -77,6 +80,25 @@ watch(
     if (newType !== oldType) {
       // 位置类型变化，重置卡片位置
       position.value = { x: 0, y: 0 };
+    }
+  }
+);
+
+// 监听卡片数据变化，更新拖拽实例配置
+watch(
+  () => props.data,
+  (newData, oldData) => {
+    console.log(
+      `[数据变化] 卡片 ${props.cardId} 数据变化: ${oldData ? oldData.id : 'null'} -> ${newData ? newData.id : 'null'}`
+    );
+
+    // 如果拖拽实例已存在，更新其cursorChecker配置
+    if (dragInteraction) {
+      dragInteraction.draggable({
+        cursorChecker() {
+          return newData ? 'grabbing' : 'default'; // 只有有数据的卡片显示拖拽光标
+        },
+      });
     }
   }
 );
@@ -142,12 +164,18 @@ onMounted(() => {
             slot.classList.add('drop-allowed');
           });
         }
-        // 逻辑2：如果是战场卡片拖拽，高亮酒馆区域
+        // 逻辑2：如果是战场卡片拖拽，高亮酒馆区域和所有战场卡片槽
         else if (props.positionType === '战场') {
-          console.log(`[高亮处理] 战场卡片 ${props.cardId} 开始拖拽，高亮酒馆区域`);
+          console.log(`[高亮处理] 战场卡片 ${props.cardId} 开始拖拽，高亮酒馆区域和所有战场卡片槽`);
+          // 高亮酒馆区域
           const tavernAreas = document.querySelectorAll('.tavern-section');
           tavernAreas.forEach(area => {
             area.classList.add('drop-allowed');
+          });
+          // 高亮所有战场卡片槽（包括空格子），用于位置交换
+          const battlefieldSlots = document.querySelectorAll('.battlefield-section .card-slot');
+          battlefieldSlots.forEach(slot => {
+            slot.classList.add('swap-allowed');
           });
         }
       },
@@ -257,34 +285,98 @@ onMounted(() => {
           }
         }
 
-        // 检查是否释放到空格子上
+        // 检查是否释放到战场卡片槽上（包括空格子和已有卡片的槽）
         let isEmptySlot = false;
         let targetSlotIndex = -1;
+        let isTargetSlot = false;
+        let targetSlotHasCard = false;
 
         if (isBattlefieldArea) {
-          // 获取所有战场的空格子
-          const emptySlots = document.querySelectorAll(
-            '.battlefield-section .card-slot[data-is-empty="true"]'
+          // 获取所有战场卡片槽，分别处理两行
+          const firstRowSlots = document.querySelectorAll(
+            '.battlefield-section .card-row:nth-child(1) .card-slot'
           );
+          const secondRowSlots = document.querySelectorAll(
+            '.battlefield-section .card-row:nth-child(2) .card-slot'
+          );
+          const allSlots = [...firstRowSlots, ...secondRowSlots];
 
-          // 记录释放到的具体空格子索引
+          console.log(
+            `[区域检查] 战场区域内卡片槽数量: ${allSlots.length}, 第一行: ${firstRowSlots.length}, 第二行: ${secondRowSlots.length}`
+          );
+          console.log(`[区域检查] 释放坐标: (${releaseX}, ${releaseY})`);
+
+          // 记录释放到的具体卡片槽索引
           let slotIndex = 0;
-          for (const slot of emptySlots) {
+          let foundSlot = false;
+
+          for (const slot of allSlots) {
+            // 获取当前卡片槽的cardId
+            const slotCardId = slot.getAttribute('data-card-id');
+
+            // 跳过当前拖拽的卡片槽
+            if (slotCardId === props.cardId) {
+              console.log(`[区域检查] 跳过当前拖拽的卡片槽 ${slotIndex}`);
+              slotIndex++;
+              continue;
+            }
+
             const rect = slot.getBoundingClientRect();
-            if (
+            console.log(
+              `[区域检查] 卡片槽 ${slotIndex} 坐标: 左=${rect.left}, 右=${rect.right}, 上=${rect.top}, 下=${rect.bottom}`
+            );
+
+            const isInside =
               releaseX >= rect.left &&
               releaseX <= rect.right &&
               releaseY >= rect.top &&
-              releaseY <= rect.bottom
-            ) {
-              isEmptySlot = true;
+              releaseY <= rect.bottom;
+
+            console.log(`[区域检查] 卡片槽 ${slotIndex} 是否包含释放点: ${isInside}`);
+
+            if (isInside) {
+              isTargetSlot = true;
               targetSlotIndex = slotIndex;
+              isEmptySlot = slot.getAttribute('data-is-empty') === 'true';
+              targetSlotHasCard = !isEmptySlot;
               console.log(
-                `[区域检查] 卡片 ${props.cardId} 释放到战场空格子上，索引: ${targetSlotIndex}`
+                `[区域检查] 卡片 ${props.cardId} 释放到战场卡片槽上，索引: ${targetSlotIndex}, 是否为空: ${isEmptySlot}`
               );
+              foundSlot = true;
               break;
             }
             slotIndex++;
+          }
+
+          // 如果没有找到匹配的卡片槽，检查是否在第二行的空白区域
+          if (!foundSlot) {
+            console.log(`[区域检查] 卡片 ${props.cardId} 释放到战场区域内，但未找到匹配的卡片槽`);
+
+            // 检查是否在第二行的卡片槽位置附近
+            const secondRow = document.querySelector('.battlefield-section .card-row:nth-child(2)');
+            if (secondRow) {
+              const rowRect = secondRow.getBoundingClientRect();
+              console.log(
+                `[区域检查] 第二行区域坐标: 左=${rowRect.left}, 右=${rowRect.right}, 上=${rowRect.top}, 下=${rowRect.bottom}`
+              );
+
+              if (releaseY >= rowRect.top && releaseY <= rowRect.bottom) {
+                // 尝试计算第二行的卡片槽索引
+                const slotWidth = rowRect.width / 3; // 第二行有2个卡片槽和1个信息面板
+                const slotIndexInRow = Math.floor((releaseX - rowRect.left) / slotWidth);
+                if (slotIndexInRow >= 0 && slotIndexInRow < 2) {
+                  targetSlotIndex = 5 + slotIndexInRow; // 第一行有5个卡片槽
+                  isTargetSlot = true;
+
+                  // 由于无法直接访问父组件的battlefieldCards，假设目标槽为空
+                  isEmptySlot = true;
+                  targetSlotHasCard = false;
+                  console.log(
+                    `[区域检查] 卡片 ${props.cardId} 释放到战场第二行卡片槽，计算索引: ${targetSlotIndex}`
+                  );
+                }
+              }
+            }
           }
         }
 
@@ -323,6 +415,17 @@ onMounted(() => {
           // 重置位置
           position.value = { x: 0, y: 0 };
           console.log(`[位置更新] 卡片 ${props.cardId} 位置重置为 (0, 0)`);
+        }
+        // 逻辑4：战场卡片拖拽到另一个战场卡片槽，交换位置
+        else if (isTargetSlot && initialPositionType.value === '战场') {
+          console.log(
+            `[位置更新] 战场卡片 ${props.cardId} 拖拽到另一个战场卡片槽，索引: ${targetSlotIndex}, 目标槽是否有卡片: ${targetSlotHasCard}`
+          );
+          // 发送位置交换事件，传递源卡片ID和目标槽索引
+          emit('card-swap', props.cardId, targetSlotIndex);
+          // 重置位置
+          position.value = { x: 0, y: 0 };
+          console.log(`[位置更新] 卡片 ${props.cardId} 位置重置为 (0, 0)`);
         } else {
           // 其他情况，回到初始位置
           console.log(
@@ -341,10 +444,10 @@ onMounted(() => {
         target.style.transition = 'transform 0.1s ease, opacity 0.2s ease';
 
         // 移除所有高亮样式
-        // 1. 移除所有空格子的高亮
-        const allEmptySlots = document.querySelectorAll('.card-slot[data-is-empty="true"]');
-        allEmptySlots.forEach(slot => {
-          slot.classList.remove('drop-allowed');
+        // 1. 移除所有卡片槽的高亮（包括drop-allowed和swap-allowed）
+        const allCardSlots = document.querySelectorAll('.card-slot');
+        allCardSlots.forEach(slot => {
+          slot.classList.remove('drop-allowed', 'swap-allowed');
         });
         // 2. 移除所有酒馆区域的高亮
         const tavernAreasEnd = document.querySelectorAll('.tavern-section');

@@ -70,6 +70,7 @@
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
+            @card-swap="(cardId, targetIndex) => handleCardSwap(cardId, targetIndex)"
           ></CardSlot>
         </div>
 
@@ -85,6 +86,7 @@
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
+            @card-swap="(cardId, targetIndex) => handleCardSwap(cardId, targetIndex)"
           ></CardSlot>
           <div class="info-panel player-info">
             <div>选中的卡片信息</div>
@@ -177,6 +179,44 @@ const initCards = () => {
   // 初始化手牌区域：固定10个格子，全部为空格子
   for (let i = 1; i <= 10; i++) {
     handCards.push(null);
+  }
+};
+
+// 处理卡片交换事件 - 战场区域内位置交换
+const handleCardSwap = (cardId: string, targetIndex: number) => {
+  console.log(`[父组件] 卡片交换事件: 卡片 ${cardId} 交换到目标索引: ${targetIndex}`);
+
+  // 找到源卡片在battlefieldCards中的索引
+  const sourceIndex = battlefieldCards.findIndex((card: Card | null) => card && card.id === cardId);
+
+  if (sourceIndex === -1) {
+    console.error(`[父组件] 未找到卡片: ${cardId} 在战场区域`);
+    return;
+  }
+
+  console.log(`[父组件] 源卡片索引: ${sourceIndex}, 目标索引: ${targetIndex}`);
+
+  // 确保目标索引有效
+  if (targetIndex < 0 || targetIndex >= battlefieldCards.length) {
+    console.error(`[父组件] 无效的目标索引: ${targetIndex}`);
+    return;
+  }
+
+  // 交换卡片位置，确保值为Card | null类型
+  const temp: Card | null = battlefieldCards[sourceIndex] || null;
+  const targetValue: Card | null = battlefieldCards[targetIndex] || null;
+
+  battlefieldCards[sourceIndex] = targetValue;
+  battlefieldCards[targetIndex] = temp;
+
+  console.log(`[父组件] 卡片交换成功: ${cardId} 从索引 ${sourceIndex} 移动到 ${targetIndex}`);
+
+  // 更新交换后卡片的position属性
+  if (battlefieldCards[sourceIndex]) {
+    battlefieldCards[sourceIndex].position = '战场';
+  }
+  if (battlefieldCards[targetIndex]) {
+    battlefieldCards[targetIndex].position = '战场';
   }
 };
 
@@ -514,6 +554,15 @@ watch(
   box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
   transform: scale(1.01);
   transition: all 0.3s ease;
+}
+
+/* 战场区域内可交换样式 - 卡片槽高亮 */
+.battlefield-section .card-slot.swap-allowed {
+  outline: 3px solid #ffc107;
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.8);
+  background-color: rgba(255, 193, 7, 0.1);
+  transform: scale(1.05);
+  transition: all 0.2s ease;
 }
 
 /* 手牌区域可拖入样式 */
