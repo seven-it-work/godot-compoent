@@ -304,25 +304,13 @@ const handleCardMove = (
         fromArea === '手牌' &&
         toArea === '战场' &&
         targetSlotIndex !== undefined &&
-        targetSlotIndex >= 0
+        targetSlotIndex >= 0 &&
+        targetSlotIndex < toArray.length
       ) {
-        // 获取所有战场的空位
-        const emptySlotsIndices: number[] = [];
-        toArray.forEach((c, index) => {
-          if (c === null) {
-            emptySlotsIndices.push(index);
-          }
-        });
-
-        // 使用提供的targetSlotIndex来选择具体的空位
-        if (targetSlotIndex < emptySlotsIndices.length) {
-          const foundIndex = emptySlotsIndices[targetSlotIndex];
-          if (foundIndex !== undefined) {
-            emptyIndex = foundIndex;
-            console.log(
-              `[父组件] 手牌到战场拖拽，使用目标空格子索引: ${targetSlotIndex}，对应数组索引: ${emptyIndex}`
-            );
-          }
+        // 直接使用targetSlotIndex作为战场数组的索引
+        if (toArray[targetSlotIndex] === null) {
+          emptyIndex = targetSlotIndex;
+          console.log(`[父组件] 手牌到战场拖拽，直接使用目标索引: ${targetSlotIndex}`);
         }
       }
 
