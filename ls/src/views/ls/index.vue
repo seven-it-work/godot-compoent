@@ -222,8 +222,15 @@ const handleDragEnd = (cardId: string, targetArea: string | null) => {
 };
 
 // 处理卡片移动
-const handleCardMove = (cardId: string, fromArea: string, toArea: string) => {
-  console.log(`[父组件] 卡片移动事件: 卡片 ${cardId} 从 ${fromArea} 移动到 ${toArea}`);
+const handleCardMove = (
+  cardId: string,
+  fromArea: string,
+  toArea: string,
+  targetSlotIndex?: number
+) => {
+  console.log(
+    `[父组件] 卡片移动事件: 卡片 ${cardId} 从 ${fromArea} 移动到 ${toArea}${targetSlotIndex !== undefined ? `, 目标空格子索引: ${targetSlotIndex}` : ''}`
+  );
 
   // 从原区域获取卡片数据
   let card: Card | null = null;
@@ -249,8 +256,42 @@ const handleCardMove = (cardId: string, fromArea: string, toArea: string) => {
       else if (toArea === '战场') toArray = battlefieldCards;
       else if (toArea === '手牌') toArray = handCards;
 
-      // 找到目标区域的第一个空位
-      const emptyIndex = toArray.findIndex(c => c === null);
+      // 找到目标区域的空位
+      let emptyIndex = -1;
+
+      // 如果是手牌到战场的拖拽，且提供了targetSlotIndex，使用该索引
+      if (
+        fromArea === '手牌' &&
+        toArea === '战场' &&
+        targetSlotIndex !== undefined &&
+        targetSlotIndex >= 0
+      ) {
+        // 获取所有战场的空位
+        const emptySlotsIndices: number[] = [];
+        toArray.forEach((c, index) => {
+          if (c === null) {
+            emptySlotsIndices.push(index);
+          }
+        });
+
+        // 使用提供的targetSlotIndex来选择具体的空位
+        if (targetSlotIndex < emptySlotsIndices.length) {
+          const foundIndex = emptySlotsIndices[targetSlotIndex];
+          if (foundIndex !== undefined) {
+            emptyIndex = foundIndex;
+            console.log(
+              `[父组件] 手牌到战场拖拽，使用目标空格子索引: ${targetSlotIndex}，对应数组索引: ${emptyIndex}`
+            );
+          }
+        }
+      }
+
+      // 如果没有提供targetSlotIndex或索引无效，使用第一个空位
+      if (emptyIndex === -1) {
+        emptyIndex = toArray.findIndex(c => c === null);
+        console.log(`[父组件] 使用第一个空位索引: ${emptyIndex}`);
+      }
+
       if (emptyIndex > -1) {
         // 更新卡片位置
         card.position = toArea as '酒馆' | '战场' | '手牌';

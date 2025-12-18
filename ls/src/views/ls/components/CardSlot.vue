@@ -38,7 +38,13 @@ const emit = defineEmits<{
   // 拖拽结束事件
   (e: 'drag-end', cardId: string, targetArea: string | null): void;
   // 卡片移动事件
-  (e: 'card-move', cardId: string, fromArea: CardPosition, toArea: CardPosition): void;
+  (
+    e: 'card-move',
+    cardId: string,
+    fromArea: CardPosition,
+    toArea: CardPosition,
+    targetSlotIndex?: number
+  ): void;
   // 卡片移除事件
   (e: 'card-remove', cardId: string): void;
 }>();
@@ -81,7 +87,7 @@ onMounted(() => {
 
   if (!cardElement) return;
 
-  // 初始化拖拽功能，所有卡片都可以拖拽
+  // 初始化拖拽功能，只有有数据的卡片才可以拖拽
   dragInteraction = interact(cardElement as HTMLElement).draggable({
     // 启用惯性效果，拖拽结束后会有自然的减速
     inertia: true,
@@ -91,13 +97,19 @@ onMounted(() => {
 
     // 自定义光标样式
     cursorChecker() {
-      return 'grabbing'; // 所有卡片都显示拖拽光标
+      return props.data ? 'grabbing' : 'default'; // 只有有数据的卡片显示拖拽光标
     },
 
     // 拖拽事件监听器
     listeners: {
       // 拖拽开始时触发
       start(event: any) {
+        // 如果是空格子，禁止拖拽
+        if (!props.data) {
+          event.stopPropagation();
+          return false;
+        }
+
         const target = event.target as HTMLElement;
 
         // 记录初始位置
@@ -142,6 +154,12 @@ onMounted(() => {
 
       // 拖拽移动时触发
       move(event: any) {
+        // 如果是空格子，禁止拖拽
+        if (!props.data) {
+          event.stopPropagation();
+          return false;
+        }
+
         // 更新卡片位置
         position.value.x += event.dx;
         position.value.y += event.dy;
@@ -153,6 +171,12 @@ onMounted(() => {
 
       // 拖拽结束时触发
       end(event: any) {
+        // 如果是空格子，禁止拖拽
+        if (!props.data) {
+          event.stopPropagation();
+          return false;
+        }
+
         const target = event.target as HTMLElement;
 
         // 获取释放位置
@@ -235,6 +259,7 @@ onMounted(() => {
 
         // 检查是否释放到空格子上
         let isEmptySlot = false;
+        let targetSlotIndex = -1;
 
         if (isBattlefieldArea) {
           // 获取所有战场的空格子
@@ -242,6 +267,8 @@ onMounted(() => {
             '.battlefield-section .card-slot[data-is-empty="true"]'
           );
 
+          // 记录释放到的具体空格子索引
+          let slotIndex = 0;
           for (const slot of emptySlots) {
             const rect = slot.getBoundingClientRect();
             if (
@@ -251,9 +278,13 @@ onMounted(() => {
               releaseY <= rect.bottom
             ) {
               isEmptySlot = true;
-              console.log(`[区域检查] 卡片 ${props.cardId} 释放到战场空格子上`);
+              targetSlotIndex = slotIndex;
+              console.log(
+                `[区域检查] 卡片 ${props.cardId} 释放到战场空格子上，索引: ${targetSlotIndex}`
+              );
               break;
             }
+            slotIndex++;
           }
         }
 
@@ -284,11 +315,11 @@ onMounted(() => {
         }
         // 逻辑3：手牌卡片拖拽到战场空格子，卡片移动
         else if (isEmptySlot && initialPositionType.value === '手牌') {
-          // 在战场空格子释放，发送移动事件
+          // 在战场空格子释放，发送移动事件，传递目标空格子索引
           console.log(
-            `[位置更新] 卡片 ${props.cardId} 从 ${initialPositionType.value} 移动到战场区域`
+            `[位置更新] 卡片 ${props.cardId} 从 ${initialPositionType.value} 移动到战场区域，目标空格子索引: ${targetSlotIndex}`
           );
-          emit('card-move', props.cardId, initialPositionType.value, '战场');
+          emit('card-move', props.cardId, initialPositionType.value, '战场', targetSlotIndex);
           // 重置位置
           position.value = { x: 0, y: 0 };
           console.log(`[位置更新] 卡片 ${props.cardId} 位置重置为 (0, 0)`);
