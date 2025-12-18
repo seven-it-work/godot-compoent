@@ -303,7 +303,9 @@ const handleCardRemove = (cardId: string) => {
   const cardIndex = cards.findIndex(c => c.id === cardId);
   if (cardIndex > -1) {
     const removedCard = cards.splice(cardIndex, 1)[0];
-    console.log(`[父组件] 卡片 ${removedCard.id} 已从 ${removedCard.position} 区域移除`);
+    if (removedCard) {
+      console.log(`[父组件] 卡片 ${removedCard.id} 已从 ${removedCard.position} 区域移除`);
+    }
     console.log(`[父组件] 当前卡片数量: ${cards.length}`);
   }
 };
