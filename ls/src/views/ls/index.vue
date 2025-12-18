@@ -1,67 +1,291 @@
 <template>
   <div class="vertical-hearthstone">
     <div class="game-container">
-      <!-- 第一行：5个卡片槽 -->
-      <div class="card-row">
-        <div class="card-slot" v-for="i in 5" :key="'row1-' + i"></div>
+      <!-- 酒馆区域 -->
+      <div class="game-section tavern-section">
+        <!-- 第一行：5个卡片槽 -->
+        <div class="card-row">
+          <CardSlot
+            v-for="card in cards.filter(
+              card => card.position === '酒馆' && card.id.startsWith('tavern-1-')
+            )"
+            :key="card.id"
+            :card-id="card.id"
+            :position-type="card.position"
+            @drag-start="handleDragStart"
+            @drag-end="handleDragEnd"
+            @card-move="handleCardMove"
+          ></CardSlot>
+          <div
+            v-for="i in Math.max(
+              0,
+              5 -
+                cards.filter(card => card.position === '酒馆' && card.id.startsWith('tavern-1-'))
+                  .length
+            )"
+            :key="'empty-tavern-1-' + i"
+            class="card-slot empty"
+          ></div>
+        </div>
+
+        <!-- 第二行：2个卡片槽 -->
+        <div class="card-row">
+          <CardSlot
+            v-for="card in cards.filter(
+              card => card.position === '酒馆' && card.id.startsWith('tavern-2-')
+            )"
+            :key="card.id"
+            :card-id="card.id"
+            :position-type="card.position"
+            @drag-start="handleDragStart"
+            @drag-end="handleDragEnd"
+            @card-move="handleCardMove"
+          ></CardSlot>
+          <div
+            v-for="i in Math.max(
+              0,
+              2 -
+                cards.filter(card => card.position === '酒馆' && card.id.startsWith('tavern-2-'))
+                  .length
+            )"
+            :key="'empty-tavern-2-' + i"
+            class="card-slot empty"
+          ></div>
+          <div class="info-panel tavern-info">
+            <div class="stats-row">
+              <div>酒馆等级：1级</div>
+              <button>升级(1)</button>
+            </div>
+
+            <div class="buttons-row">
+              <div>第x回合</div>
+              <button>刷新(1)</button>
+              <button>冻结(0)</button>
+            </div>
+
+            <div class="stats-row">
+              <div>生命值：30 护甲：7</div>
+              <button>技能</button>
+            </div>
+
+            <div class="buttons-row">
+              <div>铸币：10/10</div>
+              <button>设置</button>
+              <button>调试</button>
+            </div>
+          </div>
+        </div>
       </div>
+      <!-- 战场区域 -->
+      <div class="game-section battlefield-section">
+        <!-- 第三行：5个卡片槽 -->
+        <div class="card-row">
+          <CardSlot
+            v-for="card in cards.filter(
+              card => card.position === '战场' && card.id.startsWith('battlefield-1-')
+            )"
+            :key="card.id"
+            :card-id="card.id"
+            :position-type="card.position"
+            @drag-start="handleDragStart"
+            @drag-end="handleDragEnd"
+            @card-move="handleCardMove"
+          ></CardSlot>
+          <div
+            v-for="i in Math.max(
+              0,
+              5 -
+                cards.filter(
+                  card => card.position === '战场' && card.id.startsWith('battlefield-1-')
+                ).length
+            )"
+            :key="'empty-battlefield-1-' + i"
+            class="card-slot empty"
+          ></div>
+        </div>
 
-      <!-- 第二行：2个卡片槽 -->
-      <div class="card-row">
-        <div class="card-slot" v-for="i in 2" :key="'row2-' + i"></div>
-        <div class="info-panel tavern-info">
-          <div class="stats-row">
-            <div>酒馆等级：1级</div>
-            <button>升级(1)</button>
-          </div>
-
-          <div class="buttons-row">
-            <div>第x回合</div>
-            <button>刷新(1)</button>
-            <button>冻结(0)</button>
-          </div>
-
-          <div class="stats-row">
-            <div>生命值：30 护甲：7</div>
-            <button>技能</button>
-          </div>
-
-          <div class="buttons-row">
-            <div>铸币：10/10</div>
-            <button>设置</button>
-            <button>调试</button>
+        <!-- 第四行：2个卡片槽  -->
+        <div class="card-row">
+          <CardSlot
+            v-for="card in cards.filter(
+              card => card.position === '战场' && card.id.startsWith('battlefield-2-')
+            )"
+            :key="card.id"
+            :card-id="card.id"
+            :position-type="card.position"
+            @drag-start="handleDragStart"
+            @drag-end="handleDragEnd"
+            @card-move="handleCardMove"
+          ></CardSlot>
+          <div
+            v-for="i in Math.max(
+              0,
+              2 -
+                cards.filter(
+                  card => card.position === '战场' && card.id.startsWith('battlefield-2-')
+                ).length
+            )"
+            :key="'empty-battlefield-2-' + i"
+            class="card-slot empty"
+          ></div>
+          <div class="info-panel player-info">
+            <div>选中的卡片信息</div>
           </div>
         </div>
       </div>
 
-      <!-- 第三行：5个卡片槽 -->
-      <div class="card-row">
-        <div class="card-slot" v-for="i in 5" :key="'row3-' + i"></div>
-      </div>
-
-      <!-- 第四行：2个卡片槽  -->
-      <div class="card-row">
-        <div class="card-slot" v-for="i in 2" :key="'row4-' + i"></div>
-        <div class="info-panel player-info">
-          <div>选中的卡片信息</div>
+      <!-- 手牌区域 -->
+      <div class="game-section hand-section" :class="{ 'drop-allowed': isDragActive }">
+        <!-- 第五行：5个卡片槽 -->
+        <div class="card-row">
+          <CardSlot
+            v-for="card in cards.filter(
+              card => card.position === '手牌' && card.id.startsWith('hand-1-')
+            )"
+            :key="card.id"
+            :card-id="card.id"
+            :position-type="card.position"
+            @drag-start="handleDragStart"
+            @drag-end="handleDragEnd"
+            @card-move="handleCardMove"
+          ></CardSlot>
+          <div
+            v-for="i in Math.max(
+              0,
+              5 -
+                cards.filter(card => card.position === '手牌' && card.id.startsWith('hand-1-'))
+                  .length
+            )"
+            :key="'empty-hand-1-' + i"
+            class="card-slot empty"
+          ></div>
         </div>
-      </div>
 
-      <!-- 第五行：5个卡片槽 -->
-      <div class="card-row">
-        <div class="card-slot" v-for="i in 5" :key="'row5-' + i"></div>
-      </div>
-
-      <!-- 第六行：5个卡片槽 -->
-      <div class="card-row">
-        <div class="card-slot" v-for="i in 5" :key="'row6-' + i"></div>
+        <!-- 第六行：5个卡片槽 -->
+        <div class="card-row">
+          <CardSlot
+            v-for="card in cards.filter(
+              card => card.position === '手牌' && card.id.startsWith('hand-2-')
+            )"
+            :key="card.id"
+            :card-id="card.id"
+            :position-type="card.position"
+            @drag-start="handleDragStart"
+            @drag-end="handleDragEnd"
+            @card-move="handleCardMove"
+          ></CardSlot>
+          <div
+            v-for="i in Math.max(
+              0,
+              5 -
+                cards.filter(card => card.position === '手牌' && card.id.startsWith('hand-2-'))
+                  .length
+            )"
+            :key="'empty-hand-2-' + i"
+            class="card-slot empty"
+          ></div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// 竖屏炉石游戏组件
+import { ref, reactive, watch } from 'vue';
+import CardSlot from './components/CardSlot.vue';
+
+// 定义卡片类型
+interface Card {
+  id: string;
+  position: '酒馆' | '战场' | '手牌';
+}
+
+// 拖拽状态
+const isDragActive = ref(false);
+
+// 当前拖拽的卡片ID
+const currentDraggingCard = ref<string | null>(null);
+
+// 卡片数据数组
+const cards = reactive<Card[]>([]);
+
+// 初始化卡片数据
+const initCards = () => {
+  // 初始化酒馆卡片
+  for (let i = 1; i <= 5; i++) {
+    cards.push({ id: `tavern-1-${i}`, position: '酒馆' });
+  }
+  for (let i = 1; i <= 2; i++) {
+    cards.push({ id: `tavern-2-${i}`, position: '酒馆' });
+  }
+
+  // 初始化战场卡片
+  for (let i = 1; i <= 5; i++) {
+    cards.push({ id: `battlefield-1-${i}`, position: '战场' });
+  }
+  for (let i = 1; i <= 2; i++) {
+    cards.push({ id: `battlefield-2-${i}`, position: '战场' });
+  }
+
+  // 初始化手牌卡片
+  for (let i = 1; i <= 5; i++) {
+    cards.push({ id: `hand-1-${i}`, position: '手牌' });
+  }
+  for (let i = 1; i <= 5; i++) {
+    cards.push({ id: `hand-2-${i}`, position: '手牌' });
+  }
+};
+
+// 初始化卡片
+initCards();
+
+// 处理拖拽开始
+const handleDragStart = (cardId: string) => {
+  const card = cards.find(c => c.id === cardId);
+  currentDraggingCard.value = cardId;
+
+  // 只有拖拽酒馆卡片时才激活手牌区域的高亮样式
+  if (card?.position === '酒馆') {
+    isDragActive.value = true;
+  } else {
+    isDragActive.value = false;
+  }
+
+  console.log(
+    `[父组件] 开始拖拽卡片: ${cardId}, 当前位置: ${card?.position}, 激活高亮: ${isDragActive.value}`
+  );
+};
+
+// 处理拖拽结束
+const handleDragEnd = (cardId: string, targetArea: string | null) => {
+  console.log(`[父组件] 拖拽结束: 卡片 ${cardId}, 目标区域: ${targetArea || '非手牌区域'}`);
+  isDragActive.value = false;
+  currentDraggingCard.value = null;
+};
+
+// 处理卡片移动
+const handleCardMove = (cardId: string, fromArea: string, toArea: string) => {
+  console.log(`[父组件] 卡片移动事件: 卡片 ${cardId} 从 ${fromArea} 移动到 ${toArea}`);
+  // 更新卡片位置
+  const card = cards.find(c => c.id === cardId);
+  if (card) {
+    const oldPosition = card.position;
+    card.position = toArea as '酒馆' | '战场' | '手牌';
+    console.log(
+      `[父组件] 卡片位置更新: 卡片 ${cardId} 位置从 ${oldPosition} 变为 ${card.position}`
+    );
+    console.log(`[父组件] 当前所有卡片位置:`, JSON.parse(JSON.stringify(cards)));
+  }
+};
+
+// 监听卡片位置变化
+watch(
+  () => JSON.parse(JSON.stringify(cards)),
+  (newCards: Card[], oldCards: Card[]) => {
+    console.log(`[父组件] 卡片位置映射变化: 旧位置:`, oldCards, `新位置:`, newCards);
+  },
+  { deep: true }
+);
 </script>
 
 <style scoped>
@@ -88,18 +312,17 @@
   display: flex;
   gap: 2%;
   flex: 1;
-}
-
-.card-slot {
-  flex: 1;
-  border: 2px solid #000;
-  background-color: #fff;
-  aspect-ratio: 1/1.5;
+  align-items: center;
+  justify-content: space-around;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  padding: 1%;
+  box-sizing: border-box;
 }
 
 .info-panel {
   flex: 3;
-  border: 2px solid #000;
+  border: 3px solid #000;
   background-color: #fff;
   display: flex;
   justify-content: center;
@@ -109,6 +332,8 @@
   text-align: center;
   padding: 1%;
   box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .tavern-info {
@@ -117,6 +342,10 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: stretch;
+  border: 3px solid #8b4513;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(255, 250, 240, 0.95) 0%, rgba(245, 235, 225, 0.9) 100%);
+  padding: 1%;
 }
 
 .tavern-info > div,
@@ -133,16 +362,23 @@
 
 .tavern-info > button {
   cursor: pointer;
-  background-color: #e0e0e0;
-  transition: background-color 0.2s;
+  background: linear-gradient(145deg, #ffffff, #e0e0e0);
+  border: 1px solid #ccc;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .tavern-info > button:hover {
-  background-color: #d0d0d0;
+  background: linear-gradient(145deg, #f0f0f0, #d0d0d0);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
 .player-info {
-  background-color: #f0f8ff;
+  background: linear-gradient(135deg, rgba(240, 248, 255, 0.95) 0%, rgba(220, 230, 245, 0.9) 100%);
+  border: 3px solid #4169e1;
+  border-radius: 8px;
+  padding: 1%;
 }
 
 .tavern-info .stats-row {
@@ -155,5 +391,73 @@
   display: flex;
   gap: 2%;
   flex: 1;
+}
+
+/* 游戏区域样式 */
+.game-section {
+  border: 4px solid #ccc;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.9);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2%;
+  box-sizing: border-box;
+  overflow: visible;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.game-section:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* 酒馆区域样式 */
+.tavern-section {
+  min-height: 63vmin;
+  border-color: #8b4513;
+  background: linear-gradient(135deg, rgba(248, 248, 248, 0.95) 0%, rgba(230, 220, 200, 0.9) 100%);
+  border: 4px solid #8b4513;
+  border-top: 5px solid #a0522d;
+}
+
+/* 战场区域样式 */
+.battlefield-section {
+  min-height: 61vmin;
+  border-color: #228b22;
+  background: linear-gradient(135deg, rgba(240, 248, 255, 0.95) 0%, rgba(220, 240, 220, 0.9) 100%);
+  border: 4px solid #228b22;
+  border-top: 5px solid #2e8b57;
+}
+
+/* 手牌区域样式 */
+.hand-section {
+  min-height: 61vmin;
+  border-color: #4169e1;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(220, 230, 255, 0.9) 100%);
+  border: 4px solid #4169e1;
+  border-top: 5px solid #1e90ff;
+  transition: all 0.3s ease;
+}
+
+/* 手牌区域可拖入样式 */
+.hand-section.drop-allowed {
+  border-color: #00ff00;
+  border: 4px dashed #00ff00;
+  background: linear-gradient(135deg, rgba(240, 255, 240, 0.95) 0%, rgba(220, 255, 220, 0.9) 100%);
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+  transform: scale(1.01);
+}
+
+/* 空卡片槽样式 */
+.card-row .card-slot.empty {
+  flex: 1;
+  border: 2px dashed #ccc;
+  background-color: rgba(255, 255, 255, 0.5);
+  cursor: default;
+  aspect-ratio: 1/1.5;
+  position: relative;
+  touch-action: none;
+  user-select: none;
 }
 </style>
