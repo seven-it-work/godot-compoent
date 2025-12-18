@@ -2,12 +2,18 @@
   <div
     ref="cardRef"
     class="card-slot"
-    :class="`position-${props.positionType}`"
+    :class="[
+      `position-${props.positionType}`,
+      { empty: props.data === null || props.data === undefined },
+    ]"
     :data-x="position.x"
     :data-y="position.y"
     :data-position-type="props.positionType"
+    :data-is-empty="props.data === null || props.data === undefined"
     :style="{ transform: `translate(${position.x}px, ${position.y}px)` }"
-  ></div>
+  >
+    <span v-if="data">{{ data.id.slice(-10) }}</span>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -22,6 +28,7 @@ type CardPosition = '酒馆' | '战场' | '手牌';
 const props = defineProps<{
   positionType: CardPosition;
   cardId: string;
+  data?: any; // 卡片数据，如果为null或undefined则表示空格子
 }>();
 
 // 定义事件
@@ -112,6 +119,25 @@ onMounted(() => {
 
         // 禁用过渡效果，使拖拽更流畅
         target.style.transition = 'none';
+
+        // 逻辑1：如果是手牌拖拽，高亮战场的空格子
+        if (props.positionType === '手牌') {
+          console.log(`[高亮处理] 手牌卡片 ${props.cardId} 开始拖拽，高亮战场空格子`);
+          const emptySlots = document.querySelectorAll(
+            '.battlefield-section .card-slot[data-is-empty="true"]'
+          );
+          emptySlots.forEach(slot => {
+            slot.classList.add('drop-allowed');
+          });
+        }
+        // 逻辑2：如果是战场卡片拖拽，高亮酒馆区域
+        else if (props.positionType === '战场') {
+          console.log(`[高亮处理] 战场卡片 ${props.cardId} 开始拖拽，高亮酒馆区域`);
+          const tavernAreas = document.querySelectorAll('.tavern-section');
+          tavernAreas.forEach(area => {
+            area.classList.add('drop-allowed');
+          });
+        }
       },
 
       // 拖拽移动时触发
@@ -183,8 +209,60 @@ onMounted(() => {
           }
         }
 
+        // 检查是否在战场区域释放
+        const battlefieldAreas = document.querySelectorAll('.game-section.battlefield-section');
+        let isBattlefieldArea = false;
+        let battlefieldAreaRects: DOMRect[] = [];
+
+        for (const area of battlefieldAreas) {
+          const rect = area.getBoundingClientRect();
+          battlefieldAreaRects.push(rect);
+          console.log(
+            `[区域检查] 战场区域坐标: 左=${rect.left}, 右=${rect.right}, 上=${rect.top}, 下=${rect.bottom}`
+          );
+
+          if (
+            releaseX >= rect.left &&
+            releaseX <= rect.right &&
+            releaseY >= rect.top &&
+            releaseY <= rect.bottom
+          ) {
+            isBattlefieldArea = true;
+            console.log(`[区域检查] 卡片 ${props.cardId} 释放到战场区域内`);
+            break;
+          }
+        }
+
+        // 检查是否释放到空格子上
+        let isEmptySlot = false;
+
+        if (isBattlefieldArea) {
+          // 获取所有战场的空格子
+          const emptySlots = document.querySelectorAll(
+            '.battlefield-section .card-slot[data-is-empty="true"]'
+          );
+
+          for (const slot of emptySlots) {
+            const rect = slot.getBoundingClientRect();
+            if (
+              releaseX >= rect.left &&
+              releaseX <= rect.right &&
+              releaseY >= rect.top &&
+              releaseY <= rect.bottom
+            ) {
+              isEmptySlot = true;
+              console.log(`[区域检查] 卡片 ${props.cardId} 释放到战场空格子上`);
+              break;
+            }
+          }
+        }
+
         // 发送拖拽结束事件
-        emit('drag-end', props.cardId, isHandArea ? 'hand' : isTavernArea ? 'tavern' : null);
+        emit(
+          'drag-end',
+          props.cardId,
+          isHandArea ? 'hand' : isTavernArea ? 'tavern' : isBattlefieldArea ? 'battlefield' : null
+        );
 
         // 逻辑1：战场卡片拖拽到酒馆区域，卡片消失
         if (isTavernArea && initialPositionType.value === '战场') {
@@ -200,6 +278,17 @@ onMounted(() => {
             `[位置更新] 卡片 ${props.cardId} 从 ${initialPositionType.value} 移动到手牌区域`
           );
           emit('card-move', props.cardId, initialPositionType.value, '手牌');
+          // 重置位置
+          position.value = { x: 0, y: 0 };
+          console.log(`[位置更新] 卡片 ${props.cardId} 位置重置为 (0, 0)`);
+        }
+        // 逻辑3：手牌卡片拖拽到战场空格子，卡片移动
+        else if (isEmptySlot && initialPositionType.value === '手牌') {
+          // 在战场空格子释放，发送移动事件
+          console.log(
+            `[位置更新] 卡片 ${props.cardId} 从 ${initialPositionType.value} 移动到战场区域`
+          );
+          emit('card-move', props.cardId, initialPositionType.value, '战场');
           // 重置位置
           position.value = { x: 0, y: 0 };
           console.log(`[位置更新] 卡片 ${props.cardId} 位置重置为 (0, 0)`);
@@ -219,6 +308,23 @@ onMounted(() => {
 
         // 重新启用过渡效果
         target.style.transition = 'transform 0.1s ease, opacity 0.2s ease';
+
+        // 移除所有高亮样式
+        // 1. 移除所有空格子的高亮
+        const allEmptySlots = document.querySelectorAll('.card-slot[data-is-empty="true"]');
+        allEmptySlots.forEach(slot => {
+          slot.classList.remove('drop-allowed');
+        });
+        // 2. 移除所有酒馆区域的高亮
+        const tavernAreasEnd = document.querySelectorAll('.tavern-section');
+        tavernAreasEnd.forEach(area => {
+          area.classList.remove('drop-allowed');
+        });
+        // 3. 移除所有手牌区域的高亮
+        const handAreasEnd = document.querySelectorAll('.hand-section');
+        handAreasEnd.forEach(area => {
+          area.classList.remove('drop-allowed');
+        });
       },
     },
   });
@@ -235,27 +341,36 @@ onUnmounted(() => {
 <style scoped>
 .card-slot {
   flex: 1;
-
   border: 2px solid #000;
-
   background-color: #fff;
-
   aspect-ratio: 1/1.5;
-
   position: relative;
-
   cursor: grab;
-
   transition:
     transform 0.1s ease,
-    opacity 0.2s ease;
-
+    opacity 0.2s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
   touch-action: none;
-
   user-select: none;
 }
 
 .card-slot:active {
   cursor: grabbing;
+}
+
+/* 空格子样式 */
+.card-slot.empty {
+  border: 2px dashed #ccc;
+  background-color: rgba(255, 255, 255, 0.5);
+  cursor: default;
+}
+
+/* 可拖入样式 */
+.card-slot.drop-allowed {
+  border: 4px dashed #4169e1;
+  box-shadow: 0 0 15px rgba(65, 105, 225, 0.5);
+  transform: scale(1.05);
+  transition: all 0.3s ease;
 }
 </style>

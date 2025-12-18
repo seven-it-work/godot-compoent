@@ -6,53 +6,31 @@
         <!-- 第一行：5个卡片槽 -->
         <div class="card-row">
           <CardSlot
-            v-for="card in cards.filter(
-              card => card.position === '酒馆' && card.id.startsWith('tavern-1-')
-            )"
-            :key="card.id"
-            :card-id="card.id"
-            :position-type="card.position"
+            v-for="(card, index) in tavernCards.slice(0, 5)"
+            :key="card ? card.id : 'empty-tavern-1-' + index"
+            :card-id="card ? card.id : 'empty-tavern-1-' + index"
+            :position-type="'酒馆'"
+            :data="card"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
           ></CardSlot>
-          <div
-            v-for="i in Math.max(
-              0,
-              5 -
-                cards.filter(card => card.position === '酒馆' && card.id.startsWith('tavern-1-'))
-                  .length
-            )"
-            :key="'empty-tavern-1-' + i"
-            class="card-slot empty"
-          ></div>
         </div>
 
         <!-- 第二行：2个卡片槽 -->
         <div class="card-row">
           <CardSlot
-            v-for="card in cards.filter(
-              card => card.position === '酒馆' && card.id.startsWith('tavern-2-')
-            )"
-            :key="card.id"
-            :card-id="card.id"
-            :position-type="card.position"
+            v-for="(card, index) in tavernCards.slice(5, 7)"
+            :key="card ? card.id : 'empty-tavern-2-' + index"
+            :card-id="card ? card.id : 'empty-tavern-2-' + index"
+            :position-type="'酒馆'"
+            :data="card"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
           ></CardSlot>
-          <div
-            v-for="i in Math.max(
-              0,
-              2 -
-                cards.filter(card => card.position === '酒馆' && card.id.startsWith('tavern-2-'))
-                  .length
-            )"
-            :key="'empty-tavern-2-' + i"
-            class="card-slot empty"
-          ></div>
           <div class="info-panel tavern-info">
             <div class="stats-row">
               <div>酒馆等级：1级</div>
@@ -83,55 +61,31 @@
         <!-- 第三行：5个卡片槽 -->
         <div class="card-row">
           <CardSlot
-            v-for="card in cards.filter(
-              card => card.position === '战场' && card.id.startsWith('battlefield-1-')
-            )"
-            :key="card.id"
-            :card-id="card.id"
-            :position-type="card.position"
+            v-for="(card, index) in battlefieldCards.slice(0, 5)"
+            :key="card ? card.id : 'empty-battlefield-1-' + index"
+            :card-id="card ? card.id : 'empty-battlefield-1-' + index"
+            :position-type="'战场'"
+            :data="card"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
           ></CardSlot>
-          <div
-            v-for="i in Math.max(
-              0,
-              5 -
-                cards.filter(
-                  card => card.position === '战场' && card.id.startsWith('battlefield-1-')
-                ).length
-            )"
-            :key="'empty-battlefield-1-' + i"
-            class="card-slot empty"
-          ></div>
         </div>
 
         <!-- 第四行：2个卡片槽  -->
         <div class="card-row">
           <CardSlot
-            v-for="card in cards.filter(
-              card => card.position === '战场' && card.id.startsWith('battlefield-2-')
-            )"
-            :key="card.id"
-            :card-id="card.id"
-            :position-type="card.position"
+            v-for="(card, index) in battlefieldCards.slice(5, 7)"
+            :key="card ? card.id : 'empty-battlefield-2-' + index"
+            :card-id="card ? card.id : 'empty-battlefield-2-' + index"
+            :position-type="'战场'"
+            :data="card"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
           ></CardSlot>
-          <div
-            v-for="i in Math.max(
-              0,
-              2 -
-                cards.filter(
-                  card => card.position === '战场' && card.id.startsWith('battlefield-2-')
-                ).length
-            )"
-            :key="'empty-battlefield-2-' + i"
-            class="card-slot empty"
-          ></div>
           <div class="info-panel player-info">
             <div>选中的卡片信息</div>
           </div>
@@ -143,53 +97,31 @@
         <!-- 第五行：5个卡片槽 -->
         <div class="card-row">
           <CardSlot
-            v-for="card in cards.filter(
-              card => card.position === '手牌' && card.id.startsWith('hand-1-')
-            )"
-            :key="card.id"
-            :card-id="card.id"
-            :position-type="card.position"
+            v-for="(card, index) in handCards.slice(0, 5)"
+            :key="card ? card.id : 'empty-hand-1-' + index"
+            :card-id="card ? card.id : 'empty-hand-1-' + index"
+            :position-type="'手牌'"
+            :data="card"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
           ></CardSlot>
-          <div
-            v-for="i in Math.max(
-              0,
-              5 -
-                cards.filter(card => card.position === '手牌' && card.id.startsWith('hand-1-'))
-                  .length
-            )"
-            :key="'empty-hand-1-' + i"
-            class="card-slot empty"
-          ></div>
         </div>
 
         <!-- 第六行：5个卡片槽 -->
         <div class="card-row">
           <CardSlot
-            v-for="card in cards.filter(
-              card => card.position === '手牌' && card.id.startsWith('hand-2-')
-            )"
-            :key="card.id"
-            :card-id="card.id"
-            :position-type="card.position"
+            v-for="(card, index) in handCards.slice(5, 10)"
+            :key="card ? card.id : 'empty-hand-2-' + index"
+            :card-id="card ? card.id : 'empty-hand-2-' + index"
+            :position-type="'手牌'"
+            :data="card"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
           ></CardSlot>
-          <div
-            v-for="i in Math.max(
-              0,
-              5 -
-                cards.filter(card => card.position === '手牌' && card.id.startsWith('hand-2-'))
-                  .length
-            )"
-            :key="'empty-hand-2-' + i"
-            class="card-slot empty"
-          ></div>
         </div>
       </div>
     </div>
@@ -215,33 +147,36 @@ const isTavernDragActive = ref(false);
 // 当前拖拽的卡片ID
 const currentDraggingCard = ref<string | null>(null);
 
-// 卡片数据数组
-const cards = reactive<Card[]>([]);
+// 分离的卡片数组，使用数字索引
+const tavernCards = reactive<(Card | null)[]>([]);
+const battlefieldCards = reactive<(Card | null)[]>([]);
+const handCards = reactive<(Card | null)[]>([]);
 
 // 初始化卡片数据
 const initCards = () => {
-  // 初始化酒馆卡片
-  for (let i = 1; i <= 5; i++) {
-    cards.push({ id: `tavern-1-${i}`, position: '酒馆' });
+  // 清空所有数组
+  tavernCards.length = 0;
+  battlefieldCards.length = 0;
+  handCards.length = 0;
+
+  // 初始化酒馆区域：固定7个格子，初始时有3个卡片，4个空格子
+  // 前3个格子有卡片，后4个格子为空
+  for (let i = 1; i <= 3; i++) {
+    tavernCards.push({ id: `tavern-${i}`, position: '酒馆' });
   }
-  for (let i = 1; i <= 2; i++) {
-    cards.push({ id: `tavern-2-${i}`, position: '酒馆' });
+  // 添加4个空格子，使总数量达到7个
+  for (let i = 1; i <= 4; i++) {
+    tavernCards.push(null);
   }
 
-  // 初始化战场卡片
-  for (let i = 1; i <= 5; i++) {
-    cards.push({ id: `battlefield-1-${i}`, position: '战场' });
-  }
-  for (let i = 1; i <= 2; i++) {
-    cards.push({ id: `battlefield-2-${i}`, position: '战场' });
+  // 初始化战场区域：固定7个格子，全部为空格子
+  for (let i = 1; i <= 7; i++) {
+    battlefieldCards.push(null);
   }
 
-  // 初始化手牌卡片
-  for (let i = 1; i <= 5; i++) {
-    cards.push({ id: `hand-1-${i}`, position: '手牌' });
-  }
-  for (let i = 1; i <= 5; i++) {
-    cards.push({ id: `hand-2-${i}`, position: '手牌' });
+  // 初始化手牌区域：固定10个格子，全部为空格子
+  for (let i = 1; i <= 10; i++) {
+    handCards.push(null);
   }
 };
 
@@ -250,7 +185,12 @@ initCards();
 
 // 处理拖拽开始
 const handleDragStart = (cardId: string) => {
-  const card = cards.find(c => c.id === cardId);
+  // 从所有分离的数组中查找卡片
+  let card: Card | null = null;
+  const allCards = [...tavernCards, ...battlefieldCards, ...handCards];
+  const foundCard = allCards.find(c => c && c.id === cardId);
+  card = foundCard || null;
+
   currentDraggingCard.value = cardId;
 
   // 只有拖拽酒馆卡片时才激活手牌区域的高亮样式
@@ -284,37 +224,91 @@ const handleDragEnd = (cardId: string, targetArea: string | null) => {
 // 处理卡片移动
 const handleCardMove = (cardId: string, fromArea: string, toArea: string) => {
   console.log(`[父组件] 卡片移动事件: 卡片 ${cardId} 从 ${fromArea} 移动到 ${toArea}`);
-  // 更新卡片位置
-  const card = cards.find(c => c.id === cardId);
-  if (card) {
-    const oldPosition = card.position;
-    card.position = toArea as '酒馆' | '战场' | '手牌';
-    console.log(
-      `[父组件] 卡片位置更新: 卡片 ${cardId} 位置从 ${oldPosition} 变为 ${card.position}`
-    );
-    console.log(`[父组件] 当前所有卡片位置:`, JSON.parse(JSON.stringify(cards)));
+
+  // 从原区域获取卡片数据
+  let card: Card | null = null;
+  let fromArray: (Card | null)[] = [];
+  let fromIndex = -1;
+
+  // 确定原数组
+  if (fromArea === '酒馆') fromArray = tavernCards;
+  else if (fromArea === '战场') fromArray = battlefieldCards;
+  else if (fromArea === '手牌') fromArray = handCards;
+
+  // 找到卡片在原数组中的位置
+  fromIndex = fromArray.findIndex(c => c && c.id === cardId);
+  if (fromIndex > -1) {
+    // 保存卡片数据（确保类型匹配）
+    card = fromArray[fromIndex] || null;
+    if (card) {
+      // 添加到目标区域
+      let toArray: (Card | null)[] = [];
+
+      // 确定目标数组
+      if (toArea === '酒馆') toArray = tavernCards;
+      else if (toArea === '战场') toArray = battlefieldCards;
+      else if (toArea === '手牌') toArray = handCards;
+
+      // 找到目标区域的第一个空位
+      const emptyIndex = toArray.findIndex(c => c === null);
+      if (emptyIndex > -1) {
+        // 更新卡片位置
+        card.position = toArea as '酒馆' | '战场' | '手牌';
+
+        // 关键逻辑：直接将原位置设为空格子，不改变其他卡片顺序
+        // 对于酒馆区域：拖拽后原位置变成空格子，其他卡片保持原有顺序
+        // 例如：A B C → 拖拽B后 → A null C（而不是A C null）
+        fromArray[fromIndex] = null;
+
+        // 将卡片数据赋值到目标空位
+        toArray[emptyIndex] = card;
+
+        console.log(`[父组件] 卡片位置更新: 卡片 ${cardId} 位置从 ${fromArea} 变为 ${toArea}`);
+        console.log(
+          `[父组件] 当前卡片分布: 酒馆 ${tavernCards.filter(c => c).length}/${tavernCards.length}张, 战场 ${battlefieldCards.filter(c => c).length}/${battlefieldCards.length}张, 手牌 ${handCards.filter(c => c).length}/${handCards.length}张`
+        );
+      } else {
+        console.log(`[父组件] 目标区域 ${toArea} 没有空位，无法移动卡片`);
+      }
+    }
   }
 };
 
 // 处理卡片移除
 const handleCardRemove = (cardId: string) => {
   console.log(`[父组件] 卡片移除事件: 卡片 ${cardId} 被移除`);
-  // 从卡片数组中删除该卡片
-  const cardIndex = cards.findIndex(c => c.id === cardId);
-  if (cardIndex > -1) {
-    const removedCard = cards.splice(cardIndex, 1)[0];
-    if (removedCard) {
-      console.log(`[父组件] 卡片 ${removedCard.id} 已从 ${removedCard.position} 区域移除`);
+
+  // 从所有数组中查找并移除卡片
+  const allArrays = [tavernCards, battlefieldCards, handCards];
+
+  for (const array of allArrays) {
+    const index = array.findIndex(c => c && c.id === cardId);
+    if (index > -1) {
+      const removedCard = array.splice(index, 1)[0];
+      if (removedCard) {
+        // 在原位置插入null以保持数组长度
+        array.splice(index, 0, null);
+        console.log(`[父组件] 卡片 ${removedCard.id} 已从 ${removedCard.position} 区域移除`);
+      }
+      break;
     }
-    console.log(`[父组件] 当前卡片数量: ${cards.length}`);
   }
+
+  console.log(
+    `[父组件] 当前卡片分布: 酒馆 ${tavernCards.length}, 战场 ${battlefieldCards.length}, 手牌 ${handCards.length}`
+  );
 };
 
 // 监听卡片位置变化
 watch(
-  () => JSON.parse(JSON.stringify(cards)),
-  (newCards: Card[], oldCards: Card[]) => {
-    console.log(`[父组件] 卡片位置映射变化: 旧位置:`, oldCards, `新位置:`, newCards);
+  [tavernCards, battlefieldCards, handCards],
+  ([newTavern, newBattlefield, newHand]) => {
+    console.log('[父组件] 卡片数据变化:', {
+      tavern: newTavern,
+      battlefield: newBattlefield,
+      hand: newHand,
+    });
+    // 这里可以添加数据持久化或其他逻辑
   },
   { deep: true }
 );
