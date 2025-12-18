@@ -2,7 +2,7 @@
   <div class="vertical-hearthstone">
     <div class="game-container">
       <!-- 酒馆区域 -->
-      <div class="game-section tavern-section">
+      <div class="game-section tavern-section" :class="{ 'drop-allowed': isTavernDragActive }">
         <!-- 第一行：5个卡片槽 -->
         <div class="card-row">
           <CardSlot
@@ -15,6 +15,7 @@
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
+            @card-remove="handleCardRemove"
           ></CardSlot>
           <div
             v-for="i in Math.max(
@@ -40,6 +41,7 @@
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
+            @card-remove="handleCardRemove"
           ></CardSlot>
           <div
             v-for="i in Math.max(
@@ -90,6 +92,7 @@
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
+            @card-remove="handleCardRemove"
           ></CardSlot>
           <div
             v-for="i in Math.max(
@@ -116,6 +119,7 @@
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
+            @card-remove="handleCardRemove"
           ></CardSlot>
           <div
             v-for="i in Math.max(
@@ -148,6 +152,7 @@
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
+            @card-remove="handleCardRemove"
           ></CardSlot>
           <div
             v-for="i in Math.max(
@@ -173,6 +178,7 @@
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
+            @card-remove="handleCardRemove"
           ></CardSlot>
           <div
             v-for="i in Math.max(
@@ -200,8 +206,11 @@ interface Card {
   position: '酒馆' | '战场' | '手牌';
 }
 
-// 拖拽状态
+// 拖拽状态 - 控制手牌区域高亮
 const isDragActive = ref(false);
+
+// 酒馆拖拽状态 - 控制酒馆区域高亮
+const isTavernDragActive = ref(false);
 
 // 当前拖拽的卡片ID
 const currentDraggingCard = ref<string | null>(null);
@@ -247,19 +256,28 @@ const handleDragStart = (cardId: string) => {
   // 只有拖拽酒馆卡片时才激活手牌区域的高亮样式
   if (card?.position === '酒馆') {
     isDragActive.value = true;
+    isTavernDragActive.value = false;
+  }
+  // 只有拖拽战场卡片时才激活酒馆区域的高亮样式
+  else if (card?.position === '战场') {
+    isDragActive.value = false;
+    isTavernDragActive.value = true;
   } else {
     isDragActive.value = false;
+    isTavernDragActive.value = false;
   }
 
   console.log(
-    `[父组件] 开始拖拽卡片: ${cardId}, 当前位置: ${card?.position}, 激活高亮: ${isDragActive.value}`
+    `[父组件] 开始拖拽卡片: ${cardId}, 当前位置: ${card?.position}, 手牌高亮: ${isDragActive.value}, 酒馆高亮: ${isTavernDragActive.value}`
   );
 };
 
 // 处理拖拽结束
 const handleDragEnd = (cardId: string, targetArea: string | null) => {
   console.log(`[父组件] 拖拽结束: 卡片 ${cardId}, 目标区域: ${targetArea || '非手牌区域'}`);
+  // 重置所有高亮状态
   isDragActive.value = false;
+  isTavernDragActive.value = false;
   currentDraggingCard.value = null;
 };
 
@@ -275,6 +293,18 @@ const handleCardMove = (cardId: string, fromArea: string, toArea: string) => {
       `[父组件] 卡片位置更新: 卡片 ${cardId} 位置从 ${oldPosition} 变为 ${card.position}`
     );
     console.log(`[父组件] 当前所有卡片位置:`, JSON.parse(JSON.stringify(cards)));
+  }
+};
+
+// 处理卡片移除
+const handleCardRemove = (cardId: string) => {
+  console.log(`[父组件] 卡片移除事件: 卡片 ${cardId} 被移除`);
+  // 从卡片数组中删除该卡片
+  const cardIndex = cards.findIndex(c => c.id === cardId);
+  if (cardIndex > -1) {
+    const removedCard = cards.splice(cardIndex, 1)[0];
+    console.log(`[父组件] 卡片 ${removedCard.id} 已从 ${removedCard.position} 区域移除`);
+    console.log(`[父组件] 当前卡片数量: ${cards.length}`);
   }
 };
 
@@ -440,13 +470,25 @@ watch(
   transition: all 0.3s ease;
 }
 
+/* 可拖入样式 - 通用 */
+.game-section.drop-allowed {
+  border-width: 4px;
+  border-style: dashed;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+  transform: scale(1.01);
+  transition: all 0.3s ease;
+}
+
 /* 手牌区域可拖入样式 */
 .hand-section.drop-allowed {
   border-color: #00ff00;
-  border: 4px dashed #00ff00;
   background: linear-gradient(135deg, rgba(240, 255, 240, 0.95) 0%, rgba(220, 255, 220, 0.9) 100%);
-  box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-  transform: scale(1.01);
+}
+
+/* 酒馆区域可拖入样式 */
+.tavern-section.drop-allowed {
+  border-color: #ffa500;
+  background: linear-gradient(135deg, rgba(255, 250, 240, 0.95) 0%, rgba(255, 230, 200, 0.9) 100%);
 }
 
 /* 空卡片槽样式 */

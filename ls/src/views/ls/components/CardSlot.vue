@@ -32,6 +32,8 @@ const emit = defineEmits<{
   (e: 'drag-end', cardId: string, targetArea: string | null): void;
   // 卡片移动事件
   (e: 'card-move', cardId: string, fromArea: CardPosition, toArea: CardPosition): void;
+  // 卡片移除事件
+  (e: 'card-remove', cardId: string): void;
 }>();
 
 // 卡片位置状态
@@ -157,15 +159,41 @@ onMounted(() => {
           }
         }
 
-        if (!isHandArea) {
-          console.log(`[区域检查] 卡片 ${props.cardId} 释放到非手牌区域`);
-          console.log(`[区域检查] 释放点不在任何手牌区域内，手牌区域信息:`, handAreaRects);
+        // 检查是否在酒馆区域释放
+        const tavernAreas = document.querySelectorAll('.game-section.tavern-section');
+        let isTavernArea = false;
+        let tavernAreaRects: DOMRect[] = [];
+
+        for (const area of tavernAreas) {
+          const rect = area.getBoundingClientRect();
+          tavernAreaRects.push(rect);
+          console.log(
+            `[区域检查] 酒馆区域坐标: 左=${rect.left}, 右=${rect.right}, 上=${rect.top}, 下=${rect.bottom}`
+          );
+
+          if (
+            releaseX >= rect.left &&
+            releaseX <= rect.right &&
+            releaseY >= rect.top &&
+            releaseY <= rect.bottom
+          ) {
+            isTavernArea = true;
+            console.log(`[区域检查] 卡片 ${props.cardId} 释放到酒馆区域内`);
+            break;
+          }
         }
 
         // 发送拖拽结束事件
-        emit('drag-end', props.cardId, isHandArea ? 'hand' : null);
+        emit('drag-end', props.cardId, isHandArea ? 'hand' : isTavernArea ? 'tavern' : null);
 
-        // 只有来自酒馆区域的卡片才能移动到手牌区域
+        // 逻辑1：战场卡片拖拽到酒馆区域，卡片消失
+        if (isTavernArea && initialPositionType.value === '战场') {
+          console.log(`[位置更新] 战场卡片 ${props.cardId} 拖拽到酒馆区域，卡片消失`);
+          emit('card-remove', props.cardId);
+          return;
+        }
+
+        // 逻辑2：酒馆卡片拖拽到手牌区域，卡片移动
         if (isHandArea && initialPositionType.value === '酒馆') {
           // 在手牌区域释放，发送移动事件
           console.log(
@@ -176,7 +204,7 @@ onMounted(() => {
           position.value = { x: 0, y: 0 };
           console.log(`[位置更新] 卡片 ${props.cardId} 位置重置为 (0, 0)`);
         } else {
-          // 非手牌区域释放或非酒馆卡片释放，回到初始位置
+          // 其他情况，回到初始位置
           console.log(
             `[位置更新] 卡片 ${props.cardId} 回到初始位置: (${initialPosition.value.x}, ${initialPosition.value.y})`
           );
