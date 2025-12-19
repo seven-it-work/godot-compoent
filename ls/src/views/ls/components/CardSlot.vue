@@ -15,14 +15,21 @@
   >
     <div v-if="data" class="card-content">
       <!-- 左上角圆形数字 -->
-      <div class="corner-badge top-left">1</div>
+      <div class="corner-badge top-left" v-if="data.tier">{{ data.tier }}</div>
       <!-- 右上角圆形数字 -->
-      <div class="corner-badge top-right">3</div>
+      <div class="corner-badge top-right" v-if="positionType === '酒馆'">{{ data.cost }}</div>
+      <!-- 左下角攻击力 -->
+      <div class="corner-badge bottom-left" v-if="data instanceof Minion">
+        {{ data.getAttack() }}
+      </div>
+      <!-- 右下角生命值 -->
+      <div class="corner-badge bottom-right" v-if="data instanceof Minion">
+        {{ data.health }}
+      </div>
 
       <div class="card-name">{{ data.nameCN }}</div>
-      <div class="card-stats">
-        <div>攻:{{ data.getAttack() }}</div>
-        <div>命:{{ data.health }}</div>
+      <div class="minion-types" v-if="data instanceof Minion">
+        {{ data.minionTypesCN.join('\n') }}
       </div>
     </div>
   </div>
@@ -32,7 +39,8 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 import interact from 'interactjs';
-import { Card } from '../../../../game/Card';
+import { Card } from '../../../game/Card';
+import { Minion } from '../../../game/Minion';
 
 // 定义位置类型枚举
 type CardPosition = '酒馆' | '战场' | '手牌';
@@ -556,11 +564,33 @@ onUnmounted(() => {
 /* 左上角徽章 */
 .corner-badge.top-left {
   left: -5px;
+  top: -5px;
 }
 
 /* 右上角徽章 */
 .corner-badge.top-right {
   right: -5px;
+  top: -5px;
+}
+
+/* 左下角徽章 */
+.corner-badge.bottom-left {
+  left: -5px;
+  bottom: -5px;
+  top: auto; /* Override base class top property */
+}
+
+/* 右下角徽章 */
+.corner-badge.bottom-right {
+  right: -5px;
+  bottom: -5px;
+  top: auto; /* Override base class top property */
+}
+
+/* 状态标签样式 */
+.stat-label {
+  font-size: 10px;
+  margin-right: 2px;
 }
 
 /* 卡片名称 */
@@ -568,12 +598,22 @@ onUnmounted(() => {
   font-weight: bold;
   font-size: 16px;
   text-align: center;
+  position: absolute;
+  top: 15px;
 }
 
-/* 卡片属性 */
-.card-stats {
-  display: flex;
-  gap: 20px;
-  font-size: 14px;
+/* 随从类型 */
+.minion-types {
+  font-size: 12px;
+  text-align: center;
+  color: #666;
+  position: absolute;
+  top: auto;
+  bottom: 5px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  white-space: pre-line; /* Allow line breaks with \n */
+  line-height: 1.2;
 }
 </style>

@@ -164,7 +164,6 @@ const initCards = () => {
   // 创建一些实际的随从卡片数据
   const sampleMinions = [
     {
-      id: '1',
       strId: 'BGS_004', // 愤怒编织者
       cardType: CardType.MINION,
       name: 'Wrath Weaver',
@@ -181,7 +180,6 @@ const initCards = () => {
       minionTypesCN: ['恶魔'],
     },
     {
-      id: '2',
       strId: 'BGS_127', // 熔融岩石
       cardType: CardType.MINION,
       name: 'Molten Rock',
@@ -198,7 +196,6 @@ const initCards = () => {
       minionTypesCN: ['元素'],
     },
     {
-      id: '3',
       strId: 'BG_CFM_315', // 雄斑虎
       cardType: CardType.MINION,
       name: 'Alleycat',
@@ -222,7 +219,6 @@ const initCards = () => {
     const MinionClass = minionClassMapByStrId[minionData.strId] || Minion;
 
     const minion = new MinionClass(
-      minionData.id,
       minionData.strId,
       minionData.cardType,
       minionData.name,

@@ -1,3 +1,5 @@
+import { IdGenerator } from '../utils/IdGenerator';
+
 /**
  * 卡片类型 - 定义卡片的类型
  */
@@ -18,7 +20,7 @@ export const CardType = {
  */
 export class Card {
   /** 卡片ID - 唯一标识符 */
-  id: string | number;
+  id: string;
   /** 卡片字符串ID - 用于标识卡片类型 */
   strId: string;
   /** 卡片类型 - 随从、法术、英雄等 */
@@ -46,7 +48,6 @@ export class Card {
 
   /**
    * 卡片构造函数
-   * @param id - 卡片ID
    * @param strId - 卡片字符串ID
    * @param cardType - 卡片类型
    * @param name - 英文名称
@@ -61,7 +62,6 @@ export class Card {
    * @param isTemporary - 是否为临时卡片
    */
   constructor(
-    id: string | number,
     strId: string,
     cardType: CardType,
     name: string,
@@ -75,7 +75,7 @@ export class Card {
     cost: number = 0,
     isTemporary: boolean = false
   ) {
-    this.id = id;
+    this.id = IdGenerator.generateRandomId();
     this.strId = strId;
     this.cardType = cardType;
     this.name = name;

@@ -146,11 +146,6 @@ export class Minion extends Card {
   /** 关键词缓存 - 缓存当前所有关键词（永久+临时），null表示需要重新计算 */
   private keywordsCache: MinionKeyword[] | null = null;
 
-  /** 静态计数器 - 用于生成唯一的实例ID */
-  private static instanceCounter: number = 0;
-  /** 实例ID - 每个随从实例的唯一标识符 */
-  instanceId: string;
-
   /**
    * 清除属性缓存 - 在加成变化、关键词变化或回合开始/结束时调用
    * @注意事项：每当添加/移除加成、修改关键词、开始/结束回合时，必须调用此方法以确保属性计算准确
@@ -181,7 +176,6 @@ export class Minion extends Card {
    * @param upgradeCard - 升级卡片（可选）
    */
   constructor(
-    id: string | number,
     strId: string,
     cardType: CardType,
     name: string,
@@ -198,21 +192,7 @@ export class Minion extends Card {
     minionTypesCN: string[],
     upgradeCard?: UpgradeCard
   ) {
-    super(
-      id,
-      strId,
-      cardType,
-      name,
-      nameCN,
-      text,
-      mechanics,
-      referencedTags,
-      img,
-      art,
-      tier,
-      3,
-      false
-    );
+    super(strId, cardType, name, nameCN, text, mechanics, referencedTags, img, art, tier, 3, false);
 
     // 原始卡片属性初始化
     this.minionTypes = minionTypes;
@@ -238,9 +218,6 @@ export class Minion extends Card {
 
     // 初始化实际属性
     this.health = health;
-
-    // 生成唯一实例ID
-    this.instanceId = `${strId}-${Minion.instanceCounter++}`;
   }
 
   /**
