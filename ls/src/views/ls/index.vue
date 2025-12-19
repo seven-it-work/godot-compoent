@@ -533,8 +533,8 @@ const handleCardMove = (
     // 根据不同的移动类型调用不同的游戏store方法
     if (fromArea === '酒馆' && toArea === '手牌') {
       // 从酒馆购买卡片到手牌
-      // 这里需要根据游戏store的实际API来实现，当前只是模拟
-      console.log(`[父组件] 从酒馆购买卡片: ${card.nameCN}`);
+      const success = gameStore.moveCard(cardId, fromArea, toArea);
+      console.log(`[父组件] 从酒馆购买卡片: ${card.nameCN}, 结果: ${success}`);
     } else if (fromArea === '手牌' && toArea === '战场') {
       // 从手牌放置卡片到战场
       // 这里需要根据游戏store的实际API来实现，当前只是模拟

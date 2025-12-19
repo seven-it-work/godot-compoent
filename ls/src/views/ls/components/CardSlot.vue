@@ -233,10 +233,12 @@ onMounted(() => {
 
         console.log(`[拖拽结束] 卡片: ${props.cardId}, 释放屏幕坐标: (${releaseX}, ${releaseY})`);
 
-        // 检查是否在手牌区域释放
-        const handAreas = document.querySelectorAll('.game-section.hand-section');
+        // 检查是否在手牌区域释放 - 使用正确的选择器
+        const handAreas = document.querySelectorAll('.hand-section');
         let isHandArea = false;
         let handAreaRects: DOMRect[] = [];
+
+        console.log(`[区域检查] 找到手牌区域数量: ${handAreas.length}`);
 
         for (const area of handAreas) {
           const rect = area.getBoundingClientRect();
@@ -258,9 +260,11 @@ onMounted(() => {
         }
 
         // 检查是否在酒馆区域释放
-        const tavernAreas = document.querySelectorAll('.game-section.tavern-section');
+        const tavernAreas = document.querySelectorAll('.tavern-section');
         let isTavernArea = false;
         let tavernAreaRects: DOMRect[] = [];
+
+        console.log(`[区域检查] 找到酒馆区域数量: ${tavernAreas.length}`);
 
         for (const area of tavernAreas) {
           const rect = area.getBoundingClientRect();
@@ -282,9 +286,11 @@ onMounted(() => {
         }
 
         // 检查是否在战场区域释放
-        const battlefieldAreas = document.querySelectorAll('.game-section.battlefield-section');
+        const battlefieldAreas = document.querySelectorAll('.battlefield-section');
         let isBattlefieldArea = false;
         let battlefieldAreaRects: DOMRect[] = [];
+
+        console.log(`[区域检查] 找到战场区域数量: ${battlefieldAreas.length}`);
 
         for (const area of battlefieldAreas) {
           const rect = area.getBoundingClientRect();

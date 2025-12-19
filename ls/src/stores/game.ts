@@ -297,10 +297,47 @@ export const useGameStore = defineStore('game', {
 
       this.battleResult = battleResult;
       this.gameState = 'battle_result';
-
-      console.log('战斗结束，结果:', battleResult);
-      console.log('切换到战斗结果页面');
     },
+
+    // 移动卡片
+    moveCard(cardId: string, fromArea: string, toArea: string) {
+      console.log(`[gameStore] 接收到卡片移动请求: 卡片 ${cardId} 从 ${fromArea} 移动到 ${toArea}`);
+      
+      // 处理从酒馆到手牌的移动
+      if (fromArea === '酒馆' && toArea === '手牌' && this.tavern && this.player) {
+        // 查找要移动的卡片
+        const cardIndex = this.tavern.availableMinions.findIndex(minion => minion.id === cardId);
+        if (cardIndex !== -1) {
+          // 获取要移动的随从
+          const minion = this.tavern.availableMinions[cardIndex];
+          
+          // 检查是否可以招募（金币足够，手牌有空间）
+          if (this.player.gold >= minion.cost && this.player.cards.length < this.player.maxCards) {
+            console.log(`[gameStore] 移动条件满足，开始移动卡片`);
+            
+            // 从酒馆中移除该随从
+            const removedMinion = this.tavern.buyMinion(cardIndex);
+            if (removedMinion) {
+              // 执行招募操作
+              const success = this.player.recruitMinion(removedMinion);
+              console.log(`[gameStore] 招募结果: ${success}`);
+              
+              return success;
+            }
+          } else {
+            console.log(
+              `[gameStore] 移动条件不满足: ${this.player.gold < minion.cost ? '金币不足' : '手牌已满'}`
+            );
+          }
+        } else {
+          console.log(`[gameStore] 未找到要移动的卡片: ${cardId}`);
+        }
+      }
+      
+      return false;
+    }
+
+},
 
     // 从战斗返回，开始新回合
     returnFromBattle() {
