@@ -11,25 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AButton: typeof import('ant-design-vue/es')['Button']
-    ACard: typeof import('ant-design-vue/es')['Card']
-    ACol: typeof import('ant-design-vue/es')['Col']
-    ActionArea: typeof import('./src/components/ActionArea.vue')['default']
-    ARow: typeof import('ant-design-vue/es')['Row']
-    Battlefield: typeof import('./src/components/Battlefield.vue')['default']
-    Card: typeof import('./src/components/Card.vue')['default']
-    DebugDrawer: typeof import('./src/components/DebugDrawer.vue')['default']
-    GameBoard: typeof import('./src/components/GameBoard.vue')['default']
-    Hand: typeof import('./src/components/Hand.vue')['default']
-    HearthstoneBattlefield: typeof import('./src/components/HearthstoneBattlefield.vue')['default']
-    HearthstoneCard: typeof import('./src/components/HearthstoneCard.vue')['default']
-    HearthstoneHand: typeof import('./src/components/HearthstoneHand.vue')['default']
-    HearthstoneTavern: typeof import('./src/components/HearthstoneTavern.vue')['default']
-    MinionCard: typeof import('./src/components/MinionCard.vue')['default']
-    PhaserCardGame: typeof import('./src/components/PhaserCardGame.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    SpellCard: typeof import('./src/components/SpellCard.vue')['default']
-    Tavern: typeof import('./src/components/Tavern.vue')['default']
   }
 }

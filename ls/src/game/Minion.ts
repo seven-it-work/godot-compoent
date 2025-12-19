@@ -1,4 +1,6 @@
-import { Card, CardType } from './Card';
+import { IdGenerator } from '../utils/IdGenerator';
+import type { ICard } from './Card';
+import { Card } from './Card';
 
 /**
  * 随从类型 - 定义随从的种族类型
@@ -97,9 +99,52 @@ export interface UpgradeCard {
 }
 
 /**
+ * 随从接口 - 定义随从特有的属性
+ */
+export interface IMinion extends ICard {
+  /** 随从类型列表 - 随从所属的类型列表 */
+  minionTypes: string[];
+  /** 中文随从类型列表 - 中文显示的随从类型列表 */
+  minionTypesCN: string[];
+  /** 升级卡片 - 用于升级为金色版本的卡片数据（可选） */
+  upgradeCard?: UpgradeCard;
+
+  // 游戏状态属性
+  /** 永久关键词列表 - 随从拥有的永久关键词（通过mechanics映射或永久效果获得） */
+  permanentKeywords: MinionKeyword[];
+  /** 临时关键词列表 - 随从拥有的临时关键词（通过临时效果获得，回合结束时移除） */
+  temporaryKeywords: MinionKeyword[];
+  /** 是否为金色 - 金色随从拥有更强的属性 */
+  isGolden: boolean;
+  /** 是否被冻结 - 冻结状态的随从无法攻击或被操作 */
+  isFrozen: boolean;
+  /** 位置 - 随从在战场上的位置索引，null表示在hand上 */
+  position: number | null;
+  /** 是否已经攻击 - 记录随从是否在当前回合已经攻击过 */
+  hasAttacked: boolean;
+  /** 是否有圣盾 - 记录随从当前是否具有圣盾效果 */
+  hasDivineShield: boolean;
+  /** 是否有复生 - 记录随从当前是否具有复生效果 */
+  hasReborn: boolean;
+  /** 是否已授予塑造法术 - 记录随从是否已经生成过塑造法术 */
+  hasGrantedShapingSpell: boolean;
+  /** 当前生命值 - 随从当前的生命值 */
+  health: number;
+  /** 基础攻击力 - 随从的原始攻击力，不包含任何加成 */
+  attack: number;
+  /** 基础最大生命值 - 随从的原始最大生命值，不包含任何加成 */
+  baseMaxHealth: number;
+
+  /** 永久加成列表 - 存储应用于该随从的永久属性加成（不会在回合结束时移除） */
+  permanentBuffs: MinionBuff[];
+  /** 临时加成列表 - 存储应用于该随从的临时属性加成（回合结束时自动移除） */
+  temporaryBuffs: MinionBuff[];
+}
+
+/**
  * 随从类 - 定义随从的数据结构和行为
  */
-export class Minion extends Card {
+export class Minion extends Card implements IMinion {
   /** 随从类型列表 - 随从所属的类型列表 */
   minionTypes: string[];
   /** 中文随从类型列表 - 中文显示的随从类型列表 */
@@ -131,7 +176,7 @@ export class Minion extends Card {
   /** 基础攻击力 - 随从的原始攻击力，不包含任何加成 */
   private baseAttack: number;
   /** 基础最大生命值 - 随从的原始最大生命值，不包含任何加成 */
-  private baseMaxHealth: number;
+  baseMaxHealth: number;
 
   /** 永久加成列表 - 存储应用于该随从的永久属性加成（不会在回合结束时移除） */
   permanentBuffs: MinionBuff[];
@@ -158,66 +203,41 @@ export class Minion extends Card {
 
   /**
    * 随从构造函数
-   * @param id - 随从ID
-   * @param strId - 随从字符串ID
-   * @param cardType - 卡片类型
-   * @param name - 英文名称
-   * @param nameCN - 中文名称
-   * @param text - 英文描述
-   * @param mechanics - 机制列表
-   * @param referencedTags - 引用标签
-   * @param img - 卡片图片URL
-   * @param art - 卡片艺术图URL
-   * @param tier - 星级
-   * @param health - 生命值
-   * @param attack - 攻击力
-   * @param minionTypes - 随从类型列表
-   * @param minionTypesCN - 中文随从类型列表
-   * @param upgradeCard - 升级卡片（可选）
+   * @param params - 随从属性参数，所有属性可选
    */
-  constructor(
-    strId: string,
-    cardType: CardType,
-    name: string,
-    nameCN: string,
-    text: string,
-    mechanics: string[],
-    referencedTags: string[],
-    img: string,
-    art: string,
-    tier: number,
-    health: number,
-    attack: number,
-    minionTypes: string[],
-    minionTypesCN: string[],
-    upgradeCard?: UpgradeCard
-  ) {
-    super(strId, cardType, name, nameCN, text, mechanics, referencedTags, img, art, tier, 3, false);
+  constructor(params: Partial<IMinion>) {
+    // 调用父类构造函数，设置默认cost为3
+    super({
+      ...params,
+      cost: params.cost || 3,
+      mechanics: params.mechanics || [],
+      referencedTags: params.referencedTags || [],
+    });
 
-    // 原始卡片属性初始化
-    this.minionTypes = minionTypes;
-    this.minionTypesCN = minionTypesCN;
-    this.upgradeCard = upgradeCard;
-
-    // 初始化基础属性
-    this.baseAttack = attack;
-    this.baseMaxHealth = health;
+    // 初始化Minion特有的属性
+    this.minionTypes = params.minionTypes || [];
+    this.minionTypesCN = params.minionTypesCN || [];
+    this.upgradeCard = params.upgradeCard;
 
     // 游戏状态属性初始化
-    this.permanentKeywords = Minion.mapMechanicsToKeywords(mechanics); // 将机制映射为永久关键词
-    this.temporaryKeywords = []; // 初始化临时关键词列表为空数组
-    this.isGolden = false; // 默认不是金色随从
-    this.isFrozen = false; // 默认不处于冻结状态
-    this.position = null; // 默认位置为null（在hand上）
-    this.hasAttacked = false; // 默认未攻击
-    this.hasDivineShield = this.permanentKeywords.includes(MinionKeyword.DIVINE_SHIELD); // 检查是否有圣盾
-    this.hasReborn = this.permanentKeywords.includes(MinionKeyword.REBORN); // 检查是否有复生
-    this.hasGrantedShapingSpell = false; // 是否已授予塑造法术（默认未授予）
-    this.permanentBuffs = []; // 初始化永久加成列表为空数组
-    this.temporaryBuffs = []; // 初始化临时加成列表为空数组
+    this.permanentKeywords = Minion.mapMechanicsToKeywords(params.mechanics || []);
+    this.temporaryKeywords = [];
+    this.isGolden = params.isGolden || false;
+    this.isFrozen = params.isFrozen || false;
+    this.position = params.position !== undefined ? params.position : null;
+    this.hasAttacked = params.hasAttacked || false;
+    this.hasDivineShield = this.permanentKeywords.includes(MinionKeyword.DIVINE_SHIELD);
+    this.hasReborn = this.permanentKeywords.includes(MinionKeyword.REBORN);
+    this.hasGrantedShapingSpell = params.hasGrantedShapingSpell || false;
+    this.health = params.health || 1;
 
-    // 初始化实际属性
-    this.health = health;
+    // 属性初始化
+    this.baseAttack = params.attack || 0;
+    this.baseMaxHealth = params.health || 1;
+
+    // 加成列表初始化
+    this.permanentBuffs = params.permanentBuffs || [];
+    this.temporaryBuffs = params.temporaryBuffs || [];
   }
 
   /**
@@ -431,24 +451,20 @@ export class Minion extends Card {
    */
   clone(): Minion {
     // 使用当前实例的构造函数创建副本，确保子类也能正确克隆
-    return new (this.constructor as typeof Minion)(
-      this.id,
-      this.strId,
-      this.cardType,
-      this.name,
-      this.nameCN,
-      this.text,
-      [...this.mechanics], // 深拷贝机制列表
-      [...this.referencedTags], // 深拷贝引用标签
-      this.img,
-      this.art,
-      this.tier || 1,
-      this.health,
-      this.getAttack(), // 使用计算后的攻击力
-      [...this.minionTypes], // 深拷贝随从类型列表
-      [...this.minionTypesCN], // 深拷贝中文随从类型列表
-      this.upgradeCard
-    );
+    return new (this.constructor as typeof Minion)({
+      ...(this as any),
+      id: IdGenerator.generateRandomId(), // 生成新的ID
+      permanentBuffs: [...this.permanentBuffs], // 深拷贝永久加成
+      temporaryBuffs: [...this.temporaryBuffs], // 深拷贝临时加成
+      mechanics: [...this.mechanics], // 深拷贝机制列表
+      referencedTags: [...this.referencedTags], // 深拷贝引用标签
+      minionTypes: [...this.minionTypes], // 深拷贝随从类型列表
+      minionTypesCN: [...this.minionTypesCN], // 深拷贝中文随从类型列表
+      permanentKeywords: [...this.permanentKeywords], // 深拷贝永久关键词
+      temporaryKeywords: [...this.temporaryKeywords], // 深拷贝临时关键词
+      hasAttacked: false, // 重置攻击状态
+      isFrozen: false, // 重置冻结状态
+    });
   }
 
   /**
@@ -614,7 +630,7 @@ export class Minion extends Card {
    */
   onCardPlayed(card: any, game: any): void {
     // 如果使用的是本随从，触发onMinionPlayed和battlecry
-    if (card.instanceId === this.instanceId) {
+    if (card.id === this.id) {
       this.onMinionPlayed(game);
       this.battlecry(game);
     } else {

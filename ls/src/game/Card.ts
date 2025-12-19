@@ -16,9 +16,9 @@ export const CardType = {
 } as const;
 
 /**
- * 卡片基类 - 定义所有卡片共有的属性和方法
+ * 卡片接口 - 定义所有卡片共有的属性
  */
-export class Card {
+export interface ICard {
   /** 卡片ID - 唯一标识符 */
   id: string;
   /** 卡片字符串ID - 用于标识卡片类型 */
@@ -45,49 +45,62 @@ export class Card {
   cost: number;
   /** 是否为临时卡片 - 临时卡片在回合结束时会消失 */
   isTemporary: boolean;
+  /** 卡片位置 - 卡片当前所在位置，不同类型的卡片可能有不同的类型 */
+  position?: any;
+}
+
+/**
+ * 卡片基类 - 定义所有卡片共有的属性和方法
+ */
+export class Card implements ICard {
+  /** 卡片ID - 唯一标识符 */
+  id: string;
+  /** 卡片字符串ID - 用于标识卡片类型 */
+  strId: string;
+  /** 卡片类型 - 随从、法术、英雄等 */
+  cardType: CardType;
+  /** 英文名称 - 卡片的英文名称 */
+  name: string;
+  /** 中文名称 - 卡片的中文名称 */
+  nameCN: string;
+  /** 英文描述 - 卡片的英文描述 */
+  text: string;
+  /** 机制列表 - 卡片拥有的机制 */
+  mechanics: string[];
+  /** 引用标签 - 卡片引用的游戏标签 */
+  referencedTags: string[];
+  /** 卡片图片URL - 卡片的图片链接 */
+  img: string;
+  /** 卡片艺术图URL - 卡片的艺术图链接 */
+  art: string;
+  /** 星级 - 卡片的星级（1-6），仅对随从有效 */
+  tier?: number;
+  /** 消耗 - 使用该卡片所需的费用 */
+  cost: number;
+  /** 是否为临时卡片 - 临时卡片在回合结束时会消失 */
+  isTemporary: boolean;
+  /** 卡片位置 - 卡片当前所在位置，不同类型的卡片可能有不同的类型 */
+  position?: any;
 
   /**
    * 卡片构造函数
-   * @param strId - 卡片字符串ID
-   * @param cardType - 卡片类型
-   * @param name - 英文名称
-   * @param nameCN - 中文名称
-   * @param text - 英文描述
-   * @param mechanics - 机制列表
-   * @param referencedTags - 引用标签
-   * @param img - 卡片图片URL
-   * @param art - 卡片艺术图URL
-   * @param tier - 星级（可选）
-   * @param cost - 消耗
-   * @param isTemporary - 是否为临时卡片
+   * @param params - 卡片属性参数，所有属性可选
    */
-  constructor(
-    strId: string,
-    cardType: CardType,
-    name: string,
-    nameCN: string,
-    text: string,
-    mechanics: string[],
-    referencedTags: string[],
-    img: string,
-    art: string,
-    tier?: number,
-    cost: number = 0,
-    isTemporary: boolean = false
-  ) {
+  constructor(params: Partial<ICard>) {
     this.id = IdGenerator.generateRandomId();
-    this.strId = strId;
-    this.cardType = cardType;
-    this.name = name;
-    this.nameCN = nameCN;
-    this.text = text;
-    this.mechanics = mechanics;
-    this.referencedTags = referencedTags;
-    this.img = img;
-    this.art = art;
-    this.tier = tier;
-    this.cost = cost;
-    this.isTemporary = isTemporary;
+    this.strId = params.strId || '';
+    this.cardType = params.cardType || 'minion';
+    this.name = params.name || '';
+    this.nameCN = params.nameCN || '';
+    this.text = params.text || '';
+    this.mechanics = params.mechanics || [];
+    this.referencedTags = params.referencedTags || [];
+    this.img = params.img || '';
+    this.art = params.art || '';
+    this.tier = params.tier;
+    this.cost = params.cost || 0;
+    this.isTemporary = params.isTemporary || false;
+    this.position = params.position;
   }
 
   /**
@@ -95,20 +108,19 @@ export class Card {
    * @returns 克隆的卡片实例
    */
   clone(): Card {
-    return new Card(
-      this.id,
-      this.strId,
-      this.cardType,
-      this.name,
-      this.nameCN,
-      this.text,
-      [...this.mechanics],
-      [...this.referencedTags],
-      this.img,
-      this.art,
-      this.tier,
-      this.cost,
-      this.isTemporary
-    );
+    return new Card({
+      strId: this.strId,
+      cardType: this.cardType,
+      name: this.name,
+      nameCN: this.nameCN,
+      text: this.text,
+      mechanics: [...this.mechanics],
+      referencedTags: [...this.referencedTags],
+      img: this.img,
+      art: this.art,
+      tier: this.tier,
+      cost: this.cost,
+      isTemporary: this.isTemporary,
+    });
   }
 }

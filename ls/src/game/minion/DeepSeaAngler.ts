@@ -17,24 +17,24 @@ export class DeepSeaAngler extends Minion {
 
     if (!this.hasGrantedShapingSpell && game.player) {
       // 创建塑造法术
-      const shapingSpell = new Spell(
-        `shaping_${Date.now()}`,
-        '塑造法术：强化随从',
-        '直到下个回合，使一个随从获得+2生命值和嘲讽',
-        'shaping',
-        [
+      const shapingSpell = new Spell({
+        id: 'shaping_spell_health_taunt',
+        nameCN: '塑造法术：强化随从',
+        description: '直到下个回合，使一个随从获得+2生命值和嘲讽',
+        type: 'shaping',
+        effects: [
           { type: 'health_bonus', value: 2, duration: 1, target: 'friendly' },
           { type: 'max_health_bonus', value: 2, duration: 1, target: 'friendly' },
           { type: 'keyword', value: 'taunt', duration: 1, target: 'friendly' },
         ],
-        {
+        targetSelection: {
           scope: 'both', // 允许作用于战场和酒馆中的随从
           targetType: 'minion',
           requiresTarget: true,
         },
-        1,
-        true
-      );
+        duration: 1,
+        isTemporary: true,
+      });
       // 将法术添加到玩家的法术列表中
       const added = game.player.addSpell(shapingSpell);
       if (added) {

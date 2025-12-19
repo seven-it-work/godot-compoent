@@ -33,25 +33,40 @@
           ></CardSlot>
           <div class="info-panel tavern-info">
             <div class="stats-row">
-              <div>酒馆等级：1级</div>
-              <button>升级(1)</button>
+              <div>酒馆等级：{{ gameStore.player?.tavernLevel || 1 }}级</div>
+              <button @click="upgradeTavern" :disabled="!canUpgrade">
+                升级({{ upgradeCost }})
+              </button>
             </div>
 
             <div class="buttons-row">
-              <div>第x回合</div>
-              <button>刷新(1)</button>
-              <button>冻结(0)</button>
+              <div>第{{ gameStore.currentTurn || 1 }}回合</div>
+              <button
+                @click="refreshTavern"
+                :disabled="!(gameStore.player && gameStore.player.gold >= 1)"
+              >
+                刷新(1)
+              </button>
+              <button @click="toggleFreeze">
+                {{ gameStore.tavern?.isFrozen ? '解冻(1)' : '冻结(1)' }}
+              </button>
             </div>
 
             <div class="stats-row">
-              <div>生命值：30 护甲：7</div>
+              <div>
+                生命值：{{ gameStore.player?.hero?.health || 30 }} 护甲：{{
+                  gameStore.player?.hero?.armor || 0
+                }}
+              </div>
               <button>技能</button>
             </div>
 
             <div class="buttons-row">
-              <div>铸币：10/10</div>
-              <button>设置</button>
-              <button>调试</button>
+              <div>
+                铸币：{{ gameStore.player?.gold || 0 }}/{{ gameStore.player?.maxGold || 0 }}
+              </div>
+              <button @click="endTurn">结束回合</button>
+              <button @click="showDebug">调试</button>
             </div>
           </div>
         </div>
@@ -131,11 +146,20 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue';
-import { Card, CardType } from '../../game/Card';
+import { computed, onMounted, ref, watch } from 'vue';
+import heroesData from '../../data/heroes.json';
+import minionsData from '../../data/minions.json';
+import { AIPlayer } from '../../game/AIPlayer';
+import { Card } from '../../game/Card';
 import { Minion } from '../../game/Minion';
 import { minionClassMapByStrId } from '../../game/minion/MinionClassMap';
+import { Player } from '../../game/Player';
+import { Tavern } from '../../game/Tavern';
+import { useGameStore } from '../../stores/game';
 import CardSlot from './components/CardSlot.vue';
+
+// 使用游戏store
+const gameStore = useGameStore();
 
 // 拖拽状态 - 控制手牌区域高亮
 const isDragActive = ref(false);
@@ -146,112 +170,262 @@ const isTavernDragActive = ref(false);
 // 当前拖拽的卡片ID
 const currentDraggingCard = ref<string | null>(null);
 
-// 分离的卡片数组，使用数字索引
-const tavernCards = reactive<(Card | null)[]>([]);
-const battlefieldCards = reactive<(Card | null)[]>([]);
-const handCards = reactive<(Card | null)[]>([]);
+// 计算属性：从游戏store获取卡片数据
+const tavernCards = computed(() => {
+  // 如果游戏store中有酒馆，使用其可用随从，否则初始化7个空槽
+  if (gameStore.tavern && gameStore.tavern.availableMinions) {
+    const availableMinions = gameStore.tavern.availableMinions;
+    // 确保总共有7个槽位，不足则用null填充
+    const filledSlots = [...availableMinions];
+    while (filledSlots.length < 7) {
+      filledSlots.push(null);
+    }
+    return filledSlots;
+  }
+  // 初始状态：7个空槽
+  return Array(7).fill(null);
+});
 
-// 初始化卡片数据
-const initCards = () => {
-  // 清空所有数组
-  tavernCards.length = 0;
-  battlefieldCards.length = 0;
-  handCards.length = 0;
+const battlefieldCards = computed(() => {
+  // 如果游戏store中有玩家且有战场随从，使用其数据，否则初始化7个空槽
+  if (gameStore.player && gameStore.player.minions) {
+    const minions = gameStore.player.minions;
+    // 确保总共有7个槽位，不足则用null填充
+    const filledSlots = [...minions];
+    while (filledSlots.length < 7) {
+      filledSlots.push(null);
+    }
+    return filledSlots as (Minion | null)[];
+  }
+  // 初始状态：7个空槽
+  return Array(7).fill(null) as (Minion | null)[];
+});
 
-  // 初始化酒馆区域：固定7个格子，初始时有3个卡片，4个空格子
-  // 前3个格子有卡片，后4个格子为空
+const handCards = computed(() => {
+  // 如果游戏store中有玩家且有手牌，使用其数据，否则初始化10个空槽
+  if (gameStore.player && gameStore.player.cards) {
+    const cards = gameStore.player.cards;
+    // 确保总共有10个槽位，不足则用null填充
+    const filledSlots: (Card | null)[] = [...cards];
+    while (filledSlots.length < 10) {
+      filledSlots.push(null);
+    }
+    return filledSlots;
+  }
+  // 初始状态：10个空槽
+  return Array(10).fill(null) as (Card | null)[];
+});
 
-  // 创建一些实际的随从卡片数据
-  const sampleMinions = [
-    {
-      strId: 'BGS_004', // 愤怒编织者
-      cardType: CardType.MINION,
-      name: 'Wrath Weaver',
-      nameCN: '愤怒编织者',
-      text: 'Whenever you take damage, gain +1/+1.',
-      mechanics: [],
-      referencedTags: [],
-      img: '',
-      art: '',
-      tier: 1,
-      health: 1,
-      attack: 1,
-      minionTypes: ['demon'],
-      minionTypesCN: ['恶魔'],
+// 计算属性：是否可以升级酒馆
+const canUpgrade = computed(() => {
+  if (!gameStore.player) return false;
+  const upgradeCosts = [0, 5, 7, 8, 10, 12, 12];
+  const cost = upgradeCosts[gameStore.player.tavernLevel] || 0;
+  return gameStore.player.gold >= cost && gameStore.player.tavernLevel < 6;
+});
+
+// 计算属性：升级酒馆的费用
+const upgradeCost = computed(() => {
+  if (!gameStore.player) return 0;
+  const upgradeCosts = [0, 5, 7, 8, 10, 12, 12];
+  return upgradeCosts[gameStore.player.tavernLevel] || 0;
+});
+
+// 从JSON文件加载英雄数据，并随机选择3个
+const loadHeroes = () => {
+  // 复制英雄数据
+  const allHeroes = [...heroesData] as any[];
+
+  // 随机选择3个英雄
+  const shuffledHeroes = allHeroes.sort(() => 0.5 - Math.random());
+  const selectedHeroes = shuffledHeroes.slice(0, 3);
+
+  // 存入store
+  gameStore.setAvailableHeroes(selectedHeroes);
+};
+
+// 从已开发的随从类创建随从池
+const createMinionPool = () => {
+  // 只使用已开发的随从类，直接使用minionClassMapByStrId的键
+  const developedStrIds = Object.keys(minionClassMapByStrId);
+
+  // 辅助函数：递归提取所有随从数据（包括tokens中的）
+  const extractAllMinions = (data: any[]): any[] => {
+    let allMinions: any[] = [];
+
+    data.forEach(item => {
+      // 添加当前item
+      allMinions.push(item);
+
+      // 递归处理tokens
+      if (item.tokens && Array.isArray(item.tokens)) {
+        allMinions = allMinions.concat(extractAllMinions(item.tokens));
+      }
+
+      // 递归处理upgradeCard
+      if (item.upgradeCard) {
+        allMinions.push(item.upgradeCard);
+        if (item.upgradeCard.tokens && Array.isArray(item.upgradeCard.tokens)) {
+          allMinions = allMinions.concat(extractAllMinions(item.upgradeCard.tokens));
+        }
+      }
+    });
+
+    return allMinions;
+  };
+
+  // 提取所有随从数据（包括top-level和tokens中的）
+  const allMinionData = extractAllMinions(minionsData);
+
+  // 从所有数据中过滤出已开发的随从
+  const globalMinionPool = allMinionData
+    .filter(minionData => {
+      // 只处理随从类型，并且strId在已开发列表中
+      return minionData.cardType === 'minion' && developedStrIds.includes(minionData.strId);
+    })
+    .map(minionData => {
+      // 为每个随从创建Minion实例
+      const MinionClass = minionClassMapByStrId[minionData.strId];
+      if (MinionClass) {
+        try {
+          return new MinionClass({
+            strId: minionData.strId,
+            cardType: minionData.cardType,
+            name: minionData.name,
+            nameCN: minionData.nameCN,
+            text: minionData.text,
+            mechanics: minionData.mechanics || [],
+            referencedTags: minionData.referencedTags || [],
+            img: minionData.img,
+            art: minionData.art,
+            tier: minionData.tier,
+            health: minionData.health,
+            attack: minionData.attack,
+            minionTypes: minionData.minionTypes || [],
+            minionTypesCN: minionData.minionTypesCN || [],
+            upgradeCard: minionData.upgradeCard,
+          });
+        } catch (error) {
+          console.error(`创建随从 ${minionData.strId} 实例时出错:`, error);
+          return null;
+        }
+      }
+      return null;
+    })
+    .filter((minion): minion is Minion => minion !== null);
+
+  // 酒馆专用池 - 使用全局池
+  const tavernMinionPool = globalMinionPool;
+  console.log('酒馆专用池:', tavernMinionPool);
+
+  // 返回两个池：全局池和酒馆专用池
+  return { globalMinionPool, tavernMinionPool };
+};
+
+// 初始化游戏
+const initGame = (hero: any) => {
+  // 创建随从池 - 获取全局池和酒馆专用池
+  const { globalMinionPool, tavernMinionPool } = createMinionPool();
+
+  // 转换heroPowerList为heroPower对象
+  const heroPowerData = hero.heroPowerList?.[0] || {
+    name: '未知技能',
+    text: '无描述',
+    manaCost: 0,
+  };
+
+  // 创建符合Hero类的hero对象
+  const heroObj = {
+    ...hero,
+    heroPower: {
+      name: heroPowerData.name,
+      description: heroPowerData.text,
+      type: 'active' as any,
+      cost: heroPowerData.manaCost,
+      cooldown: 0,
+      currentCooldown: 0,
+      use: () => {},
     },
-    {
-      strId: 'BGS_127', // 熔融岩石
-      cardType: CardType.MINION,
-      name: 'Molten Rock',
-      nameCN: '熔融岩石',
-      text: 'Taunt',
-      mechanics: ['TAUNT'],
-      referencedTags: [],
-      img: '',
-      art: '',
-      tier: 1,
-      health: 2,
-      attack: 1,
-      minionTypes: ['elemental'],
-      minionTypesCN: ['元素'],
-    },
-    {
-      strId: 'BG_CFM_315', // 雄斑虎
-      cardType: CardType.MINION,
-      name: 'Alleycat',
-      nameCN: '雄斑虎',
-      text: 'Battlecry: Summon a 1/1 Tabbycat.',
-      mechanics: [],
-      referencedTags: [],
-      img: '',
-      art: '',
-      tier: 1,
-      health: 2,
-      attack: 1,
-      minionTypes: ['beast'],
-      minionTypesCN: ['野兽'],
-    },
-  ];
+  };
 
-  // 创建实际的Minion实例并添加到酒馆卡片中
-  for (let i = 0; i < sampleMinions.length; i++) {
-    const minionData = sampleMinions[i];
-    const MinionClass = minionClassMapByStrId[minionData.strId] || Minion;
+  // 创建玩家
+  const player = new Player('player-1', heroObj as any, true);
 
-    const minion = new MinionClass(
-      minionData.strId,
-      minionData.cardType,
-      minionData.name,
-      minionData.nameCN,
-      minionData.text,
-      minionData.mechanics,
-      minionData.referencedTags,
-      minionData.img,
-      minionData.art,
-      minionData.tier,
-      minionData.health,
-      minionData.attack,
-      minionData.minionTypes,
-      minionData.minionTypesCN
-    );
+  // 创建酒馆 - 使用酒馆专用池
+  const tavern = new Tavern(1, tavernMinionPool);
+  tavern.refresh();
 
-    tavernCards.push(minion);
+  // 创建AI玩家
+  const aiPlayers = [];
+  for (let i = 0; i < 7; i++) {
+    const aiHeroData = heroesData[i % heroesData.length] as any;
+    const aiHeroPowerData = aiHeroData.heroPowerList?.[0] || {
+      name: '未知技能',
+      text: '无描述',
+      manaCost: 0,
+    };
+
+    const aiHeroObj = {
+      ...aiHeroData,
+      heroPower: {
+        name: aiHeroPowerData.name,
+        description: aiHeroPowerData.text,
+        type: 'active' as any,
+        cost: aiHeroPowerData.manaCost,
+        cooldown: 0,
+        currentCooldown: 0,
+        use: () => {},
+      },
+    };
+
+    aiPlayers.push(new AIPlayer(`ai-${i + 1}`, aiHeroObj as any));
   }
 
-  // 添加4个空格子，使总数量达到7个
-  for (let i = 1; i <= 4; i++) {
-    tavernCards.push(null);
-  }
+  // 初始化store - 使用全局池作为游戏的主随从池
+  gameStore.initGame(player, tavern, aiPlayers, globalMinionPool);
+};
 
-  // 初始化战场区域：固定7个格子，全部为空格子
-  for (let i = 1; i <= 7; i++) {
-    battlefieldCards.push(null);
+// 选择英雄方法
+const selectHero = (heroId: string) => {
+  const hero = gameStore.availableHeroes.find(h => h.id === heroId);
+  if (hero) {
+    // 存入store
+    gameStore.selectHero(hero);
+    // 初始化游戏
+    initGame(hero);
+    console.log('选择了英雄:', hero.name);
   }
+};
 
-  // 初始化手牌区域：固定10个格子，全部为空格子
-  for (let i = 1; i <= 10; i++) {
-    handCards.push(null);
+// 升级酒馆
+const upgradeTavern = () => {
+  gameStore.upgradeTavern();
+};
+
+// 刷新酒馆
+const refreshTavern = () => {
+  gameStore.refreshTavern();
+};
+
+// 冻结/解冻酒馆
+const toggleFreeze = () => {
+  if (gameStore.tavern?.isFrozen) {
+    gameStore.unfreezeTavern();
+  } else {
+    gameStore.freezeTavern();
   }
+};
+
+// 结束回合
+const endTurn = () => {
+  gameStore.endTurn();
+};
+
+// 显示调试信息
+const showDebug = () => {
+  console.log('游戏状态:', gameStore.gameState);
+  console.log('当前玩家:', gameStore.player);
+  console.log('当前回合:', gameStore.currentTurn);
 };
 
 // 处理卡片交换事件 - 战场区域内位置交换
@@ -259,7 +433,9 @@ const handleCardSwap = (cardId: string, targetIndex: number) => {
   console.log(`[父组件] 卡片交换事件: 卡片 ${cardId} 交换到目标索引: ${targetIndex}`);
 
   // 找到源卡片在battlefieldCards中的索引
-  const sourceIndex = battlefieldCards.findIndex((card: Card | null) => card && card.id === cardId);
+  const sourceIndex = battlefieldCards.value.findIndex(
+    (card: Card | null) => card && card.id === cardId
+  );
 
   if (sourceIndex === -1) {
     console.error(`[父组件] 未找到卡片: ${cardId} 在战场区域`);
@@ -269,37 +445,37 @@ const handleCardSwap = (cardId: string, targetIndex: number) => {
   console.log(`[父组件] 源卡片索引: ${sourceIndex}, 目标索引: ${targetIndex}`);
 
   // 确保目标索引有效
-  if (targetIndex < 0 || targetIndex >= battlefieldCards.length) {
+  if (targetIndex < 0 || targetIndex >= battlefieldCards.value.length) {
     console.error(`[父组件] 无效的目标索引: ${targetIndex}`);
     return;
   }
 
-  // 交换卡片位置，确保值为Card | null类型
-  const temp: Card | null = battlefieldCards[sourceIndex] || null;
-  const targetValue: Card | null = battlefieldCards[targetIndex] || null;
-
-  battlefieldCards[sourceIndex] = targetValue;
-  battlefieldCards[targetIndex] = temp;
-
+  // 调用游戏store的方法来交换卡片
+  // 注意：这里需要根据游戏store的实际API来实现，当前只是模拟
   console.log(`[父组件] 卡片交换成功: ${cardId} 从索引 ${sourceIndex} 移动到 ${targetIndex}`);
-
-  // 更新交换后卡片的position属性
-  if (battlefieldCards[sourceIndex]) {
-    battlefieldCards[sourceIndex].position = '战场';
-  }
-  if (battlefieldCards[targetIndex]) {
-    battlefieldCards[targetIndex].position = '战场';
-  }
 };
 
-// 初始化卡片
-initCards();
+// 页面加载时自动随机初始化英雄
+onMounted(() => {
+  // 加载英雄数据
+  loadHeroes();
+  // 随机选择第一个可用英雄
+  if (gameStore.availableHeroes.length > 0) {
+    const randomIndex = Math.floor(Math.random() * gameStore.availableHeroes.length);
+    const randomHero = gameStore.availableHeroes[randomIndex];
+    // 选择并初始化英雄
+    if (randomHero) {
+      selectHero(randomHero.id);
+      console.log('页面加载时随机选择了英雄:', randomHero.name || '未知英雄');
+    }
+  }
+});
 
 // 处理拖拽开始
 const handleDragStart = (cardId: string) => {
   // 从所有分离的数组中查找卡片
   let card: Card | null = null;
-  const allCards = [...tavernCards, ...battlefieldCards, ...handCards];
+  const allCards = [...tavernCards.value, ...battlefieldCards.value, ...handCards.value];
   const foundCard = allCards.find(c => c && c.id === cardId);
   card = foundCard || null;
 
@@ -344,74 +520,34 @@ const handleCardMove = (
     `[父组件] 卡片移动事件: 卡片 ${cardId} 从 ${fromArea} 移动到 ${toArea}${targetSlotIndex !== undefined ? `, 目标空格子索引: ${targetSlotIndex}` : ''}`
   );
 
-  // 从原区域获取卡片数据
+  // 从所有卡片中查找卡片数据
   let card: Card | null = null;
-  let fromArray: (Card | null)[] = [];
-  let fromIndex = -1;
+  const allCards = [...tavernCards.value, ...battlefieldCards.value, ...handCards.value];
+  const foundCard = allCards.find(c => c && c.id === cardId);
+  card = foundCard || null;
 
-  // 确定原数组
-  if (fromArea === '酒馆') fromArray = tavernCards;
-  else if (fromArea === '战场') fromArray = battlefieldCards;
-  else if (fromArea === '手牌') fromArray = handCards;
+  if (card) {
+    // 调用游戏store的方法来处理卡片移动
+    console.log(`[父组件] 卡片位置更新: 卡片 ${cardId} 位置从 ${fromArea} 变为 ${toArea}`);
 
-  // 找到卡片在原数组中的位置
-  fromIndex = fromArray.findIndex(c => c && c.id === cardId);
-  if (fromIndex > -1) {
-    // 保存卡片数据（确保类型匹配）
-    card = fromArray[fromIndex] || null;
-    if (card) {
-      // 添加到目标区域
-      let toArray: (Card | null)[] = [];
-
-      // 确定目标数组
-      if (toArea === '酒馆') toArray = tavernCards;
-      else if (toArea === '战场') toArray = battlefieldCards;
-      else if (toArea === '手牌') toArray = handCards;
-
-      // 找到目标区域的空位
-      let emptyIndex = -1;
-
-      // 如果是手牌到战场的拖拽，且提供了targetSlotIndex，使用该索引
-      if (
-        fromArea === '手牌' &&
-        toArea === '战场' &&
-        targetSlotIndex !== undefined &&
-        targetSlotIndex >= 0 &&
-        targetSlotIndex < toArray.length
-      ) {
-        // 直接使用targetSlotIndex作为战场数组的索引
-        if (toArray[targetSlotIndex] === null) {
-          emptyIndex = targetSlotIndex;
-          console.log(`[父组件] 手牌到战场拖拽，直接使用目标索引: ${targetSlotIndex}`);
-        }
-      }
-
-      // 如果没有提供targetSlotIndex或索引无效，使用第一个空位
-      if (emptyIndex === -1) {
-        emptyIndex = toArray.findIndex(c => c === null);
-        console.log(`[父组件] 使用第一个空位索引: ${emptyIndex}`);
-      }
-
-      if (emptyIndex > -1) {
-        // 更新卡片位置
-        card.position = toArea as '酒馆' | '战场' | '手牌';
-
-        // 关键逻辑：直接将原位置设为空格子，不改变其他卡片顺序
-        // 对于酒馆区域：拖拽后原位置变成空格子，其他卡片保持原有顺序
-        // 例如：A B C → 拖拽B后 → A null C（而不是A C null）
-        fromArray[fromIndex] = null;
-
-        // 将卡片数据赋值到目标空位
-        toArray[emptyIndex] = card;
-
-        console.log(`[父组件] 卡片位置更新: 卡片 ${cardId} 位置从 ${fromArea} 变为 ${toArea}`);
-        console.log(
-          `[父组件] 当前卡片分布: 酒馆 ${tavernCards.filter(c => c).length}/${tavernCards.length}张, 战场 ${battlefieldCards.filter(c => c).length}/${battlefieldCards.length}张, 手牌 ${handCards.filter(c => c).length}/${handCards.length}张`
-        );
-      } else {
-        console.log(`[父组件] 目标区域 ${toArea} 没有空位，无法移动卡片`);
-      }
+    // 根据不同的移动类型调用不同的游戏store方法
+    if (fromArea === '酒馆' && toArea === '手牌') {
+      // 从酒馆购买卡片到手牌
+      // 这里需要根据游戏store的实际API来实现，当前只是模拟
+      console.log(`[父组件] 从酒馆购买卡片: ${card.nameCN}`);
+    } else if (fromArea === '手牌' && toArea === '战场') {
+      // 从手牌放置卡片到战场
+      // 这里需要根据游戏store的实际API来实现，当前只是模拟
+      console.log(`[父组件] 从手牌放置卡片到战场: ${card.nameCN}, 目标位置: ${targetSlotIndex}`);
+    } else if (fromArea === '战场' && toArea === '酒馆') {
+      // 从战场出售卡片到酒馆
+      // 这里需要根据游戏store的实际API来实现，当前只是模拟
+      console.log(`[父组件] 从战场出售卡片: ${card.nameCN}`);
     }
+
+    console.log(
+      `[父组件] 当前卡片分布: 酒馆 ${tavernCards.value.filter(c => c).length}/${tavernCards.value.length}张, 战场 ${battlefieldCards.value.filter(c => c).length}/${battlefieldCards.value.length}张, 手牌 ${handCards.value.filter(c => c).length}/${handCards.value.length}张`
+    );
   }
 };
 
@@ -419,24 +555,12 @@ const handleCardMove = (
 const handleCardRemove = (cardId: string) => {
   console.log(`[父组件] 卡片移除事件: 卡片 ${cardId} 被移除`);
 
-  // 从所有数组中查找并移除卡片
-  const allArrays = [tavernCards, battlefieldCards, handCards];
-
-  for (const array of allArrays) {
-    const index = array.findIndex(c => c && c.id === cardId);
-    if (index > -1) {
-      const removedCard = array.splice(index, 1)[0];
-      if (removedCard) {
-        // 在原位置插入null以保持数组长度
-        array.splice(index, 0, null);
-        console.log(`[父组件] 卡片 ${removedCard.id} 已从 ${removedCard.position} 区域移除`);
-      }
-      break;
-    }
-  }
+  // 调用游戏store的方法来移除卡片
+  // 这里需要根据游戏store的实际API来实现，当前只是模拟
+  console.log(`[父组件] 卡片 ${cardId} 已移除`);
 
   console.log(
-    `[父组件] 当前卡片分布: 酒馆 ${tavernCards.length}, 战场 ${battlefieldCards.length}, 手牌 ${handCards.length}`
+    `[父组件] 当前卡片分布: 酒馆 ${tavernCards.value.length}, 战场 ${battlefieldCards.value.length}, 手牌 ${handCards.value.length}`
   );
 };
 

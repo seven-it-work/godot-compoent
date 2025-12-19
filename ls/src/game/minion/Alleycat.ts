@@ -35,24 +35,9 @@ export class Alleycat extends Minion {
     }
 
     // 创建雌斑虎实例
-    const tabbycat = new TabbycatClass(
-      tabbycatData.id,
-      tabbycatData.strId,
-      tabbycatData.cardType,
-      tabbycatData.name,
-      tabbycatData.nameCN,
-      tabbycatData.text,
-      tabbycatData.mechanics,
-      tabbycatData.referencedTags,
-      tabbycatData.img,
-      tabbycatData.art,
-      tabbycatData.tier,
-      tabbycatData.health,
-      tabbycatData.attack,
-      tabbycatData.minionTypes,
-      tabbycatData.minionTypesCN,
-      tabbycatData.upgradeCard
-    );
+    const tabbycat = new TabbycatClass({
+      ...tabbycatData,
+    });
 
     // 设置雌斑虎的cost为0，因为是通过战吼召唤的，不需要消耗金币
     tabbycat.cost = 0;

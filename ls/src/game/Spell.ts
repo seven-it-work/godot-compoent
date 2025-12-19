@@ -53,64 +53,58 @@ export interface SpellTargetSelection {
  */
 export class Spell extends Card {
   /** 法术类型 - 塑造法术、普通法术等 */
-  type: 'shaping' | 'normal' | 'hero_power';
+  type!: 'shaping' | 'normal' | 'hero_power';
   /** 法术效果列表 - 法术产生的效果 */
-  effects: SpellEffect[];
+  effects!: SpellEffect[];
   /** 持续回合数 - 法术效果的持续回合数 */
-  duration: number;
+  duration!: number;
   /** 已存在回合数 - 法术已经存在的回合数 */
-  turnsExisted: number;
+  turnsExisted!: number;
   /** 目标选择规则 - 法术的使用范围和目标选择规则 */
-  targetSelection: SpellTargetSelection;
+  targetSelection!: SpellTargetSelection;
 
   /**
-   * 法术构造函数
-   * @param id - 法术ID
-   * @param nameCN - 法术中文名称
-   * @param description - 法术效果描述
-   * @param type - 法术类型
-   * @param effects - 法术效果列表
-   * @param targetSelection - 目标选择规则
-   * @param duration - 持续回合数
-   * @param isTemporary - 是否为临时法术
+   * 法术构造函数 - 使用对象属性赋值方式
+   * @param params - 法术构造参数对象
    */
-  constructor(
-    id: string | number,
-    nameCN: string,
-    description: string,
-    type: 'shaping' | 'normal' | 'hero_power',
-    effects: SpellEffect[],
-    targetSelection: SpellTargetSelection = {
-      scope: 'battlefield',
-      targetType: 'minion',
-      requiresTarget: true,
-    },
-    duration: number = 0,
-    isTemporary: boolean = false
-  ) {
+  constructor(params: {
+    id: string | number;
+    nameCN: string;
+    description: string;
+    type: 'shaping' | 'normal' | 'hero_power';
+    effects: SpellEffect[];
+    targetSelection?: SpellTargetSelection;
+    duration?: number;
+    isTemporary?: boolean;
+  }) {
     // 调用父类构造函数，初始化公共属性
-    super(
-      id,
-      id.toString(), // strId
-      CardType.SPELL, // cardType
-      '', // name (英文名称，暂时为空)
-      nameCN, // nameCN
-      description, // text (描述作为文本)
-      [], // mechanics
-      [], // referencedTags
-      '', // img
-      '', // art
-      undefined, // tier (法术没有星级)
-      0, // cost (默认消耗为0)
-      isTemporary
-    );
+    super({
+      strId: params.id.toString(), // strId
+      cardType: CardType.SPELL, // cardType
+      name: '', // name (英文名称，暂时为空)
+      nameCN: params.nameCN, // nameCN
+      text: params.description, // text (描述作为文本)
+      mechanics: [], // mechanics
+      referencedTags: [], // referencedTags
+      img: '', // img
+      art: '', // art
+      tier: undefined, // tier (法术没有星级)
+      cost: 0, // cost (默认消耗为0)
+      isTemporary: params.isTemporary || false,
+    });
 
     // 初始化法术特有属性
-    this.type = type;
-    this.effects = effects;
-    this.duration = duration;
-    this.turnsExisted = 0;
-    this.targetSelection = targetSelection;
+    Object.assign(this, {
+      type: params.type,
+      effects: params.effects,
+      duration: params.duration || 0,
+      turnsExisted: 0,
+      targetSelection: params.targetSelection || {
+        scope: 'battlefield',
+        targetType: 'minion',
+        requiresTarget: true,
+      },
+    });
   }
 
   /**
