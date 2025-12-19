@@ -13,14 +13,26 @@
     :data-is-empty="props.data === null || props.data === undefined"
     :style="{ transform: `translate(${position.x}px, ${position.y}px)` }"
   >
-    <span v-if="data">{{ data.id.slice(-10) }}</span>
+    <div v-if="data" class="card-content">
+      <!-- 左上角圆形数字 -->
+      <div class="corner-badge top-left">1</div>
+      <!-- 右上角圆形数字 -->
+      <div class="corner-badge top-right">3</div>
+
+      <div class="card-name">{{ data.nameCN }}</div>
+      <div class="card-stats">
+        <div>攻:{{ data.getAttack() }}</div>
+        <div>命:{{ data.health }}</div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 import interact from 'interactjs';
+import { Card } from '../../../../game/Card';
 
 // 定义位置类型枚举
 type CardPosition = '酒馆' | '战场' | '手牌';
@@ -29,7 +41,7 @@ type CardPosition = '酒馆' | '战场' | '手牌';
 const props = defineProps<{
   positionType: CardPosition;
   cardId: string;
-  data?: any; // 卡片数据，如果为null或undefined则表示空格子
+  data?: Card | null; // 卡片数据，如果为null或undefined则表示空格子
 }>();
 
 // 定义事件
@@ -487,6 +499,7 @@ onUnmounted(() => {
     box-shadow 0.3s ease;
   touch-action: none;
   user-select: none;
+  /* Removed overflow: hidden to show corner badges fully */
 }
 
 .card-slot:active {
@@ -506,5 +519,61 @@ onUnmounted(() => {
   box-shadow: 0 0 15px rgba(65, 105, 225, 0.5);
   transform: scale(1.05);
   transition: all 0.3s ease;
+}
+
+/* 卡片内容容器 */
+.card-content {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* 角落圆形徽章 */
+.corner-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #f00;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  position: absolute;
+  top: -5px;
+  border: 2px solid #000;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+/* 左上角徽章 */
+.corner-badge.top-left {
+  left: -5px;
+}
+
+/* 右上角徽章 */
+.corner-badge.top-right {
+  right: -5px;
+}
+
+/* 卡片名称 */
+.card-name {
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* 卡片属性 */
+.card-stats {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
 }
 </style>

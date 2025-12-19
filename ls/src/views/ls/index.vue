@@ -131,14 +131,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
+import { Card, CardType } from '../../game/Card';
+import { Minion } from '../../game/Minion';
+import { minionClassMapByStrId } from '../../game/minion/MinionClassMap';
 import CardSlot from './components/CardSlot.vue';
-
-// 定义卡片类型
-interface Card {
-  id: string;
-  position: '酒馆' | '战场' | '手牌';
-}
 
 // 拖拽状态 - 控制手牌区域高亮
 const isDragActive = ref(false);
@@ -163,9 +160,88 @@ const initCards = () => {
 
   // 初始化酒馆区域：固定7个格子，初始时有3个卡片，4个空格子
   // 前3个格子有卡片，后4个格子为空
-  for (let i = 1; i <= 3; i++) {
-    tavernCards.push({ id: `tavern-${i}`, position: '酒馆' });
+
+  // 创建一些实际的随从卡片数据
+  const sampleMinions = [
+    {
+      id: '1',
+      strId: 'BGS_004', // 愤怒编织者
+      cardType: CardType.MINION,
+      name: 'Wrath Weaver',
+      nameCN: '愤怒编织者',
+      text: 'Whenever you take damage, gain +1/+1.',
+      mechanics: [],
+      referencedTags: [],
+      img: '',
+      art: '',
+      tier: 1,
+      health: 1,
+      attack: 1,
+      minionTypes: ['demon'],
+      minionTypesCN: ['恶魔'],
+    },
+    {
+      id: '2',
+      strId: 'BGS_127', // 熔融岩石
+      cardType: CardType.MINION,
+      name: 'Molten Rock',
+      nameCN: '熔融岩石',
+      text: 'Taunt',
+      mechanics: ['TAUNT'],
+      referencedTags: [],
+      img: '',
+      art: '',
+      tier: 1,
+      health: 2,
+      attack: 1,
+      minionTypes: ['elemental'],
+      minionTypesCN: ['元素'],
+    },
+    {
+      id: '3',
+      strId: 'BG_CFM_315', // 雄斑虎
+      cardType: CardType.MINION,
+      name: 'Alleycat',
+      nameCN: '雄斑虎',
+      text: 'Battlecry: Summon a 1/1 Tabbycat.',
+      mechanics: [],
+      referencedTags: [],
+      img: '',
+      art: '',
+      tier: 1,
+      health: 2,
+      attack: 1,
+      minionTypes: ['beast'],
+      minionTypesCN: ['野兽'],
+    },
+  ];
+
+  // 创建实际的Minion实例并添加到酒馆卡片中
+  for (let i = 0; i < sampleMinions.length; i++) {
+    const minionData = sampleMinions[i];
+    const MinionClass = minionClassMapByStrId[minionData.strId] || Minion;
+
+    const minion = new MinionClass(
+      minionData.id,
+      minionData.strId,
+      minionData.cardType,
+      minionData.name,
+      minionData.nameCN,
+      minionData.text,
+      minionData.mechanics,
+      minionData.referencedTags,
+      minionData.img,
+      minionData.art,
+      minionData.tier,
+      minionData.health,
+      minionData.attack,
+      minionData.minionTypes,
+      minionData.minionTypesCN
+    );
+
+    tavernCards.push(minion);
   }
+
   // 添加4个空格子，使总数量达到7个
   for (let i = 1; i <= 4; i++) {
     tavernCards.push(null);
