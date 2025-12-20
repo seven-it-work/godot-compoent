@@ -1,9 +1,10 @@
 import { IdGenerator } from '../utils/IdGenerator';
 
-/**
- * 卡片类型 - 定义卡片的类型
- */
+/** 卡片类型 - 定义卡片的类型 */
 export type CardType = 'minion' | 'spell' | 'hero' | 'hero_power';
+
+/** 卡片区域类型 - 定义卡片可以所在的区域 */
+export type CardArea = null | '酒馆' | '手牌' | '战场';
 
 /**
  * 卡片类型常量 - 提供预设的卡片类型选项
@@ -45,8 +46,8 @@ export interface ICard {
   cost: number;
   /** 是否为临时卡片 - 临时卡片在回合结束时会消失 */
   isTemporary: boolean;
-  /** 卡片位置 - 卡片当前所在位置，不同类型的卡片可能有不同的类型 */
-  position?: any;
+  /** 卡片区域 - 卡片当前所在区域 */
+  area: CardArea;
 }
 
 /**
@@ -79,8 +80,8 @@ export class Card implements ICard {
   cost: number;
   /** 是否为临时卡片 - 临时卡片在回合结束时会消失 */
   isTemporary: boolean;
-  /** 卡片位置 - 卡片当前所在位置，不同类型的卡片可能有不同的类型 */
-  position?: any;
+  /** 卡片区域 - 卡片当前所在区域 */
+  area: CardArea;
 
   /**
    * 卡片构造函数
@@ -100,7 +101,7 @@ export class Card implements ICard {
     this.tier = params.tier;
     this.cost = params.cost || 0;
     this.isTemporary = params.isTemporary || false;
-    this.position = params.position;
+    this.area = params.area || null;
   }
 
   /**

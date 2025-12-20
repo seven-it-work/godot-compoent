@@ -88,6 +88,10 @@ export class Tavern {
    * @使用方式：作为设置availableMinions的单一入口
    */
   setAvailableMinion(index: number, minion: Minion | null): void {
+    // 将随从添加到酒馆时，设置其area为'酒馆'
+    if (minion) {
+      minion.area = '酒馆';
+    }
     this.availableMinions[index] = minion;
     // 如果是元素随从且不为null，应用元素加成
     if (minion && minion.minionTypes.includes(MinionType.ELEMENTAL)) {

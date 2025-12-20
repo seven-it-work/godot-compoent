@@ -3,13 +3,13 @@
     ref="cardRef"
     class="card-slot"
     :class="[
-      `position-${props.positionType}`,
+      `position-${props.data?.area}`,
       { empty: props.data === null || props.data === undefined },
     ]"
     :data-card-id="cardId"
     :data-x="position.x"
     :data-y="position.y"
-    :data-position-type="props.positionType"
+    :data-position-type="props.data?.area"
     :data-is-empty="props.data === null || props.data === undefined"
     :style="{ transform: `translate(${position.x}px, ${position.y}px)` }"
   >
@@ -17,7 +17,7 @@
       <!-- 左上角圆形数字 -->
       <div class="corner-badge top-left" v-if="data.tier">{{ data.tier }}</div>
       <!-- 右上角圆形数字 -->
-      <div class="corner-badge top-right" v-if="positionType === '酒馆'">{{ data.cost }}</div>
+      <div class="corner-badge top-right" v-if="data?.area === '酒馆'">{{ data.cost }}</div>
       <!-- 左下角攻击力 -->
       <div class="corner-badge bottom-left" v-if="data instanceof Minion">
         {{ data.getAttack() }}
@@ -40,14 +40,13 @@ import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 import interact from 'interactjs';
 import { Card } from '../../../game/Card';
+import type { CardArea } from '../../../game/Card';
 import { Minion } from '../../../game/Minion';
 
-// 定义位置类型枚举
-type CardPosition = '酒馆' | '战场' | '手牌';
+// 接收外部传入的参数
+type CardPosition = CardArea;
 
-// 接收外部传入的位置参数（必填）
 const props = defineProps<{
-  positionType: CardPosition;
   cardId: string;
   data?: Card | null; // 卡片数据，如果为null或undefined则表示空格子
 }>();
@@ -84,25 +83,11 @@ const initialPosition = ref({
   y: 0,
 });
 
-// 记录初始位置类型
-const initialPositionType = ref(props.positionType);
-
 // 卡片元素引用
 const cardRef = ref<HTMLElement | null>(null);
 
 // 拖拽交互实例引用
 let dragInteraction: any = null;
-
-// 监听位置类型变化，重置位置
-watch(
-  () => props.positionType,
-  (newType, oldType) => {
-    if (newType !== oldType) {
-      // 位置类型变化，重置卡片位置
-      position.value = { x: 0, y: 0 };
-    }
-  }
-);
 
 // 监听卡片数据变化，更新拖拽实例配置
 watch(
@@ -156,10 +141,9 @@ onMounted(() => {
 
         // 记录初始位置
         initialPosition.value = { ...position.value };
-        initialPositionType.value = props.positionType;
 
         console.log(
-          `[拖拽开始] 卡片: ${props.cardId}, 初始位置类型: ${initialPositionType.value}, 初始坐标: (${initialPosition.value.x}, ${initialPosition.value.y})`
+          `[拖拽开始] 卡片: ${props.cardId}, 初始位置类型: ${props.data?.area}, 初始坐标: (${initialPosition.value.x}, ${initialPosition.value.y})`
         );
 
         // 发送拖拽开始事件
@@ -175,7 +159,7 @@ onMounted(() => {
         target.style.transition = 'none';
 
         // 逻辑1：如果是手牌拖拽，高亮战场的空格子
-        if (props.positionType === '手牌') {
+        if (props.data?.area === '手牌') {
           console.log(`[高亮处理] 手牌卡片 ${props.cardId} 开始拖拽，高亮战场空格子`);
           const emptySlots = document.querySelectorAll(
             '.battlefield-section .card-slot[data-is-empty="true"]'
@@ -185,7 +169,7 @@ onMounted(() => {
           });
         }
         // 逻辑2：如果是战场卡片拖拽，高亮酒馆区域和所有战场卡片槽
-        else if (props.positionType === '战场') {
+        else if (props.data?.area === '战场') {
           console.log(`[高亮处理] 战场卡片 ${props.cardId} 开始拖拽，高亮酒馆区域和所有战场卡片槽`);
           // 高亮酒馆区域
           const tavernAreas = document.querySelectorAll('.tavern-section');
@@ -414,36 +398,34 @@ onMounted(() => {
         );
 
         // 逻辑1：战场卡片拖拽到酒馆区域，卡片消失
-        if (isTavernArea && initialPositionType.value === '战场') {
+        if (isTavernArea && props.data?.area === '战场') {
           console.log(`[位置更新] 战场卡片 ${props.cardId} 拖拽到酒馆区域，卡片消失`);
           emit('card-remove', props.cardId);
           return;
         }
 
         // 逻辑2：酒馆卡片拖拽到手牌区域，卡片移动
-        if (isHandArea && initialPositionType.value === '酒馆') {
+        if (isHandArea && props.data?.area === '酒馆') {
           // 在手牌区域释放，发送移动事件
-          console.log(
-            `[位置更新] 卡片 ${props.cardId} 从 ${initialPositionType.value} 移动到手牌区域`
-          );
-          emit('card-move', props.cardId, initialPositionType.value, '手牌');
+          console.log(`[位置更新] 卡片 ${props.cardId} 从 ${props.data?.area} 移动到手牌区域`);
+          emit('card-move', props.cardId, props.data?.area || '', '手牌');
           // 重置位置
           position.value = { x: 0, y: 0 };
           console.log(`[位置更新] 卡片 ${props.cardId} 位置重置为 (0, 0)`);
         }
         // 逻辑3：手牌卡片拖拽到战场空格子，卡片移动
-        else if (isEmptySlot && initialPositionType.value === '手牌') {
+        else if (isEmptySlot && props.data?.area === '手牌') {
           // 在战场空格子释放，发送移动事件，传递目标空格子索引
           console.log(
-            `[位置更新] 卡片 ${props.cardId} 从 ${initialPositionType.value} 移动到战场区域，目标空格子索引: ${targetSlotIndex}`
+            `[位置更新] 卡片 ${props.cardId} 从 ${props.data?.area} 移动到战场区域，目标空格子索引: ${targetSlotIndex}`
           );
-          emit('card-move', props.cardId, initialPositionType.value, '战场', targetSlotIndex);
+          emit('card-move', props.cardId, props.data?.area || '', '战场', targetSlotIndex);
           // 重置位置
           position.value = { x: 0, y: 0 };
           console.log(`[位置更新] 卡片 ${props.cardId} 位置重置为 (0, 0)`);
         }
         // 逻辑4：战场卡片拖拽到另一个战场卡片槽，交换位置
-        else if (isTargetSlot && initialPositionType.value === '战场') {
+        else if (isTargetSlot && props.data?.area === '战场') {
           console.log(
             `[位置更新] 战场卡片 ${props.cardId} 拖拽到另一个战场卡片槽，索引: ${targetSlotIndex}, 目标槽是否有卡片: ${targetSlotHasCard}`
           );

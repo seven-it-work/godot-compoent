@@ -151,6 +151,7 @@ import heroesData from '../../data/heroes.json';
 import minionsData from '../../data/minions.json';
 import { AIPlayer } from '../../game/AIPlayer';
 import { Card } from '../../game/Card';
+import type { CardArea } from '../../game/Card';
 import { Minion } from '../../game/Minion';
 import { minionClassMapByStrId } from '../../game/minion/MinionClassMap';
 import { Player } from '../../game/Player';
@@ -482,12 +483,12 @@ const handleDragStart = (cardId: string) => {
   currentDraggingCard.value = cardId;
 
   // 只有拖拽酒馆卡片时才激活手牌区域的高亮样式
-  if (card?.position === '酒馆') {
+  if (card?.area === '酒馆') {
     isDragActive.value = true;
     isTavernDragActive.value = false;
   }
   // 只有拖拽战场卡片时才激活酒馆区域的高亮样式
-  else if (card?.position === '战场') {
+  else if (card?.area === '战场') {
     isDragActive.value = false;
     isTavernDragActive.value = true;
   } else {
@@ -496,7 +497,7 @@ const handleDragStart = (cardId: string) => {
   }
 
   console.log(
-    `[父组件] 开始拖拽卡片: ${cardId}, 当前位置: ${card?.position}, 手牌高亮: ${isDragActive.value}, 酒馆高亮: ${isTavernDragActive.value}`
+    `[父组件] 开始拖拽卡片: ${cardId}, 当前位置: ${card?.area}, 手牌高亮: ${isDragActive.value}, 酒馆高亮: ${isTavernDragActive.value}`
   );
 };
 
@@ -512,8 +513,8 @@ const handleDragEnd = (cardId: string, targetArea: string | null) => {
 // 处理卡片移动
 const handleCardMove = (
   cardId: string,
-  fromArea: string,
-  toArea: string,
+  fromArea: CardArea,
+  toArea: CardArea,
   targetSlotIndex?: number
 ) => {
   console.log(
