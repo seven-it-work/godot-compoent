@@ -12,7 +12,7 @@ export class Player {
   /** 英雄实例 - 玩家控制的英雄 */
   hero: Hero;
   /** 战场上的随从 - 固定7个位置，null表示该位置为空 */
-  minions: (Minion | null)[];
+  minions: (Minion | null | undefined)[];
   /** 手牌 - 等待上场的卡片列表（包含随从和法术）
    * 统一添加入口：
    * - recruitMinion()：从酒馆招募随从到手牌
@@ -77,6 +77,57 @@ export class Player {
    * @returns 是否成功召唤
    * @使用方式：当需要在战场上召唤随从时调用（如战吼、亡语、手牌召唤）
    */
+  /**
+   * 设置指定位置的随从 - 统一的minions管理入口
+   * @param position - 战场位置索引(0-6)
+   * @param minion - 要设置的随从实例，null表示清空该位置
+   * @returns 是否成功设置
+   */
+  public setMinionAtPosition(position: number, minion: Minion | null | undefined): boolean {
+    // 检查位置是否有效
+    if (position < 0 || position >= this.minions.length) {
+      return false;
+    }
+
+    // 如果设置随从到该位置，更新area
+    if (minion) {
+      minion.area = '战场';
+      minion.position = position;
+    }
+
+    this.minions[position] = minion;
+    return true;
+  }
+
+  /**
+   * 获取指定位置的随从 - 统一的minions管理入口
+   * @param position - 战场位置索引(0-6)
+   * @returns 该位置的随从实例，null表示该位置为空
+   */
+  public getMinionAtPosition(position: number): Minion | null | undefined {
+    // 检查位置是否有效
+    if (position < 0 || position >= this.minions.length) {
+      return null;
+    }
+    return this.minions[position];
+  }
+
+  /**
+   * 移除指定位置的随从 - 统一的minions管理入口
+   * @param position - 战场位置索引(0-6)
+   * @returns 被移除的随从实例，null表示该位置原本为空
+   */
+  public removeMinionAtPosition(position: number): Minion | null | undefined {
+    // 检查位置是否有效
+    if (position < 0 || position >= this.minions.length) {
+      return null;
+    }
+
+    const removedMinion = this.minions[position];
+    this.minions[position] = null;
+    return removedMinion;
+  }
+
   public summonMinion(minion: Minion, referencePosition: number | null): boolean {
     // 检查战场是否已满
     const emptyPositions = this.minions.filter(pos => pos === null).length;
@@ -121,10 +172,7 @@ export class Player {
     }
 
     // 召唤随从到战场
-    this.minions[summonPosition] = minion;
-    // 更新随从位置
-    minion.position = summonPosition;
-    return true;
+    return this.setMinionAtPosition(summonPosition, minion);
   }
 
   /**
@@ -139,6 +187,8 @@ export class Player {
       return false;
     }
 
+    // 设置卡片区域为手牌
+    card.area = '手牌';
     // 创建新数组以确保响应式更新
     this.cards = [...this.cards, card];
     return true;
@@ -246,10 +296,7 @@ export class Player {
           return false;
         }
         // 放置到战场
-        this.minions[position] = minion;
-        // 更新随从位置
-        minion.position = position;
-        return true;
+        return this.setMinionAtPosition(position, minion);
       } else {
         // 如果目标位置已有随从，从第一个位置开始找第一个空位置
         for (let i = 0; i < 7; i++) {
@@ -259,10 +306,7 @@ export class Player {
               return false;
             }
             // 放置到战场空位置
-            this.minions[i] = minion;
-            // 更新随从位置
-            minion.position = i;
-            return true;
+            return this.setMinionAtPosition(i, minion);
           }
         }
       }
@@ -287,10 +331,10 @@ export class Player {
       return false;
     }
 
-    const minion = this.minions[position];
+    const minion = this.getMinionAtPosition(position);
     if (minion) {
       // 从战场移除
-      this.minions[position] = null;
+      this.removeMinionAtPosition(position);
       // 添加到手牌（使用统一入口）
       if (this.addCard(minion)) {
         // 更新随从位置
@@ -298,7 +342,7 @@ export class Player {
         return true;
       }
       // 如果添加失败，将随从放回战场
-      this.minions[position] = minion;
+      this.setMinionAtPosition(position, minion);
       return false;
     }
     return false;
@@ -319,12 +363,12 @@ export class Player {
       }
 
       // 检查要出售的位置是否有随从
-      if (this.minions[index] === null) {
+      if (this.getMinionAtPosition(index) === null) {
         return false;
       }
 
       // 将该位置设置为null
-      this.minions[index] = null;
+      this.removeMinionAtPosition(index);
     } else {
       // 出售手牌上的随从
       if (index < 0 || index >= this.cards.length) {
@@ -560,33 +604,36 @@ export class Player {
     }
 
     // 检查原位置是否有随从
-    if (this.minions[fromIndex] === null) {
+    const movedMinion = this.getMinionAtPosition(fromIndex);
+    if (movedMinion === null || movedMinion === undefined) {
       return false;
     }
 
-    // 保存要移动的随从
-    const movedMinion = this.minions[fromIndex];
-
     // 检查目标位置是否为空
-    if (this.minions[toIndex] === null) {
+    const targetMinion = this.getMinionAtPosition(toIndex);
+    if (targetMinion === null || targetMinion === undefined) {
       // 如果目标位置为空，直接移动
-      this.minions[fromIndex] = null;
-      this.minions[toIndex] = movedMinion!;
-      movedMinion!.position = toIndex;
+      if (
+        this.setMinionAtPosition(fromIndex, null) &&
+        this.setMinionAtPosition(toIndex, movedMinion)
+      ) {
+        movedMinion.position = toIndex;
+        return true;
+      }
     } else {
       // 如果目标位置不为空，交换两个位置的随从
-      const targetMinion = this.minions[toIndex];
-      this.minions[fromIndex] = targetMinion as Minion | null;
-      this.minions[toIndex] = movedMinion!;
-
-      // 更新位置
-      if (targetMinion) {
+      if (
+        this.setMinionAtPosition(fromIndex, targetMinion) &&
+        this.setMinionAtPosition(toIndex, movedMinion)
+      ) {
+        // 更新位置
         targetMinion.position = fromIndex;
+        movedMinion.position = toIndex;
+        return true;
       }
-      movedMinion!.position = toIndex;
     }
 
-    return true;
+    return false;
   }
 
   /**

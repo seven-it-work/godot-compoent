@@ -452,8 +452,13 @@ const handleCardSwap = (cardId: string, targetIndex: number) => {
   }
 
   // 调用游戏store的方法来交换卡片
-  // 注意：这里需要根据游戏store的实际API来实现，当前只是模拟
-  console.log(`[父组件] 卡片交换成功: ${cardId} 从索引 ${sourceIndex} 移动到 ${targetIndex}`);
+  const success = gameStore.reorderMinions(sourceIndex, targetIndex);
+
+  if (success) {
+    console.log(`[父组件] 卡片交换成功: ${cardId} 从索引 ${sourceIndex} 移动到 ${targetIndex}`);
+  } else {
+    console.error(`[父组件] 卡片交换失败: ${cardId} 从索引 ${sourceIndex} 移动到 ${targetIndex}`);
+  }
 };
 
 // 页面加载时自动随机初始化英雄
@@ -472,7 +477,19 @@ onMounted(() => {
   }
 });
 
-// 处理拖拽开始
+/**
+ * 处理卡片拖拽开始事件
+ * @param cardId - 被拖拽的卡片ID
+ *
+ * 功能说明：
+ * 1. 查找被拖拽的卡片在所有卡片集合中的位置
+ * 2. 记录当前拖拽的卡片ID
+ * 3. 根据卡片当前所在区域设置不同的拖拽状态：
+ *    - 酒馆卡片：激活手牌区域高亮
+ *    - 战场卡片：激活酒馆区域高亮
+ *    - 其他情况：不激活任何区域高亮
+ * 4. 输出拖拽日志信息
+ */
 const handleDragStart = (cardId: string) => {
   // 从所有分离的数组中查找卡片
   let card: Card | null = null;
@@ -495,10 +512,6 @@ const handleDragStart = (cardId: string) => {
     isDragActive.value = false;
     isTavernDragActive.value = false;
   }
-
-  console.log(
-    `[父组件] 开始拖拽卡片: ${cardId}, 当前位置: ${card?.area}, 手牌高亮: ${isDragActive.value}, 酒馆高亮: ${isTavernDragActive.value}`
-  );
 };
 
 // 处理拖拽结束
@@ -538,12 +551,22 @@ const handleCardMove = (
       console.log(`[父组件] 从酒馆购买卡片: ${card.nameCN}, 结果: ${success}`);
     } else if (fromArea === '手牌' && toArea === '战场') {
       // 从手牌放置卡片到战场
-      // 这里需要根据游戏store的实际API来实现，当前只是模拟
       console.log(`[父组件] 从手牌放置卡片到战场: ${card.nameCN}, 目标位置: ${targetSlotIndex}`);
+      // 找到卡片在handCards中的索引
+      const handCardIndex = handCards.value.findIndex(c => c && c.id === cardId);
+      if (handCardIndex !== -1 && targetSlotIndex !== undefined) {
+        const success = gameStore.placeMinionFromHand(handCardIndex, targetSlotIndex);
+        console.log(`[父组件] 放置结果: ${success}`);
+      }
     } else if (fromArea === '战场' && toArea === '酒馆') {
       // 从战场出售卡片到酒馆
-      // 这里需要根据游戏store的实际API来实现，当前只是模拟
       console.log(`[父组件] 从战场出售卡片: ${card.nameCN}`);
+      // 找到卡片在battlefieldCards中的索引
+      const battlefieldCardIndex = battlefieldCards.value.findIndex(c => c && c.id === cardId);
+      if (battlefieldCardIndex !== -1) {
+        const success = gameStore.sellMinion('minion', battlefieldCardIndex);
+        console.log(`[父组件] 出售结果: ${success}`);
+      }
     }
 
     console.log(
@@ -556,12 +579,28 @@ const handleCardMove = (
 const handleCardRemove = (cardId: string) => {
   console.log(`[父组件] 卡片移除事件: 卡片 ${cardId} 被移除`);
 
-  // 调用游戏store的方法来移除卡片
-  // 这里需要根据游戏store的实际API来实现，当前只是模拟
-  console.log(`[父组件] 卡片 ${cardId} 已移除`);
+  // 查找卡片所在区域和索引
+  // 1. 检查战场区域
+  const battlefieldIndex = battlefieldCards.value.findIndex(c => c && c.id === cardId);
+  if (battlefieldIndex !== -1) {
+    const success = gameStore.sellMinion('minion', battlefieldIndex);
+    console.log(`[父组件] 从战场出售卡片，结果: ${success}`);
+    return;
+  }
+
+  // 2. 检查手牌区域
+  const handIndex = handCards.value.findIndex(c => c && c.id === cardId);
+  if (handIndex !== -1) {
+    const success = gameStore.sellMinion('hand', handIndex);
+    console.log(`[父组件] 从手牌出售卡片，结果: ${success}`);
+    return;
+  }
+
+  // 3. 检查酒馆区域（暂时不处理酒馆卡片移除）
+  console.log(`[父组件] 卡片 ${cardId} 不在可移除区域`);
 
   console.log(
-    `[父组件] 当前卡片分布: 酒馆 ${tavernCards.value.length}, 战场 ${battlefieldCards.value.length}, 手牌 ${handCards.value.length}`
+    `[父组件] 当前卡片分布: 酒馆 ${tavernCards.value.filter(c => c).length}/${tavernCards.value.length}张, 战场 ${battlefieldCards.value.filter(c => c).length}/${battlefieldCards.value.length}张, 手牌 ${handCards.value.filter(c => c).length}/${handCards.value.length}张`
   );
 };
 
