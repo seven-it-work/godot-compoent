@@ -5,7 +5,9 @@
     :class="[
       `position-${props.data?.area}`,
       { empty: props.data === null || props.data === undefined },
+      { selected: props.data !== null && isSelected },
     ]"
+    @click="handleCardClick"
     :data-card-id="cardId"
     :data-x="position.x"
     :data-y="position.y"
@@ -49,6 +51,8 @@ type CardPosition = CardArea;
 const props = defineProps<{
   cardId: string;
   data?: Card | null; // 卡片数据，如果为null或undefined则表示空格子
+  selectedCardId?: string | null; // 当前选中的卡片ID
+  positionType?: string; // 卡片所在区域类型（酒馆/战场/手牌）
 }>();
 
 // 定义事件
@@ -69,7 +73,28 @@ const emit = defineEmits<{
   (e: 'card-remove', cardId: string): void;
   // 卡片交换事件
   (e: 'card-swap', cardId: string, targetSlotIndex: number): void;
+  // 卡片选中事件
+  (e: 'card-select', cardData: Card | null, positionType?: string): void;
 }>();
+
+// 卡片选中状态
+const isSelected = ref(false);
+
+// 点击卡片事件处理函数
+const handleCardClick = () => {
+  // 空卡片点击无效
+  if (!props.data) return;
+  emit('card-select', props.data, props.positionType);
+};
+
+// 监听选中卡片ID变化，更新当前卡片的选中状态
+watch(
+  () => props.selectedCardId,
+  newSelectedId => {
+    isSelected.value = newSelectedId === props.data?.id;
+  },
+  { immediate: true }
+);
 
 // 卡片位置状态
 const position = ref({
@@ -396,6 +421,9 @@ onMounted(() => {
           `[拖拽开始] 卡片: ${props.cardId}, 初始位置类型: ${props.data?.area}, 初始坐标: (${initialPosition.value.x}, ${initialPosition.value.y})`
         );
 
+        // 拖拽开始时同时选中当前卡片
+        emit('card-select', props.data, props.positionType);
+
         // 发送拖拽开始事件
         emit('drag-start', props.cardId);
 
@@ -604,6 +632,13 @@ onUnmounted(() => {
   box-shadow: 0 0 15px rgba(65, 105, 225, 0.5);
   transform: scale(1.05);
   transition: all 0.3s ease;
+}
+
+/* 选中卡片样式 */
+.card-slot.selected {
+  border: 3px solid #ffd700;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+  z-index: 1000;
 }
 
 /* 卡片内容容器 */

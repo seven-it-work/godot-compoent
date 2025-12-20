@@ -13,10 +13,12 @@
             :card-id="card ? card.id : 'empty-tavern-1-' + index"
             :position-type="'酒馆'"
             :data="card"
+            :selected-card-id="selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
+            @card-select="handleCardSelect"
           ></CardSlot>
         </div>
 
@@ -28,10 +30,12 @@
             :card-id="card ? card.id : 'empty-tavern-2-' + index"
             :position-type="'酒馆'"
             :data="card"
+            :selected-card-id="selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
+            @card-select="handleCardSelect"
           ></CardSlot>
           <div class="info-panel tavern-info">
             <div class="stats-row">
@@ -83,11 +87,13 @@
             :card-id="card ? card.id : 'empty-battlefield-1-' + index"
             :position-type="'战场'"
             :data="card"
+            :selected-card-id="selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
             @card-swap="(cardId, targetIndex) => handleCardSwap(cardId, targetIndex)"
+            @card-select="handleCardSelect"
           ></CardSlot>
         </div>
 
@@ -99,14 +105,60 @@
             :card-id="card ? card.id : 'empty-battlefield-2-' + index"
             :position-type="'战场'"
             :data="card"
+            :selected-card-id="selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
             @card-swap="(cardId, targetIndex) => handleCardSwap(cardId, targetIndex)"
+            @card-select="handleCardSelect"
           ></CardSlot>
           <div class="info-panel player-info">
-            <div>选中的卡片信息</div>
+            <div class="layout-grid">
+              <!-- 左区 -->
+              <div class="top-left" v-if="selectedCard">
+                <div class="card-name" v-if="selectedCard?.nameCN">
+                  {{ selectedCard?.nameCN || '非常长的名称' }}
+                </div>
+                <div class="card-stats">
+                  <span class="attack">攻{{ selectedCard?.getAttack() || 0 }}</span>
+                  <span class="health">血{{ selectedCard?.health || 0 }}</span>
+                </div>
+                <div class="card-buffs">
+                  <!-- 属性加成信息可以从selectedCard中获取 -->
+                  <div>
+                    永久属性加成：
+                    <span v-for="(buff, index) in selectedCard.permanentBuffs" :key="index">
+                      {{ buff.attackBonus ? `+${buff.attackBonus}攻` : '' }}
+                      {{ buff.healthBonus ? `+${buff.healthBonus}血` : '' }}
+                    </span>
+                  </div>
+                  <div v-if="selectedCard?.temporaryBuffs?.length">
+                    临时属性加成：
+                    <span v-for="(buff, index) in selectedCard.temporaryBuffs" :key="index">
+                      {{ buff.attackBonus ? `+${buff.attackBonus}攻` : '' }}
+                      {{ buff.healthBonus ? `+${buff.healthBonus}血` : '' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 右区 -->
+              <div class="top-right">
+                <div class="card-description" v-html="selectedCard?.text || '无描述'"></div>
+                <div class="card-actions">
+                  <button v-if="selectedCard?.area === '酒馆'" class="action-btn buy-btn">
+                    购买
+                  </button>
+                  <button v-if="selectedCard?.area === '手牌'" class="action-btn place-btn">
+                    放置
+                  </button>
+                  <button v-if="selectedCard?.area === '战场'" class="action-btn sell-btn">
+                    出售
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -121,10 +173,12 @@
             :card-id="card ? card.id : 'empty-hand-1-' + index"
             :position-type="'手牌'"
             :data="card"
+            :selected-card-id="selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
+            @card-select="handleCardSelect"
           ></CardSlot>
         </div>
 
@@ -136,10 +190,12 @@
             :card-id="card ? card.id : 'empty-hand-2-' + index"
             :position-type="'手牌'"
             :data="card"
+            :selected-card-id="selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
+            @card-select="handleCardSelect"
           ></CardSlot>
         </div>
       </div>
@@ -173,6 +229,19 @@ const isTavernDragActive = ref(false);
 
 // 当前拖拽的卡片ID
 const currentDraggingCard = ref<string | null>(null);
+
+// 当前选中的卡片
+const selectedCard = ref<Minion | null>(null);
+
+// 处理卡片选择事件
+const handleCardSelect = (cardData: Card | null) => {
+  // 如果卡片数据是Minion类型，设置为选中卡片
+  if (cardData instanceof Minion) {
+    selectedCard.value = cardData;
+  } else {
+    selectedCard.value = null;
+  }
+};
 
 // 计算属性：从游戏store获取卡片数据
 const tavernCards = computed(() => {
@@ -711,8 +780,136 @@ watch(
 .player-info {
   background: linear-gradient(135deg, rgba(240, 248, 255, 0.95) 0%, rgba(220, 230, 245, 0.9) 100%);
   border: 3px solid #4169e1;
-  border-radius: 8px;
-  padding: 1%;
+  border-radius: 4px;
+  width: 100%;
+  height: 100%;
+}
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+}
+
+.top-left {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.top-right {
+  grid-area: 1 / 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.bottom-left {
+  display: none;
+}
+
+.bottom-right {
+  display: none;
+}
+
+.player-info .card-name {
+  font-weight: bold;
+  font-size: 3vmin;
+  color: #1a5276;
+  text-align: center;
+}
+
+.player-info .card-stats {
+  display: flex;
+  justify-content: space-around;
+  font-size: 3.5vmin;
+  margin: 5px 0;
+}
+
+.player-info .card-stats .attack {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.player-info .card-stats .health {
+  color: #27ae60;
+  font-weight: bold;
+}
+
+.player-info .card-description {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 2vmin;
+  line-height: 1.4;
+  height: 100%;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.player-info .card-buffs {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 2vmin;
+  line-height: 1.4;
+  overflow-y: auto;
+  text-align: left;
+  height: 100%;
+}
+
+.player-info .card-actions {
+  display: flex;
+  justify-content: space-around;
+  gap: 1px;
+}
+
+.player-info .action-btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  font-size: 4vmin;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  margin: 2%;
+}
+
+.player-info .action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.player-info .buy-btn {
+  background: linear-gradient(145deg, #27ae60, #229954);
+  color: white;
+}
+
+.player-info .buy-btn:hover {
+  background: linear-gradient(145deg, #229954, #1e8449);
+}
+
+.player-info .place-btn {
+  background: linear-gradient(145deg, #3498db, #2980b9);
+  color: white;
+}
+
+.player-info .place-btn:hover {
+  background: linear-gradient(145deg, #2980b9, #2471a3);
+}
+
+.player-info .sell-btn {
+  background: linear-gradient(145deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.player-info .sell-btn:hover {
+  background: linear-gradient(145deg, #c0392b, #a93226);
 }
 
 .tavern-info .stats-row {
