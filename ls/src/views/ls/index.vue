@@ -1,5 +1,7 @@
 <template>
   <div class="vertical-hearthstone">
+    <!-- 调试抽屉组件 -->
+    <DebugDrawer v-model:debug-drawer-visible="debugDrawerVisible" @close="closeDebugDrawer" />
     <div class="game-container">
       <!-- 酒馆区域 -->
       <div class="game-section tavern-section" :class="{ 'drop-allowed': isTavernDragActive }">
@@ -66,7 +68,7 @@
                 铸币：{{ gameStore.player?.gold || 0 }}/{{ gameStore.player?.maxGold || 0 }}
               </div>
               <button @click="endTurn">结束回合</button>
-              <button @click="showDebug">调试</button>
+              <button @click="showDebugDrawer">调试</button>
             </div>
           </div>
         </div>
@@ -158,6 +160,7 @@ import { Player } from '../../game/Player';
 import { Tavern } from '../../game/Tavern';
 import { useGameStore } from '../../stores/game';
 import CardSlot from './components/CardSlot.vue';
+import DebugDrawer from './components/DebugDrawer.vue';
 
 // 使用游戏store
 const gameStore = useGameStore();
@@ -277,7 +280,6 @@ const createMinionPool = () => {
 
   // 提取所有随从数据（包括top-level和tokens中的）
   const allMinionData = extractAllMinions(minionsData);
-
   // 从所有数据中过滤出已开发的随从
   const globalMinionPool = allMinionData
     .filter(minionData => {
@@ -314,7 +316,6 @@ const createMinionPool = () => {
       return null;
     })
     .filter((minion): minion is Minion => minion !== null);
-
   // 酒馆专用池 - 使用全局池
   const tavernMinionPool = globalMinionPool;
   console.log('酒馆专用池:', tavernMinionPool);
@@ -422,11 +423,13 @@ const endTurn = () => {
   gameStore.endTurn();
 };
 
-// 显示调试信息
-const showDebug = () => {
-  console.log('游戏状态:', gameStore.gameState);
-  console.log('当前玩家:', gameStore.player);
-  console.log('当前回合:', gameStore.currentTurn);
+// 调试抽屉控制
+const debugDrawerVisible = ref(false);
+const showDebugDrawer = () => {
+  debugDrawerVisible.value = true;
+};
+const closeDebugDrawer = () => {
+  debugDrawerVisible.value = false;
 };
 
 // 处理卡片交换事件 - 战场区域内位置交换

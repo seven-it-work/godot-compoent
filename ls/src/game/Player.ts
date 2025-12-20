@@ -67,7 +67,7 @@ export class Player {
     this.winStreak = 0; // 初始连胜为0
     this.lossStreak = 0; // 初始连败为0
     this.pendingCards = []; // 初始待添加卡片队列为空
-    this.maxCards = 7; // 最大手牌数量为7
+    this.maxCards = 10; // 最大手牌数量为10
   }
 
   /**

@@ -1,6 +1,7 @@
 import { IdGenerator } from '../utils/IdGenerator';
 import type { ICard } from './Card';
 import { Card } from './Card';
+import { cloneDeep } from 'lodash';
 
 /**
  * 随从类型 - 定义随从的种族类型
@@ -358,7 +359,7 @@ export class Minion extends Card implements IMinion {
   set attack(_value: number) {
     console.warn('不允许直接设置攻击力，请使用addBuff/removeBuff方法修改');
     // 可以选择忽略或抛出错误
-    // throw new Error('不允许直接设置攻击力，请使用addBuff/removeBuff方法修改');
+    throw new Error('不允许直接设置攻击力，请使用addBuff/removeBuff方法修改');
   }
 
   /**
@@ -450,21 +451,18 @@ export class Minion extends Card implements IMinion {
    * @使用方式：当需要创建随从副本时调用，如购买随从或战斗时复制随从
    */
   clone(): Minion {
-    // 使用当前实例的构造函数创建副本，确保子类也能正确克隆
-    return new (this.constructor as typeof Minion)({
-      ...(this as any),
-      id: IdGenerator.generateRandomId(), // 生成新的ID
-      permanentBuffs: [...this.permanentBuffs], // 深拷贝永久加成
-      temporaryBuffs: [...this.temporaryBuffs], // 深拷贝临时加成
-      mechanics: [...this.mechanics], // 深拷贝机制列表
-      referencedTags: [...this.referencedTags], // 深拷贝引用标签
-      minionTypes: [...this.minionTypes], // 深拷贝随从类型列表
-      minionTypesCN: [...this.minionTypesCN], // 深拷贝中文随从类型列表
-      permanentKeywords: [...this.permanentKeywords], // 深拷贝永久关键词
-      temporaryKeywords: [...this.temporaryKeywords], // 深拷贝临时关键词
-      hasAttacked: false, // 重置攻击状态
-      isFrozen: false, // 重置冻结状态
-    });
+    // 使用lodash的cloneDeep进行深度拷贝，处理所有嵌套对象和数组
+    const clone = cloneDeep(this) as Minion;
+
+    // 生成新的唯一ID
+    clone.id = IdGenerator.generateRandomId();
+
+    // 重置特定的游戏状态
+    clone.hasAttacked = false;
+    clone.isFrozen = false;
+
+    // 返回克隆后的实例，保留原有类结构（包括子类信息）
+    return clone;
   }
 
   /**
