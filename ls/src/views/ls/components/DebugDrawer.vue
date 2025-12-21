@@ -360,7 +360,7 @@ const addSpecificMinion = (minion: Minion) => {
       console.log('gameStore.player:', gameStore.player);
 
       if (gameStore.player) {
-        success = gameStore.player.addMinionToHand(newMinion);
+        success = gameStore.player.addCardToHand(newMinion);
 
         if (success) {
           console.log('添加随从到手牌完成');

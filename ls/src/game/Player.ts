@@ -202,25 +202,19 @@ export class Player {
    */
   public addCardToHand(card: Card): boolean {
     // 检查手牌是否已满
-    if (this.cards.length >= this.maxCards) {
-      // 手牌已满，添加到待处理队列
-      this.pendingCards.push(card);
-      return false;
+    if (this.cards.length < this.maxCards) {
+      // 直接添加到手牌
+      return this.addCard(card);
+    } else {
+      // 手牌已满，只有塑造法术（shaping）才添加到待处理队列
+      if (card instanceof Spell && card.type === 'shaping') {
+        this.pendingCards.push(card);
+        return false;
+      } else {
+        // 其他类型的卡片直接丢弃
+        return false;
+      }
     }
-
-    // 直接添加到手牌
-    return this.addCard(card);
-  }
-
-  /**
-   * 直接添加随从到手牌 - 用于特殊效果（如战吼）的手牌添加入口
-   * @param minion - 要添加的随从实例
-   * @returns 是否成功添加
-   * @使用方式：当通过特殊效果（如战吼、亡语）获得随从时调用
-   */
-  public addMinionToHand(minion: Minion): boolean {
-    // 调用统一的卡片添加入口
-    return this.addCardToHand(minion);
   }
 
   /**
@@ -634,30 +628,6 @@ export class Player {
     }
 
     return false;
-  }
-
-  /**
-   * 添加法术到手牌 - 将法术添加到玩家的手牌中
-   * @param spell - 要添加的法术实例
-   * @returns 是否成功添加
-   * @使用方式：当玩家获得新法术时调用
-   */
-  addSpell(spell: Spell): boolean {
-    // 检查手牌是否已满
-    if (this.cards.length < this.maxCards) {
-      // 创建新数组以确保响应式更新
-      this.cards = [...this.cards, spell];
-      return true;
-    } else {
-      // 手牌已满，只有塑造法术（shaping）才添加到待处理队列
-      if (spell.type === 'shaping') {
-        this.pendingCards.push(spell);
-        return false;
-      } else {
-        // 其他类型的法术直接丢弃
-        return false;
-      }
-    }
   }
 
   /**

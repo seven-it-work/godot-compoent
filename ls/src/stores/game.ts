@@ -85,62 +85,48 @@ export const useGameStore = defineStore('game', {
       const targets: any[] = [];
       const spell = state.selectedCard as Spell;
 
-      // 内部辅助函数：验证目标是否有效
-      const isValidTarget = (target: any, targetType: string): boolean => {
-        if (!target) return false;
+      // 收集所有可能的目标
+      const allPossibleTargets: any[] = [];
 
-        switch (targetType) {
-          case 'minion':
-            return target.cardType === 'minion';
-          case 'hero':
-            return target.cardType === 'hero';
-          case 'all_minions':
-            return target.cardType === 'minion';
-          case 'self':
-            return target.owner === state.player;
-          case 'friendly':
-            return target.owner === state.player;
-          case 'enemy':
-            return target.owner !== state.player;
-          case 'any':
-            return true;
-          default:
-            return false;
-        }
-      };
-
-      // 根据法术使用范围和目标类型收集可用目标
-      if (spell.targetSelection.scope === 'battlefield' || spell.targetSelection.scope === 'both') {
-        // 战场上的随从
-        if (state.player) {
-          state.player.minions.forEach((minion: any, index: number) => {
-            if (isValidTarget(minion, spell.targetSelection.targetType)) {
-              targets.push({
-                type: 'minion',
-                source: 'battlefield',
-                index,
-                target: minion,
-              });
-            }
-          });
-        }
+      // 添加战场上的随从
+      if (state.player) {
+        state.player.minions.forEach((minion: any, index: number) => {
+          if (minion) {
+            allPossibleTargets.push({
+              type: 'minion',
+              source: 'battlefield',
+              index,
+              target: minion,
+            });
+          }
+        });
       }
 
-      if (spell.targetSelection.scope === 'tavern' || spell.targetSelection.scope === 'both') {
-        // 酒馆中的随从
-        if (state.tavern) {
-          state.tavern.availableMinions.forEach((minion: any, index: number) => {
-            if (isValidTarget(minion, spell.targetSelection.targetType)) {
-              targets.push({
-                type: 'minion',
-                source: 'tavern',
-                index,
-                target: minion,
-              });
-            }
-          });
-        }
+      // 添加酒馆中的随从
+      if (state.tavern) {
+        state.tavern.availableMinions.forEach((minion: any, index: number) => {
+          if (minion) {
+            allPossibleTargets.push({
+              type: 'minion',
+              source: 'tavern',
+              index,
+              target: minion,
+            });
+          }
+        });
       }
+
+      // 使用法术的filterTargets方法过滤目标
+      const allMinions = allPossibleTargets.map(item => item.target);
+      const filteredMinions = spell.filterTargets(allMinions);
+
+      // 只保留过滤后的目标
+      filteredMinions.forEach(minion => {
+        const matchingTarget = allPossibleTargets.find(item => item.target === minion);
+        if (matchingTarget) {
+          targets.push(matchingTarget);
+        }
+      });
 
       return targets;
     },
@@ -504,62 +490,48 @@ export const useGameStore = defineStore('game', {
       const targets: any[] = [];
       const spell = this.selectedCard as Spell;
 
-      // 内部辅助函数：验证目标是否有效
-      const isValidTarget = (target: any, targetType: string): boolean => {
-        if (!target) return false;
+      // 收集所有可能的目标
+      const allPossibleTargets: any[] = [];
 
-        switch (targetType) {
-          case 'minion':
-            return target.cardType === 'minion';
-          case 'hero':
-            return target.cardType === 'hero';
-          case 'all_minions':
-            return target.cardType === 'minion';
-          case 'self':
-            return target.owner === this.player;
-          case 'friendly':
-            return target.owner === this.player;
-          case 'enemy':
-            return target.owner !== this.player;
-          case 'any':
-            return true;
-          default:
-            return false;
-        }
-      };
-
-      // 根据法术使用范围和目标类型收集可用目标
-      if (spell.targetSelection.scope === 'battlefield' || spell.targetSelection.scope === 'both') {
-        // 战场上的随从
-        if (this.player) {
-          this.player.minions.forEach((minion: any, index: number) => {
-            if (isValidTarget(minion, spell.targetSelection.targetType)) {
-              targets.push({
-                type: 'minion',
-                source: 'battlefield',
-                index,
-                target: minion,
-              });
-            }
-          });
-        }
+      // 添加战场上的随从
+      if (this.player) {
+        this.player.minions.forEach((minion: any, index: number) => {
+          if (minion) {
+            allPossibleTargets.push({
+              type: 'minion',
+              source: 'battlefield',
+              index,
+              target: minion,
+            });
+          }
+        });
       }
 
-      if (spell.targetSelection.scope === 'tavern' || spell.targetSelection.scope === 'both') {
-        // 酒馆中的随从
-        if (this.tavern) {
-          this.tavern.availableMinions.forEach((minion: any, index: number) => {
-            if (isValidTarget(minion, spell.targetSelection.targetType)) {
-              targets.push({
-                type: 'minion',
-                source: 'tavern',
-                index,
-                target: minion,
-              });
-            }
-          });
-        }
+      // 添加酒馆中的随从
+      if (this.tavern) {
+        this.tavern.availableMinions.forEach((minion: any, index: number) => {
+          if (minion) {
+            allPossibleTargets.push({
+              type: 'minion',
+              source: 'tavern',
+              index,
+              target: minion,
+            });
+          }
+        });
       }
+
+      // 使用法术的filterTargets方法过滤目标
+      const allMinions = allPossibleTargets.map(item => item.target);
+      const filteredMinions = spell.filterTargets(allMinions);
+
+      // 只保留过滤后的目标
+      filteredMinions.forEach(minion => {
+        const matchingTarget = allPossibleTargets.find(item => item.target === minion);
+        if (matchingTarget) {
+          targets.push(matchingTarget);
+        }
+      });
 
       this.highlightedTargets = targets;
     },

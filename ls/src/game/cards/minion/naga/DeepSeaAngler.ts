@@ -1,5 +1,6 @@
 import { Minion } from '@/game/Minion';
-import { Spell } from '@/game/Spell';
+import type { Player } from '@/game/Player';
+import { ShapingSpellHealthTaunt } from '@/game/cards/spell/shaping/ShapingSpellHealthTaunt';
 
 /**
  * 深海钓客类 - 继承自Minion，实现深海钓客的特殊效果
@@ -52,26 +53,9 @@ export class DeepSeaAngler extends Minion {
 
     if (!this.hasGrantedShapingSpell && game.player) {
       // 创建塑造法术
-      const shapingSpell = new Spell({
-        id: 'shaping_spell_health_taunt',
-        nameCN: '塑造法术：强化随从',
-        description: '直到下个回合，使一个随从获得+2生命值和嘲讽',
-        type: 'shaping',
-        effects: [
-          { type: 'health_bonus', value: 2, duration: 1, target: 'friendly' },
-          { type: 'max_health_bonus', value: 2, duration: 1, target: 'friendly' },
-          { type: 'keyword', value: 'taunt', duration: 1, target: 'friendly' },
-        ],
-        targetSelection: {
-          scope: 'both', // 允许作用于战场和酒馆中的随从
-          targetType: 'minion',
-          requiresTarget: true,
-        },
-        duration: 1,
-        isTemporary: true,
-      });
+      const shapingSpell = new ShapingSpellHealthTaunt();
       // 将法术添加到玩家的法术列表中
-      const added = game.player.addSpell(shapingSpell);
+      const added = (game.player as Player).addCardToHand(shapingSpell);
       if (added) {
         this.hasGrantedShapingSpell = true; // 标记已授予
       } else {

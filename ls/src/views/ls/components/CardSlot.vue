@@ -53,6 +53,7 @@ import interact from 'interactjs';
 import { Card } from '../../../game/Card';
 import type { CardArea } from '../../../game/Card';
 import { Minion, MinionKeywordCN } from '../../../game/Minion';
+import { Spell } from '../../../game/Spell';
 
 // 接收外部传入的参数
 type CardPosition = CardArea;
@@ -84,6 +85,8 @@ const emit = defineEmits<{
   (e: 'card-swap', cardId: string, targetSlotIndex: number): void;
   // 卡片选中事件
   (e: 'card-select', cardData: Card | null, positionType?: string): void;
+  // 法术释放事件
+  (e: 'spell-cast', spellCardId: string, targetCardId?: string): void;
 }>();
 
 // 卡片选中状态
@@ -336,10 +339,10 @@ const checkBattlefieldSlot = (releaseX: number, releaseY: number): BattlefieldSl
  */
 const removeAllHighlights = () => {
   console.log('[位置更新] 移除所有卡片槽和酒馆区域的高亮');
-  // 1. 移除所有卡片槽的高亮（包括drop-allowed和swap-allowed）
+  // 1. 移除所有卡片槽的高亮（包括drop-allowed、swap-allowed和spell-target-allowed）
   const allCardSlots = document.querySelectorAll('.card-slot');
   allCardSlots.forEach(slot => {
-    slot.classList.remove('drop-allowed', 'swap-allowed');
+    slot.classList.remove('drop-allowed', 'swap-allowed', 'spell-target-allowed');
   });
   // 2. 移除所有酒馆区域的高亮
   const tavernAreasEnd = document.querySelectorAll('.tavern-section');
@@ -350,6 +353,76 @@ const removeAllHighlights = () => {
   const handAreasEnd = document.querySelectorAll('.hand-section');
   handAreasEnd.forEach(area => {
     area.classList.remove('drop-allowed');
+  });
+};
+
+/**
+ * 显示法术使用箭头
+ * @param target 法术卡片元素
+ */
+const showSpellArrow = (target: HTMLElement) => {
+  // 移除已存在的箭头
+  const existingArrow = document.querySelector('.spell-arrow');
+  if (existingArrow) {
+    existingArrow.remove();
+  }
+
+  // 创建箭头元素
+  const arrow = document.createElement('div');
+  arrow.className = 'spell-arrow';
+  arrow.style.position = 'fixed';
+  arrow.style.pointerEvents = 'none';
+  arrow.style.zIndex = '3000';
+  arrow.style.width = '20px';
+  arrow.style.height = '20px';
+  arrow.style.backgroundColor = 'rgba(255, 255, 0, 0.8)';
+  arrow.style.borderRadius = '50%';
+  arrow.style.transform = 'translate(-50%, -50%)';
+  arrow.style.boxShadow = '0 0 10px rgba(255, 255, 0, 0.8)';
+
+  // 获取卡片位置
+  const rect = target.getBoundingClientRect();
+  arrow.style.left = `${rect.left + rect.width / 2}px`;
+  arrow.style.top = `${rect.top + rect.height / 2}px`;
+
+  // 添加到body
+  document.body.appendChild(arrow);
+};
+
+/**
+ * 移除法术使用箭头
+ */
+const removeSpellArrow = () => {
+  const existingArrow = document.querySelector('.spell-arrow');
+  if (existingArrow) {
+    existingArrow.remove();
+  }
+};
+
+/**
+ * 根据法术的targetSelection高亮可选中的目标
+ * @param targetSelection 法术目标选择规则
+ */
+const highlightSpellTargets = () => {
+  // 移除所有已有的高亮
+  removeAllHighlights();
+
+  // 获取所有可能的目标卡片槽（战场和酒馆）
+  const allTargetSlots: NodeListOf<HTMLElement> = document.querySelectorAll(
+    '.battlefield-section .card-slot, .tavern-section .card-slot'
+  );
+
+  // 遍历所有目标卡片槽，高亮符合条件的目标
+  allTargetSlots.forEach(slot => {
+    const isEmpty = slot.getAttribute('data-is-empty') === 'true';
+
+    // 跳过空槽（法术通常作用于有卡片的槽位）
+    if (isEmpty) {
+      return;
+    }
+
+    // 高亮所有非空槽位作为可能的目标
+    slot.classList.add('spell-target-allowed');
   });
 };
 
@@ -447,13 +520,26 @@ onMounted(() => {
 
         // 逻辑1：如果是手牌拖拽，高亮战场的空格子
         if (props.data?.area === '手牌') {
-          console.log(`[高亮处理] 手牌卡片 ${props.cardId} 开始拖拽，高亮战场空格子`);
-          const emptySlots = document.querySelectorAll(
-            '.battlefield-section .card-slot[data-is-empty="true"]'
-          );
-          emptySlots.forEach(slot => {
-            slot.classList.add('drop-allowed');
-          });
+          // 判断是否为法术卡片
+          const isSpell = props.data instanceof Spell;
+
+          if (isSpell) {
+            console.log(`[高亮处理] 法术卡片 ${props.cardId} 开始拖拽，高亮可选择目标`);
+
+            // 显示法术使用箭头
+            showSpellArrow(event.target as HTMLElement);
+
+            // 高亮可选择的目标
+            highlightSpellTargets();
+          } else {
+            console.log(`[高亮处理] 手牌卡片 ${props.cardId} 开始拖拽，高亮战场空格子`);
+            const emptySlots = document.querySelectorAll(
+              '.battlefield-section .card-slot[data-is-empty="true"]'
+            );
+            emptySlots.forEach(slot => {
+              slot.classList.add('drop-allowed');
+            });
+          }
         }
         // 逻辑2：如果是战场卡片拖拽，高亮酒馆区域和所有战场卡片槽
         else if (props.data?.area === '战场') {
@@ -538,15 +624,45 @@ onMounted(() => {
           isHandArea ? 'hand' : isTavernArea ? 'tavern' : isBattlefieldArea ? 'battlefield' : null
         );
 
-        // 逻辑1：战场卡片拖拽到酒馆区域，卡片消失
+        // 逻辑1：判断是否为法术卡片释放
+        const isSpell = props.data instanceof Spell;
         let shouldRemoveCard = false;
-        if (isTavernArea && props.data?.area === '战场') {
+
+        if (isSpell) {
+          console.log(`[法术释放] 法术卡片 ${props.cardId} 释放`);
+          const spell = props.data as Spell;
+
+          // 检查是否释放到有效目标上
+          const targetSlot = document.elementFromPoint(releaseX, releaseY)?.closest('.card-slot');
+          const isTargetValid = targetSlot?.classList.contains('spell-target-allowed') || false;
+
+          if (spell.requiresTarget) {
+            // 需要目标的法术
+            if (isTargetValid && targetSlot) {
+              // 释放到有效目标上，发送法术使用事件
+              const targetCardId = targetSlot.getAttribute('data-card-id');
+              console.log(`[法术释放] 法术 ${props.cardId} 释放到目标 ${targetCardId} 上`);
+              emit('spell-cast', props.cardId, targetCardId || '');
+              shouldRemoveCard = true; // 法术使用后从手牌移除
+            } else {
+              // 没有释放到有效目标上，回到初始位置
+              console.log(`[法术释放] 法术 ${props.cardId} 没有释放到有效目标上，回到初始位置`);
+              position.value = { ...initialPosition.value };
+            }
+          } else {
+            // 不需要目标的法术，直接释放
+            console.log(`[法术释放] 法术 ${props.cardId} 不需要目标，直接释放`);
+            emit('spell-cast', props.cardId);
+            shouldRemoveCard = true; // 法术使用后从手牌移除
+          }
+        }
+        // 逻辑2：战场卡片拖拽到酒馆区域，卡片消失
+        else if (isTavernArea && props.data?.area === '战场') {
           console.log(`[位置更新] 战场卡片 ${props.cardId} 拖拽到酒馆区域，卡片消失`);
           shouldRemoveCard = true;
         }
-
-        // 逻辑2：酒馆卡片拖拽到手牌区域，卡片移动
-        if (isHandArea && props.data?.area === '酒馆') {
+        // 逻辑3：酒馆卡片拖拽到手牌区域，卡片移动
+        else if (isHandArea && props.data?.area === '酒馆') {
           // 在手牌区域释放，发送移动事件
           console.log(`[位置更新] 卡片 ${props.cardId} 从 ${props.data?.area} 移动到手牌区域`);
           emit('card-move', props.cardId, props.data?.area || '', '手牌');
@@ -554,7 +670,7 @@ onMounted(() => {
           position.value = { x: 0, y: 0 };
           console.log(`[位置更新] 卡片 ${props.cardId} 位置重置为 (0, 0)`);
         }
-        // 逻辑3：手牌卡片拖拽到战场空格子，卡片移动
+        // 逻辑4：手牌卡片拖拽到战场空格子，卡片移动
         else if (isEmptySlot && props.data?.area === '手牌') {
           // 在战场空格子释放，发送移动事件，传递目标空格子索引
           console.log(
@@ -565,7 +681,7 @@ onMounted(() => {
           position.value = { x: 0, y: 0 };
           console.log(`[位置更新] 卡片 ${props.cardId} 位置重置为 (0, 0)`);
         }
-        // 逻辑4：战场卡片拖拽到另一个战场卡片槽，交换位置
+        // 逻辑5：战场卡片拖拽到另一个战场卡片槽，交换位置
         else if (isTargetSlot && props.data?.area === '战场') {
           console.log(
             `[位置更新] 战场卡片 ${props.cardId} 拖拽到另一个战场卡片槽，索引: ${targetSlotIndex}, 目标槽是否有卡片: ${targetSlotHasCard}`
@@ -588,6 +704,9 @@ onMounted(() => {
 
         // 移除所有高亮样式
         removeAllHighlights();
+
+        // 移除法术箭头
+        removeSpellArrow();
 
         // 如果需要移除卡片，最后发送移除事件
         if (shouldRemoveCard) {
@@ -639,6 +758,14 @@ onUnmounted(() => {
 .card-slot.drop-allowed {
   border: 4px dashed #4169e1;
   box-shadow: 0 0 15px rgba(65, 105, 225, 0.5);
+  transform: scale(1.05);
+  transition: all 0.3s ease;
+}
+
+/* 法术目标高亮样式 */
+.card-slot.spell-target-allowed {
+  border: 4px solid #ff0000;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
   transform: scale(1.05);
   transition: all 0.3s ease;
 }

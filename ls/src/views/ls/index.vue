@@ -334,14 +334,14 @@ const handCards = computed(() => {
   if (gameStore.player && gameStore.player.cards) {
     const cards = gameStore.player.cards;
     // 确保总共有10个槽位，不足则用null填充
-    const filledSlots: (Card | null)[] = [...cards];
+    const filledSlots: (any | null)[] = [...cards];
     while (filledSlots.length < 10) {
       filledSlots.push(null);
     }
     return filledSlots;
   }
   // 初始状态：10个空槽
-  return Array(10).fill(null) as (Card | null)[];
+  return Array(10).fill(null) as (any | null)[];
 });
 
 // 计算属性：是否可以升级酒馆
