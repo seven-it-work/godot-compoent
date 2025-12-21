@@ -139,26 +139,33 @@ export class Card implements ICard {
 
   /**
    * 卡片构造函数
-   * @param params - 卡片属性参数，所有属性可选。会优先使用当前类的BASE_DATA初始化，然后用params覆盖
+   * @param params - 卡片属性参数，所有属性可选。会优先使用当前类的BASE_DATA初始化，BASE_DATA优先级高于params
    */
   constructor(params: Partial<ICard> = {}) {
     this.id = IdGenerator.generateRandomId();
-    // 获取当前类的BASE_DATA（如果存在）
-    const baseData = (this.constructor as typeof Card & { BASE_DATA?: ICardData }).BASE_DATA;
-    // 合并BASE_DATA和params，params优先级更高
+    // 获取当前类的BASE_DATA（如果存在），支持子类的BASE_DATA
+    const baseData = (this.constructor as any).BASE_DATA;
+    // 合并params和BASE_DATA，BASE_DATA优先级更高
     const mergedParams = {
-      ...baseData,
       ...params,
+      ...baseData,
     };
+    
+    // 调用initData方法初始化属性，支持子类重写
     this.initData(mergedParams);
   }
 
-  protected initData(mergedParams?: any) {
+  /**
+   * 初始化卡片数据
+   * @param mergedParams - 合并后的参数，包含BASE_DATA和构造函数参数
+   * @protected - 可由子类重写以实现特定的初始化逻辑
+   */
+  protected initData(mergedParams: any) {
     // 使用合并后的数据初始化所有卡片属性
     this.strId = mergedParams.strId || '';
     // 确保cardType是有效的CardType值
     const rawCardType = mergedParams.cardType;
-    this.cardType =
+    this.cardType = 
       rawCardType && this.isValidCardType(rawCardType) ? rawCardType : CardType.MINION;
     this.name = mergedParams.name || '';
     this.nameCN = mergedParams.nameCN || '';

@@ -182,6 +182,49 @@ export class Minion extends Card implements IMinion {
   permanentBuffs: MinionBuff[] = [];
   /** 临时加成列表 - 存储应用于该随从的临时属性加成（回合结束时自动移除） */
   temporaryBuffs: MinionBuff[] = [];
+  
+  /**
+   * 随从构造函数
+   * @param params - 随从属性参数，所有属性可选
+   */
+  constructor(params: Partial<IMinion> = {}) {
+    super(params);
+  }
+
+  /**
+   * 初始化卡片数据
+   * @param mergedParams - 合并后的参数，包含BASE_DATA和构造函数参数
+   * @protected - 重写父类方法，实现Minion特有的初始化逻辑
+   */
+  protected initData(mergedParams: any) {
+    // 调用父类的initData方法初始化通用卡片属性
+    super.initData(mergedParams);
+    
+    // 初始化Minion特有的属性
+    this.minionTypes = mergedParams.minionTypes || [];
+    this.minionTypesCN = mergedParams.minionTypesCN || [];
+    this.upgradeCard = mergedParams.upgradeCard;
+
+    // 游戏状态属性初始化
+    this.permanentKeywords = Minion.mapMechanicsToKeywords(mergedParams.mechanics || []);
+    this.temporaryKeywords = [];
+    this.isGolden = mergedParams.isGolden || false;
+    this.isFrozen = mergedParams.isFrozen || false;
+    this.position = mergedParams.position !== undefined ? mergedParams.position : null;
+    this.hasAttacked = mergedParams.hasAttacked || false;
+    this.hasDivineShield = this.permanentKeywords.includes(MinionKeyword.DIVINE_SHIELD);
+    this.hasReborn = this.permanentKeywords.includes(MinionKeyword.REBORN);
+    this.hasGrantedShapingSpell = mergedParams.hasGrantedShapingSpell || false;
+    this.health = mergedParams.health || 1;
+
+    // 属性初始化
+    this.baseAttack = mergedParams.attack || 0;
+    this.baseMaxHealth = mergedParams.health || 1;
+
+    // 加成列表初始化
+    this.permanentBuffs = mergedParams.permanentBuffs || [];
+    this.temporaryBuffs = mergedParams.temporaryBuffs || [];
+  }
 
   /** 属性缓存机制 - 用于优化属性计算性能 */
   /** 攻击力缓存 - 缓存当前计算的攻击力，null表示需要重新计算 */
@@ -200,34 +243,7 @@ export class Minion extends Card implements IMinion {
     this.maxHealthCache = null;
     this.keywordsCache = null;
   }
-
-  protected initData(params?: any): void {
-    super.initData(params);
-    // 初始化Minion特有的属性
-    this.minionTypes = params.minionTypes || [];
-    this.minionTypesCN = params.minionTypesCN || [];
-    this.upgradeCard = params.upgradeCard;
-
-    // 游戏状态属性初始化
-    this.permanentKeywords = Minion.mapMechanicsToKeywords(params.mechanics || []);
-    this.temporaryKeywords = [];
-    this.isGolden = params.isGolden || false;
-    this.isFrozen = params.isFrozen || false;
-    this.position = params.position !== undefined ? params.position : null;
-    this.hasAttacked = params.hasAttacked || false;
-    this.hasDivineShield = this.permanentKeywords.includes(MinionKeyword.DIVINE_SHIELD);
-    this.hasReborn = this.permanentKeywords.includes(MinionKeyword.REBORN);
-    this.hasGrantedShapingSpell = params.hasGrantedShapingSpell || false;
-    this.health = params.health || 1;
-
-    // 属性初始化
-    this.baseAttack = params.attack || 0;
-    this.baseMaxHealth = params.health || 1;
-
-    // 加成列表初始化
-    this.permanentBuffs = params.permanentBuffs || [];
-    this.temporaryBuffs = params.temporaryBuffs || [];
-  }
+  
 
   /**
    * 将机制列表映射为关键词列表
@@ -329,6 +345,57 @@ export class Minion extends Card implements IMinion {
       this.keywordsCache = [...this.permanentKeywords, ...this.temporaryKeywords];
     }
     return this.keywordsCache;
+  }
+
+  /**
+   * 攻击力访问器 - 兼容现有代码，返回计算后的攻击力
+   * @returns 包含所有加成的攻击力
+   */
+  get attack(): number {
+    return this.getAttack();
+  }
+
+  /**
+   * 攻击力设置器 - 兼容现有代码，禁止直接设置攻击力
+   * @param _value - 未使用的参数，仅用于兼容现有代码
+   * @throws 不允许直接设置攻击力
+   */
+  set attack(_value: number) {
+    console.warn('不允许直接设置攻击力，请使用addBuff/removeBuff方法修改');
+  }
+
+  /**
+   * 最大生命值访问器 - 兼容现有代码，返回计算后的最大生命值
+   * @returns 包含所有加成的最大生命值
+   */
+  get maxHealth(): number {
+    return this.getMaxHealth();
+  }
+
+  /**
+   * 最大生命值设置器 - 兼容现有代码，禁止直接设置最大生命值
+   * @param _value - 未使用的参数，仅用于兼容现有代码
+   * @throws 不允许直接设置最大生命值
+   */
+  set maxHealth(_value: number) {
+    console.warn('不允许直接设置最大生命值，请使用addBuff/removeBuff方法修改');
+  }
+
+  /**
+   * 关键词访问器 - 兼容现有代码，返回所有关键词
+   * @returns 所有关键词列表
+   */
+  get keywords(): MinionKeyword[] {
+    return this.getKeywords();
+  }
+
+  /**
+   * 关键词设置器 - 兼容现有代码，禁止直接设置关键词
+   * @param _value - 未使用的参数，仅用于兼容现有代码
+   * @throws 不允许直接设置关键词
+   */
+  set keywords(_value: MinionKeyword[]) {
+    console.warn('不允许直接设置关键词，请使用相关方法修改');
   }
 
   /**

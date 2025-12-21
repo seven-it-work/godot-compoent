@@ -415,6 +415,7 @@ const createMinionPool = () => {
       const MinionClass = getMinionClassByStrId(minionData.strId);
       if (MinionClass) {
         try {
+          console.log(`创建随从 ${minionData.strId} `, new MinionClass());
           return new MinionClass();
         } catch (error) {
           console.error(`创建随从 ${minionData.strId} 实例时出错:`, error);
