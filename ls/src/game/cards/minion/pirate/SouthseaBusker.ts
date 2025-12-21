@@ -1,4 +1,4 @@
-import { Minion } from '../../Minion';
+import { Minion } from '@/game/Minion';
 
 /**
  * 南海卖艺者类 - 继承自Minion，实现南海卖艺者的特殊效果

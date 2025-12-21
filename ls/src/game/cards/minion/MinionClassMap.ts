@@ -1,5 +1,4 @@
-import { Minion } from '../Minion';
-
+import { Minion } from "@/game/Minion";
 // 自动导入所有随从类
 const minionModules = import.meta.glob('./**/*.ts', { eager: true });
 
@@ -68,11 +67,26 @@ export const getMinionClassByStrId = (strId: string): typeof Minion | undefined 
 export const getMinionClassByNameCN = (nameCN: string): typeof Minion | undefined => {
   return Object.values(minionClasses).find(minionClass => {
     if (!minionClass.BASE_DATA) {
-      const className =
-        Object.keys(minionClasses).find(key => minionClasses[key] === minionClass) || 'Unknown';
+      const className = Object.keys(minionClasses).find(key => minionClasses[key] === minionClass) || 'Unknown';
       console.error(`ERROR: 随从类 ${className} 缺少 BASE_DATA 属性`);
       return false;
     }
     return minionClass.BASE_DATA.nameCN === nameCN;
   });
+};
+
+/**
+ * 获取所有已开发的随从类的strId列表
+ */
+export const getAllMinionStrIds = (): string[] => {
+  return Object.values(minionClasses)
+    .filter(minionClass => {
+      if (!minionClass.BASE_DATA) {
+        const className = Object.keys(minionClasses).find(key => minionClasses[key] === minionClass) || 'Unknown';
+        console.error(`ERROR: 随从类 ${className} 缺少 BASE_DATA 属性`);
+        return false;
+      }
+      return true;
+    })
+    .map(minionClass => minionClass.BASE_DATA.strId);
 };

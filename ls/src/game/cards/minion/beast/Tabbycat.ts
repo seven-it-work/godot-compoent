@@ -1,4 +1,4 @@
-import { Minion } from '../../Minion';
+import { Minion } from '@/game/Minion';
 
 /**
  * 雌斑虎类 - 继承自Minion，实现雌斑虎的基本功能

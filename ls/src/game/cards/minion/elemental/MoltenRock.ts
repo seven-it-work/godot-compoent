@@ -1,4 +1,4 @@
-import { Minion } from '../../Minion';
+import { Minion } from '@/game/Minion';
 
 /**
  * 熔融岩石类 - 继承自Minion，实现熔融岩石的特殊效果

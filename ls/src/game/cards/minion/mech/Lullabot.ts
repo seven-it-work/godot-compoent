@@ -1,4 +1,4 @@
-import { Minion } from '../../Minion';
+import { Minion } from '@/game/Minion';
 
 /**
  * 催眠机器人类 - 继承自Minion，实现催眠机器人的特殊效果

@@ -1,4 +1,4 @@
-import { IdGenerator } from '../utils/IdGenerator';
+import { IdGenerator } from '@/utils/IdGenerator';
 import type { ICard } from './Card';
 import { Card } from './Card';
 import { cloneDeep } from 'lodash';

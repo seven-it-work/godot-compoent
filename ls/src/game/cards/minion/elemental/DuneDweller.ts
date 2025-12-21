@@ -1,4 +1,4 @@
-import { Minion } from '../../Minion';
+import { Minion } from '@/game/Minion';
 
 /**
  * 沙丘土著类 - 继承自Minion，实现沙丘土著的特殊效果

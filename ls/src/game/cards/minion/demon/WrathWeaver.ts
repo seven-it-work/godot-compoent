@@ -1,4 +1,4 @@
-import { Minion } from '../../Minion';
+import { Minion } from '@/game/Minion';
 
 /**
  * 愤怒编织者类 - 继承自Minion，实现愤怒编织者的特殊效果

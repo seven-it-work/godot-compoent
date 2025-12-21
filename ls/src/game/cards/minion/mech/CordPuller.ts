@@ -1,4 +1,4 @@
-import { Minion } from '../../Minion';
+import { Minion } from '@/game/Minion';
 
 /**
  * 拔线机类 - 继承自Minion，实现拔线机的特殊效果

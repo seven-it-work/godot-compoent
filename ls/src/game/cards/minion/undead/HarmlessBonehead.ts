@@ -1,4 +1,4 @@
-import { Minion } from '../../Minion';
+import { Minion } from '@/game/Minion';
 
 /**
  * 无害的骨颅类 - 继承自Minion，实现无害的骨颅的特殊效果

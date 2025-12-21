@@ -1,4 +1,4 @@
-import { IdGenerator } from '../utils/IdGenerator';
+import { IdGenerator } from '@/utils/IdGenerator';
 
 /** 卡片类型 - 定义卡片的类型 */
 export type CardType = 'minion' | 'spell' | 'hero' | 'hero_power';

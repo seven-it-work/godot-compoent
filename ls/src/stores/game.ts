@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
-import { Minion } from '../game/Minion';
-import { Player } from '../game/Player';
-import { Spell } from '../game/Spell';
-import { Tavern } from '../game/Tavern';
-import { Card } from '../game/Card';
+import { Minion } from '@/game/Minion';
+import { Player } from '@/game/Player';
+import { Spell } from '@/game/Spell';
+import { Tavern } from '@/game/Tavern';
+import { Card } from '@/game/Card';
 
 // 英雄类型定义
 interface HeroPower {

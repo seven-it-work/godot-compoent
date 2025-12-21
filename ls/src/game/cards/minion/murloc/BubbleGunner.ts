@@ -1,4 +1,4 @@
-import { Minion, MinionKeyword } from '../../Minion';
+import { Minion, MinionKeyword } from '@/game/Minion';
 
 /**
  * 气泡枪手类 - 继承自Minion，实现气泡枪手的特殊效果

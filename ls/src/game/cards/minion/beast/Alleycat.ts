@@ -1,5 +1,5 @@
-import { Minion } from '../../Minion';
-import { getMinionClassByStrId } from '../MinionClassMap';
+import { Minion } from '@/game/Minion';
+import { getMinionClassByStrId } from '@/game/cards/minion/MinionClassMap';
 
 /**
  * 雄斑虎类 - 继承自Minion，实现雄斑虎的特殊效果

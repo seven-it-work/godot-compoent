@@ -245,14 +245,14 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import heroesData from '../../data/heroes.json';
 import minionsData from '../../data/minions.json';
-import { AIPlayer } from '../../game/AIPlayer';
-import { Card } from '../../game/Card';
-import type { CardArea } from '../../game/Card';
-import { Minion } from '../../game/Minion';
-import { minionClassMapByStrId } from '../../game/minion/MinionClassMap';
-import { Player } from '../../game/Player';
-import { Tavern } from '../../game/Tavern';
-import { useGameStore } from '../../stores/game';
+import { AIPlayer } from '@/game/AIPlayer';
+import { Card } from '@/game/Card';
+import type { CardArea } from '@/game/Card';
+import { Minion } from '@/game/Minion';
+import { getMinionClassByStrId, getAllMinionStrIds } from '@/game/cards/minion/MinionClassMap';
+import { Player } from '@/game/Player';
+import { Tavern } from '@/game/Tavern';
+import { useGameStore } from '@/stores/game';
 import CardSlot from './components/CardSlot.vue';
 import DebugDrawer from './components/DebugDrawer.vue';
 
@@ -374,8 +374,8 @@ const loadHeroes = () => {
 
 // 从已开发的随从类创建随从池
 const createMinionPool = () => {
-  // 只使用已开发的随从类，直接使用minionClassMapByStrId的键
-  const developedStrIds = Object.keys(minionClassMapByStrId);
+  // 只使用已开发的随从类，通过getAllMinionStrIds获取所有已开发的strId
+  const developedStrIds = getAllMinionStrIds();
 
   // 辅助函数：递归提取所有随从数据（包括tokens中的）
   const extractAllMinions = (data: any[]): any[] => {
@@ -412,7 +412,7 @@ const createMinionPool = () => {
     })
     .map(minionData => {
       // 为每个随从创建Minion实例
-      const MinionClass = minionClassMapByStrId[minionData.strId];
+      const MinionClass = getMinionClassByStrId(minionData.strId);
       if (MinionClass) {
         try {
           return new MinionClass({

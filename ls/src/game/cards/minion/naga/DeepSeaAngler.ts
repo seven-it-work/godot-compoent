@@ -1,5 +1,5 @@
-import { Minion } from '../../Minion';
-import { Spell } from '../../Spell';
+import { Minion } from '@/game/Minion';
+import { Spell } from '@/game/Spell';
 
 /**
  * 深海钓客类 - 继承自Minion，实现深海钓客的特殊效果
