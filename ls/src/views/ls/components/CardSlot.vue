@@ -28,10 +28,19 @@
       <div class="corner-badge bottom-right" v-if="data instanceof Minion">
         {{ data.health }}
       </div>
-
+      <!-- 关键词 -->
+      <div class="keywords" v-if="data instanceof Minion">
+        <span
+          v-for="keyword in [...new Set(data.getKeywords())]"
+          :key="keyword"
+          class="keyword-tag"
+        >
+          {{ MinionKeywordCN[keyword] }}
+        </span>
+      </div>
       <div class="card-name">{{ data.nameCN }}</div>
       <div class="minion-types" v-if="data instanceof Minion">
-        {{ data.minionTypesCN.join('\n') }}
+        {{ [data.minionTypesCN].join('\n') }}
       </div>
     </div>
   </div>
@@ -43,7 +52,7 @@ import { onMounted, onUnmounted, ref, watch } from 'vue';
 import interact from 'interactjs';
 import { Card } from '../../../game/Card';
 import type { CardArea } from '../../../game/Card';
-import { Minion } from '../../../game/Minion';
+import { Minion, MinionKeywordCN } from '../../../game/Minion';
 
 // 接收外部传入的参数
 type CardPosition = CardArea;
@@ -727,5 +736,26 @@ onUnmounted(() => {
   margin: 0 auto;
   white-space: pre-line; /* Allow line breaks with \n */
   line-height: 1.2;
+}
+
+/* 关键词容器 */
+.keywords {
+  position: absolute;
+  bottom: 30px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1px;
+  overflow-y: auto;
+  max-height: 25px;
+}
+
+/* 单个关键词标签 */
+.keyword-tag {
+  color: black;
+  font-size: 8px;
 }
 </style>

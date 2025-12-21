@@ -66,6 +66,21 @@ export const MinionKeyword = {
 } as const;
 
 /**
+ * 随从关键词中文映射 - 提供关键词的中文显示名称
+ */
+export const MinionKeywordCN: Record<MinionKeyword, string> = {
+  taunt: '嘲讽',
+  divine_shield: '圣盾',
+  windfury: '风怒',
+  super_windfury: '超级风怒',
+  stealth: '潜行',
+  charge: '冲锋',
+  poisonous: '剧毒',
+  reborn: '复生',
+  immune: '免疫',
+};
+
+/**
  * 随从加成接口 - 定义随从属性加成的数据结构
  */
 export interface MinionBuff {
