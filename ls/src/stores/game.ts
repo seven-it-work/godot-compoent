@@ -3,6 +3,7 @@ import { Minion } from '../game/Minion';
 import { Player } from '../game/Player';
 import { Spell } from '../game/Spell';
 import { Tavern } from '../game/Tavern';
+import { Card } from '../game/Card';
 
 // 英雄类型定义
 interface HeroPower {
@@ -43,16 +44,10 @@ export const useGameStore = defineStore('game', {
     currentTurn: 1,
     // 随从池数据
     minionPool: [] as Minion[],
-    // 选中的随从
-    selectedMinion: null as Minion | null,
-    // 选中的随从索引
-    selectedMinionIndex: null as number | null,
-    // 选中的随从来源
-    selectedMinionSource: null as 'tavern' | 'battlefield' | 'hand' | null,
-    // 选中的法术
-    selectedSpell: null as Spell | null,
-    // 选中的法术索引
-    selectedSpellIndex: null as number | null,
+    // 选中的卡片
+    selectedCard: null as Card | null,
+    // 选中的卡片索引
+    selectedCardIndex: null as number | null,
     // 法术使用状态：准备使用、选择目标中
     spellUsageState: 'idle' as 'idle' | 'selecting_target' | 'casting',
     // 高亮的目标列表
@@ -78,12 +73,17 @@ export const useGameStore = defineStore('game', {
   getters: {
     // 获取当前可选择的目标列表
     availableTargets: state => {
-      if (!state.selectedSpell || state.spellUsageState !== 'selecting_target') {
+      // 检查是否有选中的法术
+      if (
+        !state.selectedCard ||
+        state.selectedCard.cardType !== 'spell' ||
+        state.spellUsageState !== 'selecting_target'
+      ) {
         return [];
       }
 
       const targets: any[] = [];
-      const spell = state.selectedSpell;
+      const spell = state.selectedCard as Spell;
 
       // 内部辅助函数：验证目标是否有效
       const isValidTarget = (target: any, targetType: string): boolean => {
@@ -439,18 +439,16 @@ export const useGameStore = defineStore('game', {
       return false;
     },
 
-    // 选择随从
-    selectMinion(minion: Minion, index: number, source: 'tavern' | 'battlefield' | 'hand') {
-      this.selectedMinion = minion;
-      this.selectedMinionIndex = index;
-      this.selectedMinionSource = source;
+    // 选择卡片
+    selectCard(card: Card, index: number) {
+      this.selectedCard = card;
+      this.selectedCardIndex = index;
     },
 
-    // 取消选择随从
-    cancelSelectMinion() {
-      this.selectedMinion = null;
-      this.selectedMinionIndex = null;
-      this.selectedMinionSource = null;
+    // 取消选择卡片
+    cancelSelectCard() {
+      this.selectedCard = null;
+      this.selectedCardIndex = null;
     },
 
     // 验证目标是否有效
@@ -479,8 +477,8 @@ export const useGameStore = defineStore('game', {
 
     // 选中法术
     selectSpell(spell: Spell, index: number) {
-      this.selectedSpell = spell;
-      this.selectedSpellIndex = index;
+      // 使用通用的selectCard方法
+      this.selectCard(spell, index);
       this.spellUsageState = 'selecting_target';
 
       // 计算并高亮可用目标
@@ -489,8 +487,8 @@ export const useGameStore = defineStore('game', {
 
     // 取消选中法术
     cancelSelectSpell() {
-      this.selectedSpell = null;
-      this.selectedSpellIndex = null;
+      // 使用通用的cancelSelectCard方法
+      this.cancelSelectCard();
       this.spellUsageState = 'idle';
       this.highlightedTargets = [];
       this.dragArrow.visible = false;
@@ -498,13 +496,13 @@ export const useGameStore = defineStore('game', {
 
     // 计算并更新高亮目标
     calculateHighlightedTargets() {
-      if (!this.selectedSpell) {
+      if (!this.selectedCard || this.selectedCard.cardType !== 'spell') {
         this.highlightedTargets = [];
         return;
       }
 
       const targets: any[] = [];
-      const spell = this.selectedSpell;
+      const spell = this.selectedCard as Spell;
 
       // 内部辅助函数：验证目标是否有效
       const isValidTarget = (target: any, targetType: string): boolean => {
@@ -605,7 +603,7 @@ export const useGameStore = defineStore('game', {
       console.log(`[法术拖拽] 结束法术拖拽，是否选择目标: ${!!target}`);
       this.dragArrow.visible = false;
 
-      if (target && this.selectedSpell) {
+      if (target && this.selectedCard && this.selectedCard.cardType === 'spell') {
         console.log(`[法术拖拽] 选择目标: ${target.target.nameCN}`);
         this.castSpell(target);
       } else {
@@ -616,7 +614,11 @@ export const useGameStore = defineStore('game', {
 
     // 点击选择目标
     selectSpellTarget(target: any) {
-      if (this.spellUsageState === 'selecting_target' && this.selectedSpell) {
+      if (
+        this.spellUsageState === 'selecting_target' &&
+        this.selectedCard &&
+        this.selectedCard.cardType === 'spell'
+      ) {
         console.log(`[法术拖拽] 点击选择目标: ${target.target.nameCN}`);
         this.castSpell(target);
       } else {
@@ -626,7 +628,11 @@ export const useGameStore = defineStore('game', {
 
     // 检测鼠标坐标下的有效目标
     detectTargetAtPosition(clientX: number, clientY: number): any | null {
-      if (!this.selectedSpell || this.spellUsageState !== 'selecting_target') {
+      if (
+        !this.selectedCard ||
+        this.selectedCard.cardType !== 'spell' ||
+        this.spellUsageState !== 'selecting_target'
+      ) {
         console.log(`[法术拖拽] 目标检测失败: 无效的法术使用状态`);
         return null;
       }
@@ -749,29 +755,28 @@ export const useGameStore = defineStore('game', {
 
     // 释放法术
     castSpell(target: any) {
-      if (!this.selectedSpell || !this.player || !target) {
+      if (!this.selectedCard || this.selectedCard.cardType !== 'spell' || !this.player || !target) {
         console.log(`[法术拖拽] 法术释放失败: 无效参数`);
         this.cancelSelectSpell();
         return;
       }
 
-      console.log(`[法术拖拽] 开始释放法术: ${this.selectedSpell.nameCN}`);
+      const spell = this.selectedCard as Spell;
+      console.log(`[法术拖拽] 开始释放法术: ${spell.nameCN}`);
       this.spellUsageState = 'casting';
 
       try {
         console.log(`[法术拖拽] 执行法术效果，目标: ${target.target.nameCN}`);
         // 执行法术效果
-        this.selectedSpell.execute(target.target);
+        spell.execute(target.target);
 
-        console.log(`[法术拖拽] 从手牌中移除法术，索引: ${this.selectedSpellIndex}`);
+        console.log(`[法术拖拽] 从手牌中移除法术，索引: ${this.selectedCardIndex}`);
         // 从手牌中移除法术
-        if (this.selectedSpellIndex !== null) {
-          this.player.cards.splice(this.selectedSpellIndex, 1);
+        if (this.selectedCardIndex !== null) {
+          this.player.cards.splice(this.selectedCardIndex, 1);
         }
 
-        console.log(
-          `[法术拖拽] 法术释放成功: ${this.selectedSpell.nameCN} 目标: ${target.target.nameCN}`
-        );
+        console.log(`[法术拖拽] 法术释放成功: ${spell.nameCN} 目标: ${target.target.nameCN}`);
       } catch (error) {
         console.error(
           `[法术拖拽] 法术释放失败: ${error instanceof Error ? error.message : '未知错误'}`
