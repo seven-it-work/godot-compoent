@@ -48,6 +48,8 @@ export interface ICard {
   isTemporary: boolean;
   /** 卡片区域 - 卡片当前所在区域 */
   area: CardArea;
+  /** 是否出现在酒馆中 - 默认值为true */
+  isTavernMinion: boolean;
 }
 
 /**
@@ -82,6 +84,8 @@ export class Card implements ICard {
   isTemporary: boolean;
   /** 卡片区域 - 卡片当前所在区域 */
   area: CardArea;
+  /** 是否出现在酒馆中 - 默认值为true */
+  isTavernMinion: boolean;
 
   /**
    * 卡片构造函数
@@ -102,6 +106,7 @@ export class Card implements ICard {
     this.cost = params.cost || 0;
     this.isTemporary = params.isTemporary || false;
     this.area = params.area || null;
+    this.isTavernMinion = params.isTavernMinion ?? true;
   }
 
   /**
@@ -122,6 +127,7 @@ export class Card implements ICard {
       tier: this.tier,
       cost: this.cost,
       isTemporary: this.isTemporary,
+      isTavernMinion: this.isTavernMinion,
     });
   }
 }

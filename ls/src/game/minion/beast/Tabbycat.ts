@@ -38,5 +38,13 @@ export class Tabbycat extends Minion {
       minionTypesCN: ['野兽'],
     },
   };
-  // 雌斑虎没有特殊效果，只需要继承基础的Minion类即可
+
+  /**
+   * 雌斑虎构造函数
+   * 设置isTavernMinion为false，因为它是token随从，不会出现在酒馆中
+   */
+  constructor(params?: any) {
+    super(params);
+    this.isTavernMinion = false;
+  }
 }

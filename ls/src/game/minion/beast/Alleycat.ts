@@ -1,5 +1,5 @@
 import { Minion } from '../../Minion';
-import { minionClassMapByStrId } from '../MinionClassMap';
+import { getMinionClassByStrId } from '../MinionClassMap';
 
 /**
  * 雄斑虎类 - 继承自Minion，实现雄斑虎的特殊效果
@@ -108,8 +108,8 @@ export class Alleycat extends Minion {
     // 获取雌斑虎的strId
     const tabbycatStrId = 'BG_CFM_315t';
 
-    // 从minionClassMapByStrId获取雌斑虎类
-    const TabbycatClass = minionClassMapByStrId[tabbycatStrId];
+    // 从getMinionClassByStrId获取雌斑虎类
+    const TabbycatClass = getMinionClassByStrId(tabbycatStrId);
 
     if (!TabbycatClass) {
       console.error(`无法找到雌斑虎类，strId: ${tabbycatStrId}`);
