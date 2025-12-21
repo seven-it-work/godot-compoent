@@ -11,7 +11,7 @@ for (const path in minionModules) {
   if (path === './MinionClassMap.ts') {
     continue;
   }
-  
+
   const module = minionModules[path];
   // 处理默认导出和命名导出
   if (module && typeof module === 'object') {
@@ -19,8 +19,11 @@ for (const path in minionModules) {
     const namedModule = module as Record<string, any>;
     for (const key in namedModule) {
       const exportValue = namedModule[key];
-      if (exportValue && typeof exportValue === 'function' && 
-          Object.getPrototypeOf(exportValue.prototype).constructor === Minion) {
+      if (
+        exportValue &&
+        typeof exportValue === 'function' &&
+        Object.getPrototypeOf(exportValue.prototype).constructor === Minion
+      ) {
         minionClasses[key] = exportValue as typeof Minion;
       }
     }
@@ -49,7 +52,8 @@ Object.entries(minionClasses).forEach(([className, minionClass]) => {
 export const getMinionClassByStrId = (strId: string): typeof Minion | undefined => {
   return Object.values(minionClasses).find(minionClass => {
     if (!minionClass.BASE_DATA) {
-      const className = Object.keys(minionClasses).find(key => minionClasses[key] === minionClass) || 'Unknown';
+      const className =
+        Object.keys(minionClasses).find(key => minionClasses[key] === minionClass) || 'Unknown';
       console.error(`ERROR: 随从类 ${className} 缺少 BASE_DATA 属性`);
       return false;
     }
@@ -64,12 +68,11 @@ export const getMinionClassByStrId = (strId: string): typeof Minion | undefined 
 export const getMinionClassByNameCN = (nameCN: string): typeof Minion | undefined => {
   return Object.values(minionClasses).find(minionClass => {
     if (!minionClass.BASE_DATA) {
-      const className = Object.keys(minionClasses).find(key => minionClasses[key] === minionClass) || 'Unknown';
+      const className =
+        Object.keys(minionClasses).find(key => minionClasses[key] === minionClass) || 'Unknown';
       console.error(`ERROR: 随从类 ${className} 缺少 BASE_DATA 属性`);
       return false;
     }
     return minionClass.BASE_DATA.nameCN === nameCN;
   });
 };
-
-
