@@ -415,23 +415,7 @@ const createMinionPool = () => {
       const MinionClass = getMinionClassByStrId(minionData.strId);
       if (MinionClass) {
         try {
-          return new MinionClass({
-            strId: minionData.strId,
-            cardType: minionData.cardType,
-            name: minionData.name,
-            nameCN: minionData.nameCN,
-            text: minionData.text,
-            mechanics: minionData.mechanics || [],
-            referencedTags: minionData.referencedTags || [],
-            img: minionData.img,
-            art: minionData.art,
-            tier: minionData.tier,
-            health: minionData.health,
-            attack: minionData.attack,
-            minionTypes: minionData.minionTypes || [],
-            minionTypesCN: minionData.minionTypesCN || [],
-            upgradeCard: minionData.upgradeCard,
-          });
+          return new MinionClass();
         } catch (error) {
           console.error(`创建随从 ${minionData.strId} 实例时出错:`, error);
           return null;

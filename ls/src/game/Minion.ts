@@ -4,6 +4,11 @@ import { Card } from './Card';
 import { cloneDeep } from 'lodash';
 
 /**
+ * 升级卡片 - 用于升级为金色版本的卡片数据类型
+ */
+export type UpgradeCard = import('./Card').ICardMinionData;
+
+/**
  * 随从类型 - 定义随从的种族类型
  */
 export type MinionType =
@@ -94,27 +99,6 @@ export interface MinionBuff {
 }
 
 /**
- * 升级卡片接口 - 定义随从升级为金色版本的数据结构
- */
-export interface UpgradeCard {
-  id: number; // 升级卡片ID
-  strId: string; // 升级卡片字符串ID
-  cardType: string; // 卡片类型
-  name: string; // 英文名称
-  nameCN: string; // 中文名称
-  text: string; // 英文描述
-  mechanics: string[]; // 机制列表
-  referencedTags: string[]; // 引用标签
-  img: string; // 卡片图片URL
-  art: string; // 卡片艺术图URL
-  tier: number; // 星级
-  health: number; // 生命值
-  attack: number; // 攻击力
-  minionTypes: string[]; // 随从类型列表
-  minionTypesCN: string[]; // 中文随从类型列表
-}
-
-/**
  * 随从接口 - 定义随从特有的属性
  */
 export interface IMinion extends ICard {
@@ -147,7 +131,7 @@ export interface IMinion extends ICard {
   /** 当前生命值 - 随从当前的生命值 */
   health: number;
   /** 基础攻击力 - 随从的原始攻击力，不包含任何加成 */
-  attack: number;
+  baseAttack: number;
   /** 基础最大生命值 - 随从的原始最大生命值，不包含任何加成 */
   baseMaxHealth: number;
 
@@ -162,42 +146,42 @@ export interface IMinion extends ICard {
  */
 export class Minion extends Card implements IMinion {
   /** 随从类型列表 - 随从所属的类型列表 */
-  minionTypes: string[];
+  minionTypes: string[] = [];
   /** 中文随从类型列表 - 中文显示的随从类型列表 */
-  minionTypesCN: string[];
+  minionTypesCN: string[] = [];
   /** 升级卡片 - 用于升级为金色版本的卡片数据（可选） */
   upgradeCard?: UpgradeCard;
 
   // 游戏状态属性
   /** 永久关键词列表 - 随从拥有的永久关键词（通过mechanics映射或永久效果获得） */
-  permanentKeywords: MinionKeyword[];
+  permanentKeywords: MinionKeyword[] = [];
   /** 临时关键词列表 - 随从拥有的临时关键词（通过临时效果获得，回合结束时移除） */
-  temporaryKeywords: MinionKeyword[];
+  temporaryKeywords: MinionKeyword[] = [];
   /** 是否为金色 - 金色随从拥有更强的属性 */
-  isGolden: boolean;
+  isGolden: boolean = false;
   /** 是否被冻结 - 冻结状态的随从无法攻击或被操作 */
-  isFrozen: boolean;
+  isFrozen: boolean = false;
   /** 位置 - 随从在战场上的位置索引，null表示在hand上 */
-  position: number | null;
+  position: number | null = null;
   /** 是否已经攻击 - 记录随从是否在当前回合已经攻击过 */
-  hasAttacked: boolean;
+  hasAttacked: boolean = false;
   /** 是否有圣盾 - 记录随从当前是否具有圣盾效果 */
-  hasDivineShield: boolean;
+  hasDivineShield: boolean = false;
   /** 是否有复生 - 记录随从当前是否具有复生效果 */
-  hasReborn: boolean;
+  hasReborn: boolean = false;
   /** 是否已授予塑造法术 - 记录随从是否已经生成过塑造法术 */
-  hasGrantedShapingSpell: boolean;
+  hasGrantedShapingSpell: boolean = false;
   /** 当前生命值 - 随从当前的生命值 */
-  health: number;
+  health: number = 0;
   /** 基础攻击力 - 随从的原始攻击力，不包含任何加成 */
-  private baseAttack: number;
+  baseAttack: number = 0;
   /** 基础最大生命值 - 随从的原始最大生命值，不包含任何加成 */
-  baseMaxHealth: number;
+  baseMaxHealth: number = 0;
 
   /** 永久加成列表 - 存储应用于该随从的永久属性加成（不会在回合结束时移除） */
-  permanentBuffs: MinionBuff[];
+  permanentBuffs: MinionBuff[] = [];
   /** 临时加成列表 - 存储应用于该随从的临时属性加成（回合结束时自动移除） */
-  temporaryBuffs: MinionBuff[];
+  temporaryBuffs: MinionBuff[] = [];
 
   /** 属性缓存机制 - 用于优化属性计算性能 */
   /** 攻击力缓存 - 缓存当前计算的攻击力，null表示需要重新计算 */
@@ -217,19 +201,8 @@ export class Minion extends Card implements IMinion {
     this.keywordsCache = null;
   }
 
-  /**
-   * 随从构造函数
-   * @param params - 随从属性参数，所有属性可选
-   */
-  constructor(params: Partial<IMinion>) {
-    // 调用父类构造函数，设置默认cost为3
-    super({
-      ...params,
-      cost: params.cost || 3,
-      mechanics: params.mechanics || [],
-      referencedTags: params.referencedTags || [],
-    });
-
+  protected initData(params?: any): void {
+    super.initData(params);
     // 初始化Minion特有的属性
     this.minionTypes = params.minionTypes || [];
     this.minionTypesCN = params.minionTypesCN || [];
@@ -356,63 +329,6 @@ export class Minion extends Card implements IMinion {
       this.keywordsCache = [...this.permanentKeywords, ...this.temporaryKeywords];
     }
     return this.keywordsCache;
-  }
-
-  /**
-   * 攻击力访问器 - 兼容现有代码，返回计算后的攻击力
-   * @returns 包含所有加成的攻击力
-   */
-  get attack(): number {
-    return this.getAttack();
-  }
-
-  /**
-   * 攻击力设置器 - 兼容现有代码，禁止直接设置攻击力
-   * @param _value - 未使用的参数，仅用于兼容现有代码
-   * @throws 不允许直接设置攻击力
-   */
-  set attack(_value: number) {
-    console.warn('不允许直接设置攻击力，请使用addBuff/removeBuff方法修改');
-    // 可以选择忽略或抛出错误
-    throw new Error('不允许直接设置攻击力，请使用addBuff/removeBuff方法修改');
-  }
-
-  /**
-   * 最大生命值访问器 - 兼容现有代码，返回计算后的最大生命值
-   * @returns 包含所有加成的最大生命值
-   */
-  get maxHealth(): number {
-    return this.getMaxHealth();
-  }
-
-  /**
-   * 最大生命值设置器 - 兼容现有代码，禁止直接设置最大生命值
-   * @param _value - 未使用的参数，仅用于兼容现有代码
-   * @throws 不允许直接设置最大生命值
-   */
-  set maxHealth(_value: number) {
-    console.warn('不允许直接设置最大生命值，请使用addBuff/removeBuff方法修改');
-    // 可以选择忽略或抛出错误
-    // throw new Error('不允许直接设置最大生命值，请使用addBuff/removeBuff方法修改');
-  }
-
-  /**
-   * 关键词访问器 - 兼容现有代码，返回所有关键词
-   * @returns 所有关键词列表
-   */
-  get keywords(): MinionKeyword[] {
-    return this.getKeywords();
-  }
-
-  /**
-   * 关键词设置器 - 兼容现有代码，禁止直接设置关键词
-   * @param _value - 未使用的参数，仅用于兼容现有代码
-   * @throws 不允许直接设置关键词
-   */
-  set keywords(_value: MinionKeyword[]) {
-    console.warn('不允许直接设置关键词，请使用相关方法修改');
-    // 可以选择忽略或抛出错误
-    // throw new Error('不允许直接设置关键词，请使用相关方法修改');
   }
 
   /**
@@ -652,3 +568,6 @@ export class Minion extends Card implements IMinion {
     }
   }
 }
+
+// 从Card.ts导入ICardData接口
+export type MinionClass = typeof Minion & { BASE_DATA: import('./Card').ICardData };
