@@ -182,24 +182,22 @@ export class Minion extends Card implements IMinion {
   permanentBuffs: MinionBuff[] = [];
   /** 临时加成列表 - 存储应用于该随从的临时属性加成（回合结束时自动移除） */
   temporaryBuffs: MinionBuff[] = [];
-  
+
   /**
    * 随从构造函数
    * @param params - 随从属性参数，所有属性可选
    */
   constructor(params: Partial<IMinion> = {}) {
+    // 调用父类构造函数初始化通用卡片属性
     super(params);
-  }
 
-  /**
-   * 初始化卡片数据
-   * @param mergedParams - 合并后的参数，包含BASE_DATA和构造函数参数
-   * @protected - 重写父类方法，实现Minion特有的初始化逻辑
-   */
-  protected initData(mergedParams: any) {
-    // 调用父类的initData方法初始化通用卡片属性
-    super.initData(mergedParams);
-    
+    // 获取当前类的BASE_DATA（如果存在），支持子类的BASE_DATA
+    const baseData = (this.constructor as any).BASE_DATA;
+    // 合并params和BASE_DATA，BASE_DATA优先级更高
+    const mergedParams = {
+      ...params,
+      ...baseData,
+    };
     // 初始化Minion特有的属性
     this.minionTypes = mergedParams.minionTypes || [];
     this.minionTypesCN = mergedParams.minionTypesCN || [];
@@ -224,6 +222,8 @@ export class Minion extends Card implements IMinion {
     // 加成列表初始化
     this.permanentBuffs = mergedParams.permanentBuffs || [];
     this.temporaryBuffs = mergedParams.temporaryBuffs || [];
+    // 默认值
+    this.cost = 3;
   }
 
   /** 属性缓存机制 - 用于优化属性计算性能 */
@@ -243,7 +243,6 @@ export class Minion extends Card implements IMinion {
     this.maxHealthCache = null;
     this.keywordsCache = null;
   }
-  
 
   /**
    * 将机制列表映射为关键词列表

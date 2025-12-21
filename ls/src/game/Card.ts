@@ -151,16 +151,6 @@ export class Card implements ICard {
       ...baseData,
     };
     
-    // 调用initData方法初始化属性，支持子类重写
-    this.initData(mergedParams);
-  }
-
-  /**
-   * 初始化卡片数据
-   * @param mergedParams - 合并后的参数，包含BASE_DATA和构造函数参数
-   * @protected - 可由子类重写以实现特定的初始化逻辑
-   */
-  protected initData(mergedParams: any) {
     // 使用合并后的数据初始化所有卡片属性
     this.strId = mergedParams.strId || '';
     // 确保cardType是有效的CardType值
