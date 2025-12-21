@@ -126,6 +126,13 @@ const cardRef = ref<HTMLElement | null>(null);
 // 拖拽交互实例引用
 let dragInteraction: any = null;
 
+// 法术拖拽状态
+const spellDragState = ref({
+  isDragStarted: false, // 是否已开始拖拽
+  isDraggedOutOfHand: false, // 是否已拖出手牌区域
+  originalOpacity: '1', // 原始不透明度，用于恢复卡片显示
+});
+
 // 区域检查结果类型
 interface AreaCheckResult {
   isHandArea: boolean;
@@ -512,9 +519,6 @@ onMounted(() => {
         // 设置拖拽时的z-index，确保被拖拽元素在最上层
         target.style.zIndex = '2000';
 
-        // 设置拖拽时的不透明度
-        target.style.opacity = '0.8';
-
         // 禁用过渡效果，使拖拽更流畅
         target.style.transition = 'none';
 
@@ -524,15 +528,21 @@ onMounted(() => {
           const isSpell = props.data instanceof Spell;
 
           if (isSpell) {
-            console.log(`[高亮处理] 法术卡片 ${props.cardId} 开始拖拽，高亮可选择目标`);
+            console.log(`[法术拖拽] 法术卡片 ${props.cardId} 开始拖拽，初始化拖拽状态`);
 
-            // 显示法术使用箭头
-            showSpellArrow(event.target as HTMLElement);
+            // 初始化法术拖拽状态
+            spellDragState.value.isDragStarted = true;
+            spellDragState.value.isDraggedOutOfHand = false;
+            spellDragState.value.originalOpacity = target.style.opacity;
 
             // 高亮可选择的目标
             highlightSpellTargets();
           } else {
             console.log(`[高亮处理] 手牌卡片 ${props.cardId} 开始拖拽，高亮战场空格子`);
+
+            // 设置拖拽时的不透明度
+            target.style.opacity = '0.8';
+
             const emptySlots = document.querySelectorAll(
               '.battlefield-section .card-slot[data-is-empty="true"]'
             );
@@ -544,6 +554,10 @@ onMounted(() => {
         // 逻辑2：如果是战场卡片拖拽，高亮酒馆区域和所有战场卡片槽
         else if (props.data?.area === '战场') {
           console.log(`[高亮处理] 战场卡片 ${props.cardId} 开始拖拽，高亮酒馆区域和所有战场卡片槽`);
+
+          // 设置拖拽时的不透明度
+          target.style.opacity = '0.8';
+
           // 高亮酒馆区域
           const tavernAreas = document.querySelectorAll('.tavern-section');
           tavernAreas.forEach(area => {
@@ -577,6 +591,71 @@ onMounted(() => {
         console.log(
           `[拖拽移动] 卡片: ${props.cardId}, 移动距离: (${event.dx}, ${event.dy}), 新坐标: (${position.value.x}, ${position.value.y})`
         );
+
+        // 判断是否为法术卡片
+        const isSpell = props.data instanceof Spell;
+
+        if (isSpell && spellDragState.value.isDragStarted) {
+          const target = event.target as HTMLElement;
+          const clientX = event.clientX;
+          const clientY = event.clientY;
+
+          // 检查当前位置是否在手牌区域内
+          let isInHandArea = false;
+          const handAreas = document.querySelectorAll('.hand-section');
+
+          for (const area of handAreas) {
+            const rect = area.getBoundingClientRect();
+            if (
+              clientX >= rect.left &&
+              clientX <= rect.right &&
+              clientY >= rect.top &&
+              clientY <= rect.bottom
+            ) {
+              isInHandArea = true;
+              break;
+            }
+          }
+
+          // 法术卡片拖出手牌区域的逻辑
+          if (!isInHandArea && !spellDragState.value.isDraggedOutOfHand) {
+            // 刚拖出手牌区域
+            console.log(`[法术拖拽] 法术卡片 ${props.cardId} 拖出手牌区域，显示箭头，隐藏卡片`);
+
+            // 显示法术箭头
+            showSpellArrow(target);
+
+            // 隐藏卡片
+            target.style.opacity = '0';
+
+            // 更新拖拽状态
+            spellDragState.value.isDraggedOutOfHand = true;
+          }
+          // 法术卡片拖回手牌区域的逻辑
+          else if (isInHandArea && spellDragState.value.isDraggedOutOfHand) {
+            // 拖回手牌区域
+            console.log(`[法术拖拽] 法术卡片 ${props.cardId} 拖回手牌区域，隐藏箭头，显示卡片`);
+
+            // 隐藏法术箭头
+            removeSpellArrow();
+
+            // 显示卡片
+            target.style.opacity = '0.8';
+
+            // 更新拖拽状态
+            spellDragState.value.isDraggedOutOfHand = false;
+          }
+
+          // 如果卡片已拖出手牌区域，更新箭头位置
+          if (spellDragState.value.isDraggedOutOfHand) {
+            const arrow = document.querySelector('.spell-arrow') as HTMLElement;
+            if (arrow) {
+              arrow.style.left = `${clientX}px`;
+              arrow.style.top = `${clientY}px`;
+              console.log(`[法术拖拽] 箭头跟随鼠标移动，新位置: (${clientX}, ${clientY})`);
+            }
+          }
+        }
       },
 
       /**
@@ -629,31 +708,62 @@ onMounted(() => {
         let shouldRemoveCard = false;
 
         if (isSpell) {
-          console.log(`[法术释放] 法术卡片 ${props.cardId} 释放`);
+          console.log(`[法术释放] 法术卡片 ${props.cardId} 释放，开始处理释放逻辑`);
           const spell = props.data as Spell;
 
-          // 检查是否释放到有效目标上
-          const targetSlot = document.elementFromPoint(releaseX, releaseY)?.closest('.card-slot');
-          const isTargetValid = targetSlot?.classList.contains('spell-target-allowed') || false;
+          // 检查是否拖出手牌区域
+          if (spellDragState.value.isDraggedOutOfHand) {
+            console.log(`[法术释放] 法术 ${props.cardId} 已拖出手牌区域，检查释放位置`);
 
-          if (spell.requiresTarget) {
-            // 需要目标的法术
-            if (isTargetValid && targetSlot) {
-              // 释放到有效目标上，发送法术使用事件
-              const targetCardId = targetSlot.getAttribute('data-card-id');
-              console.log(`[法术释放] 法术 ${props.cardId} 释放到目标 ${targetCardId} 上`);
-              emit('spell-cast', props.cardId, targetCardId || '');
-              shouldRemoveCard = true; // 法术使用后从手牌移除
+            // 检查是否释放到手牌区域内
+            if (isHandArea) {
+              // 释放到手牌区域，取消使用
+              console.log(`[法术释放] 法术 ${props.cardId} 释放到手牌区域，取消使用`);
             } else {
-              // 没有释放到有效目标上，回到初始位置
-              console.log(`[法术释放] 法术 ${props.cardId} 没有释放到有效目标上，回到初始位置`);
-              position.value = { ...initialPosition.value };
+              // 释放到手牌区域外，检查是否指向有效目标
+              console.log(`[法术释放] 法术 ${props.cardId} 释放到手牌区域外，检查目标有效性`);
+
+              // 检查是否释放到有效目标上
+              const targetSlot = document
+                .elementFromPoint(releaseX, releaseY)
+                ?.closest('.card-slot');
+              console.log(
+                `[法术释放] 释放位置下的元素: ${targetSlot?.tagName}, 类名: ${targetSlot?.className}, 包含spell-target-allowed: ${targetSlot?.classList.contains('spell-target-allowed')}`
+              );
+
+              // 手动检查目标槽是否为战场槽且有卡片
+              const isTargetValid =
+                targetSlot?.classList.contains('spell-target-allowed') ||
+                (targetSlot?.getAttribute('data-is-empty') === 'false' &&
+                  targetSlot?.closest('.battlefield-section'));
+              console.log(
+                `[法术释放] 目标有效性检查: targetSlot=${!!targetSlot}, isTargetValid=${isTargetValid}, data-is-empty=${targetSlot?.getAttribute('data-is-empty')}, in-battlefield=${!!targetSlot?.closest('.battlefield-section')}`
+              );
+
+              if (spell.requiresTarget) {
+                // 需要目标的法术
+                if (isTargetValid && targetSlot) {
+                  // 释放到有效目标上，发送法术使用事件
+                  const targetCardId = targetSlot.getAttribute('data-card-id');
+                  console.log(
+                    `[法术释放] 法术 ${props.cardId} 释放到有效目标 ${targetCardId} 上，执行法术`
+                  );
+                  emit('spell-cast', props.cardId, targetCardId || '');
+                  shouldRemoveCard = true; // 法术使用后从手牌移除
+                } else {
+                  // 没有释放到有效目标上，取消使用
+                  console.log(`[法术释放] 法术 ${props.cardId} 没有释放到有效目标上，取消使用`);
+                }
+              } else {
+                // 不需要目标的法术，直接释放
+                console.log(`[法术释放] 法术 ${props.cardId} 不需要目标，直接执行`);
+                emit('spell-cast', props.cardId);
+                shouldRemoveCard = true; // 法术使用后从手牌移除
+              }
             }
           } else {
-            // 不需要目标的法术，直接释放
-            console.log(`[法术释放] 法术 ${props.cardId} 不需要目标，直接释放`);
-            emit('spell-cast', props.cardId);
-            shouldRemoveCard = true; // 法术使用后从手牌移除
+            // 没有拖出手牌区域，取消使用
+            console.log(`[法术释放] 法术 ${props.cardId} 未拖出手牌区域，取消使用`);
           }
         }
         // 逻辑2：战场卡片拖拽到酒馆区域，卡片消失
@@ -702,11 +812,20 @@ onMounted(() => {
         // 恢复卡片默认样式
         restoreCardStyles(target);
 
+        // 恢复法术卡片的显示（如果之前被隐藏）
+        if (isSpell) {
+          target.style.opacity = '1';
+        }
+
         // 移除所有高亮样式
         removeAllHighlights();
 
         // 移除法术箭头
         removeSpellArrow();
+
+        // 重置法术拖拽状态
+        spellDragState.value.isDragStarted = false;
+        spellDragState.value.isDraggedOutOfHand = false;
 
         // 如果需要移除卡片，最后发送移除事件
         if (shouldRemoveCard) {
