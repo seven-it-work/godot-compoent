@@ -4,6 +4,41 @@ import { Minion } from '../../Minion';
  * 愤怒编织者类 - 继承自Minion，实现愤怒编织者的特殊效果
  */
 export class WrathWeaver extends Minion {
+  static BASE_DATA = {
+    id: 100004,
+    strId: 'BGS_004',
+    cardType: 'minion',
+    name: 'WrathWeaver',
+    nameCN: '愤怒编织者',
+    text: '<b>战吼：</b>在你使用一张恶魔牌后，对英雄造成1点伤害，并使该随从获得+2/+1。',
+    mechanics: [],
+    referencedTags: [],
+    img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BGS_004_battlegroundsImage.png',
+    art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BGS_004_cardArtFromHsJson256x.png',
+    tier: 1,
+    health: 2,
+    attack: 1,
+    minionTypes: ['demon'],
+    minionTypesCN: ['恶魔'],
+    upgradeCard: {
+      id: 100104,
+      strId: 'BGS_004_G',
+      cardType: 'minion',
+      name: 'WrathWeaver',
+      nameCN: '愤怒编织者',
+      text: '<b>战吼：</b>在你使用一张恶魔牌后，对英雄造成1点伤害，并使该随从获得+4/+2。',
+      mechanics: [],
+      referencedTags: [],
+      img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BGS_004_battlegroundsImageGold.png',
+      art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BGS_004_cardArtFromHsJson256x.png',
+      tier: 1,
+      health: 4,
+      attack: 2,
+      minionTypes: ['demon'],
+      minionTypesCN: ['恶魔'],
+    },
+  };
+
   /**
    * 重写其他卡牌被使用时触发的方法
    * @param card - 使用的卡牌实例

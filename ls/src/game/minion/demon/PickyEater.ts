@@ -4,6 +4,41 @@ import { Minion } from '../../Minion';
  * 挑食魔犬类 - 继承自Minion，实现挑食魔犬的特殊效果
  */
 export class PickyEater extends Minion {
+  static BASE_DATA = {
+    id: 100409,
+    strId: 'BG24_009',
+    cardType: 'minion',
+    name: 'PickyEater',
+    nameCN: '挑食魔犬',
+    text: '<b>战吼：</b>随机吞食酒馆中的一个随从，获得其属性值。',
+    mechanics: [],
+    referencedTags: [],
+    img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG24_009_battlegroundsImage.png',
+    art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG24_009_cardArtFromHsJson256x.png',
+    tier: 3,
+    health: 2,
+    attack: 2,
+    minionTypes: ['demon'],
+    minionTypesCN: ['恶魔'],
+    upgradeCard: {
+      id: 100509,
+      strId: 'BG24_009_G',
+      cardType: 'minion',
+      name: 'PickyEater',
+      nameCN: '挑食魔犬',
+      text: '<b>战吼：</b>随机吞食酒馆中的一个随从，获得其属性值的两倍。',
+      mechanics: [],
+      referencedTags: [],
+      img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG24_009_battlegroundsImageGold.png',
+      art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG24_009_cardArtFromHsJson256x.png',
+      tier: 3,
+      health: 4,
+      attack: 4,
+      minionTypes: ['demon'],
+      minionTypesCN: ['恶魔'],
+    },
+  };
+
   /**
    * 重写战吼方法
    * @param game - 游戏管理器或store实例

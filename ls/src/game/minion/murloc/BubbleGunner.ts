@@ -4,6 +4,41 @@ import { Minion, MinionKeyword } from '../../Minion';
  * 气泡枪手类 - 继承自Minion，实现气泡枪手的特殊效果
  */
 export class BubbleGunner extends Minion {
+  static BASE_DATA = {
+    id: 100016,
+    strId: 'BG31_149',
+    cardType: 'minion',
+    name: 'BubbleGunner',
+    nameCN: '气泡枪手',
+    text: '<b>战吼：</b>获得一个随机额外关键词。',
+    mechanics: ['BATTLECRY'],
+    referencedTags: [],
+    img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG31_149_battlegroundsImage.png',
+    art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG31_149_cardArtFromHsJson256x.png',
+    tier: 1,
+    health: 2,
+    attack: 2,
+    minionTypes: ['murloc'],
+    minionTypesCN: ['鱼人'],
+    upgradeCard: {
+      id: 100017,
+      strId: 'TB_BaconUps_149',
+      cardType: 'minion',
+      name: 'BubbleGunner',
+      nameCN: '气泡枪手',
+      text: '<b>战吼：</b>获得两个随机额外关键词。',
+      mechanics: ['BATTLECRY'],
+      referencedTags: [],
+      img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/TB_BaconUps_149_battlegroundsImageGold.png',
+      art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/TB_BaconUps_149_cardArtFromHsJson256x.png',
+      tier: 1,
+      health: 4,
+      attack: 4,
+      minionTypes: ['murloc'],
+      minionTypesCN: ['鱼人'],
+    },
+  };
+
   /**
    * 重写战吼方法
    * @param game - 游戏管理器或store实例

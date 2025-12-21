@@ -1,67 +1,104 @@
 import { Minion } from '../Minion';
-import { WrathWeaver } from './demon/WrathWeaver';
-import { MoltenRock } from './elemental/MoltenRock';
-import { RazorfenGeomancer } from './quilboar/RazorfenGeomancer';
-import { SunBaconRelaxer } from './quilboar/SunBaconRelaxer';
-import { DeepSeaAngler } from './naga/DeepSeaAngler';
-import { PickyEater } from './demon/PickyEater';
-import { RisenRider } from './undead/RisenRider';
-import { Alleycat } from './beast/Alleycat';
-import { Tabbycat } from './beast/Tabbycat';
 
-import { DozyWhelp } from './dragon/DozyWhelp';
-import { SouthseaBusker } from './pirate/SouthseaBusker';
-import { Lullabot } from './mech/Lullabot';
-import { Manasaber } from './beast/Manasaber';
-import { HarmlessBonehead } from './undead/HarmlessBonehead';
-import { MisfitDragonling } from './dragon/MisfitDragonling';
-import { CordPuller } from './mech/CordPuller';
-import { BubbleGunner } from './murloc/BubbleGunner';
-import { BuzzingVermin } from './beast/BuzzingVermin';
-import { DuneDweller } from './elemental/DuneDweller';
+// 自动导入所有随从类
+const minionModules = import.meta.glob('./**/*.ts', { eager: true });
+
+// 提取所有导出的随从类
+const minionClasses: Record<string, typeof Minion> = {};
+
+for (const path in minionModules) {
+  // 跳过MinionClassMap.ts本身
+  if (path === './MinionClassMap.ts') {
+    continue;
+  }
+  
+  const module = minionModules[path];
+  // 处理默认导出和命名导出
+  if (module && typeof module === 'object') {
+    // 命名导出
+    const namedModule = module as Record<string, any>;
+    for (const key in namedModule) {
+      const exportValue = namedModule[key];
+      if (exportValue && typeof exportValue === 'function' && 
+          Object.getPrototypeOf(exportValue.prototype).constructor === Minion) {
+        minionClasses[key] = exportValue as typeof Minion;
+      }
+    }
+  } else if (module && typeof module === 'function') {
+    // 默认导出
+    const defaultModule = module as any;
+    if (Object.getPrototypeOf(defaultModule.prototype).constructor === Minion) {
+      const className = path.split('/').pop()?.replace('.ts', '') || '';
+      minionClasses[className] = defaultModule as typeof Minion;
+    }
+  }
+}
+
+// 确保minionClasses中的所有类都已正确加载
+console.log('Loaded minion classes:', Object.keys(minionClasses));
+
+// 遍历minionClasses对象
+Object.entries(minionClasses).forEach(([className, minionClass]) => {
+  console.log(`minionClass ${className}:`, minionClass.BASE_DATA);
+});
+
+// 类型断言，确保TypeScript知道这些类存在
+type MinionClassKeys = 'Alleycat' | 'BuzzingVermin' | 'Manasaber' | 'Tabbycat' | 
+                       'PickyEater' | 'WrathWeaver' | 
+                       'DozyWhelp' | 'MisfitDragonling' | 
+                       'DuneDweller' | 'MoltenRock' | 
+                       'CordPuller' | 'Lullabot' | 
+                       'BubbleGunner' | 
+                       'DeepSeaAngler' | 
+                       'SouthseaBusker' | 
+                       'RazorfenGeomancer' | 'SunBaconRelaxer' | 
+                       'HarmlessBonehead' | 'RisenRider';
+
+const typedMinionClasses = minionClasses as Record<MinionClassKeys, typeof Minion>;
+
 
 /**
  * 随从类映射 - 根据BGS_xxx strId获取对应子类
  */
 export const minionClassMapByStrId: Record<string, typeof Minion> = {
   // 愤怒编织者
-  BGS_004: WrathWeaver,
+  BGS_004: typedMinionClasses.WrathWeaver,
   // 熔融岩石
-  BGS_127: MoltenRock,
+  BGS_127: typedMinionClasses.MoltenRock,
   // 剃刀沼泽地卜师
-  BG20_100: RazorfenGeomancer,
+  BG20_100: typedMinionClasses.RazorfenGeomancer,
   // 晾膘的游客
-  BG20_301: SunBaconRelaxer,
+  BG20_301: typedMinionClasses.SunBaconRelaxer,
   // 深海钓客
-  BG23_004: DeepSeaAngler,
+  BG23_004: typedMinionClasses.DeepSeaAngler,
   // 挑食魔犬
-  BG24_009: PickyEater,
+  BG24_009: typedMinionClasses.PickyEater,
   // 复活的骑兵
-  BG25_001: RisenRider,
+  BG25_001: typedMinionClasses.RisenRider,
   // 雄斑虎
-  BG_CFM_315: Alleycat,
+  BG_CFM_315: typedMinionClasses.Alleycat,
   // 雌斑虎
-  BG_CFM_315t: Tabbycat,
+  BG_CFM_315t: typedMinionClasses.Tabbycat,
   // 瞌睡雏龙
-  BG24_300: DozyWhelp,
+  BG24_300: typedMinionClasses.DozyWhelp,
   // 南海卖艺者
-  BG26_135: SouthseaBusker,
+  BG26_135: typedMinionClasses.SouthseaBusker,
   // 催眠机器人
-  BG26_146: Lullabot,
+  BG26_146: typedMinionClasses.Lullabot,
   // 魔刃豹
-  BG26_800: Manasaber,
+  BG26_800: typedMinionClasses.Manasaber,
   // 无害的骨颅
-  BG28_300: HarmlessBonehead,
+  BG28_300: typedMinionClasses.HarmlessBonehead,
   // 错巢龙崽
-  BG29_814: MisfitDragonling,
+  BG29_814: typedMinionClasses.MisfitDragonling,
   // 拔线机
-  BG29_611: CordPuller,
+  BG29_611: typedMinionClasses.CordPuller,
   // 气泡枪手
-  BG31_149: BubbleGunner,
+  BG31_149: typedMinionClasses.BubbleGunner,
   // 嗡鸣害虫
-  BG31_803: BuzzingVermin,
+  BG31_803: typedMinionClasses.BuzzingVermin,
   // 沙丘土著
-  BG31_815: DuneDweller,
+  BG31_815: typedMinionClasses.DuneDweller,
 };
 
 /**
@@ -69,43 +106,43 @@ export const minionClassMapByStrId: Record<string, typeof Minion> = {
  */
 export const minionClassMapByChineseName: Record<string, typeof Minion> = {
   // 愤怒编织者
-  愤怒编织者: WrathWeaver,
+  愤怒编织者: typedMinionClasses.WrathWeaver,
   // 熔融岩石
-  熔融岩石: MoltenRock,
+  熔融岩石: typedMinionClasses.MoltenRock,
   // 剃刀沼泽地卜师
-  剃刀沼泽地卜师: RazorfenGeomancer,
+  剃刀沼泽地卜师: typedMinionClasses.RazorfenGeomancer,
   // 晾膘的游客
-  晾膘的游客: SunBaconRelaxer,
+  晾膘的游客: typedMinionClasses.SunBaconRelaxer,
   // 深海钓客
-  深海钓客: DeepSeaAngler,
+  深海钓客: typedMinionClasses.DeepSeaAngler,
   // 挑食魔犬
-  挑食魔犬: PickyEater,
+  挑食魔犬: typedMinionClasses.PickyEater,
   // 复活的骑兵
-  复活的骑兵: RisenRider,
+  复活的骑兵: typedMinionClasses.RisenRider,
   // 雄斑虎
-  雄斑虎: Alleycat,
+  雄斑虎: typedMinionClasses.Alleycat,
   // 雌斑虎
-  雌斑虎: Tabbycat,
+  雌斑虎: typedMinionClasses.Tabbycat,
   // 瞌睡雏龙
-  瞌睡雏龙: DozyWhelp,
+  瞌睡雏龙: typedMinionClasses.DozyWhelp,
   // 南海卖艺者
-  南海卖艺者: SouthseaBusker,
+  南海卖艺者: typedMinionClasses.SouthseaBusker,
   // 催眠机器人
-  催眠机器人: Lullabot,
+  催眠机器人: typedMinionClasses.Lullabot,
   // 魔刃豹
-  魔刃豹: Manasaber,
+  魔刃豹: typedMinionClasses.Manasaber,
   // 无害的骨颅
-  无害的骨颅: HarmlessBonehead,
+  无害的骨颅: typedMinionClasses.HarmlessBonehead,
   // 错巢龙崽
-  错巢龙崽: MisfitDragonling,
+  错巢龙崽: typedMinionClasses.MisfitDragonling,
   // 拔线机
-  拔线机: CordPuller,
+  拔线机: typedMinionClasses.CordPuller,
   // 气泡枪手
-  气泡枪手: BubbleGunner,
+  气泡枪手: typedMinionClasses.BubbleGunner,
   // 嗡鸣害虫
-  嗡鸣害虫: BuzzingVermin,
+  嗡鸣害虫: typedMinionClasses.BuzzingVermin,
   // 沙丘土著
-  沙丘土著: DuneDweller,
+  沙丘土著: typedMinionClasses.DuneDweller,
 };
 
 /**

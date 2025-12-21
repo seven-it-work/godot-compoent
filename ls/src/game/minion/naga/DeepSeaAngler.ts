@@ -5,6 +5,41 @@ import { Spell } from '../../Spell';
  * 深海钓客类 - 继承自Minion，实现深海钓客的特殊效果
  */
 export class DeepSeaAngler extends Minion {
+  static BASE_DATA = {
+    id: 100404,
+    strId: 'BG23_004',
+    cardType: 'minion',
+    name: 'DeepSeaAngler',
+    nameCN: '深海钓客',
+    text: '<b>塑造法术：</b>直到下个回合，使一个随从获得+2生命值和嘲讽。',
+    mechanics: [],
+    referencedTags: [],
+    img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG23_004_battlegroundsImage.png',
+    art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG23_004_cardArtFromHsJson256x.png',
+    tier: 1,
+    health: 2,
+    attack: 2,
+    minionTypes: ['naga'],
+    minionTypesCN: ['纳迦'],
+    upgradeCard: {
+      id: 100504,
+      strId: 'BG23_004_G',
+      cardType: 'minion',
+      name: 'DeepSeaAngler',
+      nameCN: '深海钓客',
+      text: '<b>塑造法术：</b>直到下个回合，使一个随从获得+4生命值和嘲讽。',
+      mechanics: [],
+      referencedTags: [],
+      img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG23_004_battlegroundsImageGold.png',
+      art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG23_004_cardArtFromHsJson256x.png',
+      tier: 1,
+      health: 4,
+      attack: 4,
+      minionTypes: ['naga'],
+      minionTypesCN: ['纳迦'],
+    },
+  };
+
   /**
    * 重写onMinionPlayed方法
    * @param game - 游戏管理器或store实例

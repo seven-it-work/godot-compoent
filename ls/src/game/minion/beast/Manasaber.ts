@@ -4,6 +4,40 @@ import { Minion } from '../../Minion';
  * 魔刃豹类 - 继承自Minion，实现魔刃豹的特殊效果
  */
 export class Manasaber extends Minion {
+  static BASE_DATA = {
+    id: 100010,
+    strId: 'BG26_800',
+    cardType: 'minion',
+    name: 'Manasaber',
+    nameCN: '魔刃豹',
+    text: '<b>亡语：</b>召唤两只0/1并具有嘲讽的豹宝宝。',
+    mechanics: ['DEATHRATTLE'],
+    referencedTags: [],
+    img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG26_800_battlegroundsImage.png',
+    art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG26_800_cardArtFromHsJson256x.png',
+    tier: 1,
+    health: 1,
+    attack: 1,
+    minionTypes: ['beast'],
+    minionTypesCN: ['野兽'],
+    upgradeCard: {
+      id: 100011,
+      strId: 'BG26_800_G',
+      cardType: 'minion',
+      name: 'Manasaber',
+      nameCN: '魔刃豹',
+      text: '<b>亡语：</b>召唤四只0/1并具有嘲讽的豹宝宝。',
+      mechanics: ['DEATHRATTLE'],
+      referencedTags: [],
+      img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG26_800_battlegroundsImageGold.png',
+      art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG26_800_cardArtFromHsJson256x.png',
+      tier: 1,
+      health: 2,
+      attack: 2,
+      minionTypes: ['beast'],
+      minionTypesCN: ['野兽'],
+    },
+  };
   /**
    * 重写亡语触发的方法
    * @param game - 游戏管理器或store实例
