@@ -167,21 +167,23 @@
               <div class="top-right" v-if="gameStore.selectedCard">
                 <div
                   class="card-description"
-                  v-html="gameStore.selectedCard?.text || '无描述'"
+                  v-html="gameStore.selectedCard?.text || ''"
                 ></div>
                 <div class="card-actions">
-                  <button v-if="gameStore.selectedCard?.area === '酒馆'" class="action-btn buy-btn">
+                  <button v-if="gameStore.selectedCard?.area === '酒馆'" class="action-btn buy-btn" @click="handleBuyAction">
                     购买
                   </button>
                   <button
                     v-if="gameStore.selectedCard?.area === '手牌'"
                     class="action-btn place-btn"
+                    @click="handlePlaceAction"
                   >
                     放置
                   </button>
                   <button
                     v-if="gameStore.selectedCard?.area === '战场'"
                     class="action-btn sell-btn"
+                    @click="handleSellAction"
                   >
                     出售
                   </button>
@@ -261,6 +263,36 @@ const isDragActive = ref(false);
 
 // 酒馆拖拽状态 - 控制酒馆区域高亮
 const isTavernDragActive = ref(false);
+
+// 购买按钮点击事件处理
+const handleBuyAction = () => {
+  if (gameStore.selectedCard && gameStore.selectedCardIndex !== null) {
+    gameStore.buyMinion(gameStore.selectedCardIndex);
+  }
+};
+
+// 放置按钮点击事件处理
+const handlePlaceAction = () => {
+  if (gameStore.selectedCard && gameStore.selectedCardIndex !== null) {
+    // 寻找战场上的第一个空位
+    const battlefield = gameStore.player?.minions;
+    if (battlefield) {
+      let emptyPosition = battlefield.findIndex(minion => minion === null);
+      // 如果没有空位，放在最后一个位置
+      if (emptyPosition === -1) {
+        emptyPosition = battlefield.length;
+      }
+      gameStore.placeMinionFromHand(gameStore.selectedCardIndex, emptyPosition);
+    }
+  }
+};
+
+// 出售按钮点击事件处理
+const handleSellAction = () => {
+  if (gameStore.selectedCard && gameStore.selectedCardIndex !== null) {
+    gameStore.sellMinion('minion', gameStore.selectedCardIndex);
+  }
+};
 
 // 当前拖拽的卡片ID
 const currentDraggingCard = ref<string | null>(null);
