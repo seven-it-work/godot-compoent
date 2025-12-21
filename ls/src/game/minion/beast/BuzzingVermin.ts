@@ -1,4 +1,4 @@
-import { Minion } from '../Minion';
+import { Minion } from '../../Minion';
 
 /**
  * 嗡鸣害虫类 - 继承自Minion，实现嗡鸣害虫的特殊效果

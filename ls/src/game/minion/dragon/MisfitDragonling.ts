@@ -1,4 +1,4 @@
-import { Minion } from '../Minion';
+import { Minion } from '../../Minion';
 
 /**
  * 错巢龙崽类 - 继承自Minion，实现错巢龙崽的特殊效果

@@ -1,4 +1,4 @@
-import { Minion } from '../Minion';
+import { Minion } from '../../Minion';
 
 /**
  * 魔刃豹类 - 继承自Minion，实现魔刃豹的特殊效果

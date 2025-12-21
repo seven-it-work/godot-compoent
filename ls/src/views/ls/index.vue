@@ -20,7 +20,7 @@
             @card-remove="handleCardRemove"
             @card-select="
               cardData =>
-                cardData ? gameStore.selectCard(cardData, 0) : gameStore.cancelSelectCard()
+                cardData ? gameStore.selectCard(cardData, index) : gameStore.cancelSelectCard()
             "
           ></CardSlot>
         </div>
@@ -40,7 +40,7 @@
             @card-remove="handleCardRemove"
             @card-select="
               cardData =>
-                cardData ? gameStore.selectCard(cardData, 0) : gameStore.cancelSelectCard()
+                cardData ? gameStore.selectCard(cardData, index + 5) : gameStore.cancelSelectCard()
             "
           ></CardSlot>
           <div class="info-panel tavern-info">
@@ -101,7 +101,7 @@
             @card-swap="(cardId, targetIndex) => handleCardSwap(cardId, targetIndex)"
             @card-select="
               cardData =>
-                cardData ? gameStore.selectCard(cardData, 0) : gameStore.cancelSelectCard()
+                cardData ? gameStore.selectCard(cardData, index) : gameStore.cancelSelectCard()
             "
           ></CardSlot>
         </div>
@@ -122,7 +122,7 @@
             @card-swap="(cardId, targetIndex) => handleCardSwap(cardId, targetIndex)"
             @card-select="
               cardData =>
-                cardData ? gameStore.selectCard(cardData, 0) : gameStore.cancelSelectCard()
+                cardData ? gameStore.selectCard(cardData, index + 5) : gameStore.cancelSelectCard()
             "
           ></CardSlot>
           <div class="info-panel player-info">
@@ -165,12 +165,13 @@
 
               <!-- 右区 -->
               <div class="top-right" v-if="gameStore.selectedCard">
-                <div
-                  class="card-description"
-                  v-html="gameStore.selectedCard?.text || ''"
-                ></div>
+                <div class="card-description" v-html="gameStore.selectedCard?.text || ''"></div>
                 <div class="card-actions">
-                  <button v-if="gameStore.selectedCard?.area === '酒馆'" class="action-btn buy-btn" @click="handleBuyAction">
+                  <button
+                    v-if="gameStore.selectedCard?.area === '酒馆'"
+                    class="action-btn buy-btn"
+                    @click="handleBuyAction"
+                  >
                     购买
                   </button>
                   <button
@@ -211,7 +212,7 @@
             @card-remove="handleCardRemove"
             @card-select="
               cardData =>
-                cardData ? gameStore.selectCard(cardData, 0) : gameStore.cancelSelectCard()
+                cardData ? gameStore.selectCard(cardData, index) : gameStore.cancelSelectCard()
             "
           ></CardSlot>
         </div>
@@ -231,7 +232,7 @@
             @card-remove="handleCardRemove"
             @card-select="
               cardData =>
-                cardData ? gameStore.selectCard(cardData, 0) : gameStore.cancelSelectCard()
+                cardData ? gameStore.selectCard(cardData, index + 5) : gameStore.cancelSelectCard()
             "
           ></CardSlot>
         </div>

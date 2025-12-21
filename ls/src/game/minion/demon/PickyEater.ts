@@ -1,4 +1,4 @@
-import { Minion } from '../Minion';
+import { Minion } from '../../Minion';
 
 /**
  * 挑食魔犬类 - 继承自Minion，实现挑食魔犬的特殊效果

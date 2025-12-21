@@ -1,4 +1,4 @@
-import { Minion } from '../Minion';
+import { Minion } from '../../Minion';
 
 /**
  * 剃刀沼泽地卜师类 - 继承自Minion，实现剃刀沼泽地卜师的特殊效果

@@ -1,23 +1,24 @@
 import { Minion } from '../Minion';
-import { WrathWeaver } from './WrathWeaver';
-import { MoltenRock } from './MoltenRock';
-import { RazorfenGeomancer } from './RazorfenGeomancer';
-import { SunBaconRelaxer } from './SunBaconRelaxer';
-import { DeepSeaAngler } from './DeepSeaAngler';
-import { PickyEater } from './PickyEater';
-import { RisenRider } from './RisenRider';
-import { Alleycat } from './Alleycat';
-import { Tabbycat } from './Tabbycat';
-import { DozyWhelp } from './DozyWhelp';
-import { SouthseaBusker } from './SouthseaBusker';
-import { Lullabot } from './Lullabot';
-import { Manasaber } from './Manasaber';
-import { HarmlessBonehead } from './HarmlessBonehead';
-import { MisfitDragonling } from './MisfitDragonling';
-import { CordPuller } from './CordPuller';
-import { BubbleGunner } from './BubbleGunner';
-import { BuzzingVermin } from './BuzzingVermin';
-import { DuneDweller } from './DuneDweller';
+import { WrathWeaver } from './demon/WrathWeaver';
+import { MoltenRock } from './elemental/MoltenRock';
+import { RazorfenGeomancer } from './quilboar/RazorfenGeomancer';
+import { SunBaconRelaxer } from './quilboar/SunBaconRelaxer';
+import { DeepSeaAngler } from './naga/DeepSeaAngler';
+import { PickyEater } from './demon/PickyEater';
+import { RisenRider } from './undead/RisenRider';
+import { Alleycat } from './beast/Alleycat';
+import { Tabbycat } from './beast/Tabbycat';
+
+import { DozyWhelp } from './dragon/DozyWhelp';
+import { SouthseaBusker } from './pirate/SouthseaBusker';
+import { Lullabot } from './mech/Lullabot';
+import { Manasaber } from './beast/Manasaber';
+import { HarmlessBonehead } from './undead/HarmlessBonehead';
+import { MisfitDragonling } from './dragon/MisfitDragonling';
+import { CordPuller } from './mech/CordPuller';
+import { BubbleGunner } from './murloc/BubbleGunner';
+import { BuzzingVermin } from './beast/BuzzingVermin';
+import { DuneDweller } from './elemental/DuneDweller';
 
 /**
  * 随从类映射 - 根据BGS_xxx strId获取对应子类

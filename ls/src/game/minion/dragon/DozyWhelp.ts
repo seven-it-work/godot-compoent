@@ -1,4 +1,4 @@
-import { Minion } from '../Minion';
+import { Minion } from '../../Minion';
 
 /**
  * 瞌睡雏龙类 - 继承自Minion，实现瞌睡雏龙的特殊效果

@@ -1,4 +1,4 @@
-import { Minion } from '../Minion';
+import { Minion } from '../../Minion';
 
 /**
  * 晾膘的游客类 - 继承自Minion，实现晾膘的游客的特殊效果
