@@ -2,7 +2,12 @@
   <div class="vertical-hearthstone">
     <!-- 调试抽屉组件 -->
     <DebugDrawer v-model:debug-drawer-visible="debugDrawerVisible" @close="closeDebugDrawer" />
-    <div class="game-container">
+
+    <!-- 战斗场景：条件渲染 -->
+    <BattleScene v-if="isBattleSceneVisible" @exit-battle="hideBattleScene" />
+
+    <!-- 正常游戏界面：条件渲染 -->
+    <div class="game-container" v-else>
       <!-- 酒馆区域 -->
       <div class="game-section tavern-section" :class="{ 'drop-allowed': isTavernDragActive }">
         <!-- 第一行：5个卡片槽 -->
@@ -80,6 +85,7 @@
                 铸币：{{ gameStore.player?.gold || 0 }}/{{ gameStore.player?.maxGold || 0 }}
               </div>
               <button @click="endTurn">结束回合</button>
+              <button @click="showBattleScene">战斗</button>
               <button @click="showDebugDrawer">调试</button>
             </div>
           </div>
@@ -262,6 +268,7 @@ import heroesData from '../../data/heroes.json';
 import minionsData from '../../data/minions.json';
 import CardSlot from './components/CardSlot.vue';
 import DebugDrawer from './components/DebugDrawer.vue';
+import BattleScene from './components/BattleScene.vue';
 
 // 使用游戏store
 const gameStore = useGameStore();
@@ -546,6 +553,15 @@ const showDebugDrawer = () => {
 };
 const closeDebugDrawer = () => {
   debugDrawerVisible.value = false;
+};
+
+// 战斗场景控制
+const isBattleSceneVisible = ref(false);
+const showBattleScene = () => {
+  isBattleSceneVisible.value = true;
+};
+const hideBattleScene = () => {
+  isBattleSceneVisible.value = false;
 };
 
 // 处理卡片交换事件 - 战场区域内位置交换

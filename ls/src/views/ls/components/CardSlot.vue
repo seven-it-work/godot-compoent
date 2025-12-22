@@ -373,7 +373,7 @@ const removeAllHighlights = () => {
  * 显示法术使用箭头
  * @param target 法术卡片元素
  */
-const showSpellArrow = (target: HTMLElement) => {
+const showSpellArrow = (_target: HTMLElement) => {
   // 移除已存在的箭头和连线
   const existingArrow = document.querySelector('.spell-arrow');
   if (existingArrow) {
