@@ -4,7 +4,16 @@
     <DebugDrawer v-model:debug-drawer-visible="debugDrawerVisible" @close="closeDebugDrawer" />
 
     <!-- 战斗场景：条件渲染 -->
-    <BattleScene v-if="isBattleSceneVisible" @exit-battle="hideBattleScene" />
+    <BattleScene
+      v-if="isBattleSceneVisible"
+      @exit-battle="hideBattleScene"
+      :enemy-minions="[]"
+      :player-minions="[]"
+      :enemy-health="30"
+      :enemy-armor="0"
+      :player-health="30"
+      :player-armor="0"
+    />
 
     <!-- 正常游戏界面：条件渲染 -->
     <div class="game-container" v-else>

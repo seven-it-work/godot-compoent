@@ -13,6 +13,11 @@ const routes: RouteRecordRaw[] = [
     name: '竖屏炉石游戏',
     component: () => import('../views/ls/index.vue'),
   },
+  {
+    path: '/battle-scene-test',
+    name: '战斗场景测试',
+    component: () => import('../views/ls/components/BattleSceneTest.vue'),
+  },
 ];
 
 // 创建路由实例
