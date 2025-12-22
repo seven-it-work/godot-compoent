@@ -44,8 +44,15 @@ export class SouthseaBusker extends Minion {
    * @使用方式：当随从被放置到战场时触发
    * 效果：战吼：下回合获得1枚铸币
    */
-  battlecry(_game: any): void {
-    // 战吼：下回合获得1枚铸币
-    console.log('南海卖艺者：下回合获得1枚铸币');
+  battlecry(game: any): void {
+    // 根据是否为金色版本确定额外铸币数量（金色版本+2，普通版本+1）
+    const extraGold = this.isGolden ? 2 : 1;
+
+    // 获取当前玩家（战吼效果通常影响触发战吼的玩家）
+    if (game && game.currentPlayer) {
+      // 增加下回合的额外铸币奖励
+      game.currentPlayer.nextTurnExtraGold += extraGold;
+      console.log(`南海卖艺者：下回合获得${extraGold}枚铸币`);
+    }
   }
 }

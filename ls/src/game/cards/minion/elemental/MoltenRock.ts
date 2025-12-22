@@ -52,9 +52,18 @@ export class MoltenRock extends Minion {
       card.cardType === 'elemental' ||
       (card.minionTypes && card.minionTypes.includes('elemental'))
     ) {
-      // 获得+1生命值
-      this.health += 1;
-      this.maxHealth += 1;
+      // 根据是否为金色版本确定加成值（金色版本+2，普通版本+1）
+      const healthBonus = this.isGolden ? 2 : 1;
+
+      // 获得生命值加成，使用addBuff方法添加永久加成
+      this.addBuff({
+        id: `molten_rock_health_buff_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        source: '熔融岩石战吼',
+        attackBonus: 0,
+        healthBonus: healthBonus,
+        maxHealthBonus: healthBonus,
+        type: 'permanent',
+      });
     }
   }
 }

@@ -54,12 +54,9 @@ export class BubbleGunner extends Minion {
       MinionKeyword.TAUNT,
       MinionKeyword.DIVINE_SHIELD,
       MinionKeyword.WINDFURY,
-      MinionKeyword.SUPER_WINDFURY,
       MinionKeyword.STEALTH,
-      MinionKeyword.CHARGE,
       MinionKeyword.POISONOUS,
       MinionKeyword.REBORN,
-      MinionKeyword.IMMUNE,
     ];
 
     // 过滤掉已经拥有的关键词

@@ -116,21 +116,8 @@ export class Alleycat extends Minion {
       return;
     }
 
-    // 获取minions.json中雌斑虎的数据
-    const tabbycatData = game.minionPool.find((minion: Minion) => minion.strId === tabbycatStrId);
-
-    if (!tabbycatData) {
-      console.error(`无法找到雌斑虎数据，strId: ${tabbycatStrId}`);
-      return;
-    }
-
     // 创建雌斑虎实例
-    const tabbycat = new TabbycatClass({
-      ...tabbycatData,
-    });
-
-    // 设置雌斑虎的cost为0，因为是通过战吼召唤的，不需要消耗金币
-    tabbycat.cost = 0;
+    const tabbycat = new TabbycatClass();
 
     // 获取当前玩家实例
     const currentPlayer = game.player;

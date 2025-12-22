@@ -1,7 +1,7 @@
+import { Card } from './Card';
 import { Hero } from './Hero';
 import { Minion } from './Minion';
 import { Spell } from './Spell';
-import { Card } from './Card';
 
 /**
  * 玩家类 - 定义玩家的数据结构和行为
@@ -46,6 +46,8 @@ export class Player {
   pendingCards: Card[];
   /** 最大手牌数量 - 玩家能拥有的最大手牌数量 */
   maxCards: number;
+  /** 下回合额外铸币奖励 - 存储下回合获得的额外铸币数量 */
+  nextTurnExtraGold: number;
 
   /**
    * 玩家构造函数
@@ -68,6 +70,7 @@ export class Player {
     this.lossStreak = 0; // 初始连败为0
     this.pendingCards = []; // 初始待添加卡片队列为空
     this.maxCards = 10; // 最大手牌数量为10
+    this.nextTurnExtraGold = 0; // 初始下回合额外铸币奖励为0
   }
 
   /**
@@ -473,8 +476,13 @@ export class Player {
   endTurn(): void {
     // 增加回合数
     this.turn += 1;
-    // 重置金币（每回合增加1，不超过最大金币）
-    this.gold = Math.min(3 + Math.floor((this.turn - 1) / 1), this.maxGold);
+    // 重置金币（每回合增加1，加上下回合额外铸币奖励，不超过最大金币）
+    this.gold = Math.min(
+      3 + Math.floor((this.turn - 1) / 1) + this.nextTurnExtraGold,
+      this.maxGold
+    );
+    // 重置下回合额外铸币奖励
+    this.nextTurnExtraGold = 0;
 
     // 重置所有随从的攻击状态
     this.minions.forEach(minion => {

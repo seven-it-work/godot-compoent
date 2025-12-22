@@ -1,4 +1,5 @@
 import { Minion } from '@/game/Minion';
+import { BloodGem } from '@/game/cards/spell/BloodGem';
 
 /**
  * 剃刀沼泽地卜师类 - 继承自Minion，实现剃刀沼泽地卜师的特殊效果
@@ -45,10 +46,19 @@ export class RazorfenGeomancer extends Minion {
    * @使用方式：当随从被放置到战场时触发
    * 效果：战吼：获取一张鲜血宝石
    */
-  battlecry(_game: any): void {
+  battlecry(game: any): void {
     // 战吼：获取一张鲜血宝石
-    // 这里需要实现获取鲜血宝石的逻辑
-    // 由于鲜血宝石是一个法术，需要在游戏中添加相应的处理逻辑
-    console.log('剃刀沼泽地卜师：获取一张鲜血宝石');
+    // 金色版本获取两张鲜血宝石
+    const gemCount = this.isGolden ? 2 : 1;
+
+    if (game && game.currentPlayer) {
+      // 创建并添加鲜血宝石到手牌
+      for (let i = 0; i < gemCount; i++) {
+        const bloodGem = new BloodGem();
+        game.currentPlayer.addCardToHand(bloodGem);
+      }
+
+      console.log(`剃刀沼泽地卜师：获取${gemCount}张鲜血宝石`);
+    }
   }
 }
