@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>法术箭头样式测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 600px;
+        }
+        
+        /* 模拟战场背景 */
+        .battlefield {
+            width: 800px;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(240, 248, 255, 0.95) 0%, rgba(220, 240, 220, 0.9) 100%);
+            border: 4px solid #228b22;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        /* 模拟卡牌 */
+        .card {
+            width: 100px;
+            height: 150px;
+            background-color: white;
+            border: 2px solid #333;
+            border-radius: 8px;
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: grab;
+        }
+        
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 模拟目标卡牌 */
+        .target-card {
+            width: 100px;
+            height: 150px;
+            background-color: white;
+            border: 2px solid #333;
+            border-radius: 8px;
+            position: absolute;
+            top: 200px;
+            left: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .target-card.spell-target-allowed {
+            border: 4px solid #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+            transform: scale(1.05);
+        }
+        
+        /* 法术箭头样式，完全复制自代码中的内联样式 */
+        .spell-arrow {
+            position: fixed;
+            pointer-events: none;
+            z-index: 3000;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 255, 0, 0.8);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
+        }
+        
+        /* 法术箭头连线样式，完全复制自代码中的内联样式 */
+        .spell-arrow-line {
+            position: fixed;
+            pointer-events: none;
+            z-index: 2999;
+            height: 4px;
+            background-color: rgba(255, 255, 0, 0.8);
+            border-radius: 2px;
+            transform-origin: left center;
+        }
+        
+        .controls {
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4169e1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        button:active {
+            background-color: #1e6091;
+        }
+    </style>
+</head>
+<body>
+    <h1>法术箭头样式测试</h1>
+    <div class="description">
+        这是一个模拟法术箭头样式的静态页面，展示了从手牌拖拽法术到目标卡牌时的箭头效果。<br>
+        箭头是一个黄色半透明的圆形，带有光晕效果，跟随鼠标移动。
+    </div>
+    
+    <div class="battlefield">
+        <div class="card">法术卡牌</div>
+        <div class="target-card spell-target-allowed">目标卡牌</div>
+    </div>
+    
+    <div class="controls">
+        <button onclick="showArrow()">显示箭头</button>
+        <button onclick="hideArrow()">隐藏箭头</button>
+    </div>
+    
+    <script>
+        let arrow = null;
+        let arrowLine = null;
+        
+        // 显示法术箭头
+        function showArrow() {
+            // 移除已存在的箭头和连线
+            if (arrow) {
+                arrow.remove();
+            }
+            if (arrowLine) {
+                arrowLine.remove();
+            }
+            
+            // 创建连线元素
+            arrowLine = document.createElement('div');
+            arrowLine.className = 'spell-arrow-line';
+            arrowLine.style.position = 'fixed';
+            arrowLine.style.pointerEvents = 'none';
+            arrowLine.style.zIndex = '2999'; // 低于箭头的z-index
+            arrowLine.style.height = '4px';
+            arrowLine.style.backgroundColor = 'rgba(255, 255, 0, 0.8)';
+            arrowLine.style.borderRadius = '2px';
+            arrowLine.style.transformOrigin = 'left center';
+            
+            // 创建箭头元素，完全复制自CardSlot.vue的showSpellArrow函数
+            arrow = document.createElement('div');
+            arrow.className = 'spell-arrow';
+            arrow.style.position = 'fixed';
+            arrow.style.pointerEvents = 'none';
+            arrow.style.zIndex = '3000';
+            arrow.style.width = '20px';
+            arrow.style.height = '20px';
+            arrow.style.backgroundColor = 'rgba(255, 255, 0, 0.8)';
+            arrow.style.borderRadius = '50%';
+            arrow.style.transform = 'translate(-50%, -50%)';
+            arrow.style.boxShadow = '0 0 10px rgba(255, 255, 0, 0.8)';
+            
+            // 法术卡牌元素
+            const spellCard = document.querySelector('.card');
+            const cardRect = spellCard.getBoundingClientRect();
+            
+            // 初始位置
+            const startX = cardRect.left + cardRect.width / 2;
+            const startY = cardRect.top + cardRect.height / 2;
+            const endX = startX;
+            const endY = startY;
+            
+            // 设置箭头初始位置
+            arrow.style.left = `${endX}px`;
+            arrow.style.top = `${endY}px`;
+            
+            // 设置连线初始位置和长度
+            updateArrowLine(startX, startY, endX, endY);
+            
+            // 添加到body
+            document.body.appendChild(arrowLine);
+            document.body.appendChild(arrow);
+            
+            // 让箭头跟随鼠标移动
+            document.addEventListener('mousemove', followMouse);
+        }
+        
+        // 更新箭头连线
+        function updateArrowLine(startX, startY, endX, endY) {
+            if (!arrowLine) return;
+            
+            // 计算连线长度和角度
+            const dx = endX - startX;
+            const dy = endY - startY;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            
+            // 设置连线样式
+            arrowLine.style.left = `${startX}px`;
+            arrowLine.style.top = `${startY}px`;
+            arrowLine.style.width = `${length}px`;
+            arrowLine.style.transform = `rotate(${angle}deg)`;
+        }
+        
+        // 隐藏法术箭头
+        function hideArrow() {
+            if (arrow) {
+                arrow.remove();
+                arrow = null;
+            }
+            if (arrowLine) {
+                arrowLine.remove();
+                arrowLine = null;
+            }
+            document.removeEventListener('mousemove', followMouse);
+        }
+        
+        // 跟随鼠标移动
+        function followMouse(e) {
+            if (arrow && arrowLine) {
+                // 获取法术卡牌位置（起始点）
+                const spellCard = document.querySelector('.card');
+                const cardRect = spellCard.getBoundingClientRect();
+                const startX = cardRect.left + cardRect.width / 2;
+                const startY = cardRect.top + cardRect.height / 2;
+                
+                // 鼠标位置（终点）
+                const endX = e.clientX;
+                const endY = e.clientY;
+                
+                // 更新箭头位置
+                arrow.style.left = `${endX}px`;
+                arrow.style.top = `${endY}px`;
+                
+                // 更新连线
+                updateArrowLine(startX, startY, endX, endY);
+            }
+        }
+        
+        // 初始化时自动显示箭头
+        showArrow();
+    </script>
+</body>
+</html>

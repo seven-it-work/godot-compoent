@@ -242,17 +242,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
-import heroesData from '../../data/heroes.json';
-import minionsData from '../../data/minions.json';
 import { AIPlayer } from '@/game/AIPlayer';
-import { Card } from '@/game/Card';
 import type { CardArea } from '@/game/Card';
+import { Card } from '@/game/Card';
+import { getAllMinionStrIds, getMinionClassByStrId } from '@/game/cards/minion/MinionClassMap';
+import { BloodGem } from '@/game/cards/spell/BloodGem';
 import { Minion } from '@/game/Minion';
-import { getMinionClassByStrId, getAllMinionStrIds } from '@/game/cards/minion/MinionClassMap';
 import { Player } from '@/game/Player';
 import { Tavern } from '@/game/Tavern';
 import { useGameStore } from '@/stores/game';
+import { computed, onMounted, ref, watch } from 'vue';
+import heroesData from '../../data/heroes.json';
+import minionsData from '../../data/minions.json';
 import CardSlot from './components/CardSlot.vue';
 import DebugDrawer from './components/DebugDrawer.vue';
 
@@ -460,6 +461,7 @@ const initGame = (hero: any) => {
 
   // 创建玩家
   const player = new Player('player-1', heroObj as any, true);
+  player.addCardToHand(new BloodGem());
 
   // 创建酒馆 - 使用酒馆专用池
   const tavern = new Tavern(1, tavernMinionPool);

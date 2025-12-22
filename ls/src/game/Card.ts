@@ -150,12 +150,12 @@ export class Card implements ICard {
       ...params,
       ...baseData,
     };
-    
+
     // 使用合并后的数据初始化所有卡片属性
     this.strId = mergedParams.strId || '';
     // 确保cardType是有效的CardType值
     const rawCardType = mergedParams.cardType;
-    this.cardType = 
+    this.cardType =
       rawCardType && this.isValidCardType(rawCardType) ? rawCardType : CardType.MINION;
     this.name = mergedParams.name || '';
     this.nameCN = mergedParams.nameCN || '';

@@ -50,8 +50,8 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 import interact from 'interactjs';
-import { Card } from '../../../game/Card';
 import type { CardArea } from '../../../game/Card';
+import { Card } from '../../../game/Card';
 import { Minion, MinionKeywordCN } from '../../../game/Minion';
 import { Spell } from '../../../game/Spell';
 
@@ -368,11 +368,27 @@ const removeAllHighlights = () => {
  * @param target 法术卡片元素
  */
 const showSpellArrow = (target: HTMLElement) => {
-  // 移除已存在的箭头
+  // 移除已存在的箭头和连线
   const existingArrow = document.querySelector('.spell-arrow');
   if (existingArrow) {
     existingArrow.remove();
   }
+
+  const existingArrowLine = document.querySelector('.spell-arrow-line');
+  if (existingArrowLine) {
+    existingArrowLine.remove();
+  }
+
+  // 创建连线元素
+  const arrowLine = document.createElement('div');
+  arrowLine.className = 'spell-arrow-line';
+  arrowLine.style.position = 'fixed';
+  arrowLine.style.pointerEvents = 'none';
+  arrowLine.style.zIndex = '2999'; // 低于箭头的z-index
+  arrowLine.style.height = '4px';
+  arrowLine.style.backgroundColor = 'rgba(255, 255, 0, 0.8)';
+  arrowLine.style.borderRadius = '2px';
+  arrowLine.style.transformOrigin = 'left center';
 
   // 创建箭头元素
   const arrow = document.createElement('div');
@@ -387,13 +403,53 @@ const showSpellArrow = (target: HTMLElement) => {
   arrow.style.transform = 'translate(-50%, -50%)';
   arrow.style.boxShadow = '0 0 10px rgba(255, 255, 0, 0.8)';
 
-  // 获取卡片位置
+  // 获取卡片位置（起始点）
   const rect = target.getBoundingClientRect();
-  arrow.style.left = `${rect.left + rect.width / 2}px`;
-  arrow.style.top = `${rect.top + rect.height / 2}px`;
+  const startX = rect.left + rect.width / 2;
+  const startY = rect.top + rect.height / 2;
+
+  // 初始箭头位置（终点）
+  const endX = startX;
+  const endY = startY;
+
+  // 设置箭头初始位置
+  arrow.style.left = `${endX}px`;
+  arrow.style.top = `${endY}px`;
+
+  // 设置连线初始位置和长度
+  updateArrowLine(startX, startY, endX, endY, arrowLine);
 
   // 添加到body
+  document.body.appendChild(arrowLine);
   document.body.appendChild(arrow);
+};
+
+/**
+ * 更新箭头连线
+ * @param startX 起始点X坐标
+ * @param startY 起始点Y坐标
+ * @param endX 终点X坐标
+ * @param endY 终点Y坐标
+ * @param arrowLine 连线元素
+ */
+const updateArrowLine = (
+  startX: number,
+  startY: number,
+  endX: number,
+  endY: number,
+  arrowLine: HTMLElement
+) => {
+  // 计算连线长度和角度
+  const dx = endX - startX;
+  const dy = endY - startY;
+  const length = Math.sqrt(dx * dx + dy * dy);
+  const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+
+  // 设置连线样式
+  arrowLine.style.left = `${startX}px`;
+  arrowLine.style.top = `${startY}px`;
+  arrowLine.style.width = `${length}px`;
+  arrowLine.style.transform = `rotate(${angle}deg)`;
 };
 
 /**
@@ -403,6 +459,11 @@ const removeSpellArrow = () => {
   const existingArrow = document.querySelector('.spell-arrow');
   if (existingArrow) {
     existingArrow.remove();
+  }
+
+  const existingArrowLine = document.querySelector('.spell-arrow-line');
+  if (existingArrowLine) {
+    existingArrowLine.remove();
   }
 };
 
@@ -646,12 +707,24 @@ onMounted(() => {
             spellDragState.value.isDraggedOutOfHand = false;
           }
 
-          // 如果卡片已拖出手牌区域，更新箭头位置
+          // 如果卡片已拖出手牌区域，更新箭头位置和连线
           if (spellDragState.value.isDraggedOutOfHand) {
             const arrow = document.querySelector('.spell-arrow') as HTMLElement;
-            if (arrow) {
+            const arrowLine = document.querySelector('.spell-arrow-line') as HTMLElement;
+
+            if (arrow && arrowLine) {
+              // 更新箭头位置
               arrow.style.left = `${clientX}px`;
               arrow.style.top = `${clientY}px`;
+
+              // 获取法术卡牌位置（起始点）
+              const cardRect = target.getBoundingClientRect();
+              const startX = cardRect.left + cardRect.width / 2;
+              const startY = cardRect.top + cardRect.height / 2;
+
+              // 更新连线
+              updateArrowLine(startX, startY, clientX, clientY, arrowLine);
+
               console.log(`[法术拖拽] 箭头跟随鼠标移动，新位置: (${clientX}, ${clientY})`);
             }
           }
@@ -724,11 +797,26 @@ onMounted(() => {
               console.log(`[法术释放] 法术 ${props.cardId} 释放到手牌区域外，检查目标有效性`);
 
               // 检查是否释放到有效目标上
-              const targetSlot = document
-                .elementFromPoint(releaseX, releaseY)
-                ?.closest('.card-slot');
+              let targetSlot = null;
+
+              // 保存当前拖拽元素的显示状态
+              const originalDisplay = target.style.display;
+
+              // 暂时隐藏拖拽元素，避免elementFromPoint检测到自身
+              target.style.display = 'none';
+
+              // 使用elementFromPoint获取真实的目标元素
+              const releaseElement = document.elementFromPoint(releaseX, releaseY);
+              targetSlot = releaseElement?.closest('.card-slot');
+
+              // 恢复拖拽元素的显示状态
+              target.style.display = originalDisplay;
+
               console.log(
-                `[法术释放] 释放位置下的元素: ${targetSlot?.tagName}, 类名: ${targetSlot?.className}, 包含spell-target-allowed: ${targetSlot?.classList.contains('spell-target-allowed')}`
+                `[法术释放] 释放位置下的元素: ${releaseElement?.tagName}, 类名: ${releaseElement?.className}`
+              );
+              console.log(
+                `[法术释放] 目标槽: ${targetSlot?.tagName}, 类名: ${targetSlot?.className}, 包含spell-target-allowed: ${targetSlot?.classList.contains('spell-target-allowed')}`
               );
 
               // 手动检查目标槽是否为战场槽且有卡片
@@ -741,6 +829,7 @@ onMounted(() => {
               );
 
               if (spell.requiresTarget) {
+                debugger;
                 // 需要目标的法术
                 if (isTargetValid && targetSlot) {
                   // 释放到有效目标上，发送法术使用事件
@@ -944,14 +1033,16 @@ onUnmounted(() => {
 .corner-badge.bottom-left {
   left: -5px;
   bottom: -5px;
-  top: auto; /* Override base class top property */
+  top: auto;
+  /* Override base class top property */
 }
 
 /* 右下角徽章 */
 .corner-badge.bottom-right {
   right: -5px;
   bottom: -5px;
-  top: auto; /* Override base class top property */
+  top: auto;
+  /* Override base class top property */
 }
 
 /* 状态标签样式 */
@@ -980,7 +1071,8 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   margin: 0 auto;
-  white-space: pre-line; /* Allow line breaks with \n */
+  white-space: pre-line;
+  /* Allow line breaks with \n */
   line-height: 1.2;
 }
 
