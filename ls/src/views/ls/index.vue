@@ -22,6 +22,7 @@
               cardData =>
                 cardData ? gameStore.selectCard(cardData, index) : gameStore.cancelSelectCard()
             "
+            @spell-cast="handleSpellCast"
           ></CardSlot>
         </div>
 
@@ -42,6 +43,7 @@
               cardData =>
                 cardData ? gameStore.selectCard(cardData, index + 5) : gameStore.cancelSelectCard()
             "
+            @spell-cast="handleSpellCast"
           ></CardSlot>
           <div class="info-panel tavern-info">
             <div class="stats-row">
@@ -103,6 +105,7 @@
               cardData =>
                 cardData ? gameStore.selectCard(cardData, index) : gameStore.cancelSelectCard()
             "
+            @spell-cast="handleSpellCast"
           ></CardSlot>
         </div>
 
@@ -124,6 +127,7 @@
               cardData =>
                 cardData ? gameStore.selectCard(cardData, index + 5) : gameStore.cancelSelectCard()
             "
+            @spell-cast="handleSpellCast"
           ></CardSlot>
           <div class="info-panel player-info">
             <div class="layout-grid">
@@ -214,6 +218,7 @@
               cardData =>
                 cardData ? gameStore.selectCard(cardData, index) : gameStore.cancelSelectCard()
             "
+            @spell-cast="handleSpellCast"
           ></CardSlot>
         </div>
 
@@ -234,6 +239,7 @@
               cardData =>
                 cardData ? gameStore.selectCard(cardData, index + 5) : gameStore.cancelSelectCard()
             "
+            @spell-cast="handleSpellCast"
           ></CardSlot>
         </div>
       </div>
@@ -715,6 +721,73 @@ const handleCardRemove = (cardId: string) => {
   console.log(
     `[父组件] 当前卡片分布: 酒馆 ${tavernCards.value.filter(c => c).length}/${tavernCards.value.length}张, 战场 ${battlefieldCards.value.filter(c => c).length}/${battlefieldCards.value.length}张, 手牌 ${handCards.value.filter(c => c).length}/${handCards.value.length}张`
   );
+};
+
+// 处理法术释放事件
+const handleSpellCast = (spellCardId: string, targetCardId?: string) => {
+  console.log(`[法术释放] 法术卡牌 ${spellCardId} 释放，目标: ${targetCardId || '无'}`);
+
+  // 1. 找到法术卡牌
+  const allCards = [...tavernCards.value, ...battlefieldCards.value, ...handCards.value];
+  const spellCard = allCards.find(c => c && c.id === spellCardId);
+
+  if (!spellCard) {
+    console.error(`[法术释放] 未找到法术卡牌 ${spellCardId}`);
+    return;
+  }
+
+  // 2. 找到目标卡牌
+  let targetCard = null;
+  let targetSource = '';
+  let targetIndex = -1;
+
+  if (targetCardId) {
+    targetCard = allCards.find(c => c && c.id === targetCardId);
+
+    if (!targetCard) {
+      console.error(`[法术释放] 未找到目标卡牌 ${targetCardId}`);
+      return;
+    }
+
+    // 确定目标来源和索引
+    // 检查目标是否在战场
+    const battlefieldIndex = battlefieldCards.value.findIndex(c => c && c.id === targetCardId);
+    if (battlefieldIndex !== -1) {
+      targetSource = 'battlefield';
+      targetIndex = battlefieldIndex;
+    }
+    // 检查目标是否在酒馆
+    else {
+      const tavernIndex = tavernCards.value.findIndex(c => c && c.id === targetCardId);
+      if (tavernIndex !== -1) {
+        targetSource = 'tavern';
+        targetIndex = tavernIndex;
+      }
+    }
+  }
+
+  // 3. 执行法术效果
+  console.log(`[法术释放] 执行法术 ${spellCard.nameCN} 效果，目标: ${targetCard?.nameCN || '无'}`);
+
+  // 4. 调用游戏store的castSpell方法执行法术效果
+  if (targetCard) {
+    // 创建符合gameStore.castSpell要求的target对象
+    const target = {
+      type: 'minion',
+      source: targetSource,
+      index: targetIndex,
+      target: targetCard,
+    };
+
+    // 先选择法术
+    const handIndex = handCards.value.findIndex(c => c && c.id === spellCardId);
+    if (handIndex !== -1) {
+      // 选择法术
+      gameStore.selectSpell(spellCard as any, handIndex);
+      // 释放法术
+      gameStore.castSpell(target);
+    }
+  }
 };
 
 // 监听卡片位置变化
