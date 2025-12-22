@@ -6,6 +6,9 @@
       empty: props.data === null,
       enemy: props.isEnemy,
       player: !props.isEnemy,
+      'is-attacking': props.isAttacking,
+      'is-damaged': props.isDamaged,
+      'is-dying': props.isDying,
     }"
   >
     <div v-if="props.data" class="card-content">
@@ -34,6 +37,8 @@
       <div class="minion-types" v-if="props.data instanceof Minion">
         {{ [props.data.minionTypesCN].join('\n') }}
       </div>
+      <!-- 伤害显示 -->
+      <div v-if="props.isDamaged && props.damage" class="damage-text">{{ props.damage }}</div>
     </div>
     <!-- 空位置显示 -->
     <div v-else class="empty-content">
@@ -53,6 +58,10 @@ const props = defineProps<{
   cardId?: string; // 卡片ID
   data?: Card | null; // 卡片数据，如果为null或undefined则表示空格子
   isEnemy?: boolean; // 是否为敌方卡片
+  isAttacking?: boolean; // 是否正在攻击
+  isDamaged?: boolean; // 是否正在受伤害
+  damage?: number; // 受到的伤害值
+  isDying?: boolean; // 是否正在死亡
 }>();
 </script>
 
@@ -206,5 +215,103 @@ const props = defineProps<{
   margin: 0 auto;
   white-space: pre-line;
   line-height: 1.2;
+}
+
+/* 动画效果 */
+
+/* 攻击动画 */
+@keyframes attack {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(30px) translateY(-10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* 受伤害动画 */
+@keyframes damage {
+  0% {
+    background-color: transparent;
+  }
+  25% {
+    background-color: rgba(231, 76, 60, 0.3);
+    transform: scale(0.95);
+  }
+  50% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+  75% {
+    background-color: rgba(231, 76, 60, 0.3);
+    transform: scale(0.95);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+/* 伤害数值动画 */
+@keyframes damageText {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) scale(1.5);
+  }
+}
+
+/* 死亡动画 */
+@keyframes death {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+/* 攻击状态 */
+.is-attacking {
+  animation: attack 0.5s ease-in-out;
+  z-index: 100;
+}
+
+/* 受伤害状态 */
+.is-damaged {
+  animation: damage 0.5s ease-in-out;
+}
+
+/* 死亡状态 */
+.is-dying {
+  animation: death 1s ease-in-out forwards;
+}
+
+/* 敌方攻击动画方向相反 */
+.enemy.is-attacking {
+  animation: attack 0.5s ease-in-out reverse;
+}
+
+/* 伤害数值样式 */
+.damage-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  font-weight: bold;
+  color: #e74c3c;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  pointer-events: none;
+  animation: damageText 0.8s ease-out forwards;
 }
 </style>

@@ -9,6 +9,10 @@
             :card-id="`enemy-slot-${i}`"
             :data="enemyMinions[i - 1]"
             :is-enemy="true"
+            :is-attacking="cardAnimations.enemy[i - 1].isAttacking"
+            :is-damaged="cardAnimations.enemy[i - 1].isDamaged"
+            :damage="cardAnimations.enemy[i - 1].damage"
+            :is-dying="cardAnimations.enemy[i - 1].isDying"
           ></BattleCard>
         </div>
       </div>
@@ -22,6 +26,10 @@
             :card-id="`player-slot-${i}`"
             :data="playerMinions[i - 1]"
             :is-enemy="false"
+            :is-attacking="cardAnimations.player[i - 1].isAttacking"
+            :is-damaged="cardAnimations.player[i - 1].isDamaged"
+            :damage="cardAnimations.player[i - 1].damage"
+            :is-dying="cardAnimations.player[i - 1].isDying"
           ></BattleCard>
         </div>
       </div>
@@ -157,12 +165,44 @@ const isBattleRunning = ref(false);
 const internalBattleResult = ref<BattleResult | null>(null);
 const internalBattleLog = ref<string[]>([]);
 
+// 战斗步骤相关状态
+const currentStepIndex = ref(0);
+const battleSteps = ref<any[]>([]);
+const isExecutingSteps = ref(false);
+
+// 卡片动画状态
+const cardAnimations = ref({
+  player: Array(7)
+    .fill(null)
+    .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
+  enemy: Array(7)
+    .fill(null)
+    .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
+});
+
+// 重置卡片动画状态
+const resetCardAnimations = () => {
+  cardAnimations.value = {
+    player: Array(7)
+      .fill(null)
+      .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
+    enemy: Array(7)
+      .fill(null)
+      .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
+  };
+};
+
 // 执行战斗
-const executeBattle = () => {
+const executeBattle = async () => {
   console.log('开始执行战斗');
   isBattleRunning.value = true;
   internalBattleLog.value = ['开始战斗...'];
   internalBattleResult.value = null;
+
+  // 重置战斗状态
+  currentStepIndex.value = 0;
+  battleSteps.value = [];
+  resetCardAnimations();
 
   // 记录当前状态
   internalBattleLog.value.push(
@@ -172,35 +212,135 @@ const executeBattle = () => {
     `敌方随从数量: ${props.enemyMinions.filter((m: any) => m !== null).length}`
   );
 
-  // 执行战斗
-  const result = BattleManager.executeBattle(
+  // 执行战斗，获取战斗步骤
+  const battleExecutionResult = BattleManager.executeBattle(
     props.playerMinions,
     props.enemyMinions,
     props.playerTavernLevel,
     props.enemyTavernLevel
   );
 
-  // 更新战斗结果
-  internalBattleResult.value = result;
+  battleSteps.value = battleExecutionResult.steps;
+  internalBattleResult.value = battleExecutionResult.finalResult;
 
   // 记录战斗结果
   internalBattleLog.value.push(`战斗结束！`);
   internalBattleLog.value.push(
-    `胜利者: ${result.winner === 'player' ? '玩家' : result.winner === 'enemy' ? '敌方' : '平局'}`
+    `胜利者: ${battleExecutionResult.finalResult.winner === 'player' ? '玩家' : battleExecutionResult.finalResult.winner === 'enemy' ? '敌方' : '平局'}`
   );
-  internalBattleLog.value.push(`玩家剩余随从: ${result.playerMinionsLeft}`);
-  internalBattleLog.value.push(`敌方剩余随从: ${result.enemyMinionsLeft}`);
-  internalBattleLog.value.push(`玩家生命值变化: ${result.playerHealthChange}`);
-  internalBattleLog.value.push(`敌方生命值变化: ${result.enemyHealthChange}`);
+  internalBattleLog.value.push(
+    `玩家剩余随从: ${battleExecutionResult.finalResult.playerMinionsLeft}`
+  );
+  internalBattleLog.value.push(
+    `敌方剩余随从: ${battleExecutionResult.finalResult.enemyMinionsLeft}`
+  );
+  internalBattleLog.value.push(
+    `玩家生命值变化: ${battleExecutionResult.finalResult.playerHealthChange}`
+  );
+  internalBattleLog.value.push(
+    `敌方生命值变化: ${battleExecutionResult.finalResult.enemyHealthChange}`
+  );
+
+  // 分步执行战斗步骤
+  await executeBattleSteps();
 
   // 显示战斗结果弹窗
   showResultModal.value = true;
 
   // 通知父组件战斗完成
-  emit('battle-completed', result, internalBattleLog.value);
+  emit('battle-completed', battleExecutionResult.finalResult, internalBattleLog.value);
 
   isBattleRunning.value = false;
-  console.log('战斗结束', result);
+  console.log('战斗结束', battleExecutionResult.finalResult);
+};
+
+// 执行战斗步骤
+const executeBattleSteps = async () => {
+  isExecutingSteps.value = true;
+
+  for (let i = 0; i < battleSteps.value.length; i++) {
+    const step = battleSteps.value[i];
+    currentStepIndex.value = i;
+
+    console.log(`执行步骤 ${i + 1}:`, step.type);
+
+    // 根据步骤类型执行不同的动画
+    switch (step.type) {
+      case 'attack':
+        await executeAttackAnimation(step);
+        break;
+      case 'damage':
+        await executeDamageAnimation(step);
+        break;
+      case 'death':
+        await executeDeathAnimation(step);
+        break;
+      case 'divine_shield_broken':
+        await executeDivineShieldBrokenAnimation(step);
+        break;
+      case 'battle_end':
+        // 战斗结束，不需要动画
+        break;
+    }
+
+    // 等待一小段时间，让动画流畅执行
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  isExecutingSteps.value = false;
+};
+
+// 执行攻击动画
+const executeAttackAnimation = async (step: any) => {
+  console.log('执行攻击动画:', step);
+
+  // 设置攻击者动画状态
+  cardAnimations.value[step.attackerSide][step.attackerIndex].isAttacking = true;
+
+  // 等待攻击动画完成
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // 重置攻击者动画状态
+  cardAnimations.value[step.attackerSide][step.attackerIndex].isAttacking = false;
+};
+
+// 执行伤害动画
+const executeDamageAnimation = async (step: any) => {
+  console.log('执行伤害动画:', step);
+
+  // 设置受伤害动画状态
+  cardAnimations.value[step.side][step.index].isDamaged = true;
+  cardAnimations.value[step.side][step.index].damage = step.damage;
+
+  // 等待伤害动画完成
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // 重置伤害动画状态
+  cardAnimations.value[step.side][step.index].isDamaged = false;
+  cardAnimations.value[step.side][step.index].damage = 0;
+};
+
+// 执行死亡动画
+const executeDeathAnimation = async (step: any) => {
+  console.log('执行死亡动画:', step);
+
+  // 设置死亡动画状态
+  cardAnimations.value[step.side][step.index].isDying = true;
+
+  // 等待死亡动画完成
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // 重置死亡动画状态
+  cardAnimations.value[step.side][step.index].isDying = false;
+};
+
+// 执行圣盾消失动画
+const executeDivineShieldBrokenAnimation = async (step: any) => {
+  console.log('执行圣盾消失动画:', step);
+
+  // 圣盾消失动画可以使用伤害动画的效果，或者单独设计
+  // 这里简单处理，等待一段时间
+  await new Promise(resolve => setTimeout(resolve, 300));
 };
 
 // 组件挂载时，如果autoStart为true，则自动执行战斗
