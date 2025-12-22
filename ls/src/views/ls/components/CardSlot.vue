@@ -120,6 +120,12 @@ const initialPosition = ref({
   y: 0,
 });
 
+// 记录拖拽前卡片的原始中心点视口坐标（用于法术箭头起始点）
+const initialCardCenter = ref({
+  x: 0,
+  y: 0,
+});
+
 // 卡片元素引用
 const cardRef = ref<HTMLElement | null>(null);
 
@@ -403,10 +409,9 @@ const showSpellArrow = (target: HTMLElement) => {
   arrow.style.transform = 'translate(-50%, -50%)';
   arrow.style.boxShadow = '0 0 10px rgba(255, 255, 0, 0.8)';
 
-  // 获取卡片位置（起始点）
-  const rect = target.getBoundingClientRect();
-  const startX = rect.left + rect.width / 2;
-  const startY = rect.top + rect.height / 2;
+  // 使用拖拽前卡片的原始中心点作为起始点
+  const startX = initialCardCenter.value.x;
+  const startY = initialCardCenter.value.y;
 
   // 初始箭头位置（终点）
   const endX = startX;
@@ -422,6 +427,8 @@ const showSpellArrow = (target: HTMLElement) => {
   // 添加到body
   document.body.appendChild(arrowLine);
   document.body.appendChild(arrow);
+
+  console.log(`[法术箭头] 显示箭头，起始点（拖拽前原始中心）: (${startX}, ${startY})`);
 };
 
 /**
@@ -567,8 +574,18 @@ onMounted(() => {
         // 记录初始位置
         initialPosition.value = { ...position.value };
 
+        // 计算并记录拖拽前卡片的原始中心点视口坐标
+        const rect = target.getBoundingClientRect();
+        initialCardCenter.value = {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        };
+
         console.log(
           `[拖拽开始] 卡片: ${props.cardId}, 初始位置类型: ${props.data?.area}, 初始坐标: (${initialPosition.value.x}, ${initialPosition.value.y})`
+        );
+        console.log(
+          `[拖拽开始] 卡片 ${props.cardId} 原始中心点视口坐标: (${initialCardCenter.value.x}, ${initialCardCenter.value.y})`
         );
 
         // 拖拽开始时同时选中当前卡片
@@ -717,15 +734,16 @@ onMounted(() => {
               arrow.style.left = `${clientX}px`;
               arrow.style.top = `${clientY}px`;
 
-              // 获取法术卡牌位置（起始点）
-              const cardRect = target.getBoundingClientRect();
-              const startX = cardRect.left + cardRect.width / 2;
-              const startY = cardRect.top + cardRect.height / 2;
+              // 使用拖拽前卡片的原始中心点作为起始点
+              const startX = initialCardCenter.value.x;
+              const startY = initialCardCenter.value.y;
 
               // 更新连线
               updateArrowLine(startX, startY, clientX, clientY, arrowLine);
 
-              console.log(`[法术拖拽] 箭头跟随鼠标移动，新位置: (${clientX}, ${clientY})`);
+              console.log(
+                `[法术拖拽] 箭头跟随鼠标移动，新位置: (${clientX}, ${clientY})，起始点保持拖拽前原始中心: (${startX}, ${startY})`
+              );
             }
           }
         }
@@ -792,6 +810,11 @@ onMounted(() => {
             if (isHandArea) {
               // 释放到手牌区域，取消使用
               console.log(`[法术释放] 法术 ${props.cardId} 释放到手牌区域，取消使用`);
+              // 法术取消使用后，回到原来的位置
+              position.value = { ...initialPosition.value };
+              console.log(
+                `[法术释放] 法术 ${props.cardId} 回到初始位置: (${initialPosition.value.x}, ${initialPosition.value.y})`
+              );
             } else {
               // 释放到手牌区域外，检查是否指向有效目标
               console.log(`[法术释放] 法术 ${props.cardId} 释放到手牌区域外，检查目标有效性`);
@@ -829,7 +852,6 @@ onMounted(() => {
               );
 
               if (spell.requiresTarget) {
-                debugger;
                 // 需要目标的法术
                 if (isTargetValid && targetSlot) {
                   // 释放到有效目标上，发送法术使用事件
@@ -842,6 +864,11 @@ onMounted(() => {
                 } else {
                   // 没有释放到有效目标上，取消使用
                   console.log(`[法术释放] 法术 ${props.cardId} 没有释放到有效目标上，取消使用`);
+                  // 法术取消使用后，回到原来的位置
+                  position.value = { ...initialPosition.value };
+                  console.log(
+                    `[法术释放] 法术 ${props.cardId} 回到初始位置: (${initialPosition.value.x}, ${initialPosition.value.y})`
+                  );
                 }
               } else {
                 // 不需要目标的法术，直接释放
@@ -853,6 +880,11 @@ onMounted(() => {
           } else {
             // 没有拖出手牌区域，取消使用
             console.log(`[法术释放] 法术 ${props.cardId} 未拖出手牌区域，取消使用`);
+            // 法术取消使用后，回到原来的位置
+            position.value = { ...initialPosition.value };
+            console.log(
+              `[法术释放] 法术 ${props.cardId} 回到初始位置: (${initialPosition.value.x}, ${initialPosition.value.y})`
+            );
           }
         }
         // 逻辑2：战场卡片拖拽到酒馆区域，卡片消失
