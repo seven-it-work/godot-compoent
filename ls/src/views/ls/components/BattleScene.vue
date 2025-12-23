@@ -168,7 +168,6 @@ const internalBattleLog = ref<string[]>([]);
 // 战斗步骤相关状态
 const currentStepIndex = ref(0);
 const battleSteps = ref<any[]>([]);
-const isExecutingSteps = ref(false);
 
 // 卡片动画状态
 const cardAnimations = ref({
@@ -192,6 +191,9 @@ const resetCardAnimations = () => {
   };
 };
 
+// 当前正在处理的攻击步骤
+const currentAttackStep = ref<any>(null);
+
 // 执行战斗
 const executeBattle = async () => {
   console.log('开始执行战斗');
@@ -203,6 +205,7 @@ const executeBattle = async () => {
   currentStepIndex.value = 0;
   battleSteps.value = [];
   resetCardAnimations();
+  currentAttackStep.value = null;
 
   // 记录当前状态
   internalBattleLog.value.push(
@@ -212,82 +215,97 @@ const executeBattle = async () => {
     `敌方随从数量: ${props.enemyMinions.filter((m: any) => m !== null).length}`
   );
 
-  // 执行战斗，获取战斗步骤
-  const battleExecutionResult = BattleManager.executeBattle(
+  // 初始化战斗状态
+  BattleManager.initializeBattleState(
     props.playerMinions,
     props.enemyMinions,
     props.playerTavernLevel,
     props.enemyTavernLevel
   );
 
-  battleSteps.value = battleExecutionResult.steps;
-  internalBattleResult.value = battleExecutionResult.finalResult;
-
-  // 记录战斗结果
-  internalBattleLog.value.push(`战斗结束！`);
-  internalBattleLog.value.push(
-    `胜利者: ${battleExecutionResult.finalResult.winner === 'player' ? '玩家' : battleExecutionResult.finalResult.winner === 'enemy' ? '敌方' : '平局'}`
-  );
-  internalBattleLog.value.push(
-    `玩家剩余随从: ${battleExecutionResult.finalResult.playerMinionsLeft}`
-  );
-  internalBattleLog.value.push(
-    `敌方剩余随从: ${battleExecutionResult.finalResult.enemyMinionsLeft}`
-  );
-  internalBattleLog.value.push(
-    `玩家生命值变化: ${battleExecutionResult.finalResult.playerHealthChange}`
-  );
-  internalBattleLog.value.push(
-    `敌方生命值变化: ${battleExecutionResult.finalResult.enemyHealthChange}`
-  );
-
-  // 分步执行战斗步骤
-  await executeBattleSteps();
-
-  // 显示战斗结果弹窗
-  showResultModal.value = true;
-
-  // 通知父组件战斗完成
-  emit('battle-completed', battleExecutionResult.finalResult, internalBattleLog.value);
+  // 开始分步执行战斗
+  await executeNextBattleStep();
 
   isBattleRunning.value = false;
-  console.log('战斗结束', battleExecutionResult.finalResult);
+  console.log('战斗结束', internalBattleResult.value);
 };
 
-// 执行战斗步骤
-const executeBattleSteps = async () => {
-  isExecutingSteps.value = true;
+// 执行单个战斗步骤
+const executeNextBattleStep = async () => {
+  // 获取下一个战斗步骤
+  const step = BattleManager.executeNextBattleStep();
 
-  for (let i = 0; i < battleSteps.value.length; i++) {
-    const step = battleSteps.value[i];
-    currentStepIndex.value = i;
-
-    console.log(`执行步骤 ${i + 1}:`, step.type);
-
-    // 根据步骤类型执行不同的动画
-    switch (step.type) {
-      case 'attack':
-        await executeAttackAnimation(step);
-        break;
-      case 'damage':
-        await executeDamageAnimation(step);
-        break;
-      case 'death':
-        await executeDeathAnimation(step);
-        break;
-      case 'divine_shield_broken':
-        await executeDivineShieldBrokenAnimation(step);
-        break;
-      case 'battle_end':
-        // 战斗结束，不需要动画
-        break;
-    }
-
-    // 等待一小段时间，让动画流畅执行
-    await new Promise(resolve => setTimeout(resolve, 100));
+  if (!step) {
+    // 战斗结束
+    return;
   }
 
-  isExecutingSteps.value = false;
+  currentStepIndex.value++;
+  console.log(`执行步骤 ${currentStepIndex.value}:`, step.type);
+
+  // 根据步骤类型执行不同的处理
+  switch (step.type) {
+    case 'attack':
+      // 保存当前攻击步骤
+      currentAttackStep.value = step;
+      // 执行攻击动画
+      await executeAttackAnimation(step);
+      // 动画完成后执行攻击伤害
+      const damageSteps = BattleManager.executeAttackDamage(step);
+      // 添加到步骤列表
+      battleSteps.value.push(...damageSteps);
+      // 执行伤害动画
+      for (const damageStep of damageSteps) {
+        await executeDamageAnimation(damageStep);
+      }
+      // 1. 获取死亡步骤
+      const deathSteps = BattleManager.executeDeath(currentAttackStep.value);
+      // 2. 添加到步骤列表
+      battleSteps.value.push(...deathSteps);
+      // 3. 播放死亡动画
+      for (const deathStep of deathSteps) {
+        await executeDeathAnimation(deathStep);
+      }
+      // 4. 执行实际的死亡数据处理（移除随从并补位）
+      BattleManager.processDeathData(currentAttackStep.value);
+      // 5. 继续执行下一个步骤
+      await executeNextBattleStep();
+      break;
+    case 'damage':
+      // 直接执行伤害动画
+      await executeDamageAnimation(step);
+      await executeNextBattleStep();
+      break;
+    case 'death':
+      // 直接执行死亡动画
+      await executeDeathAnimation(step);
+      await executeNextBattleStep();
+      break;
+    case 'divine_shield_broken':
+      // 执行圣盾消失动画
+      await executeDivineShieldBrokenAnimation(step);
+      await executeNextBattleStep();
+      break;
+    case 'battle_end':
+      // 战斗结束
+      internalBattleResult.value = step.result;
+      // 记录战斗结果
+      internalBattleLog.value.push(`战斗结束！`);
+      internalBattleLog.value.push(
+        `胜利者: ${step.result.winner === 'player' ? '玩家' : step.result.winner === 'enemy' ? '敌方' : '平局'}`
+      );
+      internalBattleLog.value.push(`玩家剩余随从: ${step.result.playerMinionsLeft}`);
+      internalBattleLog.value.push(`敌方剩余随从: ${step.result.enemyMinionsLeft}`);
+      internalBattleLog.value.push(`玩家生命值变化: ${step.result.playerHealthChange}`);
+      internalBattleLog.value.push(`敌方生命值变化: ${step.result.enemyHealthChange}`);
+
+      // 显示战斗结果弹窗
+      showResultModal.value = true;
+
+      // 通知父组件战斗完成
+      emit('battle-completed', step.result, internalBattleLog.value);
+      break;
+  }
 };
 
 // 执行攻击动画

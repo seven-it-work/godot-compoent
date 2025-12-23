@@ -406,23 +406,6 @@ export class Minion extends Card implements IMinion {
   }
 
   /**
-   * 受到伤害 - 处理随从受到的伤害，考虑圣盾效果
-   * @param damage - 受到的伤害值
-   * @returns 是否死亡（生命值 <= 0）
-   * @使用方式：当随从受到伤害时调用
-   */
-  takeDamage(damage: number): boolean {
-    if (this.hasDivineShield) {
-      // 圣盾抵消一次伤害
-      this.hasDivineShield = false;
-      return false; // 未死亡
-    }
-    // 扣除生命值
-    this.health -= damage;
-    return this.health <= 0; // 返回是否死亡
-  }
-
-  /**
    * 三连升级为金色随从 - 将随从升级为金色版本
    * @使用方式：当玩家拥有三个相同的随从时调用
    */
