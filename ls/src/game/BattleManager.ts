@@ -84,9 +84,7 @@ export interface BattleExecutionResult {
   finalResult: BattleResult;
 }
 /**
-
  * 战斗管理器类 - 负责处理战斗的核心逻辑
-
  */
 export class BattleManager {
   /**
@@ -104,14 +102,11 @@ export class BattleManager {
     enemyTavernLevel: number = 1
   ): BattleExecutionResult {
     console.log('开始执行战斗');
-    // 复制随从列表，避免修改原数据
-    const playerMinionsCopy = [...playerMinions];
-    const enemyMinionsCopy = [...enemyMinions];
     // 初始化战斗步骤队列
     const steps: BattleStep[] = [];
     // 计算初始随从数量
-    let playerMinionCount = playerMinionsCopy.filter(minion => minion !== null).length;
-    let enemyMinionCount = enemyMinionsCopy.filter(minion => minion !== null).length;
+    let playerMinionCount = playerMinions.filter(minion => minion !== null).length;
+    let enemyMinionCount = enemyMinions.filter(minion => minion !== null).length;
     // 确定谁先攻击
     const playerAttacksFirst = this.shouldPlayerAttackFirst(
       playerMinionCount,
@@ -131,14 +126,14 @@ export class BattleManager {
       console.log(`当前攻击者: ${currentAttacker}`);
       if (currentAttacker === 'player') {
         // 玩家随从攻击敌方随从
-        this.executePlayerAttacks(playerMinionsCopy, enemyMinionsCopy, steps);
+        this.executePlayerAttacks(playerMinions, enemyMinions, steps);
       } else {
         // 敌方随从攻击玩家随从
-        this.executeEnemyAttacks(enemyMinionsCopy, playerMinionsCopy, steps);
+        this.executeEnemyAttacks(enemyMinions, playerMinions, steps);
       }
       // 更新随从数量
-      playerMinionCount = playerMinionsCopy.filter(minion => minion !== null).length;
-      enemyMinionCount = enemyMinionsCopy.filter(minion => minion !== null).length;
+      playerMinionCount = playerMinions.filter(minion => minion !== null).length;
+      enemyMinionCount = enemyMinions.filter(minion => minion !== null).length;
       // 切换攻击者
       currentAttacker = currentAttacker === 'player' ? 'enemy' : 'player';
       console.log(
@@ -156,13 +151,13 @@ export class BattleManager {
     // 如果一方没有随从了，计算对英雄的伤害
     if (playerMinionCount === 0 && enemyMinionCount > 0) {
       // 敌方获胜，计算对玩家英雄的伤害
-      const damageToPlayer = this.calculateHeroDamage(enemyMinionsCopy);
+      const damageToPlayer = this.calculateHeroDamage(enemyMinions);
       result.winner = 'enemy';
       result.playerHealthChange = -damageToPlayer;
       console.log(`敌方获胜，对玩家造成 ${damageToPlayer} 点伤害`);
     } else if (enemyMinionCount === 0 && playerMinionCount > 0) {
       // 玩家获胜，计算对敌方英雄的伤害
-      const damageToEnemy = this.calculateHeroDamage(playerMinionsCopy);
+      const damageToEnemy = this.calculateHeroDamage(playerMinions);
       result.winner = 'player';
       result.enemyHealthChange = -damageToEnemy;
       console.log(`玩家获胜，对敌方造成 ${damageToEnemy} 点伤害`);
@@ -182,19 +177,12 @@ export class BattleManager {
     };
   }
   /**
-
    * 确定玩家是否先攻击
-
    * @param playerMinionCount 玩家的随从数量
-
    * @param enemyMinionCount 敌方的随从数量
-
    * @param playerTavernLevel 玩家的酒馆等级
-
    * @param enemyTavernLevel 敌方的酒馆等级
-
    * @returns 玩家是否先攻击
-
    */
   private static shouldPlayerAttackFirst(
     playerMinionCount: number,
@@ -218,13 +206,9 @@ export class BattleManager {
     return true;
   }
   /**
-
    * 执行玩家随从的攻击
-
    * @param playerMinions 玩家的随从列表
-
    * @param enemyMinions 敌方的随从列表
-
    */
   private static executePlayerAttacks(
     playerMinions: (Minion | null)[],
@@ -282,13 +266,9 @@ export class BattleManager {
     }
   }
   /**
-
    * 执行敌方随从的攻击
-
    * @param enemyMinions 敌方的随从列表
-
    * @param playerMinions 玩家的随从列表
-
    */
   private static executeEnemyAttacks(
     enemyMinions: (Minion | null)[],
@@ -346,13 +326,9 @@ export class BattleManager {
     }
   }
   /**
-
    * 找到攻击目标
-
    * @param defenders 防御方的随从列表
-
    * @returns 攻击目标的索引，-1表示没有目标
-
    */
   private static findAttackTarget(defenders: (Minion | null)[]): number {
     // 1. 优先攻击有嘲讽的随从
@@ -382,13 +358,9 @@ export class BattleManager {
     return -1;
   }
   /**
-
    * 执行攻击
-
    * @param attacker 攻击者
-
    * @param defender 防御者
-
    */
   private static executeAttack(
     attacker: Minion,
@@ -461,13 +433,9 @@ export class BattleManager {
     return steps;
   }
   /**
-
    * 计算对英雄的伤害
-
    * @param remainingMinions 剩余的随从列表
-
    * @returns 对英雄造成的伤害
-
    */
   private static calculateHeroDamage(remainingMinions: (Minion | null)[]): number {
     // 计算所有剩余随从的攻击力总和
