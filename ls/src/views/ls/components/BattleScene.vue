@@ -9,10 +9,10 @@
             :card-id="`enemy-slot-${i}`"
             :data="enemyMinions[i - 1]"
             :is-enemy="true"
-            :is-attacking="cardAnimations.enemy[i - 1].isAttacking"
-            :is-damaged="cardAnimations.enemy[i - 1].isDamaged"
-            :damage="cardAnimations.enemy[i - 1].damage"
-            :is-dying="cardAnimations.enemy[i - 1].isDying"
+            :is-attacking="cardAnimations.enemy[i - 1]?.isAttacking"
+            :is-damaged="cardAnimations.enemy[i - 1]?.isDamaged"
+            :damage="cardAnimations.enemy[i - 1]?.damage"
+            :is-dying="cardAnimations.enemy[i - 1]?.isDying"
           ></BattleCard>
         </div>
       </div>
@@ -26,10 +26,10 @@
             :card-id="`player-slot-${i}`"
             :data="playerMinions[i - 1]"
             :is-enemy="false"
-            :is-attacking="cardAnimations.player[i - 1].isAttacking"
-            :is-damaged="cardAnimations.player[i - 1].isDamaged"
-            :damage="cardAnimations.player[i - 1].damage"
-            :is-dying="cardAnimations.player[i - 1].isDying"
+            :is-attacking="cardAnimations.player[i - 1]?.isAttacking"
+            :is-damaged="cardAnimations.player[i - 1]?.isDamaged"
+            :damage="cardAnimations.player[i - 1]?.damage"
+            :is-dying="cardAnimations.player[i - 1]?.isDying"
           ></BattleCard>
         </div>
       </div>
@@ -122,13 +122,14 @@
 import { ref, onMounted } from 'vue';
 import { Modal, Button } from 'ant-design-vue';
 import BattleCard from './BattleCard.vue';
-import { BattleManager, type BattleResult } from '../../../game/BattleManager';
+import type { BattleResult } from '../../../game/BattleManager';
+import type { Minion } from '@/game/Minion';
 
 // 接收外部传入的参数
 const props = withDefaults(
   defineProps<{
-    enemyMinions: any[];
-    playerMinions: any[];
+    enemyMinions: (Minion | undefined)[];
+    playerMinions: (Minion | undefined)[];
     enemyHealth: number;
     enemyArmor: number;
     playerHealth: number;
@@ -138,8 +139,8 @@ const props = withDefaults(
     enemyTavernLevel?: number;
   }>(),
   {
-    enemyMinions: () => Array(7).fill(null),
-    playerMinions: () => Array(7).fill(null),
+    enemyMinions: () => Array(7).fill(undefined),
+    playerMinions: () => Array(7).fill(undefined),
     enemyHealth: 30,
     enemyArmor: 0,
     playerHealth: 30,
@@ -165,17 +166,13 @@ const isBattleRunning = ref(false);
 const internalBattleResult = ref<BattleResult | null>(null);
 const internalBattleLog = ref<string[]>([]);
 
-// 战斗步骤相关状态
-const currentStepIndex = ref(0);
-const battleSteps = ref<any[]>([]);
-
 // 卡片动画状态
 const cardAnimations = ref({
   player: Array(7)
-    .fill(null)
+    .fill(undefined)
     .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
   enemy: Array(7)
-    .fill(null)
+    .fill(undefined)
     .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
 });
 
@@ -183,16 +180,95 @@ const cardAnimations = ref({
 const resetCardAnimations = () => {
   cardAnimations.value = {
     player: Array(7)
-      .fill(null)
+      .fill(undefined)
       .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
     enemy: Array(7)
-      .fill(null)
+      .fill(undefined)
       .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
   };
 };
 
-// 当前正在处理的攻击步骤
-const currentAttackStep = ref<any>(null);
+// 执行单个攻击动画
+const executeAttackAnimation = async (side: 'player' | 'enemy', index: number) => {
+  console.log(`执行${side}方第${index}个随从的攻击动画`);
+
+  // 设置攻击者动画状态
+  if (side === 'player') {
+    const temp = cardAnimations.value.player[index];
+    if (temp) {
+      temp.isAttacking = true;
+    }
+  } else {
+    const temp = cardAnimations.value.enemy[index];
+    if (temp) {
+      temp.isAttacking = true;
+    }
+  }
+
+  // 等待攻击动画完成
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // 重置攻击者动画状态
+  if (side === 'player') {
+    const temp = cardAnimations.value.player[index];
+    if (temp) {
+      temp.isAttacking = false;
+    }
+  } else {
+    const temp = cardAnimations.value.enemy[index];
+    if (temp) {
+      temp.isAttacking = false;
+    }
+  }
+};
+
+// 执行单个伤害动画
+const executeDamageAnimation = async (side: 'player' | 'enemy', index: number, damage: number) => {
+  console.log(`执行${side}方第${index}个随从的伤害动画，伤害值: ${damage}`);
+
+  // 设置受伤害动画状态
+  const temp = cardAnimations.value[side][index];
+  if (temp) {
+    temp.isDamaged = true;
+    temp.damage = damage;
+  }
+
+  // 等待伤害动画完成
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // 重置伤害动画状态
+  if (temp) {
+    temp.isDamaged = false;
+    temp.damage = 0;
+  }
+};
+
+// 执行单个死亡动画
+const executeDeathAnimation = async (side: 'player' | 'enemy', index: number) => {
+  console.log(`执行${side}方第${index}个随从的死亡动画`);
+
+  // 设置死亡动画状态
+  const temp = cardAnimations.value[side][index];
+  if (temp) {
+    temp.isDying = true;
+  }
+
+  // 等待死亡动画完成
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // 重置死亡动画状态
+  if (temp) {
+    temp.isDying = false;
+  }
+};
+
+// 执行单个圣盾消失动画
+const executeDivineShieldBrokenAnimation = async (side: 'player' | 'enemy', index: number) => {
+  console.log(`执行${side}方第${index}个随从的圣盾消失动画`);
+
+  // 等待圣盾消失动画完成
+  await new Promise(resolve => setTimeout(resolve, 300));
+};
 
 // 执行战斗
 const executeBattle = async () => {
@@ -201,164 +277,374 @@ const executeBattle = async () => {
   internalBattleLog.value = ['开始战斗...'];
   internalBattleResult.value = null;
 
-  // 重置战斗状态
-  currentStepIndex.value = 0;
-  battleSteps.value = [];
+  // 重置卡片动画状态
   resetCardAnimations();
-  currentAttackStep.value = null;
+
+  // 暂时不复制随从列表，直接使用原数据（用于调试）
+  // 这样可以确定问题是出在复制过程还是原数据本身
+  const playerMinions = props.playerMinions;
+  const enemyMinions = props.enemyMinions;
 
   // 记录当前状态
   internalBattleLog.value.push(
-    `玩家随从数量: ${props.playerMinions.filter((m: any) => m !== null).length}`
+    `玩家随从数量: ${playerMinions.filter((m: any) => m !== undefined).length}`
   );
   internalBattleLog.value.push(
-    `敌方随从数量: ${props.enemyMinions.filter((m: any) => m !== null).length}`
+    `敌方随从数量: ${enemyMinions.filter((m: any) => m !== undefined).length}`
   );
 
-  // 初始化战斗状态
-  BattleManager.initializeBattleState(
-    props.playerMinions,
-    props.enemyMinions,
-    props.playerTavernLevel,
-    props.enemyTavernLevel
-  );
+  // 战斗主循环
+  let battleRound = 0;
+  const maxRounds = 100;
+  let battleEnded = false;
 
-  // 开始分步执行战斗
-  await executeNextBattleStep();
+  while (!battleEnded && battleRound < maxRounds) {
+    battleRound++;
+    console.log(`\n===== 战斗回合 ${battleRound} =====`);
+    internalBattleLog.value.push(`回合 ${battleRound} 开始`);
+
+    // 重置所有随从的攻击状态
+    playerMinions.forEach(minion => {
+      if (minion) minion.hasAttacked = false;
+    });
+    enemyMinions.forEach(minion => {
+      if (minion) minion.hasAttacked = false;
+    });
+
+    // 计算当前随从数量
+    const playerMinionCount = playerMinions.filter(m => m !== undefined).length;
+    const enemyMinionCount = enemyMinions.filter(m => m !== undefined).length;
+
+    // 检查战斗是否结束
+    if (playerMinionCount === 0 || enemyMinionCount === 0) {
+      battleEnded = true;
+      break;
+    }
+
+    // 确定攻击顺序
+    // 简化版：玩家先攻击，然后敌方攻击
+    // 实际应该按照酒馆战棋规则：随从数量多的先攻击，数量相同则酒馆等级高的先攻击，都相同则随机
+    const attackOrder = [];
+
+    // 添加玩家随从到攻击顺序
+    for (let i = 0; i < playerMinions.length; i++) {
+      if (playerMinions[i] !== undefined) {
+        attackOrder.push({ side: 'player', index: i });
+      }
+    }
+
+    // 添加敌方随从到攻击顺序
+    for (let i = 0; i < enemyMinions.length; i++) {
+      if (enemyMinions[i] !== undefined) {
+        attackOrder.push({ side: 'enemy', index: i });
+      }
+    }
+
+    // 执行攻击
+    for (const attackUnit of attackOrder) {
+      // 检查战斗是否已经结束
+      if (battleEnded) break;
+
+      // 检查随从是否还活着
+      if (attackUnit.side === 'player') {
+        const attacker = playerMinions[attackUnit.index];
+        if (!attacker || attacker.health <= 0 || attacker.hasAttacked) {
+          continue;
+        }
+
+        // 找到攻击目标
+        let targetIndex = -1;
+        // 优先攻击有嘲讽的随从
+        for (let i = 0; i < enemyMinions.length; i++) {
+          const minion = enemyMinions[i];
+          if (minion && minion.health > 0 && minion.getKeywords().includes('taunt')) {
+            targetIndex = i;
+            break;
+          }
+        }
+
+        // 如果没有嘲讽随从，随机选择一个目标
+        if (targetIndex === -1) {
+          const validTargets: any[] = enemyMinions
+            .map((minion, index) => ({ minion, index }))
+            .filter(({ minion }) => minion !== undefined && minion.health > 0);
+
+          if (validTargets.length === 0) {
+            continue;
+          }
+
+          const randomIndex = Math.floor(Math.random() * validTargets.length);
+          targetIndex = validTargets[randomIndex].index;
+        }
+
+        const target = enemyMinions[targetIndex];
+        if (!target || target.health <= 0) {
+          continue;
+        }
+
+        // 执行攻击动画
+        await executeAttackAnimation('player', attackUnit.index);
+
+        // 记录攻击信息
+        internalBattleLog.value.push(`${attacker.nameCN} 攻击了 ${target.nameCN}`);
+
+        // 获取攻击力
+        let attackerDamage = attacker.getAttack();
+        let targetDamage = target.getAttack();
+
+        // 处理攻击者受到的伤害
+        const attackerHadDivineShield = attacker.hasDivineShield || false;
+        let attackerDied = false;
+
+        if (attackerHadDivineShield) {
+          // 圣盾吸收所有伤害
+          attacker.hasDivineShield = false;
+          console.log(`攻击者的圣盾吸收了 ${targetDamage} 点伤害`);
+        } else {
+          // 直接扣除生命值
+          attacker.health = Math.max(0, (attacker.health || 0) - targetDamage);
+          attackerDied = (attacker.health || 0) <= 0;
+          console.log(`攻击者受到了 ${targetDamage} 点伤害，剩余生命值: ${attacker.health}`);
+        }
+
+        if (attackerHadDivineShield && !attacker.hasDivineShield) {
+          // 圣盾被打破，执行圣盾消失动画
+          await executeDivineShieldBrokenAnimation('player', attackUnit.index);
+          internalBattleLog.value.push(`${attacker.nameCN} 的圣盾被打破了！`);
+        } else if (!attackerHadDivineShield) {
+          // 执行伤害动画
+          await executeDamageAnimation('player', attackUnit.index, targetDamage);
+          internalBattleLog.value.push(
+            `${attacker.nameCN} 受到了 ${targetDamage} 点伤害，剩余生命值: ${attacker.health}`
+          );
+
+          if (attackerDied) {
+            // 执行死亡动画
+            await executeDeathAnimation('player', attackUnit.index);
+            // 移除死亡随从并顶格处理
+            playerMinions.splice(attackUnit.index, 1);
+            playerMinions.push(undefined);
+            internalBattleLog.value.push(`${attacker.nameCN} 被杀死了！`);
+          }
+        }
+
+        // 处理目标受到的伤害
+        const targetHadDivineShield = target.hasDivineShield || false;
+        let targetDied = false;
+
+        // 手动处理伤害
+        if (targetHadDivineShield) {
+          // 圣盾吸收所有伤害
+          target.hasDivineShield = false;
+          console.log(`目标的圣盾吸收了 ${attackerDamage} 点伤害`);
+        } else {
+          // 直接扣除生命值
+          target.health = Math.max(0, (target.health || 0) - attackerDamage);
+          targetDied = (target.health || 0) <= 0;
+          console.log(`目标受到了 ${attackerDamage} 点伤害，剩余生命值: ${target.health}`);
+        }
+
+        if (targetHadDivineShield && !target.hasDivineShield) {
+          // 圣盾被打破，执行圣盾消失动画
+          await executeDivineShieldBrokenAnimation('enemy', targetIndex);
+          internalBattleLog.value.push(`${target.nameCN} 的圣盾被打破了！`);
+        } else if (!targetHadDivineShield) {
+          // 执行伤害动画
+          await executeDamageAnimation('enemy', targetIndex, attackerDamage);
+          internalBattleLog.value.push(
+            `${target.nameCN} 受到了 ${attackerDamage} 点伤害，剩余生命值: ${target.health}`
+          );
+
+          if (targetDied) {
+            // 执行死亡动画
+            await executeDeathAnimation('enemy', targetIndex);
+            // 移除死亡随从并顶格处理
+            enemyMinions.splice(targetIndex, 1);
+            enemyMinions.push(undefined);
+            internalBattleLog.value.push(`${target.nameCN} 被杀死了！`);
+          }
+        }
+
+        // 标记为已攻击
+        attacker.hasAttacked = true;
+      } else {
+        // 敌方随从攻击逻辑，与玩家随从攻击逻辑类似
+        const attacker = enemyMinions[attackUnit.index];
+        if (!attacker || attacker.health <= 0 || attacker.hasAttacked) {
+          continue;
+        }
+
+        // 找到攻击目标
+        let targetIndex = -1;
+        // 优先攻击有嘲讽的随从
+        for (let i = 0; i < playerMinions.length; i++) {
+          const minion = playerMinions[i];
+          if (minion && minion.health > 0 && minion.getKeywords().includes('taunt')) {
+            targetIndex = i;
+            break;
+          }
+        }
+
+        // 如果没有嘲讽随从，随机选择一个目标
+        if (targetIndex === -1) {
+          const validTargets: any[] = playerMinions
+            .map((minion, index) => ({ minion, index }))
+            .filter(({ minion }) => minion !== undefined && minion.health > 0);
+
+          if (validTargets.length === 0) {
+            continue;
+          }
+
+          const randomIndex = Math.floor(Math.random() * validTargets.length);
+          targetIndex = validTargets[randomIndex].index;
+        }
+
+        const target = playerMinions[targetIndex];
+        if (!target || target.health <= 0) {
+          continue;
+        }
+
+        // 执行攻击动画
+        await executeAttackAnimation('enemy', attackUnit.index);
+
+        // 记录攻击信息
+        internalBattleLog.value.push(`${attacker.nameCN} 攻击了 ${target.nameCN}`);
+
+        // 获取攻击力
+        let attackerDamage = attacker.getAttack();
+        let targetDamage = target.getAttack();
+
+        // 处理攻击者受到的伤害
+        const attackerHadDivineShield = attacker.hasDivineShield || false;
+        let attackerDied = false;
+
+        // 手动处理伤害
+        if (attackerHadDivineShield) {
+          // 圣盾吸收所有伤害
+          attacker.hasDivineShield = false;
+          console.log(`敌方攻击者的圣盾吸收了 ${targetDamage} 点伤害`);
+        } else {
+          // 直接扣除生命值
+          attacker.health = Math.max(0, (attacker.health || 0) - targetDamage);
+          attackerDied = (attacker.health || 0) <= 0;
+          console.log(`敌方攻击者受到了 ${targetDamage} 点伤害，剩余生命值: ${attacker.health}`);
+        }
+        if (attackerHadDivineShield && !attacker.hasDivineShield) {
+          // 圣盾被打破，执行圣盾消失动画
+          await executeDivineShieldBrokenAnimation('enemy', attackUnit.index);
+          internalBattleLog.value.push(`${attacker.nameCN} 的圣盾被打破了！`);
+        } else if (!attackerHadDivineShield) {
+          // 执行伤害动画
+          await executeDamageAnimation('enemy', attackUnit.index, targetDamage);
+          internalBattleLog.value.push(
+            `${attacker.nameCN} 受到了 ${targetDamage} 点伤害，剩余生命值: ${attacker.health}`
+          );
+
+          if (attackerDied) {
+            // 执行死亡动画
+            await executeDeathAnimation('enemy', attackUnit.index);
+            // 移除死亡随从并顶格处理
+            enemyMinions.splice(attackUnit.index, 1);
+            enemyMinions.push(undefined);
+            internalBattleLog.value.push(`${attacker.nameCN} 被杀死了！`);
+          }
+        }
+
+        // 处理目标受到的伤害
+        const targetHadDivineShield = target.hasDivineShield || false;
+        let targetDied = false;
+
+        // 手动处理伤害
+        if (targetHadDivineShield) {
+          // 圣盾吸收所有伤害
+          target.hasDivineShield = false;
+          console.log(`敌方攻击目标的圣盾吸收了 ${attackerDamage} 点伤害`);
+        } else {
+          // 直接扣除生命值
+          target.health = Math.max(0, (target.health || 0) - attackerDamage);
+          targetDied = (target.health || 0) <= 0;
+          console.log(`敌方攻击目标受到了 ${attackerDamage} 点伤害，剩余生命值: ${target.health}`);
+        }
+
+        if (targetHadDivineShield && !target.hasDivineShield) {
+          // 圣盾被打破，执行圣盾消失动画
+          await executeDivineShieldBrokenAnimation('player', targetIndex);
+          internalBattleLog.value.push(`${target.nameCN} 的圣盾被打破了！`);
+        } else if (!targetHadDivineShield) {
+          // 执行伤害动画
+          await executeDamageAnimation('player', targetIndex, attackerDamage);
+          internalBattleLog.value.push(
+            `${target.nameCN} 受到了 ${attackerDamage} 点伤害，剩余生命值: ${target.health}`
+          );
+
+          if (targetDied) {
+            // 执行死亡动画
+            await executeDeathAnimation('player', targetIndex);
+            // 移除死亡随从并顶格处理
+            playerMinions.splice(targetIndex, 1);
+            playerMinions.push(undefined);
+            internalBattleLog.value.push(`${target.nameCN} 被杀死了！`);
+          }
+        }
+
+        // 标记为已攻击
+        attacker.hasAttacked = true;
+      }
+
+      // 检查战斗是否结束
+      const currentPlayerMinionCount = playerMinions.filter(m => m !== undefined).length;
+      const currentEnemyMinionCount = enemyMinions.filter(m => m !== undefined).length;
+
+      if (currentPlayerMinionCount === 0 || currentEnemyMinionCount === 0) {
+        battleEnded = true;
+        break;
+      }
+    }
+  }
+
+  // 计算战斗结果
+  const playerMinionCount = playerMinions.filter(m => m !== undefined).length;
+  const enemyMinionCount = enemyMinions.filter(m => m !== undefined).length;
+
+  const result = {
+    winner: 'draw',
+    playerHealthChange: 0,
+    enemyHealthChange: 0,
+    playerMinionsLeft: playerMinionCount,
+    enemyMinionsLeft: enemyMinionCount,
+  };
+
+  if (playerMinionCount > 0 && enemyMinionCount === 0) {
+    // 玩家获胜
+    result.winner = 'player';
+    // 计算对敌方英雄的伤害
+    result.enemyHealthChange = -playerMinionCount;
+  } else if (enemyMinionCount > 0 && playerMinionCount === 0) {
+    // 敌方获胜
+    result.winner = 'enemy';
+    // 计算对玩家英雄的伤害
+    result.playerHealthChange = -enemyMinionCount;
+  }
+
+  // 记录战斗结果
+  internalBattleResult.value = result;
+  internalBattleLog.value.push(`战斗结束！`);
+  internalBattleLog.value.push(
+    `胜利者: ${result.winner === 'player' ? '玩家' : result.winner === 'enemy' ? '敌方' : '平局'}`
+  );
+  internalBattleLog.value.push(`玩家剩余随从: ${result.playerMinionsLeft}`);
+  internalBattleLog.value.push(`敌方剩余随从: ${result.enemyMinionsLeft}`);
+  internalBattleLog.value.push(`玩家生命值变化: ${result.playerHealthChange}`);
+  internalBattleLog.value.push(`敌方生命值变化: ${result.enemyHealthChange}`);
+
+  // 显示战斗结果弹窗
+  showResultModal.value = true;
+
+  // 通知父组件战斗完成
+  emit('battle-completed', result, internalBattleLog.value);
 
   isBattleRunning.value = false;
-  console.log('战斗结束', internalBattleResult.value);
-};
-
-// 执行单个战斗步骤
-const executeNextBattleStep = async () => {
-  // 获取下一个战斗步骤
-  const step = BattleManager.executeNextBattleStep();
-
-  if (!step) {
-    // 战斗结束
-    return;
-  }
-
-  currentStepIndex.value++;
-  console.log(`执行步骤 ${currentStepIndex.value}:`, step.type);
-
-  // 根据步骤类型执行不同的处理
-  switch (step.type) {
-    case 'attack':
-      // 保存当前攻击步骤
-      currentAttackStep.value = step;
-      // 执行攻击动画
-      await executeAttackAnimation(step);
-      // 动画完成后执行攻击伤害
-      const damageSteps = BattleManager.executeAttackDamage(step);
-      // 添加到步骤列表
-      battleSteps.value.push(...damageSteps);
-      // 执行伤害动画
-      for (const damageStep of damageSteps) {
-        await executeDamageAnimation(damageStep);
-      }
-      // 1. 获取死亡步骤
-      const deathSteps = BattleManager.executeDeath(currentAttackStep.value);
-      // 2. 添加到步骤列表
-      battleSteps.value.push(...deathSteps);
-      // 3. 播放死亡动画
-      for (const deathStep of deathSteps) {
-        await executeDeathAnimation(deathStep);
-      }
-      // 4. 执行实际的死亡数据处理（移除随从并补位）
-      BattleManager.processDeathData(currentAttackStep.value);
-      // 5. 继续执行下一个步骤
-      await executeNextBattleStep();
-      break;
-    case 'damage':
-      // 直接执行伤害动画
-      await executeDamageAnimation(step);
-      await executeNextBattleStep();
-      break;
-    case 'death':
-      // 直接执行死亡动画
-      await executeDeathAnimation(step);
-      await executeNextBattleStep();
-      break;
-    case 'divine_shield_broken':
-      // 执行圣盾消失动画
-      await executeDivineShieldBrokenAnimation(step);
-      await executeNextBattleStep();
-      break;
-    case 'battle_end':
-      // 战斗结束
-      internalBattleResult.value = step.result;
-      // 记录战斗结果
-      internalBattleLog.value.push(`战斗结束！`);
-      internalBattleLog.value.push(
-        `胜利者: ${step.result.winner === 'player' ? '玩家' : step.result.winner === 'enemy' ? '敌方' : '平局'}`
-      );
-      internalBattleLog.value.push(`玩家剩余随从: ${step.result.playerMinionsLeft}`);
-      internalBattleLog.value.push(`敌方剩余随从: ${step.result.enemyMinionsLeft}`);
-      internalBattleLog.value.push(`玩家生命值变化: ${step.result.playerHealthChange}`);
-      internalBattleLog.value.push(`敌方生命值变化: ${step.result.enemyHealthChange}`);
-
-      // 显示战斗结果弹窗
-      showResultModal.value = true;
-
-      // 通知父组件战斗完成
-      emit('battle-completed', step.result, internalBattleLog.value);
-      break;
-  }
-};
-
-// 执行攻击动画
-const executeAttackAnimation = async (step: any) => {
-  console.log('执行攻击动画:', step);
-
-  // 设置攻击者动画状态
-  cardAnimations.value[step.attackerSide][step.attackerIndex].isAttacking = true;
-
-  // 等待攻击动画完成
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  // 重置攻击者动画状态
-  cardAnimations.value[step.attackerSide][step.attackerIndex].isAttacking = false;
-};
-
-// 执行伤害动画
-const executeDamageAnimation = async (step: any) => {
-  console.log('执行伤害动画:', step);
-
-  // 设置受伤害动画状态
-  cardAnimations.value[step.side][step.index].isDamaged = true;
-  cardAnimations.value[step.side][step.index].damage = step.damage;
-
-  // 等待伤害动画完成
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  // 重置伤害动画状态
-  cardAnimations.value[step.side][step.index].isDamaged = false;
-  cardAnimations.value[step.side][step.index].damage = 0;
-};
-
-// 执行死亡动画
-const executeDeathAnimation = async (step: any) => {
-  console.log('执行死亡动画:', step);
-
-  // 设置死亡动画状态
-  cardAnimations.value[step.side][step.index].isDying = true;
-
-  // 等待死亡动画完成
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  // 重置死亡动画状态
-  cardAnimations.value[step.side][step.index].isDying = false;
-};
-
-// 执行圣盾消失动画
-const executeDivineShieldBrokenAnimation = async (step: any) => {
-  console.log('执行圣盾消失动画:', step);
-
-  // 圣盾消失动画可以使用伤害动画的效果，或者单独设计
-  // 这里简单处理，等待一段时间
-  await new Promise(resolve => setTimeout(resolve, 300));
+  console.log('战斗结束', result);
 };
 
 // 组件挂载时，如果autoStart为true，则自动执行战斗

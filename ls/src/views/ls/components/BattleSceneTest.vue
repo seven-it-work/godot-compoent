@@ -36,8 +36,8 @@ import type { BattleResult } from '../../../game/BattleManager';
 
 // 战斗数据
 
-const enemyMinions = ref<(Minion | null)[]>([]);
-const playerMinions = ref<(Minion | null)[]>([]);
+const enemyMinions = ref<(Minion | undefined)[]>([]);
+const playerMinions = ref<(Minion | undefined)[]>([]);
 const enemyHealth = ref(30);
 const enemyArmor = ref(5);
 const playerHealth = ref(30);
@@ -70,8 +70,8 @@ const initBattleData = () => {
         minionAsMinion.position = 0;
         return minionAsMinion;
       }
-      return null;
-    })() as Minion | null,
+      return undefined;
+    })() as Minion | undefined,
 
     (() => {
       const SouthseaBuskerClass = getMinionClassByStrId('BG26_135'); // SouthseaBusker的strId
@@ -82,8 +82,8 @@ const initBattleData = () => {
         minionAsMinion.position = 1;
         return minionAsMinion;
       }
-      return null;
-    })() as Minion | null,
+      return undefined;
+    })() as Minion | undefined,
 
     (() => {
       const DuneDwellerClass = getMinionClassByStrId('BG31_815'); // DuneDweller的strId
@@ -94,17 +94,17 @@ const initBattleData = () => {
         minionAsMinion.position = 2;
         return minionAsMinion;
       }
-      return null;
-    })() as Minion | null,
+      return undefined;
+    })() as Minion | undefined,
 
-    null,
+    undefined,
 
-    null,
+    undefined,
 
-    null,
+    undefined,
 
-    null,
-  ] as (Minion | null)[];
+    undefined,
+  ] as (Minion | undefined)[];
 
   // 初始化玩家随从
 
@@ -118,8 +118,8 @@ const initBattleData = () => {
         minionAsMinion.position = 0;
         return minionAsMinion;
       }
-      return null;
-    })() as Minion | null,
+      return undefined;
+    })() as Minion | undefined,
 
     (() => {
       const LullabotClass = getMinionClassByStrId('BG26_146'); // Lullabot的strId
@@ -130,8 +130,8 @@ const initBattleData = () => {
         minionAsMinion.position = 1;
         return minionAsMinion;
       }
-      return null;
-    })() as Minion | null,
+      return undefined;
+    })() as Minion | undefined,
 
     (() => {
       const AlleycatClass = getMinionClassByStrId('BG_CFM_315'); // Alleycat的strId
@@ -142,8 +142,8 @@ const initBattleData = () => {
         minionAsMinion.position = 2;
         return minionAsMinion;
       }
-      return null;
-    })() as Minion | null,
+      return undefined;
+    })() as Minion | undefined,
 
     (() => {
       const RisenRiderClass = getMinionClassByStrId('BG25_001'); // RisenRider的strId
@@ -154,15 +154,15 @@ const initBattleData = () => {
         minionAsMinion.position = 3;
         return minionAsMinion;
       }
-      return null;
-    })() as Minion | null,
+      return undefined;
+    })() as Minion | undefined,
 
-    null,
+    undefined,
 
-    null,
+    undefined,
 
-    null,
-  ] as (Minion | null)[];
+    undefined,
+  ] as (Minion | undefined)[];
 };
 
 // 开始战斗

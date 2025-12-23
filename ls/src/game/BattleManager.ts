@@ -384,10 +384,6 @@ export class BattleManager {
       } else {
         this.removeMinionAndShift(state.enemyMinions, targetIndex);
       }
-
-      console.log(
-        `${attackerSide === 'player' ? '玩家' : '敌方'}随从 ${attacker.nameCN} 杀死了${targetSide === 'player' ? '玩家' : '敌方'}随从 ${target.nameCN}`
-      );
     }
 
     // 检查攻击者是否死亡
@@ -398,10 +394,6 @@ export class BattleManager {
       } else {
         this.removeMinionAndShift(state.enemyMinions, attackerIndex);
       }
-
-      console.log(
-        `${attackerSide === 'player' ? '玩家' : '敌方'}随从 ${attacker.nameCN} 被${targetSide === 'player' ? '玩家' : '敌方'}随从 ${target.nameCN} 杀死`
-      );
     }
   }
 
@@ -462,8 +454,8 @@ export class BattleManager {
    * @returns 战斗结果
    */
   static executeBattle(
-    playerMinions: any[],
-    enemyMinions: any[],
+    playerMinions: (Minion | null)[],
+    enemyMinions: (Minion | null)[],
     playerTavernLevel: number = 1,
     enemyTavernLevel: number = 1
   ): BattleExecutionResult {
@@ -472,8 +464,12 @@ export class BattleManager {
     const steps: BattleStep[] = [];
 
     // 复制随从列表，避免修改原数据
-    const playerMinionsCopy = JSON.parse(JSON.stringify(playerMinions));
-    const enemyMinionsCopy = JSON.parse(JSON.stringify(enemyMinions));
+    const playerMinionsCopy = playerMinions.map(minion =>
+      minion ? Object.assign(Object.create(Minion.prototype), minion) : null
+    );
+    const enemyMinionsCopy = enemyMinions.map(minion =>
+      minion ? Object.assign(Object.create(Minion.prototype), minion) : null
+    );
 
     // 计算初始随从数量
     let playerMinionCount = playerMinionsCopy.filter(minion => minion !== null).length;
