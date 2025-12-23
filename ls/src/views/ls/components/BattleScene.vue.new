@@ -1,0 +1,1002 @@
+<template>
+  <div class="battle-scene">
+    <div class="battle-main">
+      <!-- 敌方区域：左侧 -->
+      <div class="battle-side enemy-side">
+        <!-- 7个随从位置，从上到下排列 -->
+        <div class="battle-card-row" v-for="i in 7" :key="`enemy-${i}`">
+          <BattleCard
+            :card-id="`enemy-slot-${i}`"
+            :data="enemyMinions[i - 1]"
+            :is-enemy="true"
+            :is-attacking="cardAnimations.enemy[i - 1].isAttacking"
+            :is-damaged="cardAnimations.enemy[i - 1].isDamaged"
+            :damage="cardAnimations.enemy[i - 1].damage"
+            :is-dying="cardAnimations.enemy[i - 1].isDying"
+          ></BattleCard>
+        </div>
+      </div>
+
+      <!-- 玩家区域：右侧 -->
+      <div class="battle-side player-side">
+        <!-- 7个随从位置，从上到下排列 -->
+
+        <div class="battle-card-row" v-for="i in 7" :key="`player-${i}`">
+          <BattleCard
+            :card-id="`player-slot-${i}`"
+            :data="playerMinions[i - 1]"
+            :is-enemy="false"
+            :is-attacking="cardAnimations.player[i - 1].isAttacking"
+            :is-damaged="cardAnimations.player[i - 1].isDamaged"
+            :damage="cardAnimations.player[i - 1].damage"
+            :is-dying="cardAnimations.player[i - 1].isDying"
+          ></BattleCard>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部战斗信息 -->
+    <div class="battle-info">
+      <div class="battle-controls">
+        <div>
+          敌人队伍
+          <div>生命值：{{ enemyHealth }}</div>
+          <div>护甲值：{{ enemyArmor }}</div>
+        </div>
+        <div class="battle-action-area">
+          <button @click="showLogModal = true">查看战斗日志</button>
+        </div>
+        <div>
+          玩家队伍
+          <div>生命值：{{ playerHealth }}</div>
+          <div>护甲值：{{ playerArmor }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 战斗结果弹窗 -->
+    <Modal v-model:open="showResultModal" title="战斗结果" :footer="null" width="600px">
+      <div v-if="internalBattleResult" class="battle-result-content">
+        <div class="result-winner">
+          <h3>
+            胜利者:
+            <span
+              :class="
+                internalBattleResult.winner === 'player'
+                  ? 'winner-player'
+                  : internalBattleResult.winner === 'enemy'
+                    ? 'winner-enemy'
+                    : 'winner-draw'
+              "
+            >
+              {{ 
+                internalBattleResult.winner === 'player'
+                  ? '玩家'
+                  : internalBattleResult.winner === 'enemy'
+                    ? '敌方'
+                    : '平局'
+              }}
+            </span>
+          </h3>
+        </div>
+        <div class="result-stats">
+          <div class="stat-item">
+            <strong>剩余随从:</strong>
+            <span
+              >玩家 {{ internalBattleResult.playerMinionsLeft }} / 敌方
+              {{ internalBattleResult.enemyMinionsLeft }}</span
+            >
+          </div>
+          <div class="stat-item">
+            <strong>生命值变化:</strong>
+            <span
+              >玩家 {{ internalBattleResult.playerHealthChange }} / 敌方
+              {{ internalBattleResult.enemyHealthChange }}</span
+            >
+          </div>
+        </div>
+        <div class="result-buttons">
+          <Button type="primary" @click="showResultModal = false">关闭</Button>
+        </div>
+      </div>
+    </Modal>
+
+    <!-- 战斗日志弹窗 -->
+    <Modal v-model:open="showLogModal" title="战斗日志" :footer="null" width="800px" height="600px">
+      <div class="battle-log-content">
+        <div v-if="internalBattleLog.length > 0" class="log-list">
+          <div v-for="(log, index) in internalBattleLog" :key="index" class="log-item">
+            {{ index + 1 }}. {{ log }}
+          </div>
+        </div>
+        <div v-else class="no-log">暂无战斗日志</div>
+        <div class="log-buttons">
+          <Button type="primary" @click="showLogModal = false">关闭</Button>
+        </div>
+      </div>
+    </Modal>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { Modal, Button } from 'ant-design-vue';
+import BattleCard from './BattleCard.vue';
+import { Minion, MinionKeyword } from '../../../game/Minion';
+
+/**
+ * 战斗步骤类型枚举
+ */
+enum BattleStepType {
+  ATTACK = 'attack', // 攻击动作
+  DAMAGE = 'damage', // 显示伤害
+  DEATH = 'death', // 随从死亡
+  DIVINE_SHIELD_BROKEN = 'divine_shield_broken', // 圣盾消失
+  BATTLE_END = 'battle_end', // 战斗结束
+}
+
+/**
+ * 攻击步骤数据
+ */
+interface AttackStep {
+  type: BattleStepType.ATTACK;
+  attackerSide: 'player' | 'enemy';
+  attackerIndex: number;
+  attacker: Minion;
+  targetSide: 'player' | 'enemy';
+  targetIndex: number;
+  target: Minion;
+}
+
+/**
+ * 伤害步骤数据
+ */
+interface DamageStep {
+  type: BattleStepType.DAMAGE;
+  side: 'player' | 'enemy';
+  index: number;
+  minion: Minion;
+  damage: number;
+  isAttacker: boolean;
+}
+
+/**
+ * 死亡步骤数据
+ */
+interface DeathStep {
+  type: BattleStepType.DEATH;
+  side: 'player' | 'enemy';
+  index: number;
+  minion: Minion;
+}
+
+/**
+ * 圣盾消失步骤数据
+ */
+interface DivineShieldBrokenStep {
+  type: BattleStepType.DIVINE_SHIELD_BROKEN;
+  side: 'player' | 'enemy';
+  index: number;
+  minion: Minion;
+}
+
+/**
+ * 战斗结束步骤数据
+ */
+interface BattleEndStep {
+  type: BattleStepType.BATTLE_END;
+  result: BattleResult;
+}
+
+/**
+ * 战斗步骤联合类型
+ */
+type BattleStep =
+  | AttackStep
+  | DamageStep
+  | DeathStep
+  | DivineShieldBrokenStep
+  | BattleEndStep;
+
+/**
+ * 战斗结果类型
+ */
+interface BattleResult {
+  winner: 'player' | 'enemy' | 'draw';
+  playerHealthChange: number;
+  enemyHealthChange: number;
+  playerMinionsLeft: number;
+  enemyMinionsLeft: number;
+}
+
+/**
+ * 战斗执行结果，包含步骤队列和最终结果
+ */
+interface BattleExecutionResult {
+  steps: BattleStep[];
+  finalResult: BattleResult;
+}
+
+/**
+ * 确定玩家是否先攻击
+ * @param playerMinionCount 玩家的随从数量
+ * @param enemyMinionCount 敌方的随从数量
+ * @param playerTavernLevel 玩家的酒馆等级
+ * @param enemyTavernLevel 敌方的酒馆等级
+ * @returns 玩家是否先攻击
+ */
+const shouldPlayerAttackFirst = (
+  playerMinionCount: number,
+  enemyMinionCount: number,
+  playerTavernLevel: number,
+  enemyTavernLevel: number
+): boolean => {
+  // 1. 随从数量多的一方先攻击
+  if (playerMinionCount > enemyMinionCount) {
+    return true;
+  } else if (playerMinionCount < enemyMinionCount) {
+    return false;
+  }
+  // 2. 随从数量相同时，酒馆等级高的一方先攻击
+  if (playerTavernLevel > enemyTavernLevel) {
+    return true;
+  } else if (playerTavernLevel < enemyTavernLevel) {
+    return false;
+  }
+  // 3. 酒馆等级相同时，随机决定（默认玩家先攻击）
+  return true;
+};
+
+/**
+ * 找到攻击目标
+ * @param defenders 防御方的随从列表
+ * @returns 攻击目标的索引，-1表示没有目标
+ */
+const findAttackTarget = (defenders: (Minion | null)[]): number => {
+  // 1. 优先攻击有嘲讽的随从
+  const tauntTargets = defenders
+    .map((minion, index) => ({ minion, index }))
+    .filter(({ minion }) => minion && minion.getKeywords().includes(MinionKeyword.TAUNT));
+  if (tauntTargets.length > 0) {
+    // 随机选择一个嘲讽随从
+    const randomIndex = Math.floor(Math.random() * tauntTargets.length);
+    const target = tauntTargets[randomIndex];
+    if (target) {
+      return target.index;
+    }
+  }
+  // 2. 没有嘲讽时，随机攻击一个随从
+  const validTargets = defenders
+    .map((minion, index) => ({ minion, index }))
+    .filter(({ minion }) => minion !== null);
+  if (validTargets.length > 0) {
+    const randomIndex = Math.floor(Math.random() * validTargets.length);
+    const target = validTargets[randomIndex];
+    if (target) {
+      return target.index;
+    }
+  }
+  // 3. 没有可攻击的目标
+  return -1;
+};
+
+/**
+ * 执行攻击
+ * @param attacker 攻击者
+ * @param defender 防御者
+ */
+const executeAttack = (
+  attacker: Minion,
+  defender: Minion,
+  attackerSide: 'player' | 'enemy',
+  attackerIndex: number,
+  defenderSide: 'player' | 'enemy',
+  defenderIndex: number
+): BattleStep[] => {
+  const steps: BattleStep[] = [];
+  console.log(
+    `攻击: ${attacker.nameCN} (${attacker.getAttack()}) -> ${defender.nameCN} (${defender.health})`
+  );
+  // 1. 检查攻击者是否有圣盾
+  if (attacker.hasDivineShield) {
+    attacker.hasDivineShield = false;
+    console.log(`${attacker.nameCN} 失去了圣盾`);
+    // 添加圣盾消失步骤
+    steps.push({
+      type: BattleStepType.DIVINE_SHIELD_BROKEN,
+      side: attackerSide,
+      index: attackerIndex,
+      minion: attacker,
+    });
+  } else {
+    // 2. 攻击者受到防御者的攻击力伤害
+    const damageToAttacker = defender.getAttack();
+    attacker.health -= damageToAttacker;
+    console.log(
+      `${attacker.nameCN} 受到了 ${damageToAttacker} 点伤害，剩余生命值: ${attacker.health}`
+    );
+    // 添加伤害步骤
+    steps.push({
+      type: BattleStepType.DAMAGE,
+      side: attackerSide,
+      index: attackerIndex,
+      minion: attacker,
+      damage: damageToAttacker,
+      isAttacker: true,
+    });
+  }
+  // 3. 检查防御者是否有圣盾
+  if (defender.hasDivineShield) {
+    defender.hasDivineShield = false;
+    console.log(`${defender.nameCN} 失去了圣盾`);
+    // 添加圣盾消失步骤
+    steps.push({
+      type: BattleStepType.DIVINE_SHIELD_BROKEN,
+      side: defenderSide,
+      index: defenderIndex,
+      minion: defender,
+    });
+  } else {
+    // 4. 防御者受到攻击者的攻击力伤害
+    const damageToDefender = attacker.getAttack();
+    defender.health -= damageToDefender;
+    console.log(
+      `${defender.nameCN} 受到了 ${damageToDefender} 点伤害，剩余生命值: ${defender.health}`
+    );
+    // 添加伤害步骤
+    steps.push({
+      type: BattleStepType.DAMAGE,
+      side: defenderSide,
+      index: defenderIndex,
+      minion: defender,
+      damage: damageToDefender,
+      isAttacker: false,
+    });
+  }
+  return steps;
+};
+
+/**
+ * 执行玩家随从的攻击
+ * @param playerMinions 玩家的随从列表
+ * @param enemyMinions 敌方的随从列表
+ */
+const executePlayerAttacks = (
+  playerMinions: (Minion | null)[],
+  enemyMinions: (Minion | null)[],
+  steps: BattleStep[]
+): void => {
+  // 遍历玩家的每个随从，从左到右
+  for (let i = 0; i < playerMinions.length; i++) {
+    const attacker = playerMinions[i];
+    if (!attacker) continue;
+    // 跳过已经攻击过的随从
+    if (attacker.hasAttacked) continue;
+    // 找到攻击目标
+    const targetIndex = findAttackTarget(enemyMinions);
+    if (targetIndex === -1) continue;
+    const target = enemyMinions[targetIndex];
+    if (!target) continue;
+    // 添加攻击步骤
+    steps.push({
+      type: BattleStepType.ATTACK,
+      attackerSide: 'player',
+      attackerIndex: i,
+      attacker,
+      targetSide: 'enemy',
+      targetIndex,
+      target,
+    });
+    // 执行攻击并获取伤害步骤
+    const attackSteps = executeAttack(attacker, target, 'player', i, 'enemy', targetIndex);
+    steps.push(...attackSteps);
+    // 标记为已攻击
+    attacker.hasAttacked = true;
+    // 检查目标是否死亡
+    if (target.health <= 0) {
+      steps.push({
+        type: BattleStepType.DEATH,
+        side: 'enemy',
+        index: targetIndex,
+        minion: target,
+      });
+      enemyMinions[targetIndex] = null;
+      console.log(`玩家随从 ${attacker.nameCN} 杀死了敌方随从 ${target.nameCN}`);
+    }
+    // 检查攻击者是否死亡
+    if (attacker.health <= 0) {
+      steps.push({
+        type: BattleStepType.DEATH,
+        side: 'player',
+        index: i,
+        minion: attacker,
+      });
+      playerMinions[i] = null;
+      console.log(`玩家随从 ${attacker.nameCN} 被敌方随从 ${target.nameCN} 杀死`);
+    }
+  }
+};
+
+/**
+ * 执行敌方随从的攻击
+ * @param enemyMinions 敌方的随从列表
+ * @param playerMinions 玩家的随从列表
+ */
+const executeEnemyAttacks = (
+  enemyMinions: (Minion | null)[],
+  playerMinions: (Minion | null)[],
+  steps: BattleStep[]
+): void => {
+  // 遍历敌方的每个随从，从左到右
+  for (let i = 0; i < enemyMinions.length; i++) {
+    const attacker = enemyMinions[i];
+    if (!attacker) continue;
+    // 跳过已经攻击过的随从
+    if (attacker.hasAttacked) continue;
+    // 找到攻击目标
+    const targetIndex = findAttackTarget(playerMinions);
+    if (targetIndex === -1) continue;
+    const target = playerMinions[targetIndex];
+    if (!target) continue;
+    // 添加攻击步骤
+    steps.push({
+      type: BattleStepType.ATTACK,
+      attackerSide: 'enemy',
+      attackerIndex: i,
+      attacker,
+      targetSide: 'player',
+      targetIndex,
+      target,
+    });
+    // 执行攻击并获取伤害步骤
+    const attackSteps = executeAttack(attacker, target, 'enemy', i, 'player', targetIndex);
+    steps.push(...attackSteps);
+    // 标记为已攻击
+    attacker.hasAttacked = true;
+    // 检查目标是否死亡
+    if (target.health <= 0) {
+      steps.push({
+        type: BattleStepType.DEATH,
+        side: 'player',
+        index: targetIndex,
+        minion: target,
+      });
+      playerMinions[targetIndex] = null;
+      console.log(`敌方随从 ${attacker.nameCN} 杀死了玩家随从 ${target.nameCN}`);
+    }
+    // 检查攻击者是否死亡
+    if (attacker.health <= 0) {
+      steps.push({
+        type: BattleStepType.DEATH,
+        side: 'enemy',
+        index: i,
+        minion: attacker,
+      });
+      enemyMinions[i] = null;
+      console.log(`敌方随从 ${attacker.nameCN} 被玩家随从 ${target.nameCN} 杀死`);
+    }
+  }
+};
+
+/**
+ * 计算对英雄的伤害
+ * @param remainingMinions 剩余的随从列表
+ * @returns 对英雄造成的伤害
+ */
+const calculateHeroDamage = (remainingMinions: (Minion | null)[]): number => {
+  // 计算所有剩余随从的攻击力总和
+  return remainingMinions.reduce((total, minion) => {
+    if (!minion) return total;
+    return total + minion.getAttack();
+  }, 0);
+};
+
+/**
+ * 执行战斗流程
+ * @param playerMinions 玩家的随从列表
+ * @param enemyMinions 敌方的随从列表
+ * @param playerTavernLevel 玩家的酒馆等级
+ * @param enemyTavernLevel 敌方的酒馆等级
+ * @returns 战斗结果
+ */
+const executeBattle = (
+  playerMinions: any[],
+  enemyMinions: any[],
+  playerTavernLevel: number = 1,
+  enemyTavernLevel: number = 1
+): BattleExecutionResult => {
+  console.log('开始执行战斗');
+  // 复制随从列表，避免修改原数据
+  const playerMinionsCopy = [...playerMinions];
+  const enemyMinionsCopy = [...enemyMinions];
+  // 初始化战斗步骤队列
+  const steps: BattleStep[] = [];
+  // 计算初始随从数量
+  let playerMinionCount = playerMinionsCopy.filter(minion => minion !== null).length;
+  let enemyMinionCount = enemyMinionsCopy.filter(minion => minion !== null).length;
+  // 确定谁先攻击
+  const playerAttacksFirst = shouldPlayerAttackFirst(
+    playerMinionCount,
+    enemyMinionCount,
+    playerTavernLevel,
+    enemyTavernLevel
+  );
+  console.log(`玩家随从数量: ${playerMinionCount}, 敌方随从数量: ${enemyMinionCount}`);
+  console.log(`玩家酒馆等级: ${playerTavernLevel}, 敌方酒馆等级: ${enemyTavernLevel}`);
+  console.log(`玩家先攻击: ${playerAttacksFirst}`);
+  // 执行战斗回合，直到一方没有随从
+  let currentAttacker = playerAttacksFirst ? 'player' : 'enemy';
+  let battleRound = 0;
+  while (playerMinionCount > 0 && enemyMinionCount > 0 && battleRound < 100) {
+    battleRound++;
+    console.log(`\n===== 战斗回合 ${battleRound} =====`);
+    console.log(`当前攻击者: ${currentAttacker}`);
+    if (currentAttacker === 'player') {
+      // 玩家随从攻击敌方随从
+      executePlayerAttacks(playerMinionsCopy, enemyMinionsCopy, steps);
+    } else {
+      // 敌方随从攻击玩家随从
+      executeEnemyAttacks(enemyMinionsCopy, playerMinionsCopy, steps);
+    }
+    // 更新随从数量
+    playerMinionCount = playerMinionsCopy.filter(minion => minion !== null).length;
+    enemyMinionCount = enemyMinionsCopy.filter(minion => minion !== null).length;
+    // 切换攻击者
+    currentAttacker = currentAttacker === 'player' ? 'enemy' : 'player';
+    console.log(
+      `回合结束 - 玩家剩余随从: ${playerMinionCount}, 敌方剩余随从: ${enemyMinionCount}`
+    );
+  }
+  // 计算战斗结果
+  const result: BattleResult = {
+    winner: 'draw',
+    playerHealthChange: 0,
+    enemyHealthChange: 0,
+    playerMinionsLeft: playerMinionCount,
+    enemyMinionsLeft: enemyMinionCount,
+  };
+  // 如果一方没有随从了，计算对英雄的伤害
+  if (playerMinionCount === 0 && enemyMinionCount > 0) {
+    // 敌方获胜，计算对玩家英雄的伤害
+    const damageToPlayer = calculateHeroDamage(enemyMinionsCopy);
+    result.winner = 'enemy';
+    result.playerHealthChange = -damageToPlayer;
+    console.log(`敌方获胜，对玩家造成 ${damageToPlayer} 点伤害`);
+  } else if (enemyMinionCount === 0 && playerMinionCount > 0) {
+    // 玩家获胜，计算对敌方英雄的伤害
+    const damageToEnemy = calculateHeroDamage(playerMinionsCopy);
+    result.winner = 'player';
+    result.enemyHealthChange = -damageToEnemy;
+    console.log(`玩家获胜，对敌方造成 ${damageToEnemy} 点伤害`);
+  } else {
+    // 平局
+    result.winner = 'draw';
+    console.log('战斗平局');
+  }
+  // 添加战斗结束步骤
+  steps.push({
+    type: BattleStepType.BATTLE_END,
+    result,
+  });
+  return {
+    steps,
+    finalResult: result,
+  };
+};
+
+// 接收外部传入的参数
+const props = withDefaults(
+  defineProps<{
+    enemyMinions: any[];
+    playerMinions: any[];
+    enemyHealth: number;
+    enemyArmor: number;
+    playerHealth: number;
+    playerArmor: number;
+    autoStart?: boolean;
+    playerTavernLevel?: number;
+    enemyTavernLevel?: number;
+  }>(),
+  {
+    enemyMinions: () => Array(7).fill(null),
+    playerMinions: () => Array(7).fill(null),
+    enemyHealth: 30,
+    enemyArmor: 0,
+    playerHealth: 30,
+    playerArmor: 0,
+    autoStart: false,
+    playerTavernLevel: 1,
+    enemyTavernLevel: 1,
+  }
+);
+
+// 定义事件
+const emit = defineEmits<{
+  (e: 'exit-battle'): void;
+  (e: 'battle-completed', result: BattleResult, log: string[]): void;
+}>();
+
+// 弹窗状态
+const showResultModal = ref(false);
+const showLogModal = ref(false);
+// 战斗状态
+const isBattleRunning = ref(false);
+// 内部战斗结果和日志
+const internalBattleResult = ref<BattleResult | null>(null);
+const internalBattleLog = ref<string[]>([]);
+
+// 战斗步骤相关状态
+const currentStepIndex = ref(0);
+const battleSteps = ref<any[]>([]);
+const isExecutingSteps = ref(false);
+
+// 卡片动画状态
+const cardAnimations = ref({
+  player: Array(7)
+    .fill(null)
+    .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
+  enemy: Array(7)
+    .fill(null)
+    .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
+});
+
+// 重置卡片动画状态
+const resetCardAnimations = () => {
+  cardAnimations.value = {
+    player: Array(7)
+      .fill(null)
+      .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
+    enemy: Array(7)
+      .fill(null)
+      .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
+  };
+};
+
+// 执行战斗
+const executeBattleScene = async () => {
+  console.log('开始执行战斗');
+  isBattleRunning.value = true;
+  internalBattleLog.value = ['开始战斗...'];
+  internalBattleResult.value = null;
+
+  // 重置战斗状态
+  currentStepIndex.value = 0;
+  battleSteps.value = [];
+  resetCardAnimations();
+
+  // 记录当前状态
+  internalBattleLog.value.push(
+    `玩家随从数量: ${props.playerMinions.filter((m: any) => m !== null).length}`
+  );
+  internalBattleLog.value.push(
+    `敌方随从数量: ${props.enemyMinions.filter((m: any) => m !== null).length}`
+  );
+
+  // 执行战斗，获取战斗步骤
+  const battleExecutionResult = executeBattle(
+    props.playerMinions,
+    props.enemyMinions,
+    props.playerTavernLevel,
+    props.enemyTavernLevel
+  );
+
+  battleSteps.value = battleExecutionResult.steps;
+  internalBattleResult.value = battleExecutionResult.finalResult;
+
+  // 记录战斗结果
+  internalBattleLog.value.push(`战斗结束！`);
+  internalBattleLog.value.push(
+    `胜利者: ${battleExecutionResult.finalResult.winner === 'player' ? '玩家' : battleExecutionResult.finalResult.winner === 'enemy' ? '敌方' : '平局'}`
+  );
+  internalBattleLog.value.push(
+    `玩家剩余随从: ${battleExecutionResult.finalResult.playerMinionsLeft}`
+  );
+  internalBattleLog.value.push(
+    `敌方剩余随从: ${battleExecutionResult.finalResult.enemyMinionsLeft}`
+  );
+  internalBattleLog.value.push(
+    `玩家生命值变化: ${battleExecutionResult.finalResult.playerHealthChange}`
+  );
+  internalBattleLog.value.push(
+    `敌方生命值变化: ${battleExecutionResult.finalResult.enemyHealthChange}`
+  );
+
+  // 分步执行战斗步骤
+  await executeBattleSteps();
+
+  // 显示战斗结果弹窗
+  showResultModal.value = true;
+
+  // 通知父组件战斗完成
+  emit('battle-completed', battleExecutionResult.finalResult, internalBattleLog.value);
+
+  isBattleRunning.value = false;
+  console.log('战斗结束', battleExecutionResult.finalResult);
+};
+
+// 执行战斗步骤
+const executeBattleSteps = async () => {
+  isExecutingSteps.value = true;
+
+  for (let i = 0; i < battleSteps.value.length; i++) {
+    const step = battleSteps.value[i];
+    currentStepIndex.value = i;
+
+    console.log(`执行步骤 ${i + 1}:`, step.type);
+
+    // 根据步骤类型执行不同的动画
+    switch (step.type) {
+      case 'attack':
+        await executeAttackAnimation(step);
+        break;
+      case 'damage':
+        await executeDamageAnimation(step);
+        break;
+      case 'death':
+        await executeDeathAnimation(step);
+        break;
+      case 'divine_shield_broken':
+        await executeDivineShieldBrokenAnimation(step);
+        break;
+      case 'battle_end':
+        // 战斗结束，不需要动画
+        break;
+    }
+
+    // 等待一小段时间，让动画流畅执行
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  isExecutingSteps.value = false;
+};
+
+// 执行攻击动画
+const executeAttackAnimation = async (step: any) => {
+  console.log('执行攻击动画:', step);
+
+  // 设置攻击者动画状态
+  cardAnimations.value[step.attackerSide][step.attackerIndex].isAttacking = true;
+
+  // 等待攻击动画完成
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // 重置攻击者动画状态
+  cardAnimations.value[step.attackerSide][step.attackerIndex].isAttacking = false;
+};
+
+// 执行伤害动画
+const executeDamageAnimation = async (step: any) => {
+  console.log('执行伤害动画:', step);
+
+  // 设置受伤害动画状态
+  cardAnimations.value[step.side][step.index].isDamaged = true;
+  cardAnimations.value[step.side][step.index].damage = step.damage;
+
+  // 等待伤害动画完成
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // 重置伤害动画状态
+  cardAnimations.value[step.side][step.index].isDamaged = false;
+  cardAnimations.value[step.side][step.index].damage = 0;
+};
+
+// 执行死亡动画
+const executeDeathAnimation = async (step: any) => {
+  console.log('执行死亡动画:', step);
+
+  // 设置死亡动画状态
+  cardAnimations.value[step.side][step.index].isDying = true;
+
+  // 等待死亡动画完成
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // 重置死亡动画状态
+  cardAnimations.value[step.side][step.index].isDying = false;
+};
+
+// 执行圣盾消失动画
+const executeDivineShieldBrokenAnimation = async (step: any) => {
+  console.log('执行圣盾消失动画:', step);
+
+  // 圣盾消失动画可以使用伤害动画的效果，或者单独设计
+  // 这里简单处理，等待一段时间
+  await new Promise(resolve => setTimeout(resolve, 300));
+};
+
+// 组件挂载时，如果autoStart为true，则自动执行战斗
+onMounted(() => {
+  if (props.autoStart) {
+    executeBattleScene();
+  }
+});
+
+// 暴露方法给父组件
+defineExpose({
+  executeBattle: executeBattleScene,
+});
+</script>
+
+<style scoped>
+.battle-scene {
+  width: 100vw;
+  height: 100vh;
+  background-color: #1a1a2e;
+  color: white;
+  overflow: auto;
+}
+
+/* 中部对战区域 */
+.battle-main {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 2% 0;
+  background: radial-gradient(circle at center, #1a1a2e 0%, #0f0f1e 100%);
+}
+
+.battle-side {
+  width: 45%;
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 1%;
+  border-radius: 12px;
+  padding: 2%;
+  box-sizing: border-box;
+}
+
+.enemy-side {
+  border: 4px solid #e74c3c;
+  background: linear-gradient(180deg, #641e16 0%, #922b21 100%);
+}
+
+.player-side {
+  border: 4px solid #3498db;
+  background: linear-gradient(180deg, #154360 0%, #1f618d 100%);
+}
+
+.battle-card-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 底部战斗信息 */
+.battle-info {
+  background: linear-gradient(0deg, #16213e 0%, #0f3460 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+}
+
+.battle-controls {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+/* 战斗按钮区域 */
+.battle-action-area {
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+  align-items: center;
+}
+
+.battle-action-area button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  min-width: 120px;
+}
+
+.battle-action-area button:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+.battle-action-area button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* 战斗结果弹窗样式 */
+:deep(.battle-result-content) {
+  color: #333;
+}
+
+:deep(.result-winner) {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+:deep(.result-winner h3) {
+  margin: 0;
+  font-size: 24px;
+  color: #e67e22;
+}
+
+:deep(.winner-player) {
+  color: #2ecc71;
+  font-weight: bold;
+}
+
+:deep(.winner-enemy) {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+:deep(.winner-draw) {
+  color: #f1c40f;
+  font-weight: bold;
+}
+
+:deep(.result-stats) {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+:deep(.stat-item) {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+:deep(.stat-item:last-child) {
+  margin-bottom: 0;
+}
+
+:deep(.result-buttons) {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* 战斗日志弹窗样式 */
+:deep(.battle-log-content) {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+:deep(.log-list) {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+:deep(.log-item) {
+  padding: 5px 0;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+:deep(.log-item:last-child) {
+  border-bottom: none;
+}
+
+:deep(.no-log) {
+  text-align: center;
+  color: #999;
+  padding: 20px;
+}
+
+:deep(.log-buttons) {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+</style>
