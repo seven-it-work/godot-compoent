@@ -1,336 +1,273 @@
 <template>
   <div class="battle-scene">
-    <!-- 遮罩层 -->
-    <div v-if="showResultModal || showBattleLog" class="overlay" @click="showBattleLog = false"></div>
-
-    <!-- 战斗场景内容 -->
-    <div class="battle-area">
-      <!-- 敌方英雄 -->
-      <div class="hero-area">
-        <div class="enemy-hero">
-          <div class="hero-avatar">敌方英雄</div>
-          <div class="hero-info">
-            <div class="hero-health">
-              <span>❤️</span>
-              <span>{{ props.enemyHealth }}</span>
-            </div>
-            <div class="hero-attack">
-              <span>⚔️</span>
-              <span>{{ props.enemyAttack || 0 }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 英雄等级 -->
-        <div class="tavern-levels">
-          <div class="tavern-level enemy">敌方酒馆: {{ props.enemyTavernLevel }}</div>
-          <div class="tavern-level player">玩家酒馆: {{ props.playerTavernLevel }}</div>
-        </div>
-
-        <div class="player-hero">
-          <div class="hero-avatar">玩家英雄</div>
-          <div class="hero-info">
-            <div class="hero-health">
-              <span>❤️</span>
-              <span>{{ props.playerHealth }}</span>
-            </div>
-            <div class="hero-attack">
-              <span>⚔️</span>
-              <span>{{ props.playerAttack || 0 }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 随从区域 -->
-      <div class="minion-area">
-        <!-- 敌方随从 -->
-        <div class="enemy-minions">
+    <div class="battle-main">
+      <!-- 敌方区域：左侧 -->
+      <div class="battle-side enemy-side">
+        <!-- 7个随从位置，从上到下排列 -->
+        <div class="battle-card-row" v-for="i in 7" :key="`enemy-${i}`">
           <BattleCard
-            v-for="(minion, index) in props.enemyMinions"
-            :key="index"
-            :data="minion || null"
+            :card-id="`enemy-slot-${i}`"
+            :data="enemyMinions[i - 1]"
             :is-enemy="true"
-            :is-attacking="animatingAttacker?.side === 'enemy' && animatingAttacker?.index === index"
-            :is-damaged="animatingDamaged?.side === 'enemy' && animatingDamaged?.index === index"
-            :is-dying="animatingDying?.side === 'enemy' && animatingDying?.index === index"
-            :is-divine-shield-broken="animatingDivineShieldBroken?.side === 'enemy' && animatingDivineShieldBroken?.index === index"
-            :damage="damageValues['enemy'][index]"
-          />
-        </div>
-
-        <!-- 玩家随从 -->
-        <div class="player-minions">
-          <BattleCard
-            v-for="(minion, index) in props.playerMinions"
-            :key="index"
-            :data="minion || null"
-            :is-enemy="false"
-            :is-attacking="animatingAttacker?.side === 'player' && animatingAttacker?.index === index"
-            :is-damaged="animatingDamaged?.side === 'player' && animatingDamaged?.index === index"
-            :is-dying="animatingDying?.side === 'player' && animatingDying?.index === index"
-            :is-divine-shield-broken="animatingDivineShieldBroken?.side === 'player' && animatingDivineShieldBroken?.index === index"
-            :damage="damageValues['player'][index]"
-          />
+            :is-attacking="cardAnimations.enemy[i - 1]?.isAttacking"
+            :is-damaged="cardAnimations.enemy[i - 1]?.isDamaged"
+            :damage="cardAnimations.enemy[i - 1]?.damage"
+            :is-dying="cardAnimations.enemy[i - 1]?.isDying"
+          ></BattleCard>
         </div>
       </div>
 
-      <!-- 战斗控制按钮 -->
+      <!-- 玩家区域：右侧 -->
+      <div class="battle-side player-side">
+        <!-- 7个随从位置，从上到下排列 -->
+
+        <div class="battle-card-row" v-for="i in 7" :key="`player-${i}`">
+          <BattleCard
+            :card-id="`player-slot-${i}`"
+            :data="playerMinions[i - 1]"
+            :is-enemy="false"
+            :is-attacking="cardAnimations.player[i - 1]?.isAttacking"
+            :is-damaged="cardAnimations.player[i - 1]?.isDamaged"
+            :damage="cardAnimations.player[i - 1]?.damage"
+            :is-dying="cardAnimations.player[i - 1]?.isDying"
+          ></BattleCard>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部战斗信息 -->
+    <div class="battle-info">
       <div class="battle-controls">
-        <button
-          class="btn btn-primary"
-          @click="executeBattle"
-          :disabled="isBattleRunning"
-        >
-          {{ isBattleRunning ? '战斗进行中...' : '开始战斗' }}
-        </button>
-        <button class="btn btn-secondary" @click="emit('exit-battle')">退出战斗</button>
-        <button class="btn btn-secondary" @click="showBattleLog = true">查看战斗日志</button>
+        <div>
+          敌人队伍
+          <div>生命值：{{ enemyHealth }}</div>
+          <div>护甲值：{{ enemyArmor }}</div>
+        </div>
+        <div class="battle-action-area">
+          <button @click="showLogModal = true">查看战斗日志</button>
+        </div>
+        <div>
+          玩家队伍
+          <div>生命值：{{ playerHealth }}</div>
+          <div>护甲值：{{ playerArmor }}</div>
+        </div>
       </div>
     </div>
 
     <!-- 战斗结果弹窗 -->
-    <div v-if="showResultModal" class="result-modal">
-      <div class="battle-result">
-        <h2 class="result-title" :class="{
-          'winner-player': internalBattleResult?.winner === 'player',
-          'winner-enemy': internalBattleResult?.winner === 'enemy',
-          'winner-draw': internalBattleResult?.winner === 'draw',
-        }">
-          {{ internalBattleResult?.winner === 'player' ? '玩家获胜！' : 
-             internalBattleResult?.winner === 'enemy' ? '敌方获胜！' : '平局！' }}
-        </h2>
-        <div class="result-stats" v-if="internalBattleResult">
-          <div class="result-stat">
-            <span>玩家剩余随从:</span>
-            <span>{{ internalBattleResult.playerMinionsLeft }}</span>
+    <Modal v-model:open="showResultModal" title="战斗结果" :footer="null" width="600px">
+      <div v-if="internalBattleResult" class="battle-result-content">
+        <div class="result-winner">
+          <h3>
+            胜利者:
+            <span
+              :class="
+                internalBattleResult.winner === 'player'
+                  ? 'winner-player'
+                  : internalBattleResult.winner === 'enemy'
+                    ? 'winner-enemy'
+                    : 'winner-draw'
+              "
+            >
+              {{
+                internalBattleResult.winner === 'player'
+                  ? '玩家'
+                  : internalBattleResult.winner === 'enemy'
+                    ? '敌方'
+                    : '平局'
+              }}
+            </span>
+          </h3>
+        </div>
+        <div class="result-stats">
+          <div class="stat-item">
+            <strong>剩余随从:</strong>
+            <span
+              >玩家 {{ internalBattleResult.playerMinionsLeft }} / 敌方
+              {{ internalBattleResult.enemyMinionsLeft }}</span
+            >
           </div>
-          <div class="result-stat">
-            <span>敌方剩余随从:</span>
-            <span>{{ internalBattleResult.enemyMinionsLeft }}</span>
-          </div>
-          <div class="result-stat">
-            <span>玩家生命值变化:</span>
-            <span>{{ internalBattleResult.playerHealthChange }}</span>
-          </div>
-          <div class="result-stat">
-            <span>敌方生命值变化:</span>
-            <span>{{ internalBattleResult.enemyHealthChange }}</span>
+          <div class="stat-item">
+            <strong>生命值变化:</strong>
+            <span
+              >玩家 {{ internalBattleResult.playerHealthChange }} / 敌方
+              {{ internalBattleResult.enemyHealthChange }}</span
+            >
           </div>
         </div>
-        <div class="modal-actions">
-          <button class="btn btn-primary" @click="showResultModal = false">确定</button>
-          <button class="btn btn-secondary" @click="showBattleLog = true">查看战斗日志</button>
+        <div class="result-buttons">
+          <Button type="primary" @click="showResultModal = false">关闭</Button>
         </div>
       </div>
-    </div>
+    </Modal>
 
     <!-- 战斗日志弹窗 -->
-    <div v-if="showBattleLog" class="battle-log-modal">
-      <div class="battle-log-header">
-        <h2 class="battle-log-title">战斗日志</h2>
-        <button class="close-btn" @click="showBattleLog = false">×</button>
-      </div>
-      <div class="log-content">
-        <div v-for="(log, index) in internalBattleLog" :key="index" class="log-line">
-          {{ log }}
+    <Modal v-model:open="showLogModal" title="战斗日志" :footer="null" width="800px" height="600px">
+      <div class="battle-log-content">
+        <div v-if="internalBattleLog.length > 0" class="log-list">
+          <div v-for="(log, index) in internalBattleLog" :key="index" class="log-item">
+            {{ index + 1 }}. {{ log }}
+          </div>
+        </div>
+        <div v-else class="no-log">暂无战斗日志</div>
+        <div class="log-buttons">
+          <Button type="primary" @click="showLogModal = false">关闭</Button>
         </div>
       </div>
-    </div>
+    </Modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import BattleCard from './BattleCard.vue';
-import { Minion } from '../../../game/Minion';
+import type { Minion } from '@/game/Minion';
+import { Button, Modal } from 'ant-design-vue';
+import { onMounted, ref } from 'vue';
 import type { BattleResult } from '../../../game/BattleManager';
+import BattleCard from './BattleCard.vue';
 
-// 组件属性
-const props = defineProps<{
-  enemyMinions: (Minion | undefined)[];
-  playerMinions: (Minion | undefined)[];
-  enemyHealth: number;
-  enemyArmor: number;
-  playerHealth: number;
-  playerArmor: number;
-  autoStart?: boolean;
-  playerTavernLevel: number;
-  enemyTavernLevel: number;
-  enemyAttack?: number;
-  playerAttack?: number;
-}>();
+// 接收外部传入的参数
+const props = withDefaults(
+  defineProps<{
+    enemyMinions: (Minion | undefined)[];
+    playerMinions: (Minion | undefined)[];
+    enemyHealth: number;
+    enemyArmor: number;
+    playerHealth: number;
+    playerArmor: number;
+    autoStart?: boolean;
+    playerTavernLevel?: number;
+    enemyTavernLevel?: number;
+  }>(),
+  {
+    enemyMinions: () => Array(7).fill(undefined),
+    playerMinions: () => Array(7).fill(undefined),
+    enemyHealth: 30,
+    enemyArmor: 0,
+    playerHealth: 30,
+    playerArmor: 0,
+    autoStart: false,
+    playerTavernLevel: 1,
+    enemyTavernLevel: 1,
+  }
+);
 
-// 组件事件
+// 定义事件
 const emit = defineEmits<{
-  'exit-battle': [];
-  'battle-completed': [result: BattleResult, log: string[]];
+  (e: 'exit-battle'): void;
+  (e: 'battle-completed', result: BattleResult, log: string[]): void;
 }>();
 
+// 弹窗状态
+const showResultModal = ref(false);
+const showLogModal = ref(false);
 // 战斗状态
 const isBattleRunning = ref(false);
-const showResultModal = ref(false);
-const showBattleLog = ref(false);
-const internalBattleLog = ref<string[]>([]);
+// 内部战斗结果和日志
 const internalBattleResult = ref<BattleResult | null>(null);
+const internalBattleLog = ref<string[]>([]);
 
-// 动画状态
-const animatingAttacker = ref<{ side: 'player' | 'enemy'; index: number } | null>(null);
-const animatingDamaged = ref<{ side: 'player' | 'enemy'; index: number } | null>(null);
-const animatingDying = ref<{ side: 'player' | 'enemy'; index: number } | null>(null);
-const animatingDivineShieldBroken = ref<{ side: 'player' | 'enemy'; index: number } | null>(null);
-const damageValues = ref<{ player: Record<number, number>; enemy: Record<number, number> }>({
-  player: {},
-  enemy: {},
+// 卡片动画状态
+const cardAnimations = ref({
+  player: Array(7)
+    .fill(undefined)
+    .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
+  enemy: Array(7)
+    .fill(undefined)
+    .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
 });
 
 // 重置卡片动画状态
 const resetCardAnimations = () => {
-  animatingAttacker.value = null;
-  animatingDamaged.value = null;
-  animatingDying.value = null;
-  animatingDivineShieldBroken.value = null;
-  damageValues.value = { player: {}, enemy: {} };
+  cardAnimations.value = {
+    player: Array(7)
+      .fill(undefined)
+      .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
+    enemy: Array(7)
+      .fill(undefined)
+      .map(() => ({ isAttacking: false, isDamaged: false, damage: 0, isDying: false })),
+  };
 };
 
-// 执行攻击动画
+// 执行单个攻击动画
 const executeAttackAnimation = async (side: 'player' | 'enemy', index: number) => {
-  animatingAttacker.value = { side, index };
-  await new Promise(resolve => setTimeout(resolve, 300)); // 攻击动画时长
-  animatingAttacker.value = null;
-};
+  console.log(`执行${side}方第${index}个随从的攻击动画`);
 
-// 执行伤害动画
-const executeDamageAnimation = async (side: 'player' | 'enemy', index: number, damage: number) => {
-  animatingDamaged.value = { side, index };
-  damageValues.value[side][index] = damage;
-  await new Promise(resolve => setTimeout(resolve, 300)); // 伤害动画时长
-  animatingDamaged.value = null;
-  delete damageValues.value[side][index];
-};
-
-// 执行死亡动画
-const executeDeathAnimation = async (side: 'player' | 'enemy', index: number) => {
-  animatingDying.value = { side, index };
-  await new Promise(resolve => setTimeout(resolve, 500)); // 死亡动画时长
-  animatingDying.value = null;
-};
-
-// 执行圣盾被打破动画
-const executeDivineShieldBrokenAnimation = async (side: 'player' | 'enemy', index: number) => {
-  animatingDivineShieldBroken.value = { side, index };
-  await new Promise(resolve => setTimeout(resolve, 300)); // 圣盾被打破动画时长
-  animatingDivineShieldBroken.value = null;
-};
-
-// 辅助函数：重置所有随从的攻击状态
-const resetAttackStates = (playerMinions: (Minion | undefined)[], enemyMinions: (Minion | undefined)[]) => {
-  playerMinions.forEach(minion => {
-    if (minion) minion.hasAttacked = false;
-  });
-  enemyMinions.forEach(minion => {
-    if (minion) minion.hasAttacked = false;
-  });
-};
-
-// 辅助函数：计算随从数量
-const countMinions = (minions: (Minion | undefined)[]) => {
-  return minions.filter(m => m !== undefined).length;
-};
-
-// 辅助函数：检查战斗是否结束
-const isBattleOver = (playerMinions: (Minion | undefined)[], enemyMinions: (Minion | undefined)[]) => {
-  const playerCount = countMinions(playerMinions);
-  const enemyCount = countMinions(enemyMinions);
-  return playerCount === 0 || enemyCount === 0;
-};
-
-// 辅助函数：查找攻击目标（优先嘲讽）
-const findAttackTarget = (defenders: (Minion | undefined)[]): number => {
-  // 优先攻击有嘲讽的随从
-  for (let i = 0; i < defenders.length; i++) {
-    const minion = defenders[i];
-    if (minion && minion.health > 0 && minion.getKeywords().includes('taunt')) {
-      return i;
+  // 设置攻击者动画状态
+  if (side === 'player') {
+    const temp = cardAnimations.value.player[index];
+    if (temp) {
+      temp.isAttacking = true;
     }
-  }
-
-  // 如果没有嘲讽随从，随机选择一个目标
-  const validTargets = defenders
-    .map((minion, index) => ({ minion, index }))
-    .filter(({ minion }) => minion !== undefined && minion.health > 0);
-
-  if (validTargets.length === 0) {
-    return -1;
-  }
-
-  const randomIndex = Math.floor(Math.random() * validTargets.length);
-  return validTargets[randomIndex]?.index || -1;
-};
-
-// 辅助函数：移除死亡随从并顶格处理
-const removeMinionAndShift = (minions: (Minion | undefined)[], index: number) => {
-  minions.splice(index, 1);
-  minions.push(undefined);
-};
-
-// 辅助函数：处理伤害、圣盾和死亡逻辑
-const handleDamage = async (minion: Minion, minions: (Minion | undefined)[], side: 'player' | 'enemy', index: number, damage: number) => {
-  const hadDivineShield = minion.hasDivineShield || false;
-  let died = false;
-
-  // 处理伤害
-  if (hadDivineShield) {
-    // 圣盾吸收所有伤害
-    minion.hasDivineShield = false;
-    console.log(`${side === 'player' ? '玩家' : '敌方'}${minion.nameCN}的圣盾吸收了 ${damage} 点伤害`);
-    
-    // 执行圣盾被打破动画
-    await executeDivineShieldBrokenAnimation(side, index);
-    internalBattleLog.value.push(`${minion.nameCN} 的圣盾被打破了！`);
   } else {
-    // 直接扣除生命值
-    minion.health = Math.max(0, (minion.health || 0) - damage);
-    died = (minion.health || 0) <= 0;
-    console.log(`${side === 'player' ? '玩家' : '敌方'}${minion.nameCN}受到了 ${damage} 点伤害，剩余生命值: ${minion.health}`);
-    
-    // 执行伤害动画
-    await executeDamageAnimation(side, index, damage);
-    internalBattleLog.value.push(
-      `${minion.nameCN} 受到了 ${damage} 点伤害，剩余生命值: ${minion.health}`
-    );
-
-    if (died) {
-      // 执行死亡动画
-      await executeDeathAnimation(side, index);
-      // 移除死亡随从并顶格处理
-      removeMinionAndShift(minions, index);
-      internalBattleLog.value.push(`${minion.nameCN} 被杀死了！`);
+    const temp = cardAnimations.value.enemy[index];
+    if (temp) {
+      temp.isAttacking = true;
     }
   }
 
-  return died;
+  // 等待攻击动画完成
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // 重置攻击者动画状态
+  if (side === 'player') {
+    const temp = cardAnimations.value.player[index];
+    if (temp) {
+      temp.isAttacking = false;
+    }
+  } else {
+    const temp = cardAnimations.value.enemy[index];
+    if (temp) {
+      temp.isAttacking = false;
+    }
+  }
 };
 
-// 辅助函数：生成攻击顺序
-const generateAttackOrder = (playerMinions: (Minion | undefined)[], enemyMinions: (Minion | undefined)[]) => {
-  const attackOrder = [];
+// 执行单个伤害动画
+const executeDamageAnimation = async (side: 'player' | 'enemy', index: number, damage: number) => {
+  console.log(`执行${side}方第${index}个随从的伤害动画，伤害值: ${damage}`);
 
-  // 添加玩家随从到攻击顺序
-  for (let i = 0; i < playerMinions.length; i++) {
-    if (playerMinions[i] !== undefined) {
-      attackOrder.push({ side: 'player' as const, index: i });
-    }
+  // 设置受伤害动画状态
+  const temp = cardAnimations.value[side][index];
+  if (temp) {
+    temp.isDamaged = true;
+    temp.damage = damage;
   }
 
-  // 添加敌方随从到攻击顺序
-  for (let i = 0; i < enemyMinions.length; i++) {
-    if (enemyMinions[i] !== undefined) {
-      attackOrder.push({ side: 'enemy' as const, index: i });
-    }
+  // 等待伤害动画完成
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // 重置伤害动画状态
+  if (temp) {
+    temp.isDamaged = false;
+    temp.damage = 0;
+  }
+};
+
+// 执行单个死亡动画
+const executeDeathAnimation = async (side: 'player' | 'enemy', index: number) => {
+  console.log(`执行${side}方第${index}个随从的死亡动画`);
+
+  // 设置死亡动画状态
+  const temp = cardAnimations.value[side][index];
+  if (temp) {
+    temp.isDying = true;
   }
 
-  return attackOrder;
+  // 等待死亡动画完成
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // 重置死亡动画状态
+  if (temp) {
+    temp.isDying = false;
+  }
+};
+
+// 执行单个圣盾消失动画
+const executeDivineShieldBrokenAnimation = async (side: 'player' | 'enemy', index: number) => {
+  console.log(`执行${side}方第${index}个随从的圣盾消失动画`);
+
+  // 等待圣盾消失动画完成
+  await new Promise(resolve => setTimeout(resolve, 300));
 };
 
 // 执行战斗
@@ -344,12 +281,17 @@ const executeBattle = async () => {
   resetCardAnimations();
 
   // 暂时不复制随从列表，直接使用原数据（用于调试）
+  // 这样可以确定问题是出在复制过程还是原数据本身
   const playerMinions = props.playerMinions;
   const enemyMinions = props.enemyMinions;
 
   // 记录当前状态
-  internalBattleLog.value.push(`玩家随从数量: ${countMinions(playerMinions)}`);
-  internalBattleLog.value.push(`敌方随从数量: ${countMinions(enemyMinions)}`);
+  internalBattleLog.value.push(
+    `玩家随从数量: ${playerMinions.filter((m: any) => m !== undefined).length}`
+  );
+  internalBattleLog.value.push(
+    `敌方随从数量: ${enemyMinions.filter((m: any) => m !== undefined).length}`
+  );
 
   // 战斗主循环
   let battleRound = 0;
@@ -362,16 +304,41 @@ const executeBattle = async () => {
     internalBattleLog.value.push(`回合 ${battleRound} 开始`);
 
     // 重置所有随从的攻击状态
-    resetAttackStates(playerMinions, enemyMinions);
+    playerMinions.forEach(minion => {
+      if (minion) minion.hasAttacked = false;
+    });
+    enemyMinions.forEach(minion => {
+      if (minion) minion.hasAttacked = false;
+    });
+
+    // 计算当前随从数量
+    const playerMinionCount = playerMinions.filter(m => m !== undefined).length;
+    const enemyMinionCount = enemyMinions.filter(m => m !== undefined).length;
 
     // 检查战斗是否结束
-    if (isBattleOver(playerMinions, enemyMinions)) {
+    if (playerMinionCount === 0 || enemyMinionCount === 0) {
       battleEnded = true;
       break;
     }
 
-    // 生成攻击顺序
-    const attackOrder = generateAttackOrder(playerMinions, enemyMinions);
+    // 确定攻击顺序
+    // 简化版：玩家先攻击，然后敌方攻击
+    // 实际应该按照酒馆战棋规则：随从数量多的先攻击，数量相同则酒馆等级高的先攻击，都相同则随机
+    const attackOrder = [];
+
+    // 添加玩家随从到攻击顺序
+    for (let i = 0; i < playerMinions.length; i++) {
+      if (playerMinions[i] !== undefined) {
+        attackOrder.push({ side: 'player', index: i });
+      }
+    }
+
+    // 添加敌方随从到攻击顺序
+    for (let i = 0; i < enemyMinions.length; i++) {
+      if (enemyMinions[i] !== undefined) {
+        attackOrder.push({ side: 'enemy', index: i });
+      }
+    }
 
     // 执行攻击
     for (const attackUnit of attackOrder) {
@@ -386,9 +353,28 @@ const executeBattle = async () => {
         }
 
         // 找到攻击目标
-        const targetIndex = findAttackTarget(enemyMinions);
+        let targetIndex = -1;
+        // 优先攻击有嘲讽的随从
+        for (let i = 0; i < enemyMinions.length; i++) {
+          const minion = enemyMinions[i];
+          if (minion && minion.health > 0 && minion.getKeywords().includes('taunt')) {
+            targetIndex = i;
+            break;
+          }
+        }
+
+        // 如果没有嘲讽随从，随机选择一个目标
         if (targetIndex === -1) {
-          continue;
+          const validTargets: any[] = enemyMinions
+            .map((minion, index) => ({ minion, index }))
+            .filter(({ minion }) => minion !== undefined && minion.health > 0);
+
+          if (validTargets.length === 0) {
+            continue;
+          }
+
+          const randomIndex = Math.floor(Math.random() * validTargets.length);
+          targetIndex = validTargets[randomIndex].index;
         }
 
         const target = enemyMinions[targetIndex];
@@ -403,32 +389,114 @@ const executeBattle = async () => {
         internalBattleLog.value.push(`${attacker.nameCN} 攻击了 ${target.nameCN}`);
 
         // 获取攻击力
-        const attackerDamage = attacker.getAttack();
-        const targetDamage = target.getAttack();
+        let attackerDamage = attacker.getAttack();
+        let targetDamage = target.getAttack();
 
         // 处理攻击者受到的伤害
-        await handleDamage(attacker, playerMinions, 'player', attackUnit.index, targetDamage);
+        const attackerHadDivineShield = attacker.hasDivineShield || false;
+        let attackerDied = false;
 
-        // 检查目标是否还活着（可能在处理攻击者伤害时已经死亡）
-        const currentTarget = enemyMinions[targetIndex];
-        if (currentTarget && currentTarget.health > 0) {
-          // 处理目标受到的伤害
-          await handleDamage(currentTarget, enemyMinions, 'enemy', targetIndex, attackerDamage);
+        if (attackerHadDivineShield) {
+          // 圣盾吸收所有伤害
+          attacker.hasDivineShield = false;
+          console.log(`攻击者的圣盾吸收了 ${targetDamage} 点伤害`);
+        } else {
+          // 直接扣除生命值
+          attacker.health = Math.max(0, (attacker.health || 0) - targetDamage);
+          attackerDied = (attacker.health || 0) <= 0;
+          console.log(`攻击者受到了 ${targetDamage} 点伤害，剩余生命值: ${attacker.health}`);
+        }
+
+        if (attackerHadDivineShield && !attacker.hasDivineShield) {
+          // 圣盾被打破，执行圣盾消失动画
+          await executeDivineShieldBrokenAnimation('player', attackUnit.index);
+          internalBattleLog.value.push(`${attacker.nameCN} 的圣盾被打破了！`);
+        } else if (!attackerHadDivineShield) {
+          // 执行伤害动画
+          await executeDamageAnimation('player', attackUnit.index, targetDamage);
+          internalBattleLog.value.push(
+            `${attacker.nameCN} 受到了 ${targetDamage} 点伤害，剩余生命值: ${attacker.health}`
+          );
+
+          if (attackerDied) {
+            // 执行死亡动画
+            await executeDeathAnimation('player', attackUnit.index);
+            // 移除死亡随从并顶格处理
+            playerMinions.splice(attackUnit.index, 1);
+            playerMinions.push(undefined);
+            internalBattleLog.value.push(`${attacker.nameCN} 被杀死了！`);
+          }
+        }
+
+        // 处理目标受到的伤害
+        const targetHadDivineShield = target.hasDivineShield || false;
+        let targetDied = false;
+
+        // 手动处理伤害
+        if (targetHadDivineShield) {
+          // 圣盾吸收所有伤害
+          target.hasDivineShield = false;
+          console.log(`目标的圣盾吸收了 ${attackerDamage} 点伤害`);
+        } else {
+          // 直接扣除生命值
+          target.health = Math.max(0, (target.health || 0) - attackerDamage);
+          targetDied = (target.health || 0) <= 0;
+          console.log(`目标受到了 ${attackerDamage} 点伤害，剩余生命值: ${target.health}`);
+        }
+
+        if (targetHadDivineShield && !target.hasDivineShield) {
+          // 圣盾被打破，执行圣盾消失动画
+          await executeDivineShieldBrokenAnimation('enemy', targetIndex);
+          internalBattleLog.value.push(`${target.nameCN} 的圣盾被打破了！`);
+        } else if (!targetHadDivineShield) {
+          // 执行伤害动画
+          await executeDamageAnimation('enemy', targetIndex, attackerDamage);
+          internalBattleLog.value.push(
+            `${target.nameCN} 受到了 ${attackerDamage} 点伤害，剩余生命值: ${target.health}`
+          );
+
+          if (targetDied) {
+            // 执行死亡动画
+            await executeDeathAnimation('enemy', targetIndex);
+            // 移除死亡随从并顶格处理
+            enemyMinions.splice(targetIndex, 1);
+            enemyMinions.push(undefined);
+            internalBattleLog.value.push(`${target.nameCN} 被杀死了！`);
+          }
         }
 
         // 标记为已攻击
         attacker.hasAttacked = true;
       } else {
-        // 敌方随从攻击逻辑
+        // 敌方随从攻击逻辑，与玩家随从攻击逻辑类似
         const attacker = enemyMinions[attackUnit.index];
         if (!attacker || attacker.health <= 0 || attacker.hasAttacked) {
           continue;
         }
 
         // 找到攻击目标
-        const targetIndex = findAttackTarget(playerMinions);
+        let targetIndex = -1;
+        // 优先攻击有嘲讽的随从
+        for (let i = 0; i < playerMinions.length; i++) {
+          const minion = playerMinions[i];
+          if (minion && minion.health > 0 && minion.getKeywords().includes('taunt')) {
+            targetIndex = i;
+            break;
+          }
+        }
+
+        // 如果没有嘲讽随从，随机选择一个目标
         if (targetIndex === -1) {
-          continue;
+          const validTargets: any[] = playerMinions
+            .map((minion, index) => ({ minion, index }))
+            .filter(({ minion }) => minion !== undefined && minion.health > 0);
+
+          if (validTargets.length === 0) {
+            continue;
+          }
+
+          const randomIndex = Math.floor(Math.random() * validTargets.length);
+          targetIndex = validTargets[randomIndex].index;
         }
 
         const target = playerMinions[targetIndex];
@@ -443,17 +511,80 @@ const executeBattle = async () => {
         internalBattleLog.value.push(`${attacker.nameCN} 攻击了 ${target.nameCN}`);
 
         // 获取攻击力
-        const attackerDamage = attacker.getAttack();
-        const targetDamage = target.getAttack();
+        let attackerDamage = attacker.getAttack();
+        let targetDamage = target.getAttack();
 
         // 处理攻击者受到的伤害
-        await handleDamage(attacker, enemyMinions, 'enemy', attackUnit.index, targetDamage);
+        const attackerHadDivineShield = attacker.hasDivineShield || false;
+        let attackerDied = false;
 
-        // 检查目标是否还活着
-        const currentTarget = playerMinions[targetIndex];
-        if (currentTarget && currentTarget.health > 0) {
-          // 处理目标受到的伤害
-          await handleDamage(currentTarget, playerMinions, 'player', targetIndex, attackerDamage);
+        // 手动处理伤害
+        if (attackerHadDivineShield) {
+          // 圣盾吸收所有伤害
+          attacker.hasDivineShield = false;
+          console.log(`敌方攻击者的圣盾吸收了 ${targetDamage} 点伤害`);
+        } else {
+          // 直接扣除生命值
+          attacker.health = Math.max(0, (attacker.health || 0) - targetDamage);
+          attackerDied = (attacker.health || 0) <= 0;
+          console.log(`敌方攻击者受到了 ${targetDamage} 点伤害，剩余生命值: ${attacker.health}`);
+        }
+        if (attackerHadDivineShield && !attacker.hasDivineShield) {
+          // 圣盾被打破，执行圣盾消失动画
+          await executeDivineShieldBrokenAnimation('enemy', attackUnit.index);
+          internalBattleLog.value.push(`${attacker.nameCN} 的圣盾被打破了！`);
+        } else if (!attackerHadDivineShield) {
+          // 执行伤害动画
+          await executeDamageAnimation('enemy', attackUnit.index, targetDamage);
+          internalBattleLog.value.push(
+            `${attacker.nameCN} 受到了 ${targetDamage} 点伤害，剩余生命值: ${attacker.health}`
+          );
+
+          if (attackerDied) {
+            // 执行死亡动画
+            await executeDeathAnimation('enemy', attackUnit.index);
+            // 移除死亡随从并顶格处理
+            enemyMinions.splice(attackUnit.index, 1);
+            enemyMinions.push(undefined);
+            internalBattleLog.value.push(`${attacker.nameCN} 被杀死了！`);
+          }
+        }
+
+        // 处理目标受到的伤害
+        const targetHadDivineShield = target.hasDivineShield || false;
+        let targetDied = false;
+
+        // 手动处理伤害
+        if (targetHadDivineShield) {
+          // 圣盾吸收所有伤害
+          target.hasDivineShield = false;
+          console.log(`敌方攻击目标的圣盾吸收了 ${attackerDamage} 点伤害`);
+        } else {
+          // 直接扣除生命值
+          target.health = Math.max(0, (target.health || 0) - attackerDamage);
+          targetDied = (target.health || 0) <= 0;
+          console.log(`敌方攻击目标受到了 ${attackerDamage} 点伤害，剩余生命值: ${target.health}`);
+        }
+
+        if (targetHadDivineShield && !target.hasDivineShield) {
+          // 圣盾被打破，执行圣盾消失动画
+          await executeDivineShieldBrokenAnimation('player', targetIndex);
+          internalBattleLog.value.push(`${target.nameCN} 的圣盾被打破了！`);
+        } else if (!targetHadDivineShield) {
+          // 执行伤害动画
+          await executeDamageAnimation('player', targetIndex, attackerDamage);
+          internalBattleLog.value.push(
+            `${target.nameCN} 受到了 ${attackerDamage} 点伤害，剩余生命值: ${target.health}`
+          );
+
+          if (targetDied) {
+            // 执行死亡动画
+            await executeDeathAnimation('player', targetIndex);
+            // 移除死亡随从并顶格处理
+            playerMinions.splice(targetIndex, 1);
+            playerMinions.push(undefined);
+            internalBattleLog.value.push(`${target.nameCN} 被杀死了！`);
+          }
         }
 
         // 标记为已攻击
@@ -461,7 +592,10 @@ const executeBattle = async () => {
       }
 
       // 检查战斗是否结束
-      if (isBattleOver(playerMinions, enemyMinions)) {
+      const currentPlayerMinionCount = playerMinions.filter(m => m !== undefined).length;
+      const currentEnemyMinionCount = enemyMinions.filter(m => m !== undefined).length;
+
+      if (currentPlayerMinionCount === 0 || currentEnemyMinionCount === 0) {
         battleEnded = true;
         break;
       }
@@ -469,38 +603,27 @@ const executeBattle = async () => {
   }
 
   // 计算战斗结果
-  const playerMinionCount = countMinions(playerMinions);
-  const enemyMinionCount = countMinions(enemyMinions);
+  const playerMinionCount = playerMinions.filter(m => m !== undefined).length;
+  const enemyMinionCount = enemyMinions.filter(m => m !== undefined).length;
 
-  let result: BattleResult;
+  const result = {
+    winner: 'draw',
+    playerHealthChange: 0,
+    enemyHealthChange: 0,
+    playerMinionsLeft: playerMinionCount,
+    enemyMinionsLeft: enemyMinionCount,
+  };
 
   if (playerMinionCount > 0 && enemyMinionCount === 0) {
     // 玩家获胜
-    result = {
-      winner: 'player',
-      playerHealthChange: 0,
-      enemyHealthChange: -playerMinionCount,
-      playerMinionsLeft: playerMinionCount,
-      enemyMinionsLeft: enemyMinionCount,
-    };
+    result.winner = 'player';
+    // 计算对敌方英雄的伤害
+    result.enemyHealthChange = -playerMinionCount;
   } else if (enemyMinionCount > 0 && playerMinionCount === 0) {
     // 敌方获胜
-    result = {
-      winner: 'enemy',
-      playerHealthChange: -enemyMinionCount,
-      enemyHealthChange: 0,
-      playerMinionsLeft: playerMinionCount,
-      enemyMinionsLeft: enemyMinionCount,
-    };
-  } else {
-    // 平局
-    result = {
-      winner: 'draw',
-      playerHealthChange: 0,
-      enemyHealthChange: 0,
-      playerMinionsLeft: playerMinionCount,
-      enemyMinionsLeft: enemyMinionCount,
-    };
+    result.winner = 'enemy';
+    // 计算对玩家英雄的伤害
+    result.playerHealthChange = -enemyMinionCount;
   }
 
   // 记录战斗结果
@@ -547,271 +670,177 @@ defineExpose({
 }
 
 /* 中部对战区域 */
-.battle-area {
+.battle-main {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
-  flex: 1;
-  padding: 20px;
-  position: relative;
+  padding: 2% 0;
+  background: radial-gradient(circle at center, #1a1a2e 0%, #0f0f1e 100%);
 }
 
-/* 英雄区域 */
-.hero-area {
-  width: 100%;
+.battle-side {
+  width: 45%;
+  height: 90%;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 1%;
+  border-radius: 12px;
+  padding: 2%;
+  box-sizing: border-box;
+}
+
+.enemy-side {
+  border: 4px solid #e74c3c;
+  background: linear-gradient(180deg, #641e16 0%, #922b21 100%);
+}
+
+.player-side {
+  border: 4px solid #3498db;
+  background: linear-gradient(180deg, #154360 0%, #1f618d 100%);
+}
+
+.battle-card-row {
+  display: flex;
+  justify-content: center;
   align-items: center;
+}
+
+/* 底部战斗信息 */
+.battle-info {
+  background: linear-gradient(0deg, #16213e 0%, #0f3460 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+}
+
+.battle-controls {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+/* 战斗按钮区域 */
+.battle-action-area {
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+  align-items: center;
+}
+
+.battle-action-area button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  min-width: 120px;
+}
+
+.battle-action-area button:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+.battle-action-area button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* 战斗结果弹窗样式 */
+:deep(.battle-result-content) {
+  color: #333;
+}
+
+:deep(.result-winner) {
+  text-align: center;
   margin-bottom: 20px;
 }
 
-/* 敌方英雄 */
-.enemy-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* 玩家英雄 */
-.player-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* 英雄头像 */
-.hero-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background-color: #333;
-  margin-bottom: 10px;
-}
-
-/* 英雄信息 */
-.hero-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.hero-health {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: #ff4d4d;
-}
-
-.hero-attack {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: #ffaa00;
-}
-
-/* 酒馆等级 */
-.tavern-levels {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-}
-
-.tavern-level {
-  padding: 5px 15px;
-  border-radius: 15px;
-  font-size: 14px;
-}
-
-.tavern-level.enemy {
-  background-color: rgba(255, 0, 0, 0.2);
-}
-
-.tavern-level.player {
-  background-color: rgba(0, 128, 255, 0.2);
-}
-
-/* 随从区域 */
-.minion-area {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-
-/* 敌方随从 */
-.enemy-minions {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-/* 玩家随从 */
-.player-minions {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-/* 战斗控制按钮 */
-.battle-controls {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-/* 战斗日志弹窗 */
-.battle-log-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80%;
-  max-width: 600px;
-  max-height: 80vh;
-  background-color: #2a2a4e;
-  border: 2px solid #4a4a6e;
-  border-radius: 10px;
-  padding: 20px;
-  z-index: 1000;
-  overflow-y: auto;
-}
-
-.battle-log-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #4a4a6e;
-}
-
-.battle-log-title {
+:deep(.result-winner h3) {
+  margin: 0;
   font-size: 24px;
+  color: #e67e22;
+}
+
+:deep(.winner-player) {
+  color: #2ecc71;
   font-weight: bold;
 }
 
-.close-btn {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
+:deep(.winner-enemy) {
+  color: #e74c3c;
+  font-weight: bold;
 }
 
-.log-content {
-  font-family: monospace;
+:deep(.winner-draw) {
+  color: #f1c40f;
+  font-weight: bold;
+}
+
+:deep(.result-stats) {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+:deep(.stat-item) {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+:deep(.stat-item:last-child) {
+  margin-bottom: 0;
+}
+
+:deep(.result-buttons) {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* 战斗日志弹窗样式 */
+:deep(.battle-log-content) {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+:deep(.log-list) {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+:deep(.log-item) {
+  padding: 5px 0;
+  border-bottom: 1px solid #e0e0e0;
   font-size: 14px;
   line-height: 1.5;
 }
 
-.log-line {
-  margin-bottom: 5px;
+:deep(.log-item:last-child) {
+  border-bottom: none;
 }
 
-/* 战斗结果弹窗 */
-.result-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80%;
-  max-width: 400px;
-  background-color: #2a2a4e;
-  border: 2px solid #4a4a6e;
-  border-radius: 10px;
-  padding: 30px;
-  z-index: 1000;
+:deep(.no-log) {
   text-align: center;
+  color: #999;
+  padding: 20px;
 }
 
-.result-title {
-  font-size: 32px;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
-.winner-player {
-  color: #4caf50;
-}
-
-.winner-enemy {
-  color: #f44336;
-}
-
-.winner-draw {
-  color: #ffeb3b;
-}
-
-.result-stats {
-  margin: 20px 0;
+:deep(.log-buttons) {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.result-stat {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  background-color: #3a3a5e;
-  border-radius: 5px;
-}
-
-.modal-actions {
-  margin-top: 20px;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.2s;
-}
-
-.btn-primary {
-  background-color: #4caf50;
-  color: white;
-}
-
-.btn-secondary {
-  background-color: #3a3a5e;
-  color: white;
-}
-
-.btn:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-}
-
-/* 卡片位置调整 */
-.battle-card {
-  width: 120px;
-  height: 160px;
-  position: relative;
-  perspective: 1000px;
-  flex-shrink: 0;
-}
-
-/* 遮罩层 */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  justify-content: flex-end;
+  margin-top: 15px;
 }
 </style>
