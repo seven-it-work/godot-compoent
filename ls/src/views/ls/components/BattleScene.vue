@@ -785,22 +785,16 @@ const removeDeadMinion = async (
   await executeDeathAnimation(minions, side, index);
   internalBattleLog.value.push(`${minion.nameCN} 被杀死了！`);
 
-  // 检查并处理重生
+  // 检查并处理复生
   if (minion.hasKeyword(MinionKeyword.REBORN)) {
-    // 简单模拟重生，创建新的随从实例
+    // 简单模拟复生，创建新的随从实例
     const originalMinion = new (minion.constructor as new () => Minion)();
     originalMinion.health = 1;
     originalMinion.hasAttacked = false;
-
-    // 复制必要属性
-    originalMinion.strId = minion.strId;
-    originalMinion.nameCN = minion.nameCN;
-    originalMinion.attack = minion.attack;
-
+    originalMinion.removeKeyword(MinionKeyword.REBORN);
     minions.splice(index, 0, originalMinion);
-
-    console.log(`    重生效果: ${originalMinion.nameCN} 成功重生，生命值恢复到 1`);
-    internalBattleLog.value.push(`${originalMinion.nameCN} 成功重生了！`);
+    console.log(`    复生效果: ${originalMinion.nameCN} 成功复生，生命值恢复到 1`);
+    internalBattleLog.value.push(`${originalMinion.nameCN} 成功复生了！`);
   } else {
     minions.push(undefined);
   }
