@@ -148,6 +148,24 @@ export interface MinionBuff {
 }
 
 /**
+ * 死亡上下文 - 随从死亡时的上下文信息
+ */
+export interface DeathContext {
+  /** 己方随从列表 */
+  friendlyMinions: (Minion | undefined)[];
+  /** 敌方随从列表 */
+  enemyMinions: (Minion | undefined)[];
+  /** 死亡随从所在位置索引 */
+  position: number;
+  /** 死亡随从所在阵营 */
+  side: 'player' | 'enemy';
+  /** 游戏管理器或store实例（可选） */
+  game?: any;
+  /** 战斗日志记录函数 */
+  addLog?: (message: string) => void;
+}
+
+/**
  * 随从接口 - 定义随从特有的属性
  */
 export interface IMinion extends ICard {
@@ -628,11 +646,12 @@ export class Minion extends Card implements IMinion {
 
   /**
    * 当本随从死亡时触发 - 可由子类重写以实现特定效果
-   * @param game - 游戏管理器或store实例
+   * @param context - 死亡上下文，包含游戏状态、位置信息等
    * @使用方式：当本随从生命值降至0时触发
-   * 用于实现"当本随从死亡时"的效果
+   * 用于实现"亡语"效果，直接在方法内部执行效果（如召唤随从、造成伤害、增加属性等）
+   * @注意：亡语效果应该直接操作context中的对象，无需返回值
    */
-  onDeath(_game: any): void {
+  onDeath(_context?: DeathContext): void {
     // 默认实现为空，由子类根据需要重写
   }
 }

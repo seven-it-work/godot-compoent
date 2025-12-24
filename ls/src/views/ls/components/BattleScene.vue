@@ -152,7 +152,7 @@ const props = withDefaults(
 );
 
 // 定义事件
-const emit = defineEmits<{
+const _emit = defineEmits<{
   (e: 'exit-battle'): void;
   (e: 'battle-completed', result: BattleResult, log: string[]): void;
 }>();
@@ -636,7 +636,9 @@ const removeDeadMinion = async (
   side: 'player' | 'enemy',
   index: number,
   minions: (Minion | undefined)[],
-  minion: Minion
+  minion: Minion,
+  playerMinions: (Minion | undefined)[],
+  enemyMinions: (Minion | undefined)[]
 ) => {
   console.log(`    死亡处理: ${side}方的 ${minion.nameCN} 已死亡`);
 
@@ -664,8 +666,20 @@ const removeDeadMinion = async (
   if (minion.getKeywords().includes('deathrattle')) {
     console.log(`    亡语触发: ${minion.nameCN} 触发了亡语效果`);
     internalBattleLog.value.push(`${minion.nameCN} 触发了亡语！`);
-    // 这里可以添加具体的亡语逻辑
-    minion.onDeath();
+
+    // 构建死亡上下文
+    const deathContext = {
+      friendlyMinions: side === 'player' ? playerMinions : enemyMinions,
+      enemyMinions: side === 'player' ? enemyMinions : playerMinions,
+      position: index,
+      side: side,
+      addLog: (message: string) => {
+        internalBattleLog.value.push(message);
+      },
+    };
+
+    // 直接调用亡语方法，效果在方法内部直接执行
+    minion.onDeath(deathContext);
   }
 };
 
@@ -720,7 +734,9 @@ const executeAttack = async (
       targetSide,
       targetIndex,
       targetSide === 'player' ? playerMinions : enemyMinions,
-      target
+      target,
+      playerMinions,
+      enemyMinions
     );
   }
 
@@ -741,7 +757,9 @@ const executeAttack = async (
         attackerSide,
         attackerIndex,
         attackerSide === 'player' ? playerMinions : enemyMinions,
-        attacker
+        attacker,
+        playerMinions,
+        enemyMinions
       );
     }
   }
