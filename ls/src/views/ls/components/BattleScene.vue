@@ -188,222 +188,6 @@ const resetCardAnimations = () => {
   };
 };
 
-// 执行单个攻击动画
-const executeAttackAnimation = async (
-  side: 'player' | 'enemy',
-  index: number,
-  targetIndex: number
-) => {
-  console.log(`执行${side}方第${index}个随从的攻击动画，攻击目标：${targetIndex}`);
-
-  // 获取攻击者和目标元素
-  const attackerId = side === 'player' ? `player-slot-${index + 1}` : `enemy-slot-${index + 1}`;
-  const targetSide = side === 'player' ? 'enemy' : 'player';
-  const targetId =
-    targetSide === 'player' ? `player-slot-${targetIndex + 1}` : `enemy-slot-${targetIndex + 1}`;
-
-  const attackerElement = document.getElementById(attackerId);
-  const targetElement = document.getElementById(targetId);
-
-  if (!attackerElement || !targetElement) {
-    console.error('攻击者或目标元素未找到');
-    return;
-  }
-
-  // 计算位移距离
-  const attackerRect = attackerElement.getBoundingClientRect();
-  const targetRect = targetElement.getBoundingClientRect();
-
-  // 计算中心点
-  const attackerCenterX = attackerRect.left + attackerRect.width / 2;
-  const attackerCenterY = attackerRect.top + attackerRect.height / 2;
-  const targetCenterX = targetRect.left + targetRect.width / 2;
-  const targetCenterY = targetRect.top + targetRect.height / 2;
-
-  // 计算位移差值（相对于攻击者自身位置）
-  const moveX = targetCenterX - attackerCenterX;
-  const moveY = targetCenterY - attackerCenterY;
-
-  // 设置攻击者动画状态
-  if (side === 'player') {
-    const temp = cardAnimations.value.player[index];
-    if (temp) {
-      temp.isAttacking = true;
-    }
-  } else {
-    const temp = cardAnimations.value.enemy[index];
-    if (temp) {
-      temp.isAttacking = true;
-    }
-  }
-
-  // 应用位移动画
-  attackerElement.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-  attackerElement.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`;
-
-  // 等待攻击动画完成
-  await new Promise(resolve => setTimeout(resolve, 400));
-
-  // 返回原位置
-  attackerElement.style.transform = 'translate(0, 0) scale(1)';
-  await new Promise(resolve => setTimeout(resolve, 400));
-
-  // 重置攻击者动画状态
-  if (side === 'player') {
-    const temp = cardAnimations.value.player[index];
-    if (temp) {
-      temp.isAttacking = false;
-    }
-  } else {
-    const temp = cardAnimations.value.enemy[index];
-    if (temp) {
-      temp.isAttacking = false;
-    }
-  }
-
-  // 重置样式
-  attackerElement.style.transition = '';
-};
-
-// 执行单个伤害动画
-const executeDamageAnimation = async (side: 'player' | 'enemy', index: number, damage: number) => {
-  console.log(`执行${side}方第${index}个随从的伤害动画，伤害值: ${damage}`);
-
-  // 设置受伤害动画状态
-  const temp = cardAnimations.value[side][index];
-  if (temp) {
-    temp.isDamaged = true;
-    temp.damage = damage;
-  }
-
-  // 等待伤害动画完成
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  // 重置伤害动画状态
-  if (temp) {
-    temp.isDamaged = false;
-    temp.damage = 0;
-  }
-};
-
-// 执行单个死亡动画
-const executeDeathAnimation = async (side: 'player' | 'enemy', index: number) => {
-  console.log(`执行${side}方第${index}个随从的死亡动画`);
-
-  // 设置死亡动画状态
-  const temp = cardAnimations.value[side][index];
-  if (temp) {
-    temp.isDying = true;
-  }
-
-  // 等待死亡动画完成
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  // 重置死亡动画状态
-  if (temp) {
-    temp.isDying = false;
-  }
-};
-
-// 执行单个圣盾消失动画
-const executeDivineShieldBrokenAnimation = async (side: 'player' | 'enemy', index: number) => {
-  console.log(`执行${side}方第${index}个随从的圣盾消失动画`);
-
-  // 等待圣盾消失动画完成
-  await new Promise(resolve => setTimeout(resolve, 300));
-};
-
-// 查找攻击目标
-const findAttackTarget = (targetMinions: (Minion | undefined)[]): number => {
-  // 优先攻击有嘲讽的随从
-  for (let i = 0; i < targetMinions.length; i++) {
-    const minion = targetMinions[i];
-    if (minion && minion.health > 0 && minion.getKeywords().includes('taunt')) {
-      return i;
-    }
-  }
-
-  // 如果没有嘲讽随从，随机选择一个目标
-  const validTargets = targetMinions
-    .map((minion, index) => ({ minion, index }))
-    .filter(({ minion }) => minion !== undefined && minion.health > 0);
-
-  if (validTargets.length === 0) {
-    return -1;
-  }
-
-  const randomIndex = Math.floor(Math.random() * validTargets.length);
-  const selectedTarget = validTargets[randomIndex];
-  if (!selectedTarget) {
-    return -1;
-  }
-  return selectedTarget.index;
-};
-
-// 处理伤害
-const handleDamage = async (
-  side: 'player' | 'enemy',
-  index: number,
-  minion: Minion,
-  damage: number
-): Promise<boolean> => {
-  const minionHadDivineShield = minion.hasDivineShield || false;
-  let minionDied = false;
-
-  if (minionHadDivineShield) {
-    // 圣盾吸收所有伤害
-    minion.hasDivineShield = false;
-    console.log(`${side}方随从的圣盾吸收了 ${damage} 点伤害`);
-  } else {
-    // 直接扣除生命值
-    minion.health = Math.max(0, (minion.health || 0) - damage);
-    minionDied = (minion.health || 0) <= 0;
-    console.log(`${side}方随从受到了 ${damage} 点伤害，剩余生命值: ${minion.health}`);
-  }
-
-  if (minionHadDivineShield && !minion.hasDivineShield) {
-    // 圣盾被打破，执行圣盾消失动画
-    await executeDivineShieldBrokenAnimation(side, index);
-    internalBattleLog.value.push(`${minion.nameCN} 的圣盾被打破了！`);
-  } else if (!minionHadDivineShield) {
-    // 执行伤害动画
-    await executeDamageAnimation(side, index, damage);
-    internalBattleLog.value.push(
-      `${minion.nameCN} 受到了 ${damage} 点伤害，剩余生命值: ${minion.health}`
-    );
-  }
-
-  return minionDied;
-};
-
-// 移除死亡随从
-const removeDeadMinion = async (
-  side: 'player' | 'enemy',
-  index: number,
-  minions: (Minion | undefined)[],
-  minion: Minion
-) => {
-  // 执行死亡动画
-  await executeDeathAnimation(side, index);
-  // 移除死亡随从并顶格处理
-  minions.splice(index, 1);
-  minions.push(undefined);
-  internalBattleLog.value.push(`${minion.nameCN} 被杀死了！`);
-};
-
-// 重置攻击状态
-const resetAttackStates = (
-  playerMinions: (Minion | undefined)[],
-  enemyMinions: (Minion | undefined)[]
-) => {
-  playerMinions.forEach(minion => {
-    if (minion) minion.hasAttacked = false;
-  });
-  enemyMinions.forEach(minion => {
-    if (minion) minion.hasAttacked = false;
-  });
-};
-
 /**
  * 检查战斗是否结束
  * 1、如果双方任意一方没有随从了，战斗结束（有随从的一方胜利，双方都没有随从平局）
@@ -610,6 +394,8 @@ const executeBattle = async () => {
   internalBattleResult.value = null;
   // 重置卡片动画状态
   resetCardAnimations();
+  // 重置攻击状态
+  resetAttackStates(props.playerMinions, props.enemyMinions);
   // 数据定义
   const playerData: BattleSideData = {
     // 随从攻击索引
@@ -634,6 +420,8 @@ const executeBattle = async () => {
     // 检查战斗是否结束
     if (checkBattleEnd(playerData.minions, enemyData.minions)) {
       // todo 战斗结束
+      // 确定战斗结果
+      console.log('战斗结束');
       break;
     }
     // 获取攻击随从
@@ -642,256 +430,216 @@ const executeBattle = async () => {
       console.error('没有可攻击的随从', currentAttacker);
       throw new Error('没有可攻击的随从');
     }
-    // 获取敌人目标
-    const target = getAttackTarget(currentAttacker, playerData, enemyData);
-    if (!target) {
-      // 没有攻击目标，跳过当前攻击
-      // 切换当前攻击方
-      currentAttacker = currentAttacker === playerData ? enemyData : playerData;
-      continue;
+    // attacker有风怒攻击2次
+    if (attacker.getKeywords().includes('windfury')) {
+      for (let i = 0; i < 2; i++) {
+        await attackEnemy(currentAttacker, playerData, enemyData, attacker);
+      }
+    } else if (attacker.getKeywords().includes('super_windfury')) {
+      // attacker有超级风怒，攻击3次
+      for (let i = 0; i < 3; i++) {
+        await attackEnemy(currentAttacker, playerData, enemyData, attacker);
+      }
+    } else {
+      // 攻击敌方
+      await attackEnemy(currentAttacker, playerData, enemyData, attacker);
     }
-    // 执行攻击
-    // executeAttack(attacker, target.target, target.targetSide);
     // 切换当前攻击方
-    currentAttacker = currentAttacker === playerData ? enemyData : playerData;
+    currentAttacker === playerData ? enemyData : playerData;
   }
+};
 
-  // while (!battleEnded && battleRound < maxRounds) {
-  //   battleRound++;
-  //   // 重置所有随从的攻击状态
-  //   resetAttackStates(playerMinions, enemyMinions);
-  //   // 检查战斗是否结束
-  //   if (checkBattleEnd(playerMinions, enemyMinions)) {
-  //     battleEnded = true;
-  //     break;
-  //   }
-
-  //   // 执行攻击：动态查找可攻击的随从，而不是依赖预先生成的攻击顺序
-  //   // 玩家和敌方轮流攻击，从索引0开始，检查每个随从是否可以攻击
-  //   let playerAttackIndex = 0;
-  //   let enemyAttackIndex = 0;
-  //   let allAttacked = false;
-
-  //   // 重置攻击次数计数
-  //   let playerAttackedCount = 0;
-  //   let enemyAttackedCount = 0;
-  //   const totalPlayerMinions = playerMinions.filter(m => m !== undefined).length;
-  //   const totalEnemyMinions = enemyMinions.filter(m => m !== undefined).length;
-
-  //   // 当还有随从可以攻击且战斗未结束时，继续执行攻击
-  //   while (!battleEnded && !allAttacked) {
-  //     let roundHasAttack = false;
-
-  //     // 玩家随从攻击回合
-  //     if (playerAttackedCount < totalPlayerMinions) {
-  //       // 查找下一个可以攻击的玩家随从
-  //       let foundPlayerAttacker = false;
-  //       let playerCheckIndex = playerAttackIndex;
-  //       let playerCheckCount = 0;
-
-  //       // 遍历玩家随从，查找可以攻击的随从
-  //       while (!foundPlayerAttacker && playerCheckCount < playerMinions.length) {
-  //         const attacker = playerMinions[playerCheckIndex];
-
-  //         // 检查随从是否存在、活着且未攻击过
-  //         if (attacker && attacker.health > 0 && !attacker.hasAttacked) {
-  //           // 找到攻击目标
-  //           const targetIndex = findAttackTarget(enemyMinions);
-  //           if (targetIndex !== -1) {
-  //             const target = enemyMinions[targetIndex];
-  //             if (target && target.health > 0) {
-  //               // 执行攻击动画
-  //               await executeAttackAnimation('player', playerCheckIndex, targetIndex);
-
-  //               // 记录攻击信息
-  //               internalBattleLog.value.push(`${attacker.nameCN} 攻击了 ${target.nameCN}`);
-
-  //               // 获取攻击力
-  //               const attackerDamage = attacker.getAttack();
-  //               const targetDamage = target.getAttack();
-
-  //               // 处理攻击者受到的伤害
-  //               const attackerDied = await handleDamage(
-  //                 'player',
-  //                 playerCheckIndex,
-  //                 attacker,
-  //                 targetDamage
-  //               );
-  //               if (attackerDied) {
-  //                 await removeDeadMinion('player', playerCheckIndex, playerMinions, attacker);
-  //                 // 随从死亡，重置当前索引，避免跳过随从
-  //                 playerAttackIndex = Math.max(0, playerCheckIndex - 1);
-  //               } else {
-  //                 // 标记为已攻击
-  //                 attacker.hasAttacked = true;
-  //                 playerAttackedCount++;
-  //                 // 攻击成功，索引+1，下次从下一个位置开始查找
-  //                 playerAttackIndex = playerCheckIndex + 1;
-  //               }
-
-  //               // 处理目标受到的伤害
-  //               const targetDied = await handleDamage('enemy', targetIndex, target, attackerDamage);
-  //               if (targetDied) {
-  //                 await removeDeadMinion('enemy', targetIndex, enemyMinions, target);
-  //               }
-
-  //               foundPlayerAttacker = true;
-  //               roundHasAttack = true;
-  //             }
-  //           }
-  //         }
-
-  //         // 检查下一个索引
-  //         playerCheckIndex = (playerCheckIndex + 1) % playerMinions.length;
-  //         playerCheckCount++;
-  //       }
-  //     }
-
-  //     // 检查战斗是否结束
-  //     if (checkBattleEnd(playerMinions, enemyMinions)) {
-  //       battleEnded = true;
-  //       break;
-  //     }
-
-  //     // 敌方随从攻击回合
-  //     if (enemyAttackedCount < totalEnemyMinions) {
-  //       // 查找下一个可以攻击的敌方随从
-  //       let foundEnemyAttacker = false;
-  //       let enemyCheckIndex = enemyAttackIndex;
-  //       let enemyCheckCount = 0;
-
-  //       // 遍历敌方随从，查找可以攻击的随从
-  //       while (!foundEnemyAttacker && enemyCheckCount < enemyMinions.length) {
-  //         const attacker = enemyMinions[enemyCheckIndex];
-
-  //         // 检查随从是否存在、活着且未攻击过
-  //         if (attacker && attacker.health > 0 && !attacker.hasAttacked) {
-  //           // 找到攻击目标
-  //           const targetIndex = findAttackTarget(playerMinions);
-  //           if (targetIndex !== -1) {
-  //             const target = playerMinions[targetIndex];
-  //             if (target && target.health > 0) {
-  //               // 执行攻击动画
-  //               await executeAttackAnimation('enemy', enemyCheckIndex, targetIndex);
-
-  //               // 记录攻击信息
-  //               internalBattleLog.value.push(`${attacker.nameCN} 攻击了 ${target.nameCN}`);
-
-  //               // 获取攻击力
-  //               const attackerDamage = attacker.getAttack();
-  //               const targetDamage = target.getAttack();
-
-  //               // 处理攻击者受到的伤害
-  //               const attackerDied = await handleDamage(
-  //                 'enemy',
-  //                 enemyCheckIndex,
-  //                 attacker,
-  //                 targetDamage
-  //               );
-  //               if (attackerDied) {
-  //                 await removeDeadMinion('enemy', enemyCheckIndex, enemyMinions, attacker);
-  //                 // 随从死亡，重置当前索引，避免跳过随从
-  //                 enemyAttackIndex = Math.max(0, enemyCheckIndex - 1);
-  //               } else {
-  //                 // 标记为已攻击
-  //                 attacker.hasAttacked = true;
-  //                 enemyAttackedCount++;
-  //                 // 攻击成功，索引+1，下次从下一个位置开始查找
-  //                 enemyAttackIndex = enemyCheckIndex + 1;
-  //               }
-
-  //               // 处理目标受到的伤害
-  //               const targetDied = await handleDamage(
-  //                 'player',
-  //                 targetIndex,
-  //                 target,
-  //                 attackerDamage
-  //               );
-  //               if (targetDied) {
-  //                 await removeDeadMinion('player', targetIndex, playerMinions, target);
-  //               }
-
-  //               foundEnemyAttacker = true;
-  //               roundHasAttack = true;
-  //             }
-  //           }
-  //         }
-
-  //         // 检查下一个索引
-  //         enemyCheckIndex = (enemyCheckIndex + 1) % enemyMinions.length;
-  //         enemyCheckCount++;
-  //       }
-  //     }
-
-  //     // 检查战斗是否结束
-  //     if (checkBattleEnd(playerMinions, enemyMinions)) {
-  //       battleEnded = true;
-  //       break;
-  //     }
-
-  //     // 检查是否所有随从都已攻击
-  //     const currentPlayerAttackedCount = playerMinions.filter(m => m && m.hasAttacked).length;
-  //     const currentEnemyAttackedCount = enemyMinions.filter(m => m && m.hasAttacked).length;
-  //     const currentPlayerMinions = playerMinions.filter(m => m !== undefined).length;
-  //     const currentEnemyMinions = enemyMinions.filter(m => m !== undefined).length;
-  //     allAttacked =
-  //       currentPlayerAttackedCount >= currentPlayerMinions &&
-  //       currentEnemyAttackedCount >= currentEnemyMinions;
-
-  //     // 如果本轮没有任何攻击，结束攻击循环
-  //     if (!roundHasAttack) {
-  //       allAttacked = true;
-  //     }
-  //   }
-  // }
-
-  // 计算战斗结果
-  const playerMinionCount = props.playerMinions.filter(
-    (m: Minion | undefined) => m !== undefined
-  ).length;
-  const enemyMinionCount = props.enemyMinions.filter(
-    (m: Minion | undefined) => m !== undefined
-  ).length;
-
-  const result: BattleResult = {
-    winner: 'draw',
-    playerHealthChange: 0,
-    enemyHealthChange: 0,
-    playerMinionsLeft: playerMinionCount,
-    enemyMinionsLeft: enemyMinionCount,
-  };
-
-  if (playerMinionCount > 0 && enemyMinionCount === 0) {
-    // 玩家获胜
-    result.winner = 'player';
-    // 计算对敌方英雄的伤害
-    result.enemyHealthChange = -playerMinionCount;
-  } else if (enemyMinionCount > 0 && playerMinionCount === 0) {
-    // 敌方获胜
-    result.winner = 'enemy';
-    // 计算对玩家英雄的伤害
-    result.playerHealthChange = -enemyMinionCount;
+// 攻击敌方
+const attackEnemy = async (
+  currentAttacker: BattleSideData,
+  playerData: BattleSideData,
+  enemyData: BattleSideData,
+  attacker: Minion
+): Promise<void> => {
+  // 获取敌人目标
+  const target = getAttackTarget(currentAttacker, playerData, enemyData);
+  if (!target) {
+    // 没有攻击目标，跳过当前攻击
+    // 切换当前攻击方
+    return;
   }
-
-  // 记录战斗结果
-  internalBattleResult.value = result;
-  internalBattleLog.value.push(`战斗结束！`);
-  internalBattleLog.value.push(
-    `胜利者: ${result.winner === 'player' ? '玩家' : result.winner === 'enemy' ? '敌方' : '平局'}`
+  // 获取攻击者索引
+  const attackerIndex = currentAttacker.attackIndex;
+  // 执行攻击
+  await executeAttack(
+    attacker,
+    attackerIndex,
+    currentAttacker.side,
+    target.target,
+    target.targetIndex,
+    target.targetSide,
+    playerData.minions,
+    enemyData.minions
   );
-  internalBattleLog.value.push(`玩家剩余随从: ${result.playerMinionsLeft}`);
-  internalBattleLog.value.push(`敌方剩余随从: ${result.enemyMinionsLeft}`);
-  internalBattleLog.value.push(`玩家生命值变化: ${result.playerHealthChange}`);
-  internalBattleLog.value.push(`敌方生命值变化: ${result.enemyHealthChange}`);
+};
 
-  // 显示战斗结果弹窗
-  showResultModal.value = true;
+// 重置攻击状态
+const resetAttackStates = (
+  playerMinions: (Minion | undefined)[],
+  enemyMinions: (Minion | undefined)[]
+) => {
+  playerMinions.forEach(minion => {
+    if (minion) minion.hasAttacked = false;
+  });
+  enemyMinions.forEach(minion => {
+    if (minion) minion.hasAttacked = false;
+  });
+};
 
-  // 通知父组件战斗完成
-  emit('battle-completed', result, internalBattleLog.value);
+// 执行单个攻击动画
+const executeAttackAnimation = async (
+  side: 'player' | 'enemy',
+  index: number,
+  targetSide: 'player' | 'enemy',
+  targetIndex: number
+) => {
+  console.log(
+    `执行${side}方第${index}个随从的攻击动画，攻击目标：${targetSide}方第${targetIndex}个随从`
+  );
+  // 简单的延迟，模拟攻击动画
+  await new Promise(resolve => setTimeout(resolve, 800));
+};
 
-  isBattleRunning.value = false;
-  console.log('战斗结束', result);
+// 执行单个伤害动画
+const executeDamageAnimation = async (side: 'player' | 'enemy', index: number, damage: number) => {
+  console.log(`执行${side}方第${index}个随从的伤害动画，伤害值: ${damage}`);
+  // 简单的延迟，模拟伤害动画
+  await new Promise(resolve => setTimeout(resolve, 500));
+};
+
+// 执行单个死亡动画
+const executeDeathAnimation = async (side: 'player' | 'enemy', index: number) => {
+  console.log(`执行${side}方第${index}个随从的死亡动画`);
+  // 简单的延迟，模拟死亡动画
+  await new Promise(resolve => setTimeout(resolve, 1000));
+};
+
+// 执行单个圣盾消失动画
+const executeDivineShieldBrokenAnimation = async (side: 'player' | 'enemy', index: number) => {
+  console.log(`执行${side}方第${index}个随从的圣盾消失动画`);
+  // 简单的延迟，模拟圣盾消失动画
+  await new Promise(resolve => setTimeout(resolve, 300));
+};
+
+// 处理伤害
+const handleDamage = async (
+  side: 'player' | 'enemy',
+  index: number,
+  minion: Minion,
+  damage: number
+): Promise<boolean> => {
+  const minionHadDivineShield = minion.hasDivineShield || false;
+  let minionDied = false;
+
+  if (minionHadDivineShield) {
+    // 圣盾吸收所有伤害
+    minion.hasDivineShield = false;
+    console.log(`${side}方随从的圣盾吸收了 ${damage} 点伤害`);
+  } else {
+    // 直接扣除生命值
+    minion.health = Math.max(0, (minion.health || 0) - damage);
+    minionDied = (minion.health || 0) <= 0;
+    console.log(`${side}方随从受到了 ${damage} 点伤害，剩余生命值: ${minion.health}`);
+  }
+
+  if (minionHadDivineShield && !minion.hasDivineShield) {
+    // 圣盾被打破，执行圣盾消失动画
+    await executeDivineShieldBrokenAnimation(side, index);
+    internalBattleLog.value.push(`${minion.nameCN} 的圣盾被打破了！`);
+  } else if (!minionHadDivineShield) {
+    // 执行伤害动画
+    await executeDamageAnimation(side, index, damage);
+    internalBattleLog.value.push(
+      `${minion.nameCN} 受到了 ${damage} 点伤害，剩余生命值: ${minion.health}`
+    );
+  }
+
+  return minionDied;
+};
+
+// 移除死亡随从
+const removeDeadMinion = async (
+  side: 'player' | 'enemy',
+  index: number,
+  minions: (Minion | undefined)[],
+  minion: Minion
+) => {
+  // 执行死亡动画
+  await executeDeathAnimation(side, index);
+  // 移除死亡随从并顶格处理
+  minions.splice(index, 1);
+  internalBattleLog.value.push(`${minion.nameCN} 被杀死了！`);
+  // 如果有复生能力，尝试重生
+  if (minion.getKeywords().includes('reborn')) {
+    // 简单模拟重生，创建新的随从实例
+    const originalMinion = new (minion.constructor as new () => Minion)();
+    originalMinion.health = 1;
+    originalMinion.hasAttacked = false;
+    minions.splice(index, 0, originalMinion);
+    internalBattleLog.value.push(`${originalMinion.nameCN} 成功重生了！`);
+  } else {
+    minions.push(undefined);
+  }
+  // 执行亡语
+  if (minion.getKeywords().includes('deathrattle')) {
+    // 简单模拟亡语效果
+    internalBattleLog.value.push(`${minion.nameCN} 触发了亡语！`);
+    // 这里可以添加具体的亡语逻辑
+  }
+};
+
+// 执行攻击
+const executeAttack = async (
+  attacker: Minion,
+  attackerIndex: number,
+  attackerSide: 'player' | 'enemy',
+  target: Minion,
+  targetIndex: number,
+  targetSide: 'player' | 'enemy',
+  playerMinions: (Minion | undefined)[],
+  enemyMinions: (Minion | undefined)[]
+) => {
+  // 获取攻击力
+  const attackerDamage = attacker.getAttack();
+  const targetDamage = target.getAttack();
+
+  // 记录攻击信息
+  internalBattleLog.value.push(`${attacker.nameCN} 攻击了 ${target.nameCN}`);
+
+  // 攻击动画
+  await executeAttackAnimation(attackerSide, attackerIndex, targetSide, targetIndex);
+
+  // 被攻击者伤害处理
+  const targetDied = await handleDamage(targetSide, targetIndex, target, attackerDamage);
+  if (targetDied) {
+    await removeDeadMinion(
+      targetSide,
+      targetIndex,
+      targetSide === 'player' ? playerMinions : enemyMinions,
+      target
+    );
+  }
+
+  // 攻击者伤害处理（如果目标有攻击力）
+  if (targetDamage > 0 && !targetDied) {
+    const attackerDied = await handleDamage(attackerSide, attackerIndex, attacker, targetDamage);
+    if (attackerDied) {
+      await removeDeadMinion(
+        attackerSide,
+        attackerIndex,
+        attackerSide === 'player' ? playerMinions : enemyMinions,
+        attacker
+      );
+    }
+  }
+
+  // 标记攻击者为已攻击
+  attacker.hasAttacked = true;
 };
 
 // 组件挂载时，如果autoStart为true，则自动执行战斗

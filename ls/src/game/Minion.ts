@@ -1,7 +1,7 @@
 import { IdGenerator } from '@/utils/IdGenerator';
+import { cloneDeep } from 'lodash';
 import type { ICard } from './Card';
 import { Card } from './Card';
-import { cloneDeep } from 'lodash';
 
 /**
  * 升级卡片 - 用于升级为金色版本的卡片数据类型
@@ -53,7 +53,8 @@ export type MinionKeyword =
   | 'charge' // 冲锋 - 可以立即攻击
   | 'poisonous' // 剧毒 - 攻击时消灭目标
   | 'reborn' // 复生 - 死亡后以1点生命值复活
-  | 'immune'; // 免疫 - 不受任何伤害和效果
+  | 'immune' // 免疫 - 不受任何伤害和效果
+  | 'deathrattle'; // 亡语 - 死亡时触发的特殊效果
 
 /**
  * 随从关键词常量 - 提供预设的随从关键词选项
