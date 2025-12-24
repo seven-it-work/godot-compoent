@@ -229,7 +229,6 @@ export class Minion extends Card implements IMinion {
    * @param params - 随从属性参数，所有属性可选
    */
   constructor(params: Partial<IMinion> = {}) {
-    debugger;
     // 调用父类构造函数初始化通用卡片属性
     super(params);
 
@@ -380,7 +379,6 @@ export class Minion extends Card implements IMinion {
    * @注意事项：如果永久或临时关键词发生变化，缓存会自动失效并重新计算
    */
   getKeywords(): MinionKeyword[] {
-    debugger;
     if (this.keywordsCache === null) {
       this.keywordsCache = [...this.mechanics, ...this.temporaryKeywords];
     }
