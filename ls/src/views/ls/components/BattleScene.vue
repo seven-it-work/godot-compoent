@@ -661,25 +661,23 @@ const removeDeadMinion = async (
     minions.push(undefined);
   }
 
-  // 执行亡语
-  if (minion.getKeywords().includes('deathrattle')) {
-    console.log(`    亡语触发: ${minion.nameCN} 触发了亡语效果`);
-    internalBattleLog.value.push(`${minion.nameCN} 触发了亡语！`);
+  // 执行亡语（直接调用onDeath，如果子类重写了则会执行效果）
+  console.log(`    检查亡语: ${minion.nameCN}`);
+  internalBattleLog.value.push(`${minion.nameCN} 检查亡语`);
 
-    // 构建死亡上下文
-    const deathContext = {
-      friendlyPlayer: side === 'player' ? props.playerData : props.enemyData,
-      enemyPlayer: side === 'player' ? props.enemyData : props.playerData,
-      position: index,
-      side: side,
-      addLog: (message: string) => {
-        internalBattleLog.value.push(message);
-      },
-    };
+  // 构建死亡上下文
+  const deathContext = {
+    friendlyPlayer: side === 'player' ? props.playerData : props.enemyData,
+    enemyPlayer: side === 'player' ? props.enemyData : props.playerData,
+    position: index,
+    side: side,
+    addLog: (message: string) => {
+      internalBattleLog.value.push(message);
+    },
+  };
 
-    // 直接调用亡语方法，效果在方法内部直接执行
-    minion.onDeath(deathContext);
-  }
+  // 直接调用亡语方法，如果子类重写了onDeath，效果会在方法内部执行
+  minion.onDeath(deathContext);
 };
 
 // 执行攻击
@@ -738,7 +736,7 @@ const executeAttack = async (
   }
 
   // 攻击者伤害处理（如果目标有攻击力）
-  if (targetDamage > 0 && !targetDied) {
+  if (targetDamage > 0) {
     console.log(`\n  ------------------------------`);
     console.log(`  处理攻击者反伤`);
     console.log(`  ------------------------------`);

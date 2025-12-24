@@ -1,4 +1,6 @@
+import type { DeathContext } from '@/game/Minion';
 import { Minion } from '@/game/Minion';
+import { Cubling } from './Cubling';
 
 /**
  * 魔刃豹类 - 继承自Minion，实现魔刃豹的特殊效果
@@ -40,12 +42,32 @@ export class Manasaber extends Minion {
   };
   /**
    * 重写亡语触发的方法
-   * @param game - 游戏管理器或store实例
+   * @param context - 死亡上下文
    * @使用方式：当随从死亡时触发
-   * 效果：亡语：召唤两只0/1并具有嘲讽的豹宝宝
+   * 效果：亡语：召唤两只/四只0/1并具有嘲讽的豹宝宝（根据是否金色）
    */
-  onDeath(_game: any): void {
-    // 亡语：召唤两只0/1并具有嘲讽的豹宝宝
-    console.log('魔刃豹：召唤两只0/1并具有嘲讽的豹宝宝');
+  onDeath(context?: DeathContext): void {
+    if (!context) return;
+
+    // 根据是否金色决定召唤数量（普通版本2只，金色版本4只）
+    const summonCount = this.isGolden ? 4 : 2;
+    const { friendlyPlayer, position } = context;
+
+    // 使用 Player 的统一召唤接口
+    for (let i = 0; i < summonCount; i++) {
+      const cubling = new Cubling();
+      const success = friendlyPlayer.summonMinion(cubling, position);
+
+      if (success) {
+        // 记录日志
+        if (context.addLog) {
+          context.addLog(`召唤了 ${cubling.nameCN}`);
+        }
+        console.log(`魔刃豹：召唤了 ${cubling.nameCN} (${cubling.attack}/${cubling.health})`);
+      } else {
+        console.log(`魔刃豹：召唤失败，战场已满`);
+        break; // 战场已满，停止继续召唤
+      }
+    }
   }
 }

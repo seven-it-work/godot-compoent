@@ -1,4 +1,4 @@
-import { Minion } from '@/game/Minion';
+import { Minion, type IMinion } from '@/game/Minion';
 
 /**
  * 甲虫类 - 继承自Minion，实现甲虫随从
@@ -38,4 +38,8 @@ export class Beetle extends Minion {
       minionTypesCN: ['野兽'],
     },
   };
+  constructor(params: Partial<IMinion> = {}) {
+    super(params);
+    this.isTavernMinion = false;
+  }
 }
