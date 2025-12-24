@@ -652,15 +652,8 @@ const removeDeadMinion = async (
     // 简单模拟重生，创建新的随从实例
     const originalMinion = new (minion.constructor as new () => Minion)();
     originalMinion.health = 1;
-    originalMinion.hasAttacked = false;
-
-    // 复制必要属性
-    originalMinion.strId = minion.strId;
-    originalMinion.nameCN = minion.nameCN;
-    originalMinion.attack = minion.attack;
-
+    originalMinion.removeKeyword(MinionKeyword.REBORN);
     minions.splice(index, 0, originalMinion);
-
     console.log(`    重生效果: ${originalMinion.nameCN} 成功重生，生命值恢复到 1`);
     internalBattleLog.value.push(`${originalMinion.nameCN} 成功重生了！`);
   } else {
@@ -669,10 +662,10 @@ const removeDeadMinion = async (
 
   // 执行亡语
   if (minion.getKeywords().includes('deathrattle')) {
-    // 简单模拟亡语效果
     console.log(`    亡语触发: ${minion.nameCN} 触发了亡语效果`);
     internalBattleLog.value.push(`${minion.nameCN} 触发了亡语！`);
     // 这里可以添加具体的亡语逻辑
+    minion.onDeath();
   }
 };
 

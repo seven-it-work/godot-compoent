@@ -625,6 +625,16 @@ export class Minion extends Card implements IMinion {
       this.onOtherCardPlayed(card, game);
     }
   }
+
+  /**
+   * 当本随从死亡时触发 - 可由子类重写以实现特定效果
+   * @param game - 游戏管理器或store实例
+   * @使用方式：当本随从生命值降至0时触发
+   * 用于实现"当本随从死亡时"的效果
+   */
+  onDeath(_game: any): void {
+    // 默认实现为空，由子类根据需要重写
+  }
 }
 
 // 从Card.ts导入ICardData接口
