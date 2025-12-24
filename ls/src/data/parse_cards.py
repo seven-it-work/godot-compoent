@@ -22,24 +22,23 @@ def extract_strid_from_ts(ts_content):
 
 # 替换TypeScript文件中的BASE_DATA
 def replace_base_data(ts_content, minion_data):
-    # 将数据转换为JSON字符串
-    base_data_str = json.dumps(minion_data, ensure_ascii=False, indent=2)
+    # 首先，我们需要手动处理字符串中的换行符
+    def process_value(value):
+        if isinstance(value, str):
+            # 将字符串中的换行符替换为\n
+            return value.replace('\n', '\\n')
+        elif isinstance(value, dict):
+            return {k: process_value(v) for k, v in value.items()}
+        elif isinstance(value, list):
+            return [process_value(item) for item in value]
+        else:
+            return value
     
-    # 现在直接处理整个BASE_DATA字符串，将所有字符串值中的换行符替换为\n
-    # 这个方法虽然简单，但有效
-    # 我们需要将所有在引号内的换行符替换为\n
-    # 首先，将整个字符串按引号分割
-    parts = base_data_str.split('"')
+    # 处理数据中的换行符
+    processed_data = process_value(minion_data)
     
-    # 然后，处理每个部分
-    for i in range(len(parts)):
-        # 奇数索引的部分是在引号内的内容
-        if i % 2 == 1:
-            # 替换其中的换行符为\n
-            parts[i] = parts[i].replace('\n', '\\n')
-    
-    # 重新组合成字符串
-    base_data_str = '"'.join(parts)
+    # 将处理后的数据转换为JSON字符串
+    base_data_str = json.dumps(processed_data, ensure_ascii=False, indent=2)
     
     # 替换BASE_DATA内容
     updated_content = re.sub(
