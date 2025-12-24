@@ -1,6 +1,7 @@
 <template>
   <div
     class="battle-card"
+    :id="props.cardId"
     :class="{
       'has-card': props.data !== null,
       empty: props.data === null,
@@ -219,19 +220,6 @@ const props = defineProps<{
 
 /* 动画效果 */
 
-/* 攻击动画 */
-@keyframes attack {
-  0% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(30px) translateY(-10px);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
 /* 受伤害动画 */
 @keyframes damage {
   0% {
@@ -279,9 +267,8 @@ const props = defineProps<{
   }
 }
 
-/* 攻击状态 */
+/* 攻击状态：只设置z-index，动画由JS控制 */
 .is-attacking {
-  animation: attack 0.5s ease-in-out;
   z-index: 100;
 }
 
@@ -293,11 +280,6 @@ const props = defineProps<{
 /* 死亡状态 */
 .is-dying {
   animation: death 1s ease-in-out forwards;
-}
-
-/* 敌方攻击动画方向相反 */
-.enemy.is-attacking {
-  animation: attack 0.5s ease-in-out reverse;
 }
 
 /* 伤害数值样式 */

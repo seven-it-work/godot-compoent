@@ -189,8 +189,40 @@ const resetCardAnimations = () => {
 };
 
 // 执行单个攻击动画
-const executeAttackAnimation = async (side: 'player' | 'enemy', index: number) => {
-  console.log(`执行${side}方第${index}个随从的攻击动画`);
+const executeAttackAnimation = async (
+  side: 'player' | 'enemy',
+  index: number,
+  targetIndex: number
+) => {
+  console.log(`执行${side}方第${index}个随从的攻击动画，攻击目标：${targetIndex}`);
+
+  // 获取攻击者和目标元素
+  const attackerId = side === 'player' ? `player-slot-${index + 1}` : `enemy-slot-${index + 1}`;
+  const targetSide = side === 'player' ? 'enemy' : 'player';
+  const targetId =
+    targetSide === 'player' ? `player-slot-${targetIndex + 1}` : `enemy-slot-${targetIndex + 1}`;
+
+  const attackerElement = document.getElementById(attackerId);
+  const targetElement = document.getElementById(targetId);
+
+  if (!attackerElement || !targetElement) {
+    console.error('攻击者或目标元素未找到');
+    return;
+  }
+
+  // 计算位移距离
+  const attackerRect = attackerElement.getBoundingClientRect();
+  const targetRect = targetElement.getBoundingClientRect();
+
+  // 计算中心点
+  const attackerCenterX = attackerRect.left + attackerRect.width / 2;
+  const attackerCenterY = attackerRect.top + attackerRect.height / 2;
+  const targetCenterX = targetRect.left + targetRect.width / 2;
+  const targetCenterY = targetRect.top + targetRect.height / 2;
+
+  // 计算位移差值（相对于攻击者自身位置）
+  const moveX = targetCenterX - attackerCenterX;
+  const moveY = targetCenterY - attackerCenterY;
 
   // 设置攻击者动画状态
   if (side === 'player') {
@@ -205,8 +237,16 @@ const executeAttackAnimation = async (side: 'player' | 'enemy', index: number) =
     }
   }
 
+  // 应用位移动画
+  attackerElement.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+  attackerElement.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`;
+
   // 等待攻击动画完成
-  await new Promise(resolve => setTimeout(resolve, 500));
+  await new Promise(resolve => setTimeout(resolve, 400));
+
+  // 返回原位置
+  attackerElement.style.transform = 'translate(0, 0) scale(1)';
+  await new Promise(resolve => setTimeout(resolve, 400));
 
   // 重置攻击者动画状态
   if (side === 'player') {
@@ -220,6 +260,9 @@ const executeAttackAnimation = async (side: 'player' | 'enemy', index: number) =
       temp.isAttacking = false;
     }
   }
+
+  // 重置样式
+  attackerElement.style.transition = '';
 };
 
 // 执行单个伤害动画
@@ -453,7 +496,7 @@ const executeBattle = async () => {
       }
 
       // 执行攻击动画
-      await executeAttackAnimation(attackUnit.side, attackUnit.index);
+      await executeAttackAnimation(attackUnit.side, attackUnit.index, targetIndex);
 
       // 记录攻击信息
       internalBattleLog.value.push(`${attacker.nameCN} 攻击了 ${target.nameCN}`);
