@@ -57,19 +57,66 @@ export type MinionKeyword =
   | 'deathrattle'; // 亡语 - 死亡时触发的特殊效果
 
 /**
+ * 基础关键词 - 定义随从的基本特殊能力
+ */
+export type BasicMinionKeyword =
+  | 'taunt' // 嘲讽 - 必须先被攻击
+  | 'divine_shield' // 圣盾 - 免疫第一次伤害
+  | 'venomous' // 烈毒 - 攻击时消灭目标，使用后烈毒消失
+  | 'windfury' // 风怒 - 每回合可以攻击两次
+  | 'stealth' // 潜行 - 不会被攻击，除非主动攻击
+  | 'reborn'; // 复生 - 死亡后以1点生命值复活
+
+/**
+ * 额外关键词 - 定义随从的额外特殊能力
+ */
+export type ExtraMinionKeyword =
+  | 'super_windfury' // 超级风怒 - 每回合可以攻击多次
+  | 'charge' // 冲锋 - 可以立即攻击
+  | 'poisonous' // 剧毒 - 攻击时消灭目标
+  | 'immune' // 免疫 - 不受任何伤害和效果
+  | 'deathrattle'; // 亡语 - 死亡时触发的特殊效果
+
+/**
  * 随从关键词常量 - 提供预设的随从关键词选项
  */
 export const MinionKeyword = {
+  // 基础关键词
   TAUNT: 'taunt' as MinionKeyword, // 嘲讽
   DIVINE_SHIELD: 'divine_shield' as MinionKeyword, // 圣盾
   WINDFURY: 'windfury' as MinionKeyword, // 风怒
-  SUPER_WINDFURY: 'super_windfury' as MinionKeyword, // 超级风怒
   STEALTH: 'stealth' as MinionKeyword, // 潜行
+  REBORN: 'reborn' as MinionKeyword, // 复生
+
+  // 额外关键词
+  SUPER_WINDFURY: 'super_windfury' as MinionKeyword, // 超级风怒
   CHARGE: 'charge' as MinionKeyword, // 冲锋
   POISONOUS: 'poisonous' as MinionKeyword, // 剧毒
-  REBORN: 'reborn' as MinionKeyword, // 复生
   IMMUNE: 'immune' as MinionKeyword, // 免疫
+  DEATHRATTLE: 'deathrattle' as MinionKeyword, // 亡语
 } as const;
+
+/**
+ * 基础关键词常量 - 提供预设的基础关键词选项
+ */
+export const BasicMinionKeywords: BasicMinionKeyword[] = [
+  'taunt',
+  'divine_shield',
+  'windfury',
+  'stealth',
+  'reborn',
+];
+
+/**
+ * 额外关键词常量 - 提供预设的额外关键词选项
+ */
+export const ExtraMinionKeywords: ExtraMinionKeyword[] = [
+  'super_windfury',
+  'charge',
+  'poisonous',
+  'immune',
+  'deathrattle',
+];
 
 /**
  * 随从关键词中文映射 - 提供关键词的中文显示名称
@@ -84,6 +131,7 @@ export const MinionKeywordCN: Record<MinionKeyword, string> = {
   poisonous: '剧毒',
   reborn: '复生',
   immune: '免疫',
+  deathrattle: '亡语',
 };
 
 /**
@@ -123,10 +171,6 @@ export interface IMinion extends ICard {
   position: number | null;
   /** 是否已经攻击 - 记录随从是否在当前回合已经攻击过 */
   hasAttacked: boolean;
-  /** 是否有圣盾 - 记录随从当前是否具有圣盾效果 */
-  hasDivineShield: boolean;
-  /** 是否有复生 - 记录随从当前是否具有复生效果 */
-  hasReborn: boolean;
   /** 是否已授予塑造法术 - 记录随从是否已经生成过塑造法术 */
   hasGrantedShapingSpell: boolean;
   /** 当前生命值 - 随从当前的生命值 */
@@ -166,10 +210,6 @@ export class Minion extends Card implements IMinion {
   position: number | null = null;
   /** 是否已经攻击 - 记录随从是否在当前回合已经攻击过 */
   hasAttacked: boolean = false;
-  /** 是否有圣盾 - 记录随从当前是否具有圣盾效果 */
-  hasDivineShield: boolean = false;
-  /** 是否有复生 - 记录随从当前是否具有复生效果 */
-  hasReborn: boolean = false;
   /** 是否已授予塑造法术 - 记录随从是否已经生成过塑造法术 */
   hasGrantedShapingSpell: boolean = false;
   /** 当前生命值 - 随从当前的生命值 */
@@ -211,8 +251,6 @@ export class Minion extends Card implements IMinion {
     this.isFrozen = mergedParams.isFrozen || false;
     this.position = mergedParams.position !== undefined ? mergedParams.position : null;
     this.hasAttacked = mergedParams.hasAttacked || false;
-    this.hasDivineShield = this.permanentKeywords.includes(MinionKeyword.DIVINE_SHIELD);
-    this.hasReborn = this.permanentKeywords.includes(MinionKeyword.REBORN);
     this.hasGrantedShapingSpell = mergedParams.hasGrantedShapingSpell || false;
     this.health = mergedParams.health || 1;
 
@@ -348,6 +386,43 @@ export class Minion extends Card implements IMinion {
   }
 
   /**
+   * 移除关键词 - 从临时和永久关键词数组中移除指定关键词
+   * @param keyword 要移除的关键词
+   */
+  removeKeyword(keyword: MinionKeyword): void {
+    this.temporaryKeywords = this.temporaryKeywords.filter(k => k !== keyword);
+    this.permanentKeywords = this.permanentKeywords.filter(k => k !== keyword);
+    this.clearCache();
+  }
+
+  /**
+   * 是否有关键词 - 检查随从是否拥有指定的关键词
+   * @param keyword 要检查的关键词
+   * @returns 是否拥有该关键词
+   */
+  hasKeyword(keyword: MinionKeyword): boolean {
+    return this.getKeywords().includes(keyword);
+  }
+
+  /**
+   * 重置临时效果 - 清除所有临时加成和临时关键词
+   * @returns 重置的效果数量
+   * @使用方式：在回合结束或需要清除临时效果时调用
+   */
+  resetTemporaryEffects(): { buffsRemoved: number; keywordsRemoved: number } {
+    const buffsRemoved = this.temporaryBuffs.length;
+    const keywordsRemoved = this.temporaryKeywords.length;
+
+    // 清空临时加成和临时关键词数组
+    this.temporaryBuffs = [];
+    this.temporaryKeywords = [];
+
+    // 清除缓存，确保属性重新计算
+    this.clearCache();
+    return { buffsRemoved, keywordsRemoved };
+  }
+
+  /**
    * 攻击力访问器 - 兼容现有代码，返回计算后的攻击力
    * @returns 包含所有加成的攻击力
    */
@@ -399,14 +474,6 @@ export class Minion extends Card implements IMinion {
   }
 
   /**
-   * 攻击方法 - 设置随从为已攻击状态
-   * @使用方式：当随从执行攻击时调用
-   */
-  attackTarget(): void {
-    this.hasAttacked = true;
-  }
-
-  /**
    * 三连升级为金色随从 - 将随从升级为金色版本
    * @使用方式：当玩家拥有三个相同的随从时调用
    */
@@ -420,8 +487,6 @@ export class Minion extends Card implements IMinion {
       this.text = this.upgradeCard.text;
       this.mechanics = this.upgradeCard.mechanics;
       this.permanentKeywords = Minion.mapMechanicsToKeywords(this.upgradeCard.mechanics);
-      this.hasDivineShield = this.permanentKeywords.includes(MinionKeyword.DIVINE_SHIELD);
-      this.hasReborn = this.permanentKeywords.includes(MinionKeyword.REBORN);
       this.clearCache(); // 清除缓存，确保属性重新计算
     }
   }
@@ -444,29 +509,6 @@ export class Minion extends Card implements IMinion {
 
     // 返回克隆后的实例，保留原有类结构（包括子类信息）
     return clone;
-  }
-
-  /**
-   * 重置临时效果 - 清除所有临时加成和临时关键词
-   * @returns 重置的效果数量
-   * @使用方式：在回合结束或需要清除临时效果时调用
-   */
-  resetTemporaryEffects(): { buffsRemoved: number; keywordsRemoved: number } {
-    const buffsRemoved = this.temporaryBuffs.length;
-    const keywordsRemoved = this.temporaryKeywords.length;
-
-    // 清空临时加成和临时关键词数组
-    this.temporaryBuffs = [];
-    this.temporaryKeywords = [];
-
-    // 清除缓存，确保属性重新计算
-    this.clearCache();
-
-    // 更新相关标志
-    this.hasDivineShield = this.permanentKeywords.includes(MinionKeyword.DIVINE_SHIELD);
-    this.hasReborn = this.permanentKeywords.includes(MinionKeyword.REBORN);
-
-    return { buffsRemoved, keywordsRemoved };
   }
 
   /**
@@ -521,40 +563,6 @@ export class Minion extends Card implements IMinion {
     }
 
     return removed;
-  }
-
-  /**
-   * 移除所有临时加成 - 清空临时加成数组
-   * @returns 移除的加成数量
-   * @使用方式：在回合结束或需要清除临时加成时调用
-   */
-  removeTemporaryBuffs(): number {
-    const removedCount = this.temporaryBuffs.length;
-    this.temporaryBuffs = [];
-
-    // 清除缓存，确保属性重新计算
-    this.clearCache();
-
-    return removedCount;
-  }
-
-  /**
-   * 移除所有临时关键词 - 清空临时关键词数组
-   * @returns 移除的关键词数量
-   * @使用方式：在回合结束或需要清除临时关键词时调用
-   */
-  removeTemporaryKeywords(): number {
-    const removedCount = this.temporaryKeywords.length;
-    this.temporaryKeywords = [];
-
-    // 清除缓存，确保关键词重新计算
-    this.clearCache();
-
-    // 更新相关标志
-    this.hasDivineShield = this.permanentKeywords.includes(MinionKeyword.DIVINE_SHIELD);
-    this.hasReborn = this.permanentKeywords.includes(MinionKeyword.REBORN);
-
-    return removedCount;
   }
 
   /**

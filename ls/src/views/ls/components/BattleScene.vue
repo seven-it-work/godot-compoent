@@ -119,7 +119,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Minion } from '@/game/Minion';
+import { MinionKeyword, type Minion } from '@/game/Minion';
 import { Button, Modal } from 'ant-design-vue';
 import { onMounted, ref } from 'vue';
 import type { BattleResult } from '../../../game/BattleManager';
@@ -592,15 +592,15 @@ const handleDamage = async (
 ): Promise<boolean> => {
   console.log(`    伤害处理: ${side}方的 ${minion.nameCN}`);
   console.log(
-    `    初始状态: ${minion.nameCN} (${minion.attack}/${minion.health})${minion.hasDivineShield ? ' [圣盾]' : ''}`
+    `    初始状态: ${minion.nameCN} (${minion.attack}/${minion.health})${minion.hasKeyword(MinionKeyword.DIVINE_SHIELD) ? ' [圣盾]' : ''}`
   );
 
-  const minionHadDivineShield = minion.hasDivineShield || false;
+  const minionHadDivineShield = minion.hasKeyword(MinionKeyword.DIVINE_SHIELD);
   let minionDied = false;
 
   if (minionHadDivineShield) {
     // 圣盾吸收所有伤害
-    minion.hasDivineShield = false;
+    minion.removeKeyword(MinionKeyword.DIVINE_SHIELD);
     console.log(`    圣盾吸收: ${minion.nameCN} 的圣盾吸收了 ${damage} 点伤害，圣盾被打破！`);
 
     // 圣盾被打破，执行圣盾消失动画
