@@ -51,29 +51,22 @@ export class BuzzingVermin extends Minion {
 
     // 根据是否金色决定召唤数量
     const summonCount = this.isGolden ? 2 : 1;
+    const { friendlyPlayer, position } = context;
 
-    // 直接在原位置召唤甲虫
-    const { friendlyMinions, position } = context;
-
+    // 使用 Player 的统一召唤接口
     for (let i = 0; i < summonCount; i++) {
       const beetle = new Beetle();
+      const success = friendlyPlayer.summonMinion(beetle, position);
 
-      // 如果当前位置是undefined，则替换，否则插入
-      if (friendlyMinions[position] === undefined) {
-        friendlyMinions[position] = beetle;
-      } else {
-        friendlyMinions.splice(position + i, 0, beetle);
-        // 移除最后的undefined以保持数组长度
-        if (friendlyMinions.length > 7) {
-          friendlyMinions.pop();
+      if (success) {
+        // 记录日志
+        if (context.addLog) {
+          context.addLog(`召唤了 ${beetle.nameCN}`);
         }
+        console.log(`嗡鸣害虫：召唤了 ${beetle.nameCN} (${beetle.attack}/${beetle.health})`);
+      } else {
+        console.log(`嗡鸣害虫：召唤失败，战场已满`);
       }
-
-      // 记录日志
-      if (context.addLog) {
-        context.addLog(`召唤了 ${beetle.nameCN}`);
-      }
-      console.log(`嗡鸣害虫：召唤了 ${beetle.nameCN} (${beetle.attack}/${beetle.health})`);
     }
   }
 }

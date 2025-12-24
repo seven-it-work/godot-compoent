@@ -9,15 +9,9 @@
 
     <BattleScene
       ref="battleSceneRef"
-      :enemy-minions="enemyMinions"
-      :player-minions="playerMinions"
-      :enemy-health="enemyHealth"
-      :enemy-armor="enemyArmor"
-      :player-health="playerHealth"
-      :player-armor="playerArmor"
+      :player-data="playerData"
+      :enemy-data="enemyData"
       :auto-start="false"
-      :player-tavern-level="3"
-      :enemy-tavern-level="2"
       @exit-battle="handleExitBattle"
       @battle-completed="handleBattleCompleted"
     ></BattleScene>
@@ -25,23 +19,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import BattleScene from './BattleScene.vue';
-import {
-  getMinionClassByStrId,
-  getAllMinionStrIds,
-} from '../../../game/cards/minion/MinionClassMap';
-import { Minion } from '../../../game/Minion';
+import { onMounted, ref } from 'vue';
 import type { BattleResult } from '../../../game/BattleManager';
+import {
+  getAllMinionStrIds,
+  getMinionClassByStrId,
+} from '../../../game/cards/minion/MinionClassMap';
+import { Hero } from '../../../game/Hero';
+import { Minion } from '../../../game/Minion';
+import { Player } from '../../../game/Player';
+import BattleScene from './BattleScene.vue';
 
-// 战斗数据
+// 战斗玩家数据
+const playerData = ref<Player>(createTestPlayer(true));
+const enemyData = ref<Player>(createTestPlayer(false));
 
-const enemyMinions = ref<(Minion | undefined)[]>([]);
-const playerMinions = ref<(Minion | undefined)[]>([]);
-const enemyHealth = ref(30);
-const enemyArmor = ref(5);
-const playerHealth = ref(30);
-const playerArmor = ref(0);
+// 创建测试玩家
+function createTestPlayer(isPlayer: boolean): Player {
+  const hero = new Hero(
+    isPlayer ? 'test-hero-player' : 'test-hero-enemy',
+    isPlayer ? '测试玩家英雄' : '测试敌人英雄',
+    30,
+    {
+      name: '测试技能',
+      description: '测试技能描述',
+      type: 'active',
+      cost: 0,
+      cooldown: 0,
+      currentCooldown: 0,
+      use: () => {},
+    }
+  );
+
+  const player = new Player(isPlayer ? 'player' : 'enemy', hero, isPlayer);
+
+  // 设置酒馆等级
+  player.tavernLevel = isPlayer ? 3 : 2;
+
+  // 设置护甲
+  if (!isPlayer) {
+    player.hero.armor = 5;
+  }
+
+  return player;
+}
 
 // 战斗结果
 const battleResult = ref<BattleResult | null>(null);
@@ -51,119 +72,51 @@ const isBattleRunning = ref(false);
 const battleSceneRef = ref<InstanceType<typeof BattleScene> | null>(null);
 
 // 初始化战斗数据
-
 const initBattleData = () => {
-  // 获取所有可用的随从strId
+  // 获取所有可用的随从 strId
   const allStrIds = getAllMinionStrIds();
-  console.log('所有可用的随从strId:', allStrIds);
+  console.log('所有可用的随从 strId:', allStrIds);
+
+  // 重置玩家数据
+  playerData.value = createTestPlayer(true);
+  enemyData.value = createTestPlayer(false);
 
   // 初始化敌方随从
-
-  enemyMinions.value = [
-    // 使用getMinionClassByStrId获取随从类，避免循环导入
-    (() => {
-      const RisenRiderClass = getMinionClassByStrId('BG25_001'); // RisenRider的strId
-      if (RisenRiderClass) {
-        const minion = new RisenRiderClass();
-        // 强制转换为Minion类型
-        const minionAsMinion = minion as unknown as Minion;
-        minionAsMinion.position = 0;
-        return minionAsMinion;
-      }
-      return undefined;
-    })() as Minion | undefined,
-
-    (() => {
-      const SouthseaBuskerClass = getMinionClassByStrId('BG26_135'); // SouthseaBusker的strId
-      if (SouthseaBuskerClass) {
-        const minion = new SouthseaBuskerClass();
-        // 强制转换为Minion类型
-        const minionAsMinion = minion as unknown as Minion;
-        minionAsMinion.position = 1;
-        return minionAsMinion;
-      }
-      return undefined;
-    })() as Minion | undefined,
-
-    (() => {
-      const DuneDwellerClass = getMinionClassByStrId('BG31_815'); // DuneDweller的strId
-      if (DuneDwellerClass) {
-        const minion = new DuneDwellerClass();
-        // 强制转换为Minion类型
-        const minionAsMinion = minion as unknown as Minion;
-        minionAsMinion.position = 2;
-        return minionAsMinion;
-      }
-      return undefined;
-    })() as Minion | undefined,
-
-    undefined,
-
-    undefined,
-
-    undefined,
-
-    undefined,
-  ] as (Minion | undefined)[];
+  const enemyMinions: (Minion | null)[] = [
+    createMinionByStrId('BG25_001', 0), // RisenRider
+    createMinionByStrId('BG26_135', 1), // SouthseaBusker
+    createMinionByStrId('BG31_815', 2), // DuneDweller
+    null,
+    null,
+    null,
+    null,
+  ];
+  enemyData.value.minions = enemyMinions;
 
   // 初始化玩家随从
-
-  playerMinions.value = [
-    (() => {
-      const ManasaberClass = getMinionClassByStrId('BG26_800'); // Manasaber的strId
-      if (ManasaberClass) {
-        const minion = new ManasaberClass();
-        // 强制转换为Minion类型
-        const minionAsMinion = minion as unknown as Minion;
-        minionAsMinion.position = 0;
-        return minionAsMinion;
-      }
-      return undefined;
-    })() as Minion | undefined,
-
-    (() => {
-      const LullabotClass = getMinionClassByStrId('BG26_146'); // Lullabot的strId
-      if (LullabotClass) {
-        const minion = new LullabotClass();
-        // 强制转换为Minion类型
-        const minionAsMinion = minion as unknown as Minion;
-        minionAsMinion.position = 1;
-        return minionAsMinion;
-      }
-      return undefined;
-    })() as Minion | undefined,
-
-    (() => {
-      const AlleycatClass = getMinionClassByStrId('BG_CFM_315'); // Alleycat的strId
-      if (AlleycatClass) {
-        const minion = new AlleycatClass();
-        // 强制转换为Minion类型
-        const minionAsMinion = minion as unknown as Minion;
-        minionAsMinion.position = 2;
-        return minionAsMinion;
-      }
-      return undefined;
-    })() as Minion | undefined,
-
-    (() => {
-      const RisenRiderClass = getMinionClassByStrId('BG25_001'); // RisenRider的strId
-      if (RisenRiderClass) {
-        const minion = new RisenRiderClass();
-        // 强制转换为Minion类型
-        const minionAsMinion = minion as unknown as Minion;
-        minionAsMinion.position = 3;
-        return minionAsMinion;
-      }
-      return undefined;
-    })() as Minion | undefined,
-
-    undefined,
-
-    undefined,
-
-    undefined,
-  ] as (Minion | undefined)[];
+  const playerMinions: (Minion | null)[] = [
+    createMinionByStrId('BG26_800', 0), // Manasaber
+    createMinionByStrId('BG26_146', 1), // Lullabot
+    createMinionByStrId('BG_CFM_315', 2), // Alleycat
+    createMinionByStrId('BG25_001', 3), // RisenRider
+    null,
+    null,
+    null,
+  ];
+  playerData.value.minions = playerMinions;
 };
+
+// 创建随从的辅助函数
+function createMinionByStrId(strId: string, position: number): Minion | null {
+  const MinionClass = getMinionClassByStrId(strId);
+  if (MinionClass) {
+    const minion = new MinionClass();
+    const minionAsMinion = minion as unknown as Minion;
+    minionAsMinion.position = position;
+    return minionAsMinion;
+  }
+  return null;
+}
 
 // 开始战斗
 const startBattle = async () => {
@@ -185,43 +138,13 @@ const handleBattleCompleted = (result: BattleResult, log: string[]) => {
   battleLog.value = log;
   isBattleRunning.value = false;
 
-  // 更新生命值
-  if (result.winner === 'enemy') {
-    // 敌方获胜，玩家受到伤害
-    const damageToPlayer = Math.abs(result.playerHealthChange);
-    if (playerArmor.value >= damageToPlayer) {
-      playerArmor.value -= damageToPlayer;
-    } else {
-      const remainingDamage = damageToPlayer - playerArmor.value;
-      playerArmor.value = 0;
-      playerHealth.value -= remainingDamage;
-    }
-  } else if (result.winner === 'player') {
-    // 玩家获胜，敌方受到伤害
-    const damageToEnemy = Math.abs(result.enemyHealthChange);
-    if (enemyArmor.value >= damageToEnemy) {
-      enemyArmor.value -= damageToEnemy;
-    } else {
-      const remainingDamage = damageToEnemy - enemyArmor.value;
-      enemyArmor.value = 0;
-      enemyHealth.value -= remainingDamage;
-    }
-  }
+  // 注意：生命值和护甲已经在 Player 对象中更新，无需额外处理
 };
 
 // 重置战斗
-
 const resetBattle = () => {
   console.log('重置战斗');
-
   initBattleData();
-
-  enemyHealth.value = 30;
-  enemyArmor.value = 5;
-  playerHealth.value = 30;
-  playerArmor.value = 0;
-
-  // 重置战斗结果和日志
   battleResult.value = null;
   battleLog.value = [];
   isBattleRunning.value = false;

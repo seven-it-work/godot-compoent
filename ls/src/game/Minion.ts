@@ -151,10 +151,10 @@ export interface MinionBuff {
  * 死亡上下文 - 随从死亡时的上下文信息
  */
 export interface DeathContext {
-  /** 己方随从列表 */
-  friendlyMinions: (Minion | undefined)[];
-  /** 敌方随从列表 */
-  enemyMinions: (Minion | undefined)[];
+  /** 己方玩家对象 */
+  friendlyPlayer: import('./Player').Player;
+  /** 敌方玩家对象 */
+  enemyPlayer: import('./Player').Player;
   /** 死亡随从所在位置索引 */
   position: number;
   /** 死亡随从所在阵营 */

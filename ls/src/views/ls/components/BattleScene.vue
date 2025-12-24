@@ -120,34 +120,21 @@
 
 <script setup lang="ts">
 import { MinionKeyword, type Minion } from '@/game/Minion';
+import type { Player } from '@/game/Player';
 import { Button, Modal } from 'ant-design-vue';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import type { BattleResult } from '../../../game/BattleManager';
 import BattleCard from './BattleCard.vue';
 
 // 接收外部传入的参数
 const props = withDefaults(
   defineProps<{
-    enemyMinions: (Minion | undefined)[];
-    playerMinions: (Minion | undefined)[];
-    enemyHealth: number;
-    enemyArmor: number;
-    playerHealth: number;
-    playerArmor: number;
+    playerData: Player;
+    enemyData: Player;
     autoStart?: boolean;
-    playerTavernLevel?: number;
-    enemyTavernLevel?: number;
   }>(),
   {
-    enemyMinions: () => Array(7).fill(undefined),
-    playerMinions: () => Array(7).fill(undefined),
-    enemyHealth: 30,
-    enemyArmor: 0,
-    playerHealth: 30,
-    playerArmor: 0,
     autoStart: false,
-    playerTavernLevel: 1,
-    enemyTavernLevel: 1,
   }
 );
 
@@ -156,6 +143,14 @@ const _emit = defineEmits<{
   (e: 'exit-battle'): void;
   (e: 'battle-completed', result: BattleResult, log: string[]): void;
 }>();
+
+// 计算属性：从 Player 对象中获取数据
+const playerMinions = computed(() => props.playerData.minions);
+const enemyMinions = computed(() => props.enemyData.minions);
+const playerHealth = computed(() => props.playerData.hero.health);
+const playerArmor = computed(() => props.playerData.hero.armor);
+const enemyHealth = computed(() => props.enemyData.hero.health);
+const enemyArmor = computed(() => props.enemyData.hero.armor);
 
 // 弹窗状态
 const showResultModal = ref(false);
@@ -197,23 +192,23 @@ const resetCardAnimations = () => {
  * @returns 如果战斗结束，返回true；否则返回false
  */
 const checkBattleEnd = (
-  playerMinions: (Minion | undefined)[],
-  enemyMinions: (Minion | undefined)[]
+  playerMinions: (Minion | null | undefined)[],
+  enemyMinions: (Minion | null | undefined)[]
 ): boolean => {
   // 条件1：如果双方任意一方没有随从，直接返回true
-  const playerMinionCount = playerMinions.filter(m => m !== undefined).length;
-  const enemyMinionCount = enemyMinions.filter(m => m !== undefined).length;
+  const playerMinionCount = playerMinions.filter(m => m !== null && m !== undefined).length;
+  const enemyMinionCount = enemyMinions.filter(m => m !== null && m !== undefined).length;
   if (playerMinionCount === 0 || enemyMinionCount === 0) {
     return true;
   }
 
   // 条件2：如果双方攻击力总和都为0，直接返回true
   const playerTotalAttack = playerMinions
-    .filter(m => m !== undefined)
+    .filter(m => m !== null && m !== undefined)
     .reduce((sum, minion) => sum + minion!.getAttack(), 0);
 
   const enemyTotalAttack = enemyMinions
-    .filter(m => m !== undefined)
+    .filter(m => m !== null && m !== undefined)
     .reduce((sum, minion) => sum + minion!.getAttack(), 0);
 
   if (playerTotalAttack === 0 && enemyTotalAttack === 0) {
@@ -233,7 +228,7 @@ const checkBattleEnd = (
  */
 interface BattleSideData {
   attackIndex: number;
-  minions: (Minion | undefined)[];
+  minions: (Minion | null | undefined)[];
   tavernLevel: number;
   side: 'player' | 'enemy';
 }
@@ -251,10 +246,10 @@ const determineFirstAttacker = (
 ): BattleSideData => {
   // 计算双方随从数量
   const playerMinionCount = playerData.minions.filter(
-    (m: Minion | undefined) => m !== undefined
+    (m: Minion | null | undefined) => m !== null && m !== undefined
   ).length;
   const enemyMinionCount = enemyData.minions.filter(
-    (m: Minion | undefined) => m !== undefined
+    (m: Minion | null | undefined) => m !== null && m !== undefined
   ).length;
 
   // 条件1：随从多的为先手
@@ -281,7 +276,9 @@ const determineFirstAttacker = (
  */
 const getAttackMinion = (attackerData: BattleSideData): Minion | null => {
   // 获取有效的随从
-  const validMinions = attackerData.minions.filter((m: Minion | undefined) => m !== undefined);
+  const validMinions = attackerData.minions.filter(
+    (m: Minion | null | undefined) => m !== null && m !== undefined
+  ) as Minion[];
   if (validMinions.length === 0) {
     console.error('攻击方没有可攻击的随从', attackerData);
     throw new Error('攻击方没有可攻击的随从');
@@ -346,7 +343,7 @@ const getAttackTarget = (
   const tauntMinions: { minion: Minion; index: number }[] = [];
   for (let i = 0; i < enemyMinions.length; i++) {
     const minion = enemyMinions[i];
-    if (minion && minion.health > 0) {
+    if (minion !== null && minion !== undefined && minion.health > 0) {
       const keywords = minion.getKeywords();
       // 有嘲讽且没有潜行
       if (keywords.includes('taunt') && !keywords.includes('stealth')) {
@@ -366,7 +363,7 @@ const getAttackTarget = (
   const validTargets: { minion: Minion; index: number }[] = [];
   for (let i = 0; i < enemyMinions.length; i++) {
     const minion = enemyMinions[i];
-    if (minion && minion.health > 0) {
+    if (minion !== null && minion !== undefined && minion.health > 0) {
       const keywords = minion.getKeywords();
       // 没有潜行
       if (!keywords.includes('stealth')) {
@@ -399,21 +396,21 @@ const executeBattle = async () => {
   // 重置卡片动画状态
   resetCardAnimations();
   // 重置攻击状态
-  resetAttackStates(props.playerMinions, props.enemyMinions);
+  resetAttackStates(playerMinions.value, enemyMinions.value);
 
   // 数据定义
   const playerData: BattleSideData = {
     // 随从攻击索引
     attackIndex: 0,
-    minions: props.playerMinions,
-    tavernLevel: props.playerTavernLevel || 1,
+    minions: playerMinions.value,
+    tavernLevel: props.playerData.tavernLevel,
     side: 'player',
   };
   const enemyData: BattleSideData = {
     // 随从攻击索引
     attackIndex: 0,
-    minions: props.enemyMinions,
-    tavernLevel: props.enemyTavernLevel || 1,
+    minions: enemyMinions.value,
+    tavernLevel: props.enemyData.tavernLevel,
     side: 'enemy',
   };
 
@@ -421,11 +418,15 @@ const executeBattle = async () => {
   console.log('初始状态:');
   console.log(
     '玩家随从:',
-    playerData.minions.filter(m => m).map(m => `${m?.nameCN} (${m?.attack}/${m?.health})`)
+    playerData.minions
+      .filter(m => m !== null && m !== undefined)
+      .map(m => `${m?.nameCN} (${m?.attack}/${m?.health})`)
   );
   console.log(
     '敌方随从:',
-    enemyData.minions.filter(m => m).map(m => `${m?.nameCN} (${m?.attack}/${m?.health})`)
+    enemyData.minions
+      .filter(m => m !== null && m !== undefined)
+      .map(m => `${m?.nameCN} (${m?.attack}/${m?.health})`)
   );
 
   // 判断先手，并设置当前攻击方
@@ -481,13 +482,13 @@ const executeBattle = async () => {
     console.log(
       '玩家随从状态:',
       playerData.minions
-        .filter(m => m)
+        .filter(m => m !== null && m !== undefined)
         .map(m => `${m?.nameCN} (${m?.attack}/${m?.health})${m?.hasAttacked ? ' [已攻击]' : ''}`)
     );
     console.log(
       '敌方随从状态:',
       enemyData.minions
-        .filter(m => m)
+        .filter(m => m !== null && m !== undefined)
         .map(m => `${m?.nameCN} (${m?.attack}/${m?.health})${m?.hasAttacked ? ' [已攻击]' : ''}`)
     );
   }
@@ -537,14 +538,14 @@ const attackEnemy = async (
 
 // 重置攻击状态
 const resetAttackStates = (
-  playerMinions: (Minion | undefined)[],
-  enemyMinions: (Minion | undefined)[]
+  playerMinions: (Minion | null | undefined)[],
+  enemyMinions: (Minion | null | undefined)[]
 ) => {
   playerMinions.forEach(minion => {
-    if (minion) minion.hasAttacked = false;
+    if (minion !== null && minion !== undefined) minion.hasAttacked = false;
   });
   enemyMinions.forEach(minion => {
-    if (minion) minion.hasAttacked = false;
+    if (minion !== null && minion !== undefined) minion.hasAttacked = false;
   });
 };
 
@@ -635,10 +636,8 @@ const handleDamage = async (
 const removeDeadMinion = async (
   side: 'player' | 'enemy',
   index: number,
-  minions: (Minion | undefined)[],
-  minion: Minion,
-  playerMinions: (Minion | undefined)[],
-  enemyMinions: (Minion | undefined)[]
+  minions: (Minion | null | undefined)[],
+  minion: Minion
 ) => {
   console.log(`    死亡处理: ${side}方的 ${minion.nameCN} 已死亡`);
 
@@ -669,8 +668,8 @@ const removeDeadMinion = async (
 
     // 构建死亡上下文
     const deathContext = {
-      friendlyMinions: side === 'player' ? playerMinions : enemyMinions,
-      enemyMinions: side === 'player' ? enemyMinions : playerMinions,
+      friendlyPlayer: side === 'player' ? props.playerData : props.enemyData,
+      enemyPlayer: side === 'player' ? props.enemyData : props.playerData,
       position: index,
       side: side,
       addLog: (message: string) => {
@@ -691,8 +690,8 @@ const executeAttack = async (
   target: Minion,
   targetIndex: number,
   targetSide: 'player' | 'enemy',
-  playerMinions: (Minion | undefined)[],
-  enemyMinions: (Minion | undefined)[]
+  playerMinions: (Minion | null | undefined)[],
+  enemyMinions: (Minion | null | undefined)[]
 ) => {
   console.log(`  ========================================`);
   console.log(`  开始攻击执行`);
@@ -734,9 +733,7 @@ const executeAttack = async (
       targetSide,
       targetIndex,
       targetSide === 'player' ? playerMinions : enemyMinions,
-      target,
-      playerMinions,
-      enemyMinions
+      target
     );
   }
 
@@ -757,9 +754,7 @@ const executeAttack = async (
         attackerSide,
         attackerIndex,
         attackerSide === 'player' ? playerMinions : enemyMinions,
-        attacker,
-        playerMinions,
-        enemyMinions
+        attacker
       );
     }
   }
