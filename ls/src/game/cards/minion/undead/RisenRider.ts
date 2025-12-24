@@ -8,38 +8,52 @@ import { Minion } from '@/game/Minion';
 
 export class RisenRider extends Minion {
   static BASE_DATA = {
-    id: 100000,
-    strId: 'BG25_001',
-    cardType: 'minion',
-    name: 'RisenRider',
-    nameCN: '复活的骑兵',
-    text: '',
-    mechanics: [],
-    referencedTags: [],
-    img: '',
-    art: '',
-    tier: 1,
-    health: 1,
-    attack: 1,
-    minionTypes: ['undead'],
-    minionTypesCN: ['亡灵'],
-    upgradeCard: {
-      id: 100001,
-      strId: '',
-      cardType: 'minion',
-      name: 'RisenRider',
-      nameCN: '复活的骑兵',
-      text: '',
-      mechanics: [],
-      referencedTags: [],
-      img: '',
-      art: '',
-      tier: 1,
-      health: 2,
-      attack: 2,
-      minionTypes: ['undead'],
-      minionTypesCN: ['亡灵'],
-    },
-  };
+  "id": 95246,
+  "strId": "BG25_001",
+  "cardType": "minion",
+  "name": "Risen Rider",
+  "nameCN": "复活的骑兵",
+  "text": "<b>嘲讽</b>，<b>复生</b>",
+  "mechanics": [
+    "REBORN",
+    "TAUNT"
+  ],
+  "referencedTags": [],
+  "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG25_001_battlegroundsImage.png",
+  "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG25_001_cardArtFromHsJson256x.png",
+  "tier": 1,
+  "health": 1,
+  "attack": 2,
+  "minionTypes": [
+    "undead"
+  ],
+  "minionTypesCN": [
+    "亡灵"
+  ],
+  "upgradeCard": {
+    "id": 95248,
+    "strId": "BG25_001_G",
+    "cardType": "minion",
+    "name": "Risen Rider",
+    "nameCN": "复活的骑兵",
+    "text": "<b>嘲讽</b>，<b>复生</b>",
+    "mechanics": [
+      "REBORN",
+      "TAUNT"
+    ],
+    "referencedTags": [],
+    "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG25_001_G_battlegroundsImageGold.png",
+    "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG25_001_G_cardArtFromHsJson256x.png",
+    "tier": 1,
+    "health": 2,
+    "attack": 4,
+    "minionTypes": [
+      "undead"
+    ],
+    "minionTypesCN": [
+      "亡灵"
+    ]
+  }
+};
   // 继承父类的构造函数和所有方法
 }

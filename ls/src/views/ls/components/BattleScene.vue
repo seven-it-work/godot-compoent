@@ -786,7 +786,7 @@ const removeDeadMinion = async (
   internalBattleLog.value.push(`${minion.nameCN} 被杀死了！`);
 
   // 检查并处理重生
-  if (minion.getKeywords().includes('reborn')) {
+  if (minion.hasKeyword(MinionKeyword.REBORN)) {
     // 简单模拟重生，创建新的随从实例
     const originalMinion = new (minion.constructor as new () => Minion)();
     originalMinion.health = 1;

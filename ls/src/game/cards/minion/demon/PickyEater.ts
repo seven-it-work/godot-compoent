@@ -5,39 +5,51 @@ import { Minion } from '@/game/Minion';
  */
 export class PickyEater extends Minion {
   static BASE_DATA = {
-    id: 100409,
-    strId: 'BG24_009',
-    cardType: 'minion',
-    name: 'PickyEater',
-    nameCN: '挑食魔犬',
-    text: '<b>战吼：</b>随机吞食酒馆中的一个随从，获得其属性值。',
-    mechanics: ['BATTLECRY'],
-    referencedTags: [],
-    img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG24_009_battlegroundsImage.png',
-    art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG24_009_cardArtFromHsJson256x.png',
-    tier: 3,
-    health: 2,
-    attack: 2,
-    minionTypes: ['demon'],
-    minionTypesCN: ['恶魔'],
-    upgradeCard: {
-      id: 100509,
-      strId: 'BG24_009_G',
-      cardType: 'minion',
-      name: 'PickyEater',
-      nameCN: '挑食魔犬',
-      text: '<b>战吼：</b>随机吞食酒馆中的一个随从，获得其属性值的两倍。',
-      mechanics: ['BATTLECRY'],
-      referencedTags: [],
-      img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG24_009_battlegroundsImageGold.png',
-      art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG24_009_cardArtFromHsJson256x.png',
-      tier: 3,
-      health: 4,
-      attack: 4,
-      minionTypes: ['demon'],
-      minionTypesCN: ['恶魔'],
-    },
-  };
+  "id": 92400,
+  "strId": "BG24_009",
+  "cardType": "minion",
+  "name": "Picky Eater",
+  "nameCN": "挑食魔犬",
+  "text": "<b>战吼：</b>随机吞食酒馆中的一个随从，获得其属性值。",
+  "mechanics": [
+    "BATTLECRY"
+  ],
+  "referencedTags": [],
+  "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG24_009_battlegroundsImage.png",
+  "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG24_009_cardArtFromHsJson256x.png",
+  "tier": 1,
+  "health": 1,
+  "attack": 1,
+  "minionTypes": [
+    "demon"
+  ],
+  "minionTypesCN": [
+    "恶魔"
+  ],
+  "upgradeCard": {
+    "id": 92427,
+    "strId": "BG24_009_G",
+    "cardType": "minion",
+    "name": "Picky Eater",
+    "nameCN": "挑食魔犬",
+    "text": "<b>战吼：</b>随机吞食酒馆中的一个随从，获得其双倍属性值。",
+    "mechanics": [
+      "BATTLECRY"
+    ],
+    "referencedTags": [],
+    "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG24_009_G_battlegroundsImageGold.png",
+    "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG24_009_G_cardArtFromHsJson256x.png",
+    "tier": 1,
+    "health": 2,
+    "attack": 2,
+    "minionTypes": [
+      "demon"
+    ],
+    "minionTypesCN": [
+      "恶魔"
+    ]
+  }
+};
 
   /**
    * 重写战吼方法

@@ -190,8 +190,13 @@ const props = defineProps<{
 
 /* 单个关键词标签 */
 .keyword-tag {
-  color: black;
+  color: #0000ff;
   font-size: 8px;
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 1px 3px;
+  border-radius: 3px;
+  white-space: nowrap;
 }
 
 /* 卡片名称 */
