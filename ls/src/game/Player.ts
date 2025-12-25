@@ -131,11 +131,39 @@ export class Player {
     return removedMinion;
   }
 
+  /**
+   * 召唤随从到战场 - 统一的战场召唤入口
+   * @param minion - 要召唤的随从实例
+   * @param referencePosition - 参考位置（触发召唤的随从位置）
+   * @returns 是否成功召唤
+   * @使用方式：当需要在战场上召唤随从时调用（如战吼、亡语、手牌召唤）
+   */
   public summonMinion(minion: Minion, referencePosition: number | null): boolean {
     // 检查战场是否已满
     const emptyPositions = this.minions.filter(pos => pos === null).length;
     if (emptyPositions === 0) {
       return false;
+    }
+    // 先查看是否还有空位
+    const emptyPositionsCount = this.minions.filter(pos => !pos).length;
+    if (emptyPositionsCount >= 7) {
+      // 满了无法召唤
+      console.log('战场已满，无法召唤随从');
+      return false;
+    }
+    if (referencePosition == null) {
+      // 插入最后
+      for (let i = 0; i < 7; i++) {
+        if (this.minions[i] === null) {
+          this.minions[i] = minion;
+          return true;
+        }
+      }
+    } else {
+      // 插入指定位置
+      this.minions.splice(referencePosition, 0, minion);
+      this.minions.splice(7, 1);
+      return true;
     }
 
     // 确定召唤位置
