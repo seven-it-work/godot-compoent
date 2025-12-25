@@ -5,39 +5,75 @@ import { Minion } from '@/game/Minion';
  */
 export class SunBaconRelaxer extends Minion {
   static BASE_DATA = {
-    id: 100301,
-    strId: 'BG20_301',
-    cardType: 'minion',
-    name: 'SunBaconRelaxer',
-    nameCN: '晾膘的游客',
-    text: '<b>亡语：</b>获取2张鲜血宝石。',
-    mechanics: ['DEATHRATTLE'],
-    referencedTags: [],
-    img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG20_301_battlegroundsImage.png',
-    art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG20_301_cardArtFromHsJson256x.png',
-    tier: 2,
-    health: 4,
-    attack: 2,
-    minionTypes: ['quilboar'],
-    minionTypesCN: ['野猪人'],
-    upgradeCard: {
-      id: 100401,
-      strId: 'BG20_301_G',
-      cardType: 'minion',
-      name: 'SunBaconRelaxer',
-      nameCN: '晾膘的游客',
-      text: '<b>亡语：</b>获取4张鲜血宝石。',
-      mechanics: ['DEATHRATTLE'],
-      referencedTags: [],
-      img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG20_301_battlegroundsImageGold.png',
-      art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG20_301_cardArtFromHsJson256x.png',
-      tier: 2,
-      health: 8,
-      attack: 4,
-      minionTypes: ['quilboar'],
-      minionTypesCN: ['野猪人'],
-    },
-  };
+  "id": 70147,
+  "strId": "BG20_301",
+  "cardType": "minion",
+  "name": "Sun-Bacon Relaxer",
+  "nameCN": "晾膘的游客",
+  "text": "当你出售本随从时，获取2张<b>鲜血宝石</b>。",
+  "mechanics": [],
+  "referencedTags": [],
+  "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG20_301_battlegroundsImage.png",
+  "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG20_301_cardArtFromHsJson256x.png",
+  "tokens": [
+    {
+      "id": 70136,
+      "strId": "BG20_GEM",
+      "cardType": "spell",
+      "name": "Blood Gem",
+      "nameCN": "鲜血宝石",
+      "text": "使一个随从获得+{0}/+{1}。",
+      "mechanics": [],
+      "referencedTags": [],
+      "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG20_GEM_battlegroundsImage.png",
+      "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG20_GEM_cardArtFromHsJson256x.png"
+    }
+  ],
+  "tier": 1,
+  "health": 3,
+  "attack": 2,
+  "minionTypes": [
+    "quilboar"
+  ],
+  "minionTypesCN": [
+    "野猪人"
+  ],
+  "upgradeCard": {
+    "id": 70148,
+    "strId": "BG20_301_G",
+    "cardType": "minion",
+    "name": "Sun-Bacon Relaxer",
+    "nameCN": "晾膘的游客",
+    "text": "当你出售本随从时，获取4张<b>鲜血宝石</b>。",
+    "mechanics": [],
+    "referencedTags": [],
+    "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG20_301_G_battlegroundsImageGold.png",
+    "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG20_301_G_cardArtFromHsJson256x.png",
+    "tokens": [
+      {
+        "id": 70136,
+        "strId": "BG20_GEM",
+        "cardType": "spell",
+        "name": "Blood Gem",
+        "nameCN": "鲜血宝石",
+        "text": "使一个随从获得+{0}/+{1}。",
+        "mechanics": [],
+        "referencedTags": [],
+        "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG20_GEM_battlegroundsImage.png",
+        "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG20_GEM_cardArtFromHsJson256x.png"
+      }
+    ],
+    "tier": 1,
+    "health": 6,
+    "attack": 4,
+    "minionTypes": [
+      "quilboar"
+    ],
+    "minionTypesCN": [
+      "野猪人"
+    ]
+  }
+};
 
   /**
    * 重写出售随从时触发的方法

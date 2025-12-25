@@ -1,55 +1,95 @@
-import json
 import os
+import json
 import re
 
-# 获取当前脚本所在目录
-current_dir = os.path.dirname(os.path.abspath(__file__))
-# 构建输入文件路径
-input_file = os.path.join(current_dir, 'get_full_cards.json')
-# 构建输出文件路径
-minions_output = os.path.join(current_dir, 'minions.json')
-heroes_output = os.path.join(current_dir, 'heroes.json')
+# 定义文件路径
+MINIONS_JSON_PATH = r"e:\dev_soft\Godot_v4.3-stable_win64.exe\godot-compoent\ls\src\data\minions.json"
+MINION_TS_DIR = r"e:\dev_soft\Godot_v4.3-stable_win64.exe\godot-compoent\ls\src\game\cards\minion"
 
-# 预处理函数：移除JSON中的非法尾随逗号
-def fix_json_with_trailing_commas(json_str):
-    # 移除数组中的尾随逗号
-    json_str = re.sub(r',\s*\n\s*]', r'\n]', json_str, flags=re.MULTILINE)
-    # 移除对象中的尾随逗号
-    json_str = re.sub(r',\s*\n\s*}', r'\n}', json_str, flags=re.MULTILINE)
-    return json_str
+# 读取minions.json文件
+def load_minions_data():
+    with open(MINIONS_JSON_PATH, 'r', encoding='utf-8') as f:
+        content = f.read()
+    # 手动处理字符串中的换行符，确保它们被正确转义
+    # 注意：这需要非常小心，以免破坏JSON结构
+    return json.loads(content)
 
-try:
-    # 读取输入文件
-    with open(input_file, 'r', encoding='utf-8') as f:
-        json_str = f.read()
+# 提取TypeScript文件中BASE_DATA的strId
+def extract_strid_from_ts(ts_content):
+    # 修复正则表达式，确保能匹配JSON格式的strId
+    match = re.search(r'"strId"\s*:\s*"([^"]+)"', ts_content)
+    return match.group(1) if match else None
+
+# 替换TypeScript文件中的BASE_DATA
+def replace_base_data(ts_content, minion_data):
+    # 首先，我们需要手动处理字符串中的换行符
+    def process_value(value):
+        if isinstance(value, str):
+            # 将字符串中的换行符替换为\n
+            return value.replace('\n', '\\n')
+        elif isinstance(value, dict):
+            return {k: process_value(v) for k, v in value.items()}
+        elif isinstance(value, list):
+            return [process_value(item) for item in value]
+        else:
+            return value
     
-    # 修复JSON中的尾随逗号
-    fixed_json_str = fix_json_with_trailing_commas(json_str)
+    # 处理数据中的换行符
+    processed_data = process_value(minion_data)
     
-    # 解析修复后的JSON
-    data = json.loads(fixed_json_str)
+    # 将处理后的数据转换为JSON字符串
+    base_data_str = json.dumps(processed_data, ensure_ascii=False, indent=2)
     
-    # 检查数据结构
-    if 'data' in data and isinstance(data['data'], dict):
-        # 提取minion数组
-        minions = data['data'].get('minion', [])
-        # 提取hero数组
-        heroes = data['data'].get('hero', [])
-        
-        # 保存minions.json
-        with open(minions_output, 'w', encoding='utf-8') as f:
-            json.dump(minions, f, ensure_ascii=False, indent=2)
-        
-        # 保存heroes.json
-        with open(heroes_output, 'w', encoding='utf-8') as f:
-            json.dump(heroes, f, ensure_ascii=False, indent=2)
-        
-        print(f"成功拆分get_full_cards.json文件！")
-        print(f"- 生成minions.json文件，包含{len(minions)}个随从")
-        print(f"- 生成heroes.json文件，包含{len(heroes)}个英雄")
-    else:
-        print("输入文件格式不符合预期！")
-except Exception as e:
-    print(f"处理文件时发生错误：{str(e)}")
-    import traceback
-    traceback.print_exc()
+    # 替换BASE_DATA内容
+    updated_content = re.sub(
+        r'static BASE_DATA = [^;]+;',
+        f'static BASE_DATA = {base_data_str};',
+        ts_content,
+        flags=re.DOTALL
+    )
+    return updated_content
+
+# 主函数
+def main():
+    # 加载minions数据
+    minions_data = load_minions_data()
+    
+    # 创建strId到minion数据的映射
+    strid_to_minion = {minion['strId']: minion for minion in minions_data}
+    
+    # 遍历TypeScript文件目录
+    updated_files = 0
+    for root, dirs, files in os.walk(MINION_TS_DIR):
+        for file in files:
+            if file.endswith('.ts'):
+                ts_file_path = os.path.join(root, file)
+                
+                # 读取TypeScript文件内容
+                with open(ts_file_path, 'r', encoding='utf-8') as f:
+                    ts_content = f.read()
+                
+                # 提取strId
+                current_strid = extract_strid_from_ts(ts_content)
+                if not current_strid:
+                    print(f"警告: 在文件 {ts_file_path} 中未找到strId")
+                    continue
+                
+                # 查找匹配的minion数据
+                if current_strid in strid_to_minion:
+                    minion_data = strid_to_minion[current_strid]
+                    
+                    # 替换BASE_DATA
+                    updated_content = replace_base_data(ts_content, minion_data)
+                    
+                    # 写入文件，即使内容看起来相同，确保换行符问题得到修复
+                    with open(ts_file_path, 'w', encoding='utf-8') as f:
+                        f.write(updated_content)
+                    updated_files += 1
+                    print(f"已更新文件: {ts_file_path}")
+                else:
+                    print(f"警告: 未找到匹配的strId: {current_strid} 在文件 {ts_file_path}")
+    
+    print(f"更新完成，共更新了 {updated_files} 个文件")
+
+if __name__ == "__main__":
+    main()

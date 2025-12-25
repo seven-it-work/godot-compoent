@@ -178,7 +178,7 @@ export interface IMinion extends ICard {
 
   // 游戏状态属性
   /** 永久关键词列表 - 随从拥有的永久关键词（通过mechanics映射或永久效果获得） */
-  permanentKeywords: MinionKeyword[];
+  mechanics: MinionKeyword[];
   /** 临时关键词列表 - 随从拥有的临时关键词（通过临时效果获得，回合结束时移除） */
   temporaryKeywords: MinionKeyword[];
   /** 是否为金色 - 金色随从拥有更强的属性 */
@@ -217,7 +217,7 @@ export class Minion extends Card implements IMinion {
 
   // 游戏状态属性
   /** 永久关键词列表 - 随从拥有的永久关键词（通过mechanics映射或永久效果获得） */
-  permanentKeywords: MinionKeyword[] = [];
+  mechanics: MinionKeyword[] = [];
   /** 临时关键词列表 - 随从拥有的临时关键词（通过临时效果获得，回合结束时移除） */
   temporaryKeywords: MinionKeyword[] = [];
   /** 是否为金色 - 金色随从拥有更强的属性 */
@@ -263,7 +263,7 @@ export class Minion extends Card implements IMinion {
     this.upgradeCard = mergedParams.upgradeCard;
 
     // 游戏状态属性初始化
-    this.permanentKeywords = Minion.mapMechanicsToKeywords(mergedParams.mechanics || []);
+    this.mechanics = Minion.mapMechanicsToKeywords(mergedParams.mechanics || []);
     this.temporaryKeywords = [];
     this.isGolden = mergedParams.isGolden || false;
     this.isFrozen = mergedParams.isFrozen || false;
@@ -398,7 +398,7 @@ export class Minion extends Card implements IMinion {
    */
   getKeywords(): MinionKeyword[] {
     if (this.keywordsCache === null) {
-      this.keywordsCache = [...this.permanentKeywords, ...this.temporaryKeywords];
+      this.keywordsCache = [...this.mechanics, ...this.temporaryKeywords];
     }
     return this.keywordsCache;
   }
@@ -409,7 +409,7 @@ export class Minion extends Card implements IMinion {
    */
   removeKeyword(keyword: MinionKeyword): void {
     this.temporaryKeywords = this.temporaryKeywords.filter(k => k !== keyword);
-    this.permanentKeywords = this.permanentKeywords.filter(k => k !== keyword);
+    this.mechanics = this.mechanics.filter(k => k !== keyword);
     this.clearCache();
   }
 
@@ -504,7 +504,7 @@ export class Minion extends Card implements IMinion {
       this.health = this.upgradeCard.health;
       this.text = this.upgradeCard.text;
       this.mechanics = this.upgradeCard.mechanics;
-      this.permanentKeywords = Minion.mapMechanicsToKeywords(this.upgradeCard.mechanics);
+      this.mechanics = Minion.mapMechanicsToKeywords(this.upgradeCard.mechanics);
       this.clearCache(); // 清除缓存，确保属性重新计算
     }
   }

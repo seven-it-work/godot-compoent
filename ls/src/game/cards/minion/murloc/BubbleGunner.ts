@@ -5,39 +5,51 @@ import { Minion, MinionKeyword } from '@/game/Minion';
  */
 export class BubbleGunner extends Minion {
   static BASE_DATA = {
-    id: 100016,
-    strId: 'BG31_149',
-    cardType: 'minion',
-    name: 'BubbleGunner',
-    nameCN: '气泡枪手',
-    text: '<b>战吼：</b>获得一个随机额外关键词。',
-    mechanics: ['BATTLECRY'],
-    referencedTags: [],
-    img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG31_149_battlegroundsImage.png',
-    art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG31_149_cardArtFromHsJson256x.png',
-    tier: 1,
-    health: 2,
-    attack: 2,
-    minionTypes: ['murloc'],
-    minionTypesCN: ['鱼人'],
-    upgradeCard: {
-      id: 100017,
-      strId: 'TB_BaconUps_149',
-      cardType: 'minion',
-      name: 'BubbleGunner',
-      nameCN: '气泡枪手',
-      text: '<b>战吼：</b>获得两个随机额外关键词。',
-      mechanics: ['BATTLECRY'],
-      referencedTags: [],
-      img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/TB_BaconUps_149_battlegroundsImageGold.png',
-      art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/TB_BaconUps_149_cardArtFromHsJson256x.png',
-      tier: 1,
-      health: 4,
-      attack: 4,
-      minionTypes: ['murloc'],
-      minionTypesCN: ['鱼人'],
-    },
-  };
+  "id": 116178,
+  "strId": "BG31_149",
+  "cardType": "minion",
+  "name": "Bubble Gunner",
+  "nameCN": "气泡枪手",
+  "text": "<b>战吼：</b>获得一个随机<b>额外关键词</b>。",
+  "mechanics": [
+    "BATTLECRY"
+  ],
+  "referencedTags": [],
+  "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG31_149_battlegroundsImage.png",
+  "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG31_149_cardArtFromHsJson256x.png",
+  "tier": 1,
+  "health": 3,
+  "attack": 2,
+  "minionTypes": [
+    "murloc"
+  ],
+  "minionTypesCN": [
+    "鱼人"
+  ],
+  "upgradeCard": {
+    "id": 116179,
+    "strId": "BG31_149_G",
+    "cardType": "minion",
+    "name": "Bubble Gunner",
+    "nameCN": "气泡枪手",
+    "text": "<b>战吼：</b>获得2个随机<b>额外关键词</b>。",
+    "mechanics": [
+      "BATTLECRY"
+    ],
+    "referencedTags": [],
+    "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG31_149_G_battlegroundsImageGold.png",
+    "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG31_149_G_cardArtFromHsJson256x.png",
+    "tier": 1,
+    "health": 6,
+    "attack": 4,
+    "minionTypes": [
+      "murloc"
+    ],
+    "minionTypesCN": [
+      "鱼人"
+    ]
+  }
+};
 
   /**
    * 重写战吼方法

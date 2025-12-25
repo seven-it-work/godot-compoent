@@ -522,7 +522,6 @@ const attackEnemy = async (
 
   // 获取攻击者索引
   const attackerIndex = currentAttacker.attackIndex;
-
   // 执行攻击
   await executeAttack(
     attacker,
@@ -559,22 +558,164 @@ const executeAttackAnimation = async (
   console.log(
     `执行${side}方第${index}个随从的攻击动画，攻击目标：${targetSide}方第${targetIndex}个随从`
   );
-  // 简单的延迟，模拟攻击动画
-  await new Promise(resolve => setTimeout(resolve, 800));
+
+  // 获取攻击方和被攻击方的DOM元素
+  const attackerId = `${side}-slot-${index + 1}`;
+  const targetId = `${targetSide}-slot-${targetIndex + 1}`;
+
+  const attackerElement = document.getElementById(attackerId);
+  const targetElement = document.getElementById(targetId);
+
+  if (!attackerElement || !targetElement) {
+    console.error('找不到攻击方或被攻击方的DOM元素');
+    await new Promise(resolve => setTimeout(resolve, 800));
+    return;
+  }
+
+  // 计算两个div中心点的偏移量
+  function calculateCenterOffset() {
+    // 获取攻击方的位置和尺寸信息
+    const attackerRect = attackerElement.getBoundingClientRect();
+    // 攻击方中心点坐标（相对于视口）
+    const attackerCenterX = attackerRect.left + attackerRect.width / 2;
+    const attackerCenterY = attackerRect.top + attackerRect.height / 2;
+
+    // 获取被攻击方的位置和尺寸信息
+    const targetRect = targetElement.getBoundingClientRect();
+    // 被攻击方中心点坐标（相对于视口）
+    const targetCenterX = targetRect.left + targetRect.width / 2;
+    const targetCenterY = targetRect.top + targetRect.height / 2;
+
+    // 计算需要移动的偏移量（X轴和Y轴）
+    const offsetX = targetCenterX - attackerCenterX;
+    const offsetY = targetCenterY - attackerCenterY;
+
+    return { offsetX, offsetY };
+  }
+
+  // 存储攻击方原始位置和z-index
+  const originalTransform = attackerElement.style.transform || '';
+  const originalZIndex = attackerElement.style.zIndex;
+
+  // 计算偏移量
+  const { offsetX, offsetY } = calculateCenterOffset();
+
+  // 设置攻击动画样式和z-index确保在最上层
+  attackerElement.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+  attackerElement.style.zIndex = '300'; // 确保攻击方显示在最上层
+
+  // 第一步：移动到被攻击方中心点
+  attackerElement.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+
+  // 第二步：等待动画结束后，返回原位置
+  await new Promise(resolve => setTimeout(resolve, 500));
+  attackerElement.style.transform = originalTransform;
+
+  // 第三步：等待返回动画结束
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // 恢复原始z-index
+  attackerElement.style.zIndex = originalZIndex;
+
+  // 重置transition属性
+  attackerElement.style.transition = '';
 };
 
 // 执行单个伤害动画
 const executeDamageAnimation = async (side: 'player' | 'enemy', index: number, damage: number) => {
   console.log(`执行${side}方第${index}个随从的伤害动画，伤害值: ${damage}`);
-  // 简单的延迟，模拟伤害动画
-  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // 获取被攻击方的DOM元素
+  const targetId = `${side}-slot-${index + 1}`;
+  const targetElement = document.getElementById(targetId);
+
+  if (!targetElement) {
+    console.error('找不到被攻击方的DOM元素');
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return;
+  }
+
+  // 获取战场容器元素（作为伤害数字的父容器）
+  const battlefieldContainer = document.querySelector('.battle-main');
+  if (!battlefieldContainer) {
+    console.error('找不到战场容器元素');
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return;
+  }
+
+  // 设置受伤元素为相对定位，以便伤害数字可以相对于它绝对定位
+  if (window.getComputedStyle(targetElement).position === 'static') {
+    targetElement.style.position = 'relative';
+  }
+
+  // 创建伤害数字div元素
+  const damageDiv = document.createElement('div');
+  damageDiv.className = 'damage-number';
+  damageDiv.innerText = damage.toString(); // 设置伤害值
+
+  // 设置伤害数字样式，相对于受伤的div定位
+  Object.assign(damageDiv.style, {
+    position: 'absolute',
+    color: '#ff0000',
+    fontSize: '24px',
+    fontWeight: 'bold',
+    zIndex: '400', // 确保在所有元素最上层显示
+    pointerEvents: 'none', // 避免遮挡交互事件
+    transition: 'all 0.8s ease-out',
+    left: '50%', // 相对于受伤div的中心位置
+    top: '20%', // 受伤div顶部上方20px
+    transform: 'translateX(-50%)',
+    opacity: '1',
+    textShadow: '0 0 5px rgba(0, 0, 0, 0.5)',
+  });
+
+  // 将伤害元素添加到受伤的div中
+  targetElement.appendChild(damageDiv);
+
+  // 触发动画：上移+透明度变为0（淡淡消失）
+  await new Promise(resolve => setTimeout(resolve, 200)); // 微小延迟确保样式渲染完成
+  damageDiv.style.opacity = '0';
+  damageDiv.style.top = '0px';
+
+  // 等待动画结束
+  await new Promise(resolve => setTimeout(resolve, 800)); // 与transition时长一致
+
+  // 移除伤害元素，避免DOM冗余
+  targetElement.removeChild(damageDiv);
+  await new Promise(resolve => setTimeout(resolve, 200)); // 微小延迟确保样式渲染完成
 };
 
 // 执行单个死亡动画
-const executeDeathAnimation = async (side: 'player' | 'enemy', index: number) => {
+const executeDeathAnimation = async (
+  minions: (Minion | undefined)[],
+  side: 'player' | 'enemy',
+  index: number
+) => {
   console.log(`执行${side}方第${index}个随从的死亡动画`);
-  // 简单的延迟，模拟死亡动画
-  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // 获取死亡随从的DOM元素
+  const targetId = `${side}-slot-${index + 1}`;
+  const targetElement = document.getElementById(targetId);
+
+  if (!targetElement) {
+    console.error('找不到死亡随从的DOM元素');
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    return;
+  }
+
+  // 添加死亡样式类，触发溶解动画
+  targetElement.classList.add('death');
+
+  // 等待溶解动画结束
+  await new Promise(resolve => setTimeout(resolve, 600));
+
+  // 移除死亡随从并顶格处理
+  minions.splice(index, 1);
+
+  // 移除死亡样式类，以便下次动画可以重新触发
+  targetElement.classList.remove('death');
+  // 等待溶解动画结束
+  await new Promise(resolve => setTimeout(resolve, 600));
 };
 
 // 执行单个圣盾消失动画
@@ -642,21 +783,18 @@ const removeDeadMinion = async (
   console.log(`    死亡处理: ${side}方的 ${minion.nameCN} 已死亡`);
 
   // 执行死亡动画
-  await executeDeathAnimation(side, index);
-
-  // 移除死亡随从并顶格处理
-  minions.splice(index, 1);
+  await executeDeathAnimation(minions, side, index);
   internalBattleLog.value.push(`${minion.nameCN} 被杀死了！`);
 
-  // 检查并处理重生
-  if (minion.getKeywords().includes('reborn')) {
-    // 简单模拟重生，创建新的随从实例
+  // 检查并处理复生
+  if (minion.hasKeyword(MinionKeyword.REBORN)) {
+    // 简单模拟复生，创建新的随从实例
     const originalMinion = new (minion.constructor as new () => Minion)();
     originalMinion.health = 1;
     originalMinion.removeKeyword(MinionKeyword.REBORN);
     minions.splice(index, 0, originalMinion);
-    console.log(`    重生效果: ${originalMinion.nameCN} 成功重生，生命值恢复到 1`);
-    internalBattleLog.value.push(`${originalMinion.nameCN} 成功重生了！`);
+    console.log(`    复生效果: ${originalMinion.nameCN} 成功复生，生命值恢复到 1`);
+    internalBattleLog.value.push(`${originalMinion.nameCN} 成功复生了！`);
   } else {
     minions.push(undefined);
   }
@@ -821,6 +959,21 @@ defineExpose({
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* 溶解死亡动画样式 */
+.battle-card {
+  transition: all 1.2s ease-in-out;
+  transform: translateZ(0); /* 开启硬件加速 */
+}
+
+.battle-card.death {
+  /* 高斯模糊：模拟溶解的朦胧消散感 */
+  filter: blur(4px) hue-rotate(90deg);
+  /* 透明度渐变：逐步消失 */
+  opacity: 0;
+  /* 轻微缩放：增强溶解的视觉层次感 */
+  transform: scale(0.9);
 }
 
 /* 底部战斗信息 */
