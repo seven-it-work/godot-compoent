@@ -1,5 +1,4 @@
-import type { DeathContext } from '@/game/Minion';
-import { Minion } from '@/game/Minion';
+import { Minion, type BattleContext } from '@/game/Minion';
 import { Cubling } from './Cubling';
 
 /**
@@ -101,7 +100,7 @@ export class Manasaber extends Minion {
    * @使用方式：当随从死亡时触发
    * 效果：亡语：召唤两只/四只0/1并具有嘲讽的豹宝宝（根据是否金色）
    */
-  onDeath(context?: DeathContext): void {
+  onDeath(context?: BattleContext): void {
     if (!context) return;
 
     // 根据是否金色决定召唤数量（普通版本2只，金色版本4只）

@@ -832,7 +832,13 @@ const executeAttack = async (
   console.log(`  开始攻击执行`);
   console.log(`  ========================================`);
   // 被攻击前的处理（攻击前置处理）
-  target.onAttacked();
+  target.onAttacked({
+    attacker,
+    friendlyPlayer: targetSide === 'player' ? props.playerData : props.enemyData,
+    enemyPlayer: targetSide === 'player' ? props.enemyData : props.playerData,
+    position: targetIndex,
+    side: targetSide,
+  });
   // 获取攻击力
   const attackerDamage = attacker.getAttack();
   const targetDamage = target.getAttack();

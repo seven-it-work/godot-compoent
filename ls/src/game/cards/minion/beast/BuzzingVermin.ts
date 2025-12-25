@@ -1,4 +1,4 @@
-import type { DeathContext } from '@/game/Minion';
+import type { BattleContext } from '@/game/Minion';
 import { Minion } from '@/game/Minion';
 import { Beetle } from './Beetle';
 
@@ -118,7 +118,7 @@ export class BuzzingVermin extends Minion {
    * @使用方式：当随从死亡时触发
    * 效果：亡语：召唤一只/两只2/2的甲虫（根据是否金色）
    */
-  onDeath(context?: DeathContext): void {
+  onDeath(context?: BattleContext): void {
     if (!context) return;
 
     // 根据是否金色决定召唤数量

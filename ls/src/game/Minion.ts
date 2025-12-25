@@ -148,20 +148,22 @@ export interface MinionBuff {
 }
 
 /**
- * 死亡上下文 - 随从死亡时的上下文信息
+ * 战斗上下文 - 用于战斗相关方法传递信息
  */
-export interface DeathContext {
+export interface BattleContext {
+  /** 攻击者随从实例（可选） */
+  attacker?: Minion;
   /** 己方玩家对象 */
   friendlyPlayer: import('./Player').Player;
   /** 敌方玩家对象 */
   enemyPlayer: import('./Player').Player;
-  /** 死亡随从所在位置索引 */
+  /** 随从所在位置索引 */
   position: number;
-  /** 死亡随从所在阵营 */
+  /** 随从所在阵营 */
   side: 'player' | 'enemy';
   /** 游戏管理器或store实例（可选） */
   game?: any;
-  /** 战斗日志记录函数 */
+  /** 战斗日志记录函数（可选） */
   addLog?: (message: string) => void;
 }
 
@@ -504,7 +506,7 @@ export class Minion extends Card implements IMinion {
       this.health = this.upgradeCard.health;
       this.text = this.upgradeCard.text;
       // todo 这里需要特殊处理一下
-      this.mechanics = this.upgradeCard.mechanics;
+      // this.mechanics = this.upgradeCard.mechanics;
       this.mechanics = Minion.mapMechanicsToKeywords(this.upgradeCard.mechanics);
       this.clearCache(); // 清除缓存，确保属性重新计算
     }
@@ -652,11 +654,11 @@ export class Minion extends Card implements IMinion {
    * 用于实现"亡语"效果，直接在方法内部执行效果（如召唤随从、造成伤害、增加属性等）
    * @注意：亡语效果应该直接操作context中的对象，无需返回值
    */
-  onDeath(_context?: DeathContext): void {
+  onDeath(_context?: BattleContext): void {
     // 默认实现为空，由子类根据需要重写
   }
 
-  onAttacked(): void {
+  onAttacked(_context?: BattleContext): void {
     // 默认实现为空，由子类根据需要重写
   }
 }

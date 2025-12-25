@@ -1,7 +1,7 @@
 import { cloneDeep } from 'lodash';
 import { Card } from './Card';
 import { Hero } from './Hero';
-import { Minion } from './Minion';
+import { Minion, type MinionBuff } from './Minion';
 import { Spell } from './Spell';
 
 /**
@@ -760,6 +760,19 @@ export class Player {
     this.tryAddPendingCards();
 
     return removedCount;
+  }
+
+  /**
+   * 战斗中的随从永久加成
+   */
+  战斗中的随从永久加成(minion: Minion, minionBuff: MinionBuff): void {
+    minion.addBuff(minionBuff);
+    // 查询minions_bak中是否有相同id的随从
+    const minionIndex = this.minions_id_map.get(minion.id);
+    if (minionIndex !== undefined) {
+      // 找到相同id的随从，添加永久加成
+      this.minions_bak[minionIndex]?.addBuff(minionBuff);
+    }
   }
 
   /**

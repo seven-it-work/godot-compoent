@@ -1,4 +1,4 @@
-import type { DeathContext } from '@/game/Minion';
+import type { BattleContext } from '@/game/Minion';
 import { Minion } from '@/game/Minion';
 import { Skeleton } from './Skeleton';
 
@@ -126,7 +126,7 @@ export class HarmlessBonehead extends Minion {
    * @使用方式：当随从死亡时触发
    * 效果：亡语：召唤两个/四个1/1的骷髅（根据是否金色）
    */
-  onDeath(context?: DeathContext): void {
+  onDeath(context?: BattleContext): void {
     if (!context) return;
 
     // 根据是否金色决定召唤数量（普通版本2个，金色版本4个）
