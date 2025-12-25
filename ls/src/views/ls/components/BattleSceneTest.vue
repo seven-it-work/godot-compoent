@@ -30,6 +30,8 @@ import { Hero } from '../../../game/Hero';
 import { Minion } from '../../../game/Minion';
 import { Player } from '../../../game/Player';
 import BattleScene from './BattleScene.vue';
+import { DozyWhelp } from '@/game/cards/minion/dragon/DozyWhelp';
+import { MisfitDragonling } from '@/game/cards/minion/dragon/MisfitDragonling';
 
 // 战斗玩家数据
 const playerData = ref<Player>(createTestPlayer(true));
@@ -87,6 +89,8 @@ const initBattleData = () => {
     createMinion(BuzzingVermin, 0), // RisenRider
     createMinionByStrId('BG26_135', 1), // SouthseaBusker
     createMinionByStrId('BG31_815', 2), // DuneDweller
+    createMinion(DozyWhelp, 3),
+    createMinion(MisfitDragonling, 4),
     null,
     null,
     null,

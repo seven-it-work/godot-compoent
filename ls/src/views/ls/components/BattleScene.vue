@@ -119,7 +119,7 @@
 </template>
 
 <script setup lang="ts">
-import { MinionKeyword, type Minion } from '@/game/Minion';
+import { MinionKeyword, type BattleContext, type Minion } from '@/game/Minion';
 import type { Player } from '@/game/Player';
 import { Button, Modal } from 'ant-design-vue';
 import { computed, onMounted, ref } from 'vue';
@@ -231,6 +231,7 @@ interface BattleSideData {
   attackIndex: number;
   minions: (Minion | null | undefined)[];
   side: 'player' | 'enemy';
+  battleContext: BattleContext;
 }
 
 /**
@@ -389,7 +390,7 @@ const getAttackTarget = (
 const initializePlayerMinions = (attackerData: BattleSideData) => {
   const playerData = attackerData.playerData;
   attackerData.minions = playerData.minions;
-  playerData.on开始战斗时();
+  playerData.on开始战斗时(attackerData.battleContext);
 };
 
 // 执行战斗
@@ -412,6 +413,11 @@ const executeBattle = async () => {
     attackIndex: 0,
     minions: [],
     side: 'player',
+    battleContext: {
+      friendlyPlayer: props.playerData,
+      enemyPlayer: props.enemyData,
+      side: 'player',
+    },
   };
   const enemyData: BattleSideData = {
     playerData: props.enemyData,
@@ -419,6 +425,11 @@ const executeBattle = async () => {
     attackIndex: 0,
     minions: [],
     side: 'enemy',
+    battleContext: {
+      friendlyPlayer: props.enemyData,
+      enemyPlayer: props.playerData,
+      side: 'enemy',
+    },
   };
 
   // 判断先手，并设置当前攻击方

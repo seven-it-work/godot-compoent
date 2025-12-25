@@ -1,7 +1,7 @@
 import { cloneDeep } from 'lodash';
 import { Card } from './Card';
 import { Hero } from './Hero';
-import { Minion, type MinionBuff } from './Minion';
+import { Minion, type BattleContext, type MinionBuff } from './Minion';
 import { Spell } from './Spell';
 
 /**
@@ -778,7 +778,7 @@ export class Player {
   /**
    * 开始战斗时处理 - 备份战场上的随从
    */
-  on开始战斗时(): void {
+  on开始战斗时(battleContext: BattleContext): void {
     // 备份战场上的随从
     this.minions_bak = cloneDeep(this.minions);
     // 清空minions_id_map
@@ -795,7 +795,12 @@ export class Player {
         minion.hasAttacked = false;
       }
     });
-    // todo 处理随从的战斗开始时的效果
+    // 处理随从的战斗开始时的效果
+    this.minions.forEach(minion => {
+      if (minion) {
+        minion.onBattleStart(battleContext);
+      }
+    });
   }
 
   on战斗结束时(): void {

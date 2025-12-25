@@ -49,7 +49,7 @@ export class DozyWhelp extends Minion {
     // 调用 palyer的 战斗中的随从永久加成 方法
     if (_context) {
       _context.friendlyPlayer.战斗中的随从永久加成(this, {
-        id: `dozy_whelp_attack_${Date.now()}`,
+        id: this.strId,
         source: '瞌睡雏龙',
         attackBonus: 1,
         healthBonus: 0,
