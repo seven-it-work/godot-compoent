@@ -19,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import { BuzzingVermin } from '@/game/cards/minion/beast/BuzzingVermin';
 import { onMounted, ref } from 'vue';
 import type { BattleResult } from '../../../game/BattleManager';
 import {
@@ -83,7 +84,7 @@ const initBattleData = () => {
 
   // 初始化敌方随从
   const enemyMinions: (Minion | null)[] = [
-    createMinionByStrId('BG25_001', 0), // RisenRider
+    createMinion(BuzzingVermin, 0), // RisenRider
     createMinionByStrId('BG26_135', 1), // SouthseaBusker
     createMinionByStrId('BG31_815', 2), // DuneDweller
     null,
@@ -105,6 +106,13 @@ const initBattleData = () => {
   ];
   playerData.value.minions = playerMinions;
 };
+
+function createMinion(minionClass: typeof Minion, position: number): Minion | null {
+  const minion = new minionClass();
+  const minionAsMinion = minion as unknown as Minion;
+  minionAsMinion.position = position;
+  return minionAsMinion;
+}
 
 // 创建随从的辅助函数
 function createMinionByStrId(strId: string, position: number): Minion | null {

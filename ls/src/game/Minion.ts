@@ -503,6 +503,7 @@ export class Minion extends Card implements IMinion {
       this.baseMaxHealth = this.upgradeCard.health;
       this.health = this.upgradeCard.health;
       this.text = this.upgradeCard.text;
+      // todo 这里需要特殊处理一下
       this.mechanics = this.upgradeCard.mechanics;
       this.mechanics = Minion.mapMechanicsToKeywords(this.upgradeCard.mechanics);
       this.clearCache(); // 清除缓存，确保属性重新计算
@@ -652,6 +653,10 @@ export class Minion extends Card implements IMinion {
    * @注意：亡语效果应该直接操作context中的对象，无需返回值
    */
   onDeath(_context?: DeathContext): void {
+    // 默认实现为空，由子类根据需要重写
+  }
+
+  onAttacked(): void {
     // 默认实现为空，由子类根据需要重写
   }
 }

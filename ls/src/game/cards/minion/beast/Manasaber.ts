@@ -106,7 +106,6 @@ export class Manasaber extends Minion {
 
     // 根据是否金色决定召唤数量（普通版本2只，金色版本4只）
     const summonCount = this.isGolden ? 4 : 2;
-    debugger;
     const { friendlyPlayer, position } = context;
 
     // 使用 Player 的统一召唤接口

@@ -227,9 +227,9 @@ const checkBattleEnd = (
  * @returns 先手方数据
  */
 interface BattleSideData {
+  playerData: Player;
   attackIndex: number;
   minions: (Minion | null | undefined)[];
-  tavernLevel: number;
   side: 'player' | 'enemy';
 }
 
@@ -260,9 +260,9 @@ const determineFirstAttacker = (
   }
 
   // 条件2：随从一样，酒馆等级高的为先手
-  if (playerData.tavernLevel > enemyData.tavernLevel) {
+  if (playerData.playerData.tavernLevel > enemyData.playerData.tavernLevel) {
     return playerData;
-  } else if (enemyData.tavernLevel > playerData.tavernLevel) {
+  } else if (enemyData.playerData.tavernLevel > playerData.playerData.tavernLevel) {
     return enemyData;
   }
 
@@ -383,6 +383,15 @@ const getAttackTarget = (
 
   return { target, targetSide, targetIndex };
 };
+/**
+ * 战斗初始化
+ */
+const initializePlayerMinions = (attackerData: BattleSideData) => {
+  const playerData = attackerData.playerData;
+  attackerData.minions = playerData.minions;
+  playerData.on开始战斗时();
+};
+
 // 执行战斗
 const executeBattle = async () => {
   console.log('========================================');
@@ -395,24 +404,30 @@ const executeBattle = async () => {
 
   // 重置卡片动画状态
   resetCardAnimations();
-  // 重置攻击状态
-  resetAttackStates(playerMinions.value, enemyMinions.value);
 
   // 数据定义
   const playerData: BattleSideData = {
+    playerData: props.playerData,
     // 随从攻击索引
     attackIndex: 0,
-    minions: playerMinions.value,
-    tavernLevel: props.playerData.tavernLevel,
+    minions: [],
     side: 'player',
   };
   const enemyData: BattleSideData = {
+    playerData: props.enemyData,
     // 随从攻击索引
     attackIndex: 0,
-    minions: enemyMinions.value,
-    tavernLevel: props.enemyData.tavernLevel,
+    minions: [],
     side: 'enemy',
   };
+
+  // 判断先手，并设置当前攻击方
+  const firstAttacker = determineFirstAttacker(playerData, enemyData);
+  console.log(`先手方: ${firstAttacker.side === 'player' ? '玩家' : '敌方'}`);
+  // 先手先初始化
+  initializePlayerMinions(firstAttacker);
+  // 后手初始化
+  initializePlayerMinions(firstAttacker === playerData ? enemyData : playerData);
 
   // 输出初始状态
   console.log('初始状态:');
@@ -429,13 +444,8 @@ const executeBattle = async () => {
       .map(m => `${m?.nameCN} (${m?.attack}/${m?.health})`)
   );
 
-  // 判断先手，并设置当前攻击方
-  const firstAttacker = determineFirstAttacker(playerData, enemyData);
   // 当前攻击方
   let currentAttacker: BattleSideData = firstAttacker;
-
-  console.log(`先手方: ${firstAttacker.side === 'player' ? '玩家' : '敌方'}`);
-
   let round = 1;
   while (true) {
     console.log(`\n--- 回合 ${round} 开始 ---`);
@@ -535,19 +545,6 @@ const attackEnemy = async (
   );
 };
 
-// 重置攻击状态
-const resetAttackStates = (
-  playerMinions: (Minion | null | undefined)[],
-  enemyMinions: (Minion | null | undefined)[]
-) => {
-  playerMinions.forEach(minion => {
-    if (minion !== null && minion !== undefined) minion.hasAttacked = false;
-  });
-  enemyMinions.forEach(minion => {
-    if (minion !== null && minion !== undefined) minion.hasAttacked = false;
-  });
-};
-
 // 执行单个攻击动画
 const executeAttackAnimation = async (
   side: 'player' | 'enemy',
@@ -575,12 +572,14 @@ const executeAttackAnimation = async (
   // 计算两个div中心点的偏移量
   function calculateCenterOffset() {
     // 获取攻击方的位置和尺寸信息
+    // @ts-ignore
     const attackerRect = attackerElement.getBoundingClientRect();
     // 攻击方中心点坐标（相对于视口）
     const attackerCenterX = attackerRect.left + attackerRect.width / 2;
     const attackerCenterY = attackerRect.top + attackerRect.height / 2;
 
     // 获取被攻击方的位置和尺寸信息
+    // @ts-ignore
     const targetRect = targetElement.getBoundingClientRect();
     // 被攻击方中心点坐标（相对于视口）
     const targetCenterX = targetRect.left + targetRect.width / 2;
@@ -687,7 +686,7 @@ const executeDamageAnimation = async (side: 'player' | 'enemy', index: number, d
 
 // 执行单个死亡动画
 const executeDeathAnimation = async (
-  minions: (Minion | undefined)[],
+  minions: (Minion | null | undefined)[],
   side: 'player' | 'enemy',
   index: number
 ) => {
@@ -832,7 +831,8 @@ const executeAttack = async (
   console.log(`  ========================================`);
   console.log(`  开始攻击执行`);
   console.log(`  ========================================`);
-
+  // 被攻击前的处理（攻击前置处理）
+  target.onAttacked();
   // 获取攻击力
   const attackerDamage = attacker.getAttack();
   const targetDamage = target.getAttack();

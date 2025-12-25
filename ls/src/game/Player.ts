@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import { Card } from './Card';
 import { Hero } from './Hero';
 import { Minion } from './Minion';
@@ -13,6 +14,12 @@ export class Player {
   hero: Hero;
   /** 战场上的随从 - 固定7个位置，null表示该位置为空 */
   minions: (Minion | null | undefined)[];
+  /** 战场上的随从(备份) 战斗前需要将minions备份到minions_bak，战斗后再将minions_bak恢复到minions,这样避免死亡导致战场随从消失 */
+  minions_bak: (Minion | null | undefined)[] = [];
+  /**
+   * minions中随从id=可以  且minions_bak中随从idminions_bak的索引=value
+   */
+  minions_id_map: Map<string, number> = new Map();
   /** 手牌 - 等待上场的卡片列表（包含随从和法术）
    * 统一添加入口：
    * - recruitMinion()：从酒馆招募随从到手牌
@@ -753,5 +760,35 @@ export class Player {
     this.tryAddPendingCards();
 
     return removedCount;
+  }
+
+  /**
+   * 开始战斗时处理 - 备份战场上的随从
+   */
+  on开始战斗时(): void {
+    // 备份战场上的随从
+    this.minions_bak = cloneDeep(this.minions);
+    // 清空minions_id_map
+    this.minions_id_map.clear();
+    for (let i = 0; i < this.minions.length; i++) {
+      const minion = this.minions[i];
+      if (minion) {
+        minion.position = i;
+        this.minions_id_map.set(minion.id, i);
+      }
+    }
+    this.minions.forEach(minion => {
+      if (minion) {
+        minion.hasAttacked = false;
+      }
+    });
+    // todo 处理随从的战斗开始时的效果
+  }
+
+  on战斗结束时(): void {
+    // 恢复战场上的随从
+    this.minions = this.minions_bak;
+    // 清空minions_id_map
+    this.minions_id_map.clear();
   }
 }
