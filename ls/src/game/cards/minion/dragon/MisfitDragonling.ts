@@ -45,7 +45,6 @@ export class MisfitDragonling extends Minion {
    * 效果：战斗开始时：获得等同于你当前等级的属性值
    */
   onBattleStart(_context: BattleContext): void {
-    debugger;
     const playerLevel = _context.friendlyPlayer.tavernLevel || 1;
     this.addBuff({
       id: this.strId,

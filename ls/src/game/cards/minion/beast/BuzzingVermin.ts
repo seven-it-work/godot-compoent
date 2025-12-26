@@ -128,7 +128,7 @@ export class BuzzingVermin extends Minion {
     // 使用 Player 的统一召唤接口
     for (let i = 0; i < summonCount; i++) {
       const beetle = new Beetle();
-      const success = friendlyPlayer.summonMinion(beetle, position);
+      const success = friendlyPlayer.summonMinion(beetle, position || 6);
 
       if (success) {
         // 记录日志
