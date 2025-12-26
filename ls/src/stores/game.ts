@@ -1,11 +1,11 @@
-import { Card } from '@/game/Card';
 import { Minion } from '@/game/Minion';
 import { Player } from '@/game/Player';
-import { Spell } from '@/game/Spell';
 import { Tavern } from '@/game/Tavern';
 import { defineStore } from 'pinia';
-import { Tavern } from '@/game/Tavern';
-import { Minion } from '@/game/Minion';
+import { useBattleStore } from './battle';
+import { useDebugStore } from './debug';
+import { useHeroSelectionStore } from './heroSelection';
+import { usePlayerActionsStore } from './playerActions';
 
 export const useGameStore = defineStore('game', {
   // 主Store不再包含自己的state，而是通过getters访问子Store的state

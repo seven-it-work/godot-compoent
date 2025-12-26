@@ -12,9 +12,9 @@ export const useBattleStore = defineStore('battle', {
 
   getters: {
     // 获取战斗日志
-    getBattleLog: (state) => state.battleLog,
+    getBattleLog: state => state.battleLog,
     // 检查战斗是否正在进行
-    isBattleInProgress: (state) => state.isBattleActive,
+    isBattleInProgress: state => state.isBattleActive,
   },
 
   actions: {

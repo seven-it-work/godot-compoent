@@ -28,9 +28,9 @@ export const useHeroSelectionStore = defineStore('heroSelection', {
 
   getters: {
     // 是否已选择英雄
-    isHeroSelected: (state) => state.selectedHero !== null,
+    isHeroSelected: state => state.selectedHero !== null,
     // 可用英雄数量
-    availableHeroesCount: (state) => state.availableHeroes.length,
+    availableHeroesCount: state => state.availableHeroes.length,
   },
 
   actions: {

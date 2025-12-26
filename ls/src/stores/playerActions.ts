@@ -43,7 +43,7 @@ export const usePlayerActionsStore = defineStore('playerActions', {
 
   getters: {
     // 获取当前可选择的目标列表
-    availableTargets: (state) => {
+    availableTargets: state => {
       // 检查是否有选中的法术
       if (
         !state.selectedCard ||
@@ -535,7 +535,7 @@ export const usePlayerActionsStore = defineStore('playerActions', {
                 // 由于DOM元素顺序可能与target.index不完全一致，我们可以采用更灵活的匹配方式
                 // 1. 首先检查元素是否是战场随从卡片
                 // 2. 然后检查元素是否包含该随从的一些特征
-                const matchByText = 
+                const matchByText =
                   element.textContent &&
                   (element.textContent.includes(minion.nameCN || '') ||
                     element.textContent.includes(minion.id.toString()));
@@ -559,7 +559,7 @@ export const usePlayerActionsStore = defineStore('playerActions', {
                 `[法术拖拽] 酒馆目标详细信息: 索引=${target.index}, 名称=${minion?.nameCN}, ID=${minion?.id}, 攻击=${minion?.attack}, 生命值=${minion?.health}`
               );
               if (minion) {
-                const matchByText = 
+                const matchByText =
                   element.textContent &&
                   (element.textContent.includes(minion.nameCN || '') ||
                     element.textContent.includes(minion.id.toString()));

@@ -8,7 +8,7 @@ export const useDebugStore = defineStore('debug', {
 
   getters: {
     // 检查是否启用调试模式
-    debugModeEnabled: (state) => state.isDebugEnabled,
+    debugModeEnabled: state => state.isDebugEnabled,
   },
 
   actions: {
