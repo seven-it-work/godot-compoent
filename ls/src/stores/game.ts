@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia';
+import { Card } from '@/game/Card';
 import { Minion } from '@/game/Minion';
 import { Player } from '@/game/Player';
 import { Spell } from '@/game/Spell';
 import { Tavern } from '@/game/Tavern';
-import { Card } from '@/game/Card';
+import { defineStore } from 'pinia';
 
 // 英雄类型定义
 interface HeroPower {
@@ -23,13 +23,8 @@ interface Hero {
   heroPower: HeroPower;
 }
 
-// 游戏状态类型
-type GameState = 'hero_selection' | 'in_game' | 'battle_phase' | 'game_over';
-
 export const useGameStore = defineStore('game', {
   state: () => ({
-    // 游戏状态
-    gameState: 'hero_selection' as GameState | 'battle_phase' | 'battle_result',
     // 选中的英雄
     selectedHero: null as Hero | null,
     // 可用英雄数据
@@ -136,18 +131,11 @@ export const useGameStore = defineStore('game', {
     // 设置选中的英雄
     selectHero(hero: Hero) {
       this.selectedHero = hero;
-      this.gameState = 'in_game';
     },
 
     // 设置可用英雄
     setAvailableHeroes(heroes: Hero[]) {
       this.availableHeroes = heroes;
-    },
-
-    // 返回英雄选择
-    returnToHeroSelection() {
-      this.selectedHero = null;
-      this.gameState = 'hero_selection';
     },
 
     // 初始化游戏
@@ -248,41 +236,8 @@ export const useGameStore = defineStore('game', {
 
         // 进入战斗阶段
         console.log('进入战斗阶段...');
-        this.gameState = 'battle_phase';
-
-        // 简单模拟战斗，选择第一个AI玩家作为对手
-        setTimeout(() => {
-          console.log('执行战斗...');
-          this.executeBattle();
-        }, 1000);
+        // todo 开发进入战斗的逻辑
       }
-    },
-
-    // 执行战斗
-    executeBattle() {
-      if (!this.player || this.aiPlayers.length === 0) {
-        console.error('战斗条件不满足：缺少玩家或AI对手');
-        this.returnFromBattle();
-        return;
-      }
-
-      // 选择第一个AI玩家作为对手
-      const opponent = this.aiPlayers[0];
-
-      console.log(`开始战斗：${this.player.hero.name} vs ${opponent?.hero?.name || '未知对手'}`);
-
-      // 这里可以调用BattleSystem.executeBattle()来执行实际战斗
-      // 暂时使用模拟结果
-      const battleResult = {
-        winner: this.player,
-        loser: opponent,
-        damageDealt: 2,
-        winnerMinionsLeft: 3,
-        loserMinionsLeft: 0,
-      };
-
-      this.battleResult = battleResult;
-      this.gameState = 'battle_result';
     },
 
     // 移动卡片
@@ -327,31 +282,6 @@ export const useGameStore = defineStore('game', {
       }
 
       return false;
-    },
-
-    // 从战斗返回，开始新回合
-    returnFromBattle() {
-      console.log('从战斗返回，开始新回合');
-
-      // 增加回合数
-      this.currentTurn += 1;
-
-      // 解冻酒馆
-      if (this.tavern) {
-        this.tavern.unfreeze();
-        // 移除酒馆中所有随从的临时加成和关键词
-        this.tavern.onTurnStart();
-      }
-
-      // 开始新回合 - 移除战场和手牌中随从的临时加成和关键词
-      if (this.player) {
-        this.player.startTurn();
-      }
-
-      // 切换回游戏状态
-      this.gameState = 'in_game';
-      this.battleResult = null;
-      console.log('新回合开始，回合数:', this.currentTurn);
     },
 
     // 将手牌中的随从放到战场上
@@ -435,30 +365,6 @@ export const useGameStore = defineStore('game', {
     cancelSelectCard() {
       this.selectedCard = null;
       this.selectedCardIndex = null;
-    },
-
-    // 验证目标是否有效
-    isValidTarget(target: any, targetType: string): boolean {
-      if (!target) return false;
-
-      switch (targetType) {
-        case 'minion':
-          return target.cardType === 'minion';
-        case 'hero':
-          return target.cardType === 'hero';
-        case 'all_minions':
-          return target.cardType === 'minion';
-        case 'self':
-          return target.owner === this.player;
-        case 'friendly':
-          return target.owner === this.player;
-        case 'enemy':
-          return target.owner !== this.player;
-        case 'any':
-          return true;
-        default:
-          return false;
-      }
     },
 
     // 选中法术
