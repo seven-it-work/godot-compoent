@@ -1,5 +1,6 @@
-import { Minion, type BattleContext } from '@/game/Minion';
+import { Minion } from '@/game/Minion';
 import { Microbot } from './Microbot';
+import type { GameStoreInstance } from '@/stores/game';
 
 /**
  * 拔线机类 - 继承自Minion，实现拔线机的特殊效果
@@ -96,28 +97,24 @@ export class CordPuller extends Minion {
   };
 
   /**
-   * 重写亡语触发的方法
-   * @param context - 战斗上下文
+   * 亡语：召唤一个1/1的微型机器人
    * @使用方式：当随从死亡时触发
    * 效果：亡语：召唤一个1/1的微型机器人
    */
-  onDeath(context?: BattleContext): void {
-    if (!context) return;
-
-    const { friendlyPlayer, position } = context;
+  onDeath(_gameStore: GameStoreInstance): void {
+    // 获取当前玩家
+    const friendlyPlayer = _gameStore.player;
 
     // 召唤一个微型机器人
     const microbot = new Microbot();
-    const success = friendlyPlayer.summonMinion(microbot, position || 6);
+    const success = friendlyPlayer?.summonMinion(microbot, this.position || 6);
 
     if (success) {
       // 记录日志
-      if (context.addLog) {
-        context.addLog(`召唤了 ${microbot.nameCN}`);
-      }
+      _gameStore.addBattleLog(`召唤了 ${microbot.nameCN}`);
       console.log(`拔线机：召唤了 ${microbot.nameCN} (${microbot.attack}/${microbot.health})`);
     } else {
-      console.log(`拔线机：召唤失败，战场已满`);
+      console.log('拔线机：无法召唤微型机器人，位置已满');
     }
   }
 }

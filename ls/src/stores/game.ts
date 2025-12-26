@@ -17,7 +17,6 @@ export const useGameStore = defineStore('game', {
     availableHeroes: () => useHeroSelectionStore().availableHeroes,
     isHeroSelected: () => useHeroSelectionStore().isHeroSelected,
     availableHeroesCount: () => useHeroSelectionStore().availableHeroesCount,
-
     // 玩家操作阶段状态
     player: () => usePlayerActionsStore().player,
     tavern: () => usePlayerActionsStore().tavern,
@@ -192,12 +191,12 @@ export const useGameStore = defineStore('game', {
 
     setCurrentGold(gold: number) {
       const player = usePlayerActionsStore().player;
-      useDebugStore().setCurrentGold(player, gold);
+      useDebugStore().setCurrentGold(player as Player | null, gold);
     },
 
     setMaxGold(maxGold: number) {
       const player = usePlayerActionsStore().player;
-      useDebugStore().setMaxGold(player, maxGold);
+      useDebugStore().setMaxGold(player as Player | null, maxGold);
     },
 
     // ========================================
@@ -211,3 +210,6 @@ export const useGameStore = defineStore('game', {
     },
   },
 });
+
+// 自动提取 useGameStore 的返回类型（包含所有 getters 和 actions）
+export type GameStoreInstance = ReturnType<typeof useGameStore>;

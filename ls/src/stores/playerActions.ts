@@ -627,3 +627,5 @@ export const usePlayerActionsStore = defineStore('playerActions', {
     },
   },
 });
+
+export type PlayerActionsStore = ReturnType<typeof usePlayerActionsStore>;

@@ -1,3 +1,4 @@
+import type { Player } from '@/game/Player';
 import { defineStore } from 'pinia';
 
 export const useDebugStore = defineStore('debug', {
@@ -28,14 +29,14 @@ export const useDebugStore = defineStore('debug', {
     },
 
     // 调试功能 - 设置当前金币
-    setCurrentGold(player: any, gold: number) {
+    setCurrentGold(player: Player | null, gold: number) {
       if (player) {
         player.gold = gold;
       }
     },
 
     // 调试功能 - 设置当前最大金币
-    setMaxGold(player: any, maxGold: number) {
+    setMaxGold(player: Player | null, maxGold: number) {
       if (player) {
         player.maxGold = maxGold;
       }

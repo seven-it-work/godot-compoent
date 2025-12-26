@@ -1,4 +1,5 @@
-import { Minion, type BattleContext } from '@/game/Minion';
+import { Minion } from '@/game/Minion';
+import type { GameStoreInstance } from '@/stores/game';
 
 /**
  * 瞌睡雏龙类 - 继承自Minion，实现瞌睡雏龙的特殊效果
@@ -40,22 +41,18 @@ export class DozyWhelp extends Minion {
   };
   /**
    * 重写受到攻击时触发的方法
-   * @param context - 战斗上下文，包含攻击者、玩家对象等信息
    * @使用方式：当本随从受到攻击时触发
    * 效果：每当本随从受到攻击时，永久获得+1攻击力
    */
-  onAttacked(_context?: BattleContext): void {
+  onAttacked(_gameStore: GameStoreInstance): void {
     // 永久获得+1攻击力
-    // 调用 palyer的 战斗中的随从永久加成 方法
-    if (_context) {
-      _context.friendlyPlayer.战斗中的随从永久加成(this, {
-        id: this.strId,
-        source: '瞌睡雏龙',
-        attackBonus: 1,
-        healthBonus: 0,
-        maxHealthBonus: 0,
-        type: 'permanent',
-      });
-    }
+    this.addBuff({
+      id: this.strId,
+      source: '瞌睡雏龙',
+      attackBonus: 1,
+      healthBonus: 0,
+      maxHealthBonus: 0,
+      type: 'permanent',
+    });
   }
 }

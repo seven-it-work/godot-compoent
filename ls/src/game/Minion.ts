@@ -2,6 +2,7 @@ import { IdGenerator } from '@/utils/IdGenerator';
 import { cloneDeep } from 'lodash';
 import type { ICard } from './Card';
 import { Card } from './Card';
+import type { GameStoreInstance } from '@/stores/game';
 
 /**
  * 升级卡片 - 用于升级为金色版本的卡片数据类型
@@ -145,24 +146,6 @@ export interface MinionBuff {
   maxHealthBonus: number; // 最大生命值加成值
   type?: string; // 加成类型（如临时、永久）
   turnsRemaining?: number; // 剩余回合数（临时加成使用）
-}
-
-/**
- * 战斗上下文 - 用于战斗相关方法传递信息
- */
-export interface BattleContext {
-  /** 攻击者随从实例（可选） */
-  attacker?: Minion;
-  /** 己方玩家对象 */
-  friendlyPlayer: import('./Player').Player;
-  /** 敌方玩家对象 */
-  enemyPlayer: import('./Player').Player;
-  /** 随从所在位置索引 */
-  position?: number;
-  /** 随从所在阵营 */
-  side: 'player' | 'enemy';
-  /** 战斗日志记录函数（可选） */
-  addLog?: (message: string) => void;
 }
 
 /**
@@ -647,27 +630,25 @@ export class Minion extends Card implements IMinion {
 
   /**
    * 当本随从死亡时触发 - 可由子类重写以实现特定效果
-   * @param context - 死亡上下文，包含游戏状态、位置信息等
    * @使用方式：当本随从生命值降至0时触发
    * 用于实现"亡语"效果，直接在方法内部执行效果（如召唤随从、造成伤害、增加属性等）
-   * @注意：亡语效果应该直接操作context中的对象，无需返回值
+   * @注意：亡语效果应该直接操作gameStore中的对象，无需返回值
    */
-  onDeath(_context?: BattleContext): void {
+  onDeath(_game: GameStoreInstance): void {
     // 默认实现为空，由子类根据需要重写
   }
 
-  onAttacked(_context?: BattleContext): void {
+  onAttacked(_game: GameStoreInstance): void {
     // 默认实现为空，由子类根据需要重写
   }
 
   /**
    * 战斗开始时触发 - 可由子类重写以实现特定效果
-   * @param _context - 战斗上下文，包含游戏状态、位置信息等
    * @使用方式：当本随从进入战场时触发
    * 用于实现"战斗开始时"的效果，直接在方法内部执行效果（如增加属性、召唤随从等）
-   * @注意：战斗开始时效果应该直接操作context中的对象，无需返回值
+   * @注意：战斗开始时效果应该直接操作gameStore中的对象，无需返回值
    */
-  onBattleStart(_context?: BattleContext): void {
+  onBattleStart(_game: GameStoreInstance): void {
     // 默认实现为空，由子类根据需要重写
   }
 }

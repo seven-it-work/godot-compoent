@@ -1,6 +1,6 @@
-import type { BattleContext } from '@/game/Minion';
 import { Minion } from '@/game/Minion';
 import { Beetle } from './Beetle';
+import type { GameStoreInstance } from '@/stores/game';
 
 /**
  * 嗡鸣害虫类 - 继承自Minion，实现嗡鸣害虫的特殊效果
@@ -114,27 +114,22 @@ export class BuzzingVermin extends Minion {
   };
   /**
    * 重写亡语触发的方法
-   * @param context - 死亡上下文
    * @使用方式：当随从死亡时触发
    * 效果：亡语：召唤一只/两只2/2的甲虫（根据是否金色）
    */
-  onDeath(context?: BattleContext): void {
-    if (!context) return;
-
+  onDeath(_gameStore: GameStoreInstance): void {
     // 根据是否金色决定召唤数量
     const summonCount = this.isGolden ? 2 : 1;
-    const { friendlyPlayer, position } = context;
+    const friendlyPlayer = _gameStore.player;
 
     // 使用 Player 的统一召唤接口
     for (let i = 0; i < summonCount; i++) {
       const beetle = new Beetle();
-      const success = friendlyPlayer.summonMinion(beetle, position || 6);
+      const success = friendlyPlayer?.summonMinion(beetle, this.position || 6);
 
       if (success) {
         // 记录日志
-        if (context.addLog) {
-          context.addLog(`召唤了 ${beetle.nameCN}`);
-        }
+        _gameStore.addBattleLog(`召唤了 ${beetle.nameCN}`);
         console.log(`嗡鸣害虫：召唤了 ${beetle.nameCN} (${beetle.attack}/${beetle.health})`);
       } else {
         console.log(`嗡鸣害虫：召唤失败，战场已满`);
