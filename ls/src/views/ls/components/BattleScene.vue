@@ -119,12 +119,18 @@
 </template>
 
 <script setup lang="ts">
-import { MinionKeyword, type BattleContext, type Minion } from '@/game/Minion';
+import { MinionKeyword, type Minion } from '@/game/Minion';
 import type { Player } from '@/game/Player';
 import { Button, Modal } from 'ant-design-vue';
 import { computed, onMounted, ref } from 'vue';
 import type { BattleResult } from '../../../game/BattleManager';
 import BattleCard from './BattleCard.vue';
+// 导入gameStore
+import { useGameStore } from '@/stores/game';
+import type { GameStoreInstance } from '@/stores/game';
+
+// 初始化gameStore
+const gameStore = useGameStore();
 
 // 接收外部传入的参数
 const props = withDefaults(
@@ -231,7 +237,7 @@ interface BattleSideData {
   attackIndex: number;
   minions: (Minion | null | undefined)[];
   side: 'player' | 'enemy';
-  battleContext: BattleContext;
+  battleContext: GameStoreInstance;
 }
 
 /**
@@ -413,11 +419,7 @@ const executeBattle = async () => {
     attackIndex: 0,
     minions: [],
     side: 'player',
-    battleContext: {
-      friendlyPlayer: props.playerData,
-      enemyPlayer: props.enemyData,
-      side: 'player',
-    },
+    battleContext: gameStore,
   };
   const enemyData: BattleSideData = {
     playerData: props.enemyData,
@@ -425,11 +427,7 @@ const executeBattle = async () => {
     attackIndex: 0,
     minions: [],
     side: 'enemy',
-    battleContext: {
-      friendlyPlayer: props.enemyData,
-      enemyPlayer: props.playerData,
-      side: 'enemy',
-    },
+    battleContext: gameStore,
   };
 
   // 判断先手，并设置当前攻击方
@@ -814,18 +812,9 @@ const removeDeadMinion = async (
   internalBattleLog.value.push(`${minion.nameCN} 检查亡语`);
 
   // 构建死亡上下文
-  const deathContext = {
-    friendlyPlayer: side === 'player' ? props.playerData : props.enemyData,
-    enemyPlayer: side === 'player' ? props.enemyData : props.playerData,
-    position: index,
-    side: side,
-    addLog: (message: string) => {
-      internalBattleLog.value.push(message);
-    },
-  };
 
   // 直接调用亡语方法，如果子类重写了onDeath，效果会在方法内部执行
-  minion.onDeath(deathContext);
+  minion.onDeath(gameStore);
 };
 
 // 执行攻击
@@ -843,13 +832,7 @@ const executeAttack = async (
   console.log(`  开始攻击执行`);
   console.log(`  ========================================`);
   // 被攻击前的处理（攻击前置处理）
-  target.onAttacked({
-    attacker,
-    friendlyPlayer: targetSide === 'player' ? props.playerData : props.enemyData,
-    enemyPlayer: targetSide === 'player' ? props.enemyData : props.playerData,
-    position: targetIndex,
-    side: targetSide,
-  });
+  target.onAttacked(gameStore);
   // 获取攻击力
   const attackerDamage = attacker.getAttack();
   const targetDamage = target.getAttack();
