@@ -679,19 +679,5 @@ export const useGameStore = defineStore('game', {
         this.player.maxGold = maxGold;
       }
     },
-
-    // 调试功能 - 添加随从到酒馆
-    addMinionToTavern() {
-      if (this.tavern && this.minionPool.length > 0) {
-        // 随机从随从池中选择一个随从
-        const randomIndex = Math.floor(Math.random() * this.minionPool.length);
-        const randomMinion = this.minionPool[randomIndex];
-        if (randomMinion) {
-          // 复制随从对象，避免修改原对象
-          const newMinion = randomMinion.clone();
-          this.tavern.debugAddMinion(newMinion);
-        }
-      }
-    },
   },
 });
