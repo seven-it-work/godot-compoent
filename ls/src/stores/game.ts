@@ -2,7 +2,7 @@ import { Minion } from '@/game/Minion';
 import { Player } from '@/game/Player';
 import { Tavern } from '@/game/Tavern';
 import { defineStore } from 'pinia';
-import { useBattleStore } from './battle';
+import { useBattleStore, type BattleSideData } from './battle';
 import { useDebugStore } from './debug';
 import { useHeroSelectionStore } from './heroSelection';
 import { usePlayerActionsStore } from './playerActions';
@@ -154,8 +154,8 @@ export const useGameStore = defineStore('game', {
     // ========================================
     // 战斗阶段相关方法
     // ========================================
-    startBattle() {
-      useBattleStore().startBattle();
+    startBattle(player: BattleSideData, enemy: BattleSideData) {
+      useBattleStore().startBattle(player, enemy);
     },
 
     endBattle(result: any) {

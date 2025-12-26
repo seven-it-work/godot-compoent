@@ -128,6 +128,7 @@ import BattleCard from './BattleCard.vue';
 // 导入gameStore
 import { useGameStore } from '@/stores/game';
 import type { GameStoreInstance } from '@/stores/game';
+import type { BattleSideData } from '@/stores/battle';
 
 // 初始化gameStore
 const gameStore = useGameStore();
@@ -224,21 +225,6 @@ const checkBattleEnd = (
   // 否则战斗继续
   return false;
 };
-
-/**
- * 判断先手方
- * 逻辑：随从多的为先手，随从一样，酒馆等级高的为先手，还一样就随机先手
- * @param playerData 玩家数据
- * @param enemyData 敌方数据
- * @returns 先手方数据
- */
-interface BattleSideData {
-  playerData: Player;
-  attackIndex: number;
-  minions: (Minion | null | undefined)[];
-  side: 'player' | 'enemy';
-  battleContext: GameStoreInstance;
-}
 
 /**
  * 判断先手方
@@ -401,14 +387,6 @@ const initializePlayerMinions = (attackerData: BattleSideData) => {
 
 // 执行战斗
 const executeBattle = async () => {
-  console.log('========================================');
-  console.log('开始执行战斗');
-  console.log('========================================');
-
-  isBattleRunning.value = true;
-  internalBattleLog.value = ['开始战斗...'];
-  internalBattleResult.value = null;
-
   // 重置卡片动画状态
   resetCardAnimations();
 
@@ -419,7 +397,6 @@ const executeBattle = async () => {
     attackIndex: 0,
     minions: [],
     side: 'player',
-    battleContext: gameStore,
   };
   const enemyData: BattleSideData = {
     playerData: props.enemyData,
@@ -427,8 +404,8 @@ const executeBattle = async () => {
     attackIndex: 0,
     minions: [],
     side: 'enemy',
-    battleContext: gameStore,
   };
+  gameStore.startBattle(playerData, enemyData);
 
   // 判断先手，并设置当前攻击方
   const firstAttacker = determineFirstAttacker(playerData, enemyData);

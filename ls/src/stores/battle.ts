@@ -4,6 +4,21 @@ import { defineStore } from 'pinia';
 
 export interface BattleResult {}
 
+export interface AttackerInfo {
+  /** 攻击者随从实例（可选） */
+  attacker?: Minion;
+  /** 攻击随从所在位置索引 */
+  position?: number;
+  /** 攻击随从所在阵营 */
+  side: 'player' | 'enemy';
+}
+export interface BattleSideData {
+  playerData: Player;
+  attackIndex: number;
+  minions: (Minion | null | undefined)[];
+  side: 'player' | 'enemy';
+}
+
 export interface BattleStore {
   // 战斗结果
   battleResult?: BattleResult;
@@ -12,15 +27,11 @@ export interface BattleStore {
   // 战斗是否正在进行中
   isBattleActive: boolean;
   /** 己方玩家对象 */
-  friendlyPlayer?: Player;
+  friendlyPlayer?: BattleSideData;
   /** 敌方玩家对象 */
-  enemyPlayer?: Player;
-  /** 攻击者随从实例（可选） */
-  attacker?: Minion;
-  /** 攻击随从所在位置索引 */
-  position?: number;
-  /** 攻击随从所在阵营 */
-  side: 'player' | 'enemy';
+  enemyPlayer?: BattleSideData;
+  /** 攻击者信息 */
+  attackerInfo: AttackerInfo;
 }
 
 export const useBattleStore = defineStore('battle', {
@@ -36,34 +47,45 @@ export const useBattleStore = defineStore('battle', {
       friendlyPlayer: undefined,
       /** 敌方玩家对象 */
       enemyPlayer: undefined,
-      /** 攻击者随从实例（可选） */
-      attacker: undefined,
-      /** 攻击随从所在位置索引 */
-      position: undefined,
-      /** 攻击随从所在阵营 */
-      side: 'player',
+      /** 攻击者信息 */
+      attackerInfo: {
+        /** 攻击者随从实例（可选） */
+        attacker: undefined,
+        /** 攻击随从所在位置索引 */
+        position: undefined,
+        /** 攻击随从所在阵营 */
+        side: 'player',
+      },
     }) as BattleStore,
 
-  getters: {
-    // 获取战斗日志
-    getBattleLog: state => state.battleLog,
-    // 检查战斗是否正在进行
-    isBattleInProgress: state => state.isBattleActive,
-  },
+  getters: {},
 
   actions: {
     // 开始战斗
-    startBattle() {
+    startBattle(player: BattleSideData, enemy: BattleSideData) {
       this.isBattleActive = true;
       this.battleLog = [];
       this.battleResult = {};
+      this.friendlyPlayer = player;
+      this.enemyPlayer = enemy;
       this.addBattleLog('战斗开始！');
+    },
+    // 设置攻击者信息
+    setAttackerInfo(info: AttackerInfo) {
+      this.attackerInfo = info;
     },
 
     // 结束战斗
     endBattle(result: any) {
       this.isBattleActive = false;
       this.battleResult = result;
+      this.friendlyPlayer = undefined;
+      this.enemyPlayer = undefined;
+      this.attackerInfo = {
+        attacker: undefined,
+        position: undefined,
+        side: 'player',
+      };
       this.addBattleLog(`战斗结束！结果：${result.outcome}`);
     },
 
