@@ -1,6 +1,15 @@
 import type { Buff } from '@/server/controller/entity/Buff';
 import type { Card } from '@/server/controller/entity/Card';
 
+export const 酒馆升级需要的金币: Record<number, number> = {
+  1: 5,
+  2: 7,
+  3: 8,
+  4: 11,
+  5: 11,
+  6: 12,
+};
+
 export class Tavern {
   // 酒馆等级
   level: number = 1;

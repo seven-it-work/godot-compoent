@@ -1,4 +1,4 @@
-import type { Card } from '@/server/controller/entity/Card';
+import type { Player } from '@/server/controller/entity/Player';
 
 /**
  * 各星级随从数量限制（公共池） - 定义每个星级在公共池中最多能出现的随从数量
@@ -19,13 +19,13 @@ export class CurrentGame {
    */
   id: string = '';
   /**
+   * 玩家信息
+   */
+  player?: Player;
+  /**
    * 随从池
    * 公共池中的随从，取一个少一个
    * 卡片strId value 剩余数量
    */
   minionPool: Map<string, number> = new Map();
-  /**
-   * 所有随从实例
-   */
-  minionInstances: Map<string, Card> = new Map();
 }
