@@ -1,6 +1,7 @@
 import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
-import type { Tavern } from './entity/Tavern';
-import type { Minion } from '@/game/Minion';
+import type { Tavern } from '@/server/controller/entity/Tavern';
+import type { Minion } from '@/server/controller/entity/Minion';
+import { db_card } from '@/server/db/db_card';
 
 export class TavernController {
   /**
@@ -30,15 +31,26 @@ export class TavernController {
    * @returns 随机选择的随从
    */
   private getRandomMinionFromPool(currentGame: CurrentGame): Minion {
-    const minionPool = currentGame.minionPool;
-    // 1、
-    const minions = Array.from(minionPool.keys());
-    const randomIndex = Math.floor(Math.random() * minions.length);
-    const randomMinionStrId = minions[randomIndex];
-    const randomMinion = currentGame.minionInstances.get(randomMinionStrId);
-    if (!randomMinion) {
-      throw new Error(`Minion with strId ${randomMinionStrId} not found`);
+    const tavern = currentGame?.player?.tavern;
+    if (!tavern) {
+      throw new Error('Tavern not found');
     }
+    const minionPool = currentGame.minionPool;
+    const minions = db_card.getMinionsInTavern(card => {
+      // 1、db中获取当前等级的随从
+      if (card.tier) {
+        // 2、在看随从池中是否数量大于0
+        const minionCountInPool = minionPool.get(card.strId) || 0;
+        return minionCountInPool > 0 && card.tier <= tavern.level;
+      }
+      return false;
+    });
+    if (minions.length === 0) {
+      throw new Error('No minions available in the pool');
+    }
+    // 3、todo 从随从池中获取
+    const randomIndex = Math.floor(Math.random() * minions.length);
+    const randomMinion = minions[randomIndex];
     return randomMinion;
   }
 
