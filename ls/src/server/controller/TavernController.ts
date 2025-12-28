@@ -4,12 +4,18 @@ import type { Minion } from '@/server/controller/entity/Minion';
 import db_card from '@/server/db/db_card';
 import { sample } from 'lodash';
 import { CurrentGameController } from '@/server/controller/CurrentGameController';
+import db_current_game from '../db/db_current_game';
 
 export class TavernController {
   /**
    * 刷新酒馆
    */
-  refreshTavern(currentGame: CurrentGame) {
+  refreshTavern(currentGameId: string) {
+    // 1、根据currentGameId获取当前游戏实例
+    const currentGame = db_current_game.getCurrentGameById(currentGameId);
+    if (!currentGame) {
+      throw new Error('未找到当前游戏');
+    }
     if (!currentGame.player) {
       throw new Error('未找到玩家');
     }
@@ -29,6 +35,7 @@ export class TavernController {
       // 添加到酒馆卡片
       tavern.cards.push(minion);
     }
+    // todo 刷新酒馆的法术牌
   }
 
   /**

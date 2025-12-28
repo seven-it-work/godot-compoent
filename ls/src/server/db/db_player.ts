@@ -51,7 +51,7 @@ function getAllPlayers(): Player[] {
   return Array.from(db.values());
 }
 
-export const dbPlayer = {
+export default {
   createPlayer,
   getPlayerById,
   updatePlayer,

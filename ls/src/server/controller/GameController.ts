@@ -4,6 +4,7 @@ import type { Hero } from '@/server/controller/entity/Hero';
 import { Player } from '@/server/controller/entity/Player';
 import { Tavern, 酒馆升级需要的金币 } from '@/server/controller/entity/Tavern';
 import db_card from '@/server/db/db_card';
+import { TavernController } from '@/server/controller/TavernController';
 
 export class GameController {
   /**
@@ -46,17 +47,33 @@ export class GameController {
   /**
    * 玩家选择英雄
    */
-  chooseHero(currentGame: CurrentGame, hero: Hero) {
+  chooseHero(currentGameId: string, heroStrId: string) {
+    // 1、根据currentGameId获取当前游戏实例
+    const currentGame = db_current_game.getCurrentGameById(currentGameId);
+    if (!currentGame) {
+      throw new Error('未找到当前游戏');
+    }
     if (!currentGame.player) {
       throw new Error('未找到玩家');
     }
-    currentGame.player.hero = hero;
+    // 2、根据heroStrId获取英雄实例
+    const hero = db_card.getCardByStrId(heroStrId);
+    if (hero.type !== 'hero') {
+      throw new Error(`卡片 ${heroStrId} 不是英雄类型`);
+    }
+    // 3、将英雄添加到玩家
+    currentGame.player.hero = hero as Hero;
   }
 
   /**
    * 开始游戏
    */
-  startGame(currentGame: CurrentGame) {
+  startGame(currentGameId: string) {
+    // 1、根据currentGameId获取当前游戏实例
+    const currentGame = db_current_game.getCurrentGameById(currentGameId);
+    if (!currentGame) {
+      throw new Error('未找到当前游戏');
+    }
     if (!currentGame.player) {
       throw new Error('未找到玩家');
     }
@@ -79,5 +96,7 @@ export class GameController {
     tavern.upgradeCost = upgradeCost;
     // 初始化酒馆的卡片
     player.tavern = tavern;
+    // 刷新酒馆
+    new TavernController().refreshTavern(currentGameId);
   }
 }
