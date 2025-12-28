@@ -263,7 +263,6 @@
 </template>
 
 <script setup lang="ts">
-import { AIPlayer } from '@/game/AIPlayer';
 import type { CardArea } from '@/game/Card';
 import { Card } from '@/game/Card';
 import { getAllMinionStrIds, getMinionClassByStrId } from '@/game/cards/minion/MinionClassMap';
@@ -489,34 +488,8 @@ const initGame = (hero: any) => {
   const tavern = new Tavern(1, tavernMinionPool);
   tavern.refresh();
 
-  // 创建AI玩家
-  const aiPlayers = [];
-  for (let i = 0; i < 7; i++) {
-    const aiHeroData = heroesData[i % heroesData.length] as any;
-    const aiHeroPowerData = aiHeroData.heroPowerList?.[0] || {
-      name: '未知技能',
-      text: '无描述',
-      manaCost: 0,
-    };
-
-    const aiHeroObj = {
-      ...aiHeroData,
-      heroPower: {
-        name: aiHeroPowerData.name,
-        description: aiHeroPowerData.text,
-        type: 'active' as any,
-        cost: aiHeroPowerData.manaCost,
-        cooldown: 0,
-        currentCooldown: 0,
-        use: () => {},
-      },
-    };
-
-    aiPlayers.push(new AIPlayer(`ai-${i + 1}`, aiHeroObj as any));
-  }
-
   // 初始化store - 使用全局池作为游戏的主随从池
-  gameStore.initGame(player, tavern, aiPlayers, globalMinionPool);
+  gameStore.initGame(player, tavern, [], globalMinionPool);
 };
 
 // 选择英雄方法
@@ -605,8 +578,14 @@ const handleCardSwap = (cardId: string, targetIndex: number) => {
   }
 };
 
+import { GameController } from '@/server/controller/GameController';
 // 页面加载时自动随机初始化英雄
 onMounted(() => {
+  const gameController = new GameController();
+  gameController.initGame().then(currentGame => {
+    localStorage.setItem('currentGameId', currentGame.id);
+    console.log('游戏已初始化，游戏ID:', currentGame.id, '已存入缓存');
+  });
   // 加载英雄数据
   loadHeroes();
   // 随机选择第一个可用英雄

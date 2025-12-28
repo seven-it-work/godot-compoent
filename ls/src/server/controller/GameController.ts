@@ -12,7 +12,7 @@ export class GameController {
    * 1、创建 CurrentGame 实例
    * 2、初始化游戏数据（包括随从池、英雄等）
    */
-  async initGame() {
+  async initGame(): Promise<CurrentGame> {
     // 1、创建 CurrentGame 实例
     const currentGame = new CurrentGame();
     // 2、初始化游戏数据（包括随从池、英雄等）
