@@ -1,9 +1,9 @@
 import { CurrentGame, MINION_POOL_LIMITS } from '@/server/controller/entity/CurrentGame';
-import { createCurrentGame } from '@/server/db/db_current_game';
+import db_current_game from '@/server/db/db_current_game';
 import type { Hero } from '@/server/controller/entity/Hero';
 import { Player } from '@/server/controller/entity/Player';
 import { Tavern, 酒馆升级需要的金币 } from '@/server/controller/entity/Tavern';
-import { db_card } from '../db/db_card';
+import db_card from '@/server/db/db_card';
 
 export class GameController {
   /**
@@ -22,14 +22,14 @@ export class GameController {
     minionsInTavern.forEach(minion => {
       // 检查 minion.tier 是否存在
       if (minion.tier === undefined) {
-        throw new Error(`Minion ${minion.strId} (${minion.name}) has no tier defined.`);
+        throw new Error(`随从 ${minion.strId} (${minion.name}) 没有定义等级。`);
       }
       // 获取对应等级的随从数量限制
       const poolLimit = MINION_POOL_LIMITS[minion.tier];
       // 检查是否找到对应等级的限制
       if (poolLimit === undefined) {
         throw new Error(
-          `Invalid minion tier: ${minion.tier} for minion ${minion.strId} (${minion.name}). Valid tiers are 1-7.`
+          `无效的随从等级: ${minion.tier} 对于随从 ${minion.strId} (${minion.name})。有效的等级是 1-7。`
         );
       }
       currentGame.minionPool.set(minion.strId, poolLimit);
@@ -40,7 +40,7 @@ export class GameController {
     palyer.name = '玩家';
     currentGame.player = palyer;
     // 添加到db
-    return createCurrentGame(currentGame);
+    return db_current_game.createCurrentGame(currentGame);
   }
 
   /**
@@ -48,7 +48,7 @@ export class GameController {
    */
   chooseHero(currentGame: CurrentGame, hero: Hero) {
     if (!currentGame.player) {
-      throw new Error('Player not found');
+      throw new Error('未找到玩家');
     }
     currentGame.player.hero = hero;
   }
@@ -58,10 +58,10 @@ export class GameController {
    */
   startGame(currentGame: CurrentGame) {
     if (!currentGame.player) {
-      throw new Error('Player not found');
+      throw new Error('未找到玩家');
     }
     if (!currentGame.player.hero) {
-      throw new Error('Hero not found');
+      throw new Error('未找到英雄');
     }
     const player: Player = currentGame.player;
     // 初始化玩家酒馆
@@ -74,9 +74,7 @@ export class GameController {
     const upgradeCost = 酒馆升级需要的金币[tavern.level];
     // 如果找不到对应等级的升级费用，抛出异常
     if (upgradeCost === undefined) {
-      throw new Error(
-        `Invalid tavern level: ${tavern.level}. Upgrade cost not found. Valid levels are 1-6.`
-      );
+      throw new Error(`无效的酒馆等级: ${tavern.level}。未找到升级费用。有效的等级是 1-6。`);
     }
     tavern.upgradeCost = upgradeCost;
     // 初始化酒馆的卡片

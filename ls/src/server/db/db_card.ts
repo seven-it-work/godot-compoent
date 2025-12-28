@@ -27,8 +27,12 @@ function createCard(card: Card): Card {
  * @param strId 卡片标识
  * @returns 卡片对象或undefined
  */
-function getCardByStrId(strId: string): Card | undefined {
-  return cloneDeep(db.get(strId));
+function getCardByStrId(strId: string): Card {
+  const card = db.get(strId);
+  if (!card) {
+    throw new Error(`Card with strId ${strId} not found`);
+  }
+  return cloneDeep(card);
 }
 /**
  * 获取存在酒馆中的随从实例list
@@ -50,7 +54,7 @@ function getMinionsInTavern(filterFunc?: (card: Card) => boolean): Minion[] {
     .map(card => cloneDeep(card)) as Minion[];
 }
 
-export const db_card = {
+export default {
   dbInit,
   createCard,
   getCardByStrId,

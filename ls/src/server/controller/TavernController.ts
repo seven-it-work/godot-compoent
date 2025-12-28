@@ -1,7 +1,9 @@
 import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
 import type { Tavern } from '@/server/controller/entity/Tavern';
 import type { Minion } from '@/server/controller/entity/Minion';
-import { db_card } from '@/server/db/db_card';
+import db_card from '@/server/db/db_card';
+import { sample } from 'lodash';
+import { CurrentGameController } from '@/server/controller/CurrentGameController';
 
 export class TavernController {
   /**
@@ -9,12 +11,16 @@ export class TavernController {
    */
   refreshTavern(currentGame: CurrentGame) {
     if (!currentGame.player) {
-      throw new Error('Player not found');
+      throw new Error('未找到玩家');
     }
     const tavern = currentGame.player.tavern;
     if (!tavern) {
-      throw new Error('Tavern not found');
+      throw new Error('未找到酒馆');
     }
+    // 归还酒馆中的随从到公共池
+    tavern.cards.forEach(minion => {
+      new CurrentGameController().returnMinionToPool(currentGame.id, minion.strId);
+    });
     // 等级当前酒馆等级生成对应的随从个+1个法术牌
     const minionsToShowCount = this.getMinionsToShowCount(tavern);
     for (let i = 0; i < minionsToShowCount; i++) {
@@ -33,10 +39,10 @@ export class TavernController {
   private getRandomMinionFromPool(currentGame: CurrentGame): Minion {
     const tavern = currentGame?.player?.tavern;
     if (!tavern) {
-      throw new Error('Tavern not found');
+      throw new Error('未找到酒馆');
     }
     const minionPool = currentGame.minionPool;
-    const minions = db_card.getMinionsInTavern(card => {
+    const minions: Minion[] = db_card.getMinionsInTavern(card => {
       // 1、db中获取当前等级的随从
       if (card.tier) {
         // 2、在看随从池中是否数量大于0
@@ -46,12 +52,16 @@ export class TavernController {
       return false;
     });
     if (minions.length === 0) {
-      throw new Error('No minions available in the pool');
+      throw new Error('随从池中没有可用的随从');
     }
-    // 3、todo 从随从池中获取
-    const randomIndex = Math.floor(Math.random() * minions.length);
-    const randomMinion = minions[randomIndex];
-    return randomMinion;
+    // 3、从随从池中获取随机随从
+    const randomMinion = sample(minions);
+    // 确保获取到的随从不为undefined
+    if (!randomMinion) {
+      throw new Error('从随从池中获取随机随从失败');
+    }
+    // 必须从随从池中获取
+    return new CurrentGameController().getMinionFromPool(currentGame.id, randomMinion.strId);
   }
 
   /**
@@ -74,7 +84,7 @@ export class TavernController {
       case 7:
         return 6; // 6级酒馆显示6个随从
       default:
-        throw new Error('Invalid tavern level');
+        throw new Error('无效的酒馆等级');
     }
   }
 }
