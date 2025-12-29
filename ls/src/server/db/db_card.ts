@@ -1,5 +1,5 @@
-import type { Minion } from '@/server/controller/entity/Minion';
 import { Card } from '@/server/controller/entity/Card';
+import type { Minion } from '@/server/controller/entity/Minion';
 import { cloneDeep } from 'lodash';
 /**
  * 基础卡片数据库，存入了所有的基础卡片
@@ -29,6 +29,7 @@ function createCard(card: Card): Card {
  */
 function getCardByStrId(strId: string): Card {
   const card = db.get(strId);
+  debugger;
   if (!card) {
     throw new Error(`Card with strId ${strId} not found`);
   }
@@ -67,12 +68,13 @@ export default {
 const cardFiles = import.meta.glob('@/server/all_cards/**/*.ts');
 
 async function dbInit() {
-  loadAllCards();
+  await loadAllCards();
 }
 /**
  * 加载所有卡片类
  */
 async function loadAllCards() {
+  debugger;
   // 存储所有加载 Promise
   const loadPromises = [];
 
@@ -97,7 +99,7 @@ async function loadCardFile(filePath: string) {
     const module = await cardFiles[filePath]();
 
     // 处理模块的所有导出
-    processModuleExports(module, filePath);
+    await processModuleExports(module, filePath);
   } catch (error) {
     console.error(`Failed to load card file ${filePath}:`, error);
   }
@@ -109,6 +111,7 @@ async function loadCardFile(filePath: string) {
  * @param filePath 文件路径（用于调试）
  */
 async function processModuleExports(module: any, filePath: string) {
+  debugger;
   // 处理默认导出
   if (module.default && typeof module.default === 'function' && module.default.prototype) {
     await processCardClass(module.default, 'default', filePath);
@@ -138,6 +141,7 @@ async function processModuleExports(module: any, filePath: string) {
  */
 async function processCardClass(CardClass: new () => Card, exportName: string, filePath: string) {
   try {
+    debugger;
     // 创建类的实例
     const instance = new CardClass();
     // 如果有 strId 属性，则添加到映射中

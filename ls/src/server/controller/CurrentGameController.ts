@@ -1,9 +1,20 @@
+import { CurrentGame, MINION_POOL_LIMITS } from '@/server/controller/entity/CurrentGame';
 import type { Minion } from '@/server/controller/entity/Minion';
-import db_current_game from '@/server/db/db_current_game';
 import db_card from '@/server/db/db_card';
-import { MINION_POOL_LIMITS } from '@/server/controller/entity/CurrentGame';
+import db_current_game from '@/server/db/db_current_game';
+import { cloneDeep } from 'lodash';
 
 export class CurrentGameController {
+  /**
+   * 通过id查询当前游戏
+   */
+  getCurrentGameById(currentGameId: string): CurrentGame {
+    const result = db_current_game.getCurrentGameById(currentGameId);
+    if (!result) {
+      throw new Error(`当前游戏 ${currentGameId} 未找到`);
+    }
+    return cloneDeep(result);
+  }
   /**
    * 从随从池中获取随从
    */

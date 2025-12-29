@@ -1,7 +1,8 @@
+import { IdGenerator } from '@/utils/IdGenerator';
 import type { CurrentGame } from './CurrentGame';
 
 export class Card {
-  id: string = ''; // 对象唯一标识
+  id: string = IdGenerator.generateRandomId(); // 对象唯一标识
   strId: string = ''; // 卡片标识
   name: string = '';
   type?: 'minion' | 'hero';

@@ -265,15 +265,10 @@
 <script setup lang="ts">
 import type { CardArea } from '@/game/Card';
 import { Card } from '@/game/Card';
-import { getAllMinionStrIds, getMinionClassByStrId } from '@/game/cards/minion/MinionClassMap';
-import { BloodGem } from '@/game/cards/spell/BloodGem';
 import { Minion } from '@/game/Minion';
-import { Player } from '@/game/Player';
-import { Tavern } from '@/game/Tavern';
+import { Tavern } from '@/server/controller/entity/Tavern';
 import { useGameStore } from '@/stores/game';
 import { computed, onMounted, ref, watch } from 'vue';
-import heroesData from '../../data/heroes.json';
-import minionsData from '../../data/minions.json';
 import BattleScene from './components/BattleScene.vue';
 import CardSlot from './components/CardSlot.vue';
 import DebugDrawer from './components/DebugDrawer.vue';
@@ -320,17 +315,26 @@ const handleSellAction = () => {
 // 当前拖拽的卡片ID
 const currentDraggingCard = ref<string | null>(null);
 
+const tavernController = new TavernController();
+const currentGameController = new CurrentGameController();
 // 计算属性：从游戏store获取卡片数据
 const tavernCards = computed(() => {
+  if (!currentGameId.value) {
+    // 初始状态：7个空槽
+    return Array(7).fill(null);
+  }
+  const currentGame = currentGameController.getCurrentGameById(currentGameId.value);
+  const player = currentGame.player;
+  if (!player) {
+    throw new Error('当前游戏中没有玩家');
+  }
+  const tavern: Tavern | undefined = player.tavern;
+  if (!tavern) {
+    throw new Error('当前游戏中没有酒馆');
+  }
   // 如果游戏store中有酒馆，使用其可用随从，否则初始化7个空槽
-  if (gameStore.tavern && gameStore.tavern.availableMinions) {
-    const availableMinions = gameStore.tavern.availableMinions;
-    // 确保总共有7个槽位，不足则用null填充
-    const filledSlots = [...availableMinions];
-    while (filledSlots.length < 7) {
-      filledSlots.push(null);
-    }
-    return filledSlots;
+  if (tavern.cards) {
+    return tavern.cards;
   }
   // 初始状态：7个空槽
   return Array(7).fill(null);
@@ -380,129 +384,6 @@ const upgradeCost = computed(() => {
   const upgradeCosts = [0, 5, 7, 8, 10, 12, 12];
   return upgradeCosts[gameStore.player.tavernLevel] || 0;
 });
-
-// 从JSON文件加载英雄数据，并随机选择3个
-const loadHeroes = () => {
-  // 复制英雄数据
-  const allHeroes = [...heroesData] as any[];
-
-  // 随机选择3个英雄
-  const shuffledHeroes = allHeroes.sort(() => 0.5 - Math.random());
-  const selectedHeroes = shuffledHeroes.slice(0, 3);
-
-  // 存入store
-  gameStore.setAvailableHeroes(selectedHeroes);
-};
-
-// 从已开发的随从类创建随从池
-const createMinionPool = () => {
-  // 只使用已开发的随从类，通过getAllMinionStrIds获取所有已开发的strId
-  const developedStrIds = getAllMinionStrIds();
-
-  // 辅助函数：递归提取所有随从数据（包括tokens中的）
-  const extractAllMinions = (data: any[]): any[] => {
-    let allMinions: any[] = [];
-
-    data.forEach(item => {
-      // 添加当前item
-      allMinions.push(item);
-
-      // 递归处理tokens
-      if (item.tokens && Array.isArray(item.tokens)) {
-        allMinions = allMinions.concat(extractAllMinions(item.tokens));
-      }
-
-      // 递归处理upgradeCard
-      if (item.upgradeCard) {
-        allMinions.push(item.upgradeCard);
-        if (item.upgradeCard.tokens && Array.isArray(item.upgradeCard.tokens)) {
-          allMinions = allMinions.concat(extractAllMinions(item.upgradeCard.tokens));
-        }
-      }
-    });
-
-    return allMinions;
-  };
-
-  // 提取所有随从数据（包括top-level和tokens中的）
-  const allMinionData = extractAllMinions(minionsData);
-  // 从所有数据中过滤出已开发的随从
-  const globalMinionPool = allMinionData
-    .filter(minionData => {
-      // 只处理随从类型，并且strId在已开发列表中
-      return minionData.cardType === 'minion' && developedStrIds.includes(minionData.strId);
-    })
-    .map(minionData => {
-      // 为每个随从创建Minion实例
-      const MinionClass = getMinionClassByStrId(minionData.strId);
-      if (MinionClass) {
-        try {
-          return new MinionClass();
-        } catch (error) {
-          console.error(`创建随从 ${minionData.strId} 实例时出错:`, error);
-          return null;
-        }
-      }
-      return null;
-    })
-    .filter((minion): minion is Minion => minion !== null);
-  // 酒馆专用池 - 使用全局池
-  const tavernMinionPool = globalMinionPool;
-  console.log('酒馆专用池:', tavernMinionPool);
-
-  // 返回两个池：全局池和酒馆专用池
-  return { globalMinionPool, tavernMinionPool };
-};
-
-// 初始化游戏
-const initGame = (hero: any) => {
-  // 创建随从池 - 获取全局池和酒馆专用池
-  const { globalMinionPool, tavernMinionPool } = createMinionPool();
-
-  // 转换heroPowerList为heroPower对象
-  const heroPowerData = hero.heroPowerList?.[0] || {
-    name: '未知技能',
-    text: '无描述',
-    manaCost: 0,
-  };
-
-  // 创建符合Hero类的hero对象
-  const heroObj = {
-    ...hero,
-    heroPower: {
-      name: heroPowerData.name,
-      description: heroPowerData.text,
-      type: 'active' as any,
-      cost: heroPowerData.manaCost,
-      cooldown: 0,
-      currentCooldown: 0,
-      use: () => {},
-    },
-  };
-
-  // 创建玩家
-  const player = new Player('player-1', heroObj as any, true);
-  player.addCardToHand(new BloodGem());
-
-  // 创建酒馆 - 使用酒馆专用池
-  const tavern = new Tavern(1, tavernMinionPool);
-  tavern.refresh();
-
-  // 初始化store - 使用全局池作为游戏的主随从池
-  gameStore.initGame(player, tavern, [], globalMinionPool);
-};
-
-// 选择英雄方法
-const selectHero = (heroId: string) => {
-  const hero = gameStore.availableHeroes.find(h => h.id === heroId);
-  if (hero) {
-    // 存入store
-    gameStore.selectHero(hero);
-    // 初始化游戏
-    initGame(hero);
-    console.log('选择了英雄:', hero.name);
-  }
-};
 
 // 升级酒馆
 const upgradeTavern = () => {
@@ -578,25 +459,31 @@ const handleCardSwap = (cardId: string, targetIndex: number) => {
   }
 };
 
+import { CurrentGameController } from '@/server/controller/CurrentGameController';
 import { GameController } from '@/server/controller/GameController';
+import { HeroController } from '@/server/controller/HeroController';
+import { TavernController } from '@/server/controller/TavernController';
+
+const gameController = new GameController();
+const heroController = new HeroController();
+const currentGameId = ref<string>('');
 // 页面加载时自动随机初始化英雄
 onMounted(async () => {
-  const gameController = new GameController();
   const currentGame = await gameController.initGame();
+  currentGameId.value = currentGame.id;
   localStorage.setItem('currentGameId', currentGame.id);
   console.log('游戏已初始化，游戏ID:', currentGame.id, '已存入缓存');
-  // 加载英雄数据
-  loadHeroes();
-  // 随机选择第一个可用英雄
-  if (gameStore.availableHeroes.length > 0) {
-    const randomIndex = Math.floor(Math.random() * gameStore.availableHeroes.length);
-    const randomHero = gameStore.availableHeroes[randomIndex];
-    // 选择并初始化英雄
-    if (randomHero) {
-      selectHero(randomHero.id);
-      console.log('页面加载时随机选择了英雄:', randomHero.name || '未知英雄');
-    }
+  const heroes = heroController.generateHeroes(3);
+  // todo 这里应该是交互 玩家选择英雄，但是英雄没有开发 就先取第一个了
+  if (heroes.length <= 0) {
+    throw new Error('生成的英雄为空');
   }
+  const hero = heroes[0];
+  if (!hero) {
+    throw new Error('生成的英雄为空');
+  }
+  gameController.chooseHero(currentGame.id, hero.strId);
+  gameController.startGame(currentGame.id);
 });
 
 /**

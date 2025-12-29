@@ -20,7 +20,7 @@ export class Tavern {
   // 当前最大金币
   maxGold: number = 0;
   // 酒馆卡片
-  cards: Card[] = [];
+  cards: (Card | undefined)[] = Array(7).fill(undefined);
   // 下回合额外获取金币数
   extraGold: number = 0;
   // 刷新费用
