@@ -52,11 +52,9 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 import { Card } from '@/server/controller/entity/Card';
-import type { Minion } from '@/server/controller/entity/Minion';
-import { MinionKeywordCN } from '@/server/controller/entity/Minion';
+import { Minion, MinionKeywordCN } from '@/server/controller/entity/Minion';
+import { Spell } from '@/server/controller/entity/Spell';
 import interact from 'interactjs';
-import type { CardArea } from '../../../game/Card';
-import { Spell } from '../../../game/Spell';
 
 // 接收外部传入的参数
 type CardPosition = CardArea;
@@ -78,8 +76,8 @@ const emit = defineEmits<{
   (
     e: 'card-move',
     cardId: string,
-    fromArea: CardPosition,
-    toArea: CardPosition,
+    fromArea: 'tavern' | 'battlefield' | 'hand',
+    toArea: 'tavern' | 'battlefield' | 'hand',
     targetSlotIndex?: number
   ): void;
   // 卡片移除事件
@@ -585,7 +583,7 @@ onMounted(() => {
         };
 
         console.log(
-          `[拖拽开始] 卡片: ${props.cardId}, 初始位置类型: ${props.data?.area}, 初始坐标: (${initialPosition.value.x}, ${initialPosition.value.y})`
+          `[拖拽开始] 卡片: ${props.cardId}, 初始位置类型: ${props.data?.location}, 初始坐标: (${initialPosition.value.x}, ${initialPosition.value.y})`
         );
         console.log(
           `[拖拽开始] 卡片 ${props.cardId} 原始中心点视口坐标: (${initialCardCenter.value.x}, ${initialCardCenter.value.y})`
@@ -604,7 +602,7 @@ onMounted(() => {
         target.style.transition = 'none';
 
         // 逻辑1：如果是手牌拖拽，高亮战场的空格子
-        if (props.data?.area === '手牌') {
+        if (props.data?.location === 'hand') {
           // 判断是否为法术卡片
           const isSpell = props.data instanceof Spell;
 
@@ -633,7 +631,7 @@ onMounted(() => {
           }
         }
         // 逻辑2：如果是战场卡片拖拽，高亮酒馆区域和所有战场卡片槽
-        else if (props.data?.area === '战场') {
+        else if (props.data?.location === 'battlefield') {
           console.log(`[高亮处理] 战场卡片 ${props.cardId} 开始拖拽，高亮酒馆区域和所有战场卡片槽`);
 
           // 设置拖拽时的不透明度
@@ -891,32 +889,38 @@ onMounted(() => {
           }
         }
         // 逻辑2：战场卡片拖拽到酒馆区域，卡片消失
-        else if (isTavernArea && props.data?.area === '战场') {
+        else if (isTavernArea && props.data?.location === 'battlefield') {
           console.log(`[位置更新] 战场卡片 ${props.cardId} 拖拽到酒馆区域，卡片消失`);
           shouldRemoveCard = true;
         }
         // 逻辑3：酒馆卡片拖拽到手牌区域，卡片移动
-        else if (isHandArea && props.data?.area === '酒馆') {
+        else if (isHandArea && props.data?.location === 'tavern') {
           // 在手牌区域释放，发送移动事件
-          console.log(`[位置更新] 卡片 ${props.cardId} 从 ${props.data?.area} 移动到手牌区域`);
-          emit('card-move', props.cardId, props.data?.area || '', '手牌');
+          console.log(`[位置更新] 卡片 ${props.cardId} 从 ${props.data?.location} 移动到手牌区域`);
+          emit('card-move', props.cardId, props.data?.location || '', 'hand');
           // 重置位置
           position.value = { x: 0, y: 0 };
           console.log(`[位置更新] 卡片 ${props.cardId} 位置重置为 (0, 0)`);
         }
         // 逻辑4：手牌卡片拖拽到战场空格子，卡片移动
-        else if (isEmptySlot && props.data?.area === '手牌') {
+        else if (isEmptySlot && props.data?.location === 'hand') {
           // 在战场空格子释放，发送移动事件，传递目标空格子索引
           console.log(
-            `[位置更新] 卡片 ${props.cardId} 从 ${props.data?.area} 移动到战场区域，目标空格子索引: ${targetSlotIndex}`
+            `[位置更新] 卡片 ${props.cardId} 从 ${props.data?.location} 移动到战场区域，目标空格子索引: ${targetSlotIndex}`
           );
-          emit('card-move', props.cardId, props.data?.area || '', '战场', targetSlotIndex);
+          emit(
+            'card-move',
+            props.cardId,
+            props.data?.location || '',
+            'battlefield',
+            targetSlotIndex
+          );
           // 重置位置
           position.value = { x: 0, y: 0 };
           console.log(`[位置更新] 卡片 ${props.cardId} 位置重置为 (0, 0)`);
         }
         // 逻辑5：战场卡片拖拽到另一个战场卡片槽，交换位置
-        else if (isTargetSlot && props.data?.area === '战场') {
+        else if (isTargetSlot && props.data?.location === 'battlefield') {
           console.log(
             `[位置更新] 战场卡片 ${props.cardId} 拖拽到另一个战场卡片槽，索引: ${targetSlotIndex}, 目标槽是否有卡片: ${targetSlotHasCard}`
           );

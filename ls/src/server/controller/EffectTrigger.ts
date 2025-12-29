@@ -49,15 +49,21 @@ export class EffectTriggerController {
     // 触发使用卡片后事件
     card.useCardAfter(currentGame);
     // 触发使用其他卡片事件
-    player.handCards.forEach(handCard => {
-      handCard.useOtherCardAfter(currentGame, card);
-    });
-    player.minionsInBattle.forEach(minion => {
-      minion.useOtherCardAfter(currentGame, card);
-    });
-    player.minionsOnBattlefield.forEach(minion => {
-      minion.useOtherCardAfter(currentGame, card);
-    });
+    player.handCards
+      .filter(minion => minion !== undefined)
+      .forEach(handCard => {
+        handCard.useOtherCardAfter(currentGame, card);
+      });
+    player.minionsInBattle
+      .filter(minion => minion !== undefined)
+      .forEach(minion => {
+        minion.useOtherCardAfter(currentGame, card);
+      });
+    player.minionsOnBattlefield
+      .filter(minion => minion !== undefined)
+      .forEach(minion => {
+        minion.useOtherCardAfter(currentGame, card);
+      });
     // 随从的特性了
     if (card instanceof Minion) {
       // 如果有战吼，触发战吼

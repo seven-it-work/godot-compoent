@@ -1,7 +1,7 @@
-import { IdGenerator } from '@/utils/IdGenerator';
-import { Hero } from '@/server/controller/entity/Hero';
 import type { Card } from '@/server/controller/entity/Card';
+import { Hero } from '@/server/controller/entity/Hero';
 import type { Tavern } from '@/server/controller/entity/Tavern';
+import { IdGenerator } from '@/utils/IdGenerator';
 
 export class Player {
   id: string = IdGenerator.generateRandomId();
@@ -9,11 +9,11 @@ export class Player {
   // 英雄
   hero?: Hero;
   // 战场上的随从
-  minionsOnBattlefield: Card[] = [];
+  minionsOnBattlefield: (Card | undefined)[] = Array(7).fill(undefined);
   // 战斗中的随从
-  minionsInBattle: Card[] = [];
+  minionsInBattle: (Card | undefined)[] = Array(7).fill(undefined);
   // 手牌
-  handCards: Card[] = [];
+  handCards: (Card | undefined)[] = Array(10).fill(undefined);
   // 酒馆
   tavern?: Tavern;
 }

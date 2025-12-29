@@ -21,6 +21,10 @@ export class Tavern {
   maxGold: number = 0;
   // 酒馆卡片
   cards: (Card | undefined)[] = Array(7).fill(undefined);
+  // 当前回合数
+  currentTurn: number = 0;
+  // 是否冻结
+  isFrozen: boolean = false;
   // 下回合额外获取金币数
   extraGold: number = 0;
   // 刷新费用

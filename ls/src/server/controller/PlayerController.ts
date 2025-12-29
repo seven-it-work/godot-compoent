@@ -1,17 +1,19 @@
-import db_current_game from '@/server/db/db_current_game';
+import { CurrentGameController } from '@/server/controller/CurrentGameController';
+import type { Card } from '@/server/controller/entity/Card';
 import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
 import { Result, ResultFactory } from '@/server/controller/entity/Result';
 import { TavernController } from '@/server/controller/TavernController';
-import type { Card } from '@/server/controller/entity/Card';
-import { CurrentGameController } from '@/server/controller/CurrentGameController';
-import type { Minion } from './entity/Minion';
+import db_current_game from '@/server/db/db_current_game';
 import { EffectTriggerController } from './EffectTrigger';
+import type { Minion } from './entity/Minion';
+import type { Player } from './entity/Player';
 
 const MAX_HAND_CARDS = 10;
 /**
  * 玩家的操作：
  * 升级酒馆
  * 刷新酒馆
+ * 冻结/解冻酒馆
  * 购买卡片
  * 出售卡片
  * 使用卡片
@@ -22,7 +24,7 @@ export class PlayerController {
   /**
    * 升级酒馆
    */
-  upgradePlayer(currentGameId: string): Result {
+  upgradeTavern(currentGameId: string): Result {
     // 1、根据currentGameId获取当前游戏实例
     const currentGame: CurrentGame | undefined = db_current_game.getCurrentGameById(currentGameId);
     if (!currentGame) {
@@ -49,7 +51,7 @@ export class PlayerController {
   /**
    * 刷新酒馆
    */
-  refreshPlayer(currentGameId: string): Result {
+  refreshTavern(currentGameId: string): Result {
     // 1、根据currentGameId获取当前游戏实例
     const currentGame: CurrentGame | undefined = db_current_game.getCurrentGameById(currentGameId);
     if (!currentGame) {
@@ -72,9 +74,31 @@ export class PlayerController {
     return ResultFactory.success('酒馆刷新成功');
   }
   /**
+   * 冻结/解冻酒馆
+   * @param currentGameId 当前游戏ID
+   * @param freeze 是否冻结
+   */
+  freezeTavern(currentGameId: string, freeze: boolean): Result {
+    // 1、根据currentGameId获取当前游戏实例
+    const currentGame: CurrentGame | undefined = db_current_game.getCurrentGameById(currentGameId);
+    if (!currentGame) {
+      throw new Error('未找到当前游戏');
+    }
+    if (!currentGame.player) {
+      throw new Error('未找到玩家');
+    }
+    const tavern = currentGame.player.tavern;
+    if (!tavern) {
+      throw new Error('未找到酒馆');
+    }
+    // 冻结/解冻酒馆
+    tavern.isFrozen = freeze;
+    return ResultFactory.success('酒馆冻结/解冻成功');
+  }
+  /**
    * 购买卡片
    */
-  buyPlayer(currentGameId: string, cardId: string): Result {
+  buyCard(currentGameId: string, cardId: string): Result {
     // 1、根据currentGameId获取当前游戏实例
     const currentGame: CurrentGame | undefined = db_current_game.getCurrentGameById(currentGameId);
     if (!currentGame) {
@@ -89,7 +113,9 @@ export class PlayerController {
     }
 
     // 从酒馆中查找要购买的卡片（使用strId）
-    const cardIndex = tavern.cards.findIndex(temp => temp.id === cardId);
+    const cardIndex = tavern.cards
+      .filter(temp => temp !== undefined)
+      .findIndex(temp => temp.id === cardId);
     if (cardIndex === -1) {
       return ResultFactory.fail('未找到要购买的卡片');
     }
@@ -143,7 +169,7 @@ export class PlayerController {
    * 出售卡片
    * 只能从 minionsOnBattlefield 中出售
    */
-  sellCardFromHand(currentGameId: string, cardId: string): Result {
+  sellCard(currentGameId: string, cardId: string): Result {
     // 1、根据currentGameId获取当前游戏实例
     const currentGame: CurrentGame | undefined = db_current_game.getCurrentGameById(currentGameId);
     if (!currentGame) {
@@ -157,7 +183,9 @@ export class PlayerController {
       throw new Error('未找到玩家');
     }
     // 查找要出售的卡片
-    const cardIndex = player.minionsOnBattlefield.findIndex(temp => temp.id === cardId);
+    const cardIndex = player.minionsOnBattlefield
+      .filter(minion => minion !== undefined)
+      .findIndex(temp => temp.id === cardId);
     if (cardIndex === -1) {
       return ResultFactory.fail('未找到要出售的卡片');
     }
@@ -181,7 +209,7 @@ export class PlayerController {
   /**
    * 使用卡片
    */
-  useCardFromHand(currentGameId: string, cardId: string): Result {
+  useCardFromHand(currentGameId: string, cardId: string, _params: any = {}): Result {
     // 1、根据currentGameId获取当前游戏实例
     const currentGame: CurrentGame | undefined = db_current_game.getCurrentGameById(currentGameId);
     if (!currentGame) {
@@ -195,7 +223,9 @@ export class PlayerController {
       throw new Error('未找到玩家');
     }
     // 查找要使用的卡片
-    const cardIndex = player.handCards.findIndex(temp => temp.id === cardId);
+    const cardIndex = player.handCards
+      .filter(minion => minion !== undefined)
+      .findIndex(temp => temp.id === cardId);
     if (cardIndex === -1) {
       return ResultFactory.fail('未找到要使用的卡片');
     }
@@ -218,8 +248,24 @@ export class PlayerController {
   /**
    * 结束回合
    */
-  endTurn(): Result {
+  endTurn(currentGameId: string): Result {
     // todo 待实现
     return ResultFactory.success('回合结束');
+  }
+
+  /**
+   * 保存玩家数据
+   */
+  savePlayerData(currentGameId: string, player: Player): Result {
+    // 1、根据currentGameId获取当前游戏实例
+    const currentGame: CurrentGame | undefined = db_current_game.getCurrentGameById(currentGameId);
+    if (!currentGame) {
+      throw new Error('未找到当前游戏');
+    }
+    if (!currentGame.player) {
+      throw new Error('未找到玩家');
+    }
+    currentGame.player = player;
+    return ResultFactory.success('保存玩家数据成功');
   }
 }

@@ -27,14 +27,16 @@
             :card-id="card ? card.id : 'empty-tavern-1-' + index"
             :position-type="'tavern'"
             :data="card"
-            :selected-card-id="gameStore.selectedCard?.id"
+            :selected-card-id="globalStore.selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
             @card-select="
               cardData =>
-                cardData ? gameStore.selectCard(cardData, index) : gameStore.cancelSelectCard()
+                cardData
+                  ? globalStore.setSelectedCard(cardData, index)
+                  : globalStore.clearSelectedCard()
             "
             @spell-cast="handleSpellCast"
           ></CardSlot>
@@ -48,51 +50,50 @@
             :card-id="card ? card.id : 'empty-tavern-2-' + index"
             :position-type="'tavern'"
             :data="card"
-            :selected-card-id="gameStore.selectedCard?.id"
+            :selected-card-id="globalStore.selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
             @card-select="
               cardData =>
-                cardData ? gameStore.selectCard(cardData, index + 5) : gameStore.cancelSelectCard()
+                cardData
+                  ? globalStore.setSelectedCard(cardData, index + 5)
+                  : globalStore.clearSelectedCard()
             "
             @spell-cast="handleSpellCast"
           ></CardSlot>
           <div class="info-panel tavern-info">
             <div class="stats-row">
-              <div>酒馆等级：{{ gameStore.player?.tavernLevel || 1 }}级</div>
+              <div>酒馆等级：{{ travern?.level || 1 }}级</div>
               <button @click="upgradeTavern" :disabled="!canUpgrade">
-                升级({{ upgradeCost }})
+                升级({{ travern?.upgradeCost || 1 }})
               </button>
             </div>
 
             <div class="buttons-row">
-              <div>第{{ gameStore.currentTurn || 1 }}回合</div>
+              <div>第{{ travern?.currentTurn || 1 }}回合</div>
               <button
                 @click="refreshTavern"
-                :disabled="!(gameStore.player && gameStore.player.gold >= 1)"
+                :disabled="!(travern && travern.gold >= travern.refreshCost)"
               >
-                刷新(1)
+                刷新({{ travern?.refreshCost || 1 }})
               </button>
               <button @click="toggleFreeze">
-                {{ gameStore.tavern?.isFrozen ? '解冻(1)' : '冻结(1)' }}
+                <!-- todo 有待开发 -->
+                {{ travern?.isFrozen ? '解冻(0)' : '冻结(0)' }}
               </button>
             </div>
 
             <div class="stats-row">
               <div>
-                生命值：{{ gameStore.player?.hero?.health || 30 }} 护甲：{{
-                  gameStore.player?.hero?.armor || 0
-                }}
+                生命值：{{ player?.hero?.health || 30 }} 护甲：{{ player?.hero?.armor || 0 }}
               </div>
               <button>技能</button>
             </div>
 
             <div class="buttons-row">
-              <div>
-                铸币：{{ gameStore.player?.gold || 0 }}/{{ gameStore.player?.maxGold || 0 }}
-              </div>
+              <div>铸币：{{ travern?.gold || 0 }}/{{ travern?.maxGold || 0 }}</div>
               <button @click="endTurn">结束回合</button>
               <button @click="showBattleScene">战斗</button>
               <button @click="showDebugDrawer">调试</button>
@@ -110,7 +111,7 @@
             :card-id="card ? card.id : 'empty-battlefield-1-' + index"
             :position-type="'battlefield'"
             :data="card"
-            :selected-card-id="gameStore.selectedCard?.id"
+            :selected-card-id="globalStore.selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
@@ -118,7 +119,9 @@
             @card-swap="(cardId, targetIndex) => handleCardSwap(cardId, targetIndex)"
             @card-select="
               cardData =>
-                cardData ? gameStore.selectCard(cardData, index) : gameStore.cancelSelectCard()
+                cardData
+                  ? globalStore.setSelectedCard(cardData, index)
+                  : globalStore.clearSelectedCard()
             "
             @spell-cast="handleSpellCast"
           ></CardSlot>
@@ -132,7 +135,7 @@
             :card-id="card ? card.id : 'empty-battlefield-2-' + index"
             :position-type="'battlefield'"
             :data="card"
-            :selected-card-id="gameStore.selectedCard?.id"
+            :selected-card-id="globalStore.selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
@@ -140,39 +143,41 @@
             @card-swap="(cardId, targetIndex) => handleCardSwap(cardId, targetIndex)"
             @card-select="
               cardData =>
-                cardData ? gameStore.selectCard(cardData, index + 5) : gameStore.cancelSelectCard()
+                cardData
+                  ? globalStore.setSelectedCard(cardData, index + 5)
+                  : globalStore.clearSelectedCard()
             "
             @spell-cast="handleSpellCast"
           ></CardSlot>
           <div class="info-panel player-info">
             <div class="layout-grid">
               <!-- 左区 -->
-              <div class="top-left" v-if="gameStore.selectedCard">
-                <div class="card-name" v-if="gameStore.selectedCard?.nameCN">
-                  {{ gameStore.selectedCard?.nameCN || '非常长的名称' }}
+              <div class="top-left" v-if="globalStore.selectedCard">
+                <div class="card-name" v-if="globalStore.selectedCard?.name">
+                  {{ globalStore.selectedCard?.name || '非常长的名称' }}
                 </div>
-                <div class="card-stats" v-if="gameStore.selectedCard?.cardType === 'minion'">
+                <div class="card-stats" v-if="globalStore.selectedCard?.type === 'minion'">
                   <span class="attack"
-                    >攻{{ (gameStore.selectedCard as any).getAttack() || 0 }}</span
+                    >攻{{ (globalStore.selectedCard as any).getAttack() || 0 }}</span
                   >
-                  <span class="health">血{{ (gameStore.selectedCard as any).health || 0 }}</span>
+                  <span class="health">血{{ (globalStore.selectedCard as any).health || 0 }}</span>
                 </div>
-                <div class="card-buffs" v-if="gameStore.selectedCard?.cardType === 'minion'">
+                <div class="card-buffs" v-if="globalStore.selectedCard?.type === 'minion'">
                   <!-- 属性加成信息可以从gameStore.selectedCard中获取 -->
                   <div>
                     永久属性加成：
                     <span
-                      v-for="(buff, index) in (gameStore.selectedCard as any).permanentBuffs"
+                      v-for="(buff, index) in (globalStore.selectedCard as any).permanentBuffs"
                       :key="index"
                     >
                       {{ buff.attackBonus ? `+${buff.attackBonus}攻` : '' }}
                       {{ buff.healthBonus ? `+${buff.healthBonus}血` : '' }}
                     </span>
                   </div>
-                  <div v-if="(gameStore.selectedCard as any).temporaryBuffs?.length">
+                  <div v-if="(globalStore.selectedCard as any).temporaryBuffs?.length">
                     临时属性加成：
                     <span
-                      v-for="(buff, index) in (gameStore.selectedCard as any).temporaryBuffs"
+                      v-for="(buff, index) in (globalStore.selectedCard as any).temporaryBuffs"
                       :key="index"
                     >
                       {{ buff.attackBonus ? `+${buff.attackBonus}攻` : '' }}
@@ -183,25 +188,25 @@
               </div>
 
               <!-- 右区 -->
-              <div class="top-right" v-if="gameStore.selectedCard">
-                <div class="card-description" v-html="gameStore.selectedCard?.text || ''"></div>
+              <div class="top-right" v-if="globalStore.selectedCard">
+                <div class="card-description" v-html="globalStore.selectedCard?.text || ''"></div>
                 <div class="card-actions">
                   <button
-                    v-if="gameStore.selectedCard?.area === '酒馆'"
+                    v-if="globalStore.selectedCard?.location === 'tavern'"
                     class="action-btn buy-btn"
                     @click="handleBuyAction"
                   >
                     购买
                   </button>
                   <button
-                    v-if="gameStore.selectedCard?.area === '手牌'"
+                    v-if="globalStore.selectedCard?.location === 'hand'"
                     class="action-btn place-btn"
                     @click="handlePlaceAction"
                   >
                     放置
                   </button>
                   <button
-                    v-if="gameStore.selectedCard?.area === '战场'"
+                    v-if="globalStore.selectedCard?.location === 'battlefield'"
                     class="action-btn sell-btn"
                     @click="handleSellAction"
                   >
@@ -224,14 +229,16 @@
             :card-id="card ? card.id : 'empty-hand-1-' + index"
             :position-type="'hand'"
             :data="card"
-            :selected-card-id="gameStore.selectedCard?.id"
+            :selected-card-id="globalStore.selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
             @card-select="
               cardData =>
-                cardData ? gameStore.selectCard(cardData, index) : gameStore.cancelSelectCard()
+                cardData
+                  ? globalStore.setSelectedCard(cardData, index)
+                  : globalStore.clearSelectedCard()
             "
             @spell-cast="handleSpellCast"
           ></CardSlot>
@@ -245,14 +252,16 @@
             :card-id="card ? card.id : 'empty-hand-2-' + index"
             :position-type="'hand'"
             :data="card"
-            :selected-card-id="gameStore.selectedCard?.id"
+            :selected-card-id="globalStore.selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
             @card-remove="handleCardRemove"
             @card-select="
               cardData =>
-                cardData ? gameStore.selectCard(cardData, index + 5) : gameStore.cancelSelectCard()
+                cardData
+                  ? globalStore.setSelectedCard(cardData, index + 5)
+                  : globalStore.clearSelectedCard()
             "
             @spell-cast="handleSpellCast"
           ></CardSlot>
@@ -263,18 +272,13 @@
 </template>
 
 <script setup lang="ts">
-import type { CardArea } from '@/game/Card';
-import { Card } from '@/game/Card';
-import { Minion } from '@/game/Minion';
+import { Card } from '@/server/controller/entity/Card';
+import { Minion } from '@/server/controller/entity/Minion';
 import { Tavern } from '@/server/controller/entity/Tavern';
-import { useGameStore } from '@/stores/game';
 import { computed, onMounted, ref, watch } from 'vue';
 import BattleScene from './components/BattleScene.vue';
 import CardSlot from './components/CardSlot.vue';
 import DebugDrawer from './components/DebugDrawer.vue';
-
-// 使用游戏store
-const gameStore = useGameStore();
 
 // 拖拽状态 - 控制手牌区域高亮
 const isDragActive = ref(false);
@@ -282,33 +286,28 @@ const isDragActive = ref(false);
 // 酒馆拖拽状态 - 控制酒馆区域高亮
 const isTavernDragActive = ref(false);
 
+import { useGlobalStore } from '@/stores/GlobalStore';
+const globalStore = useGlobalStore();
+
+const playerController = new PlayerController();
 // 购买按钮点击事件处理
 const handleBuyAction = () => {
-  if (gameStore.selectedCard && gameStore.selectedCardIndex !== null) {
-    gameStore.buyMinion(gameStore.selectedCardIndex);
+  if (globalStore.selectedCard && globalStore.selectedCardIndex !== null) {
+    playerController.buyCard(currentGameId.value, globalStore.selectedCard.id);
   }
 };
 
 // 放置按钮点击事件处理
 const handlePlaceAction = () => {
-  if (gameStore.selectedCard && gameStore.selectedCardIndex !== null) {
-    // 寻找战场上的第一个空位
-    const battlefield = gameStore.player?.minions;
-    if (battlefield) {
-      let emptyPosition = battlefield.findIndex(minion => minion === null);
-      // 如果没有空位，放在最后一个位置
-      if (emptyPosition === -1) {
-        emptyPosition = battlefield.length;
-      }
-      gameStore.placeMinionFromHand(gameStore.selectedCardIndex, emptyPosition);
-    }
+  if (globalStore.selectedCard && globalStore.selectedCardIndex !== null) {
+    playerController.useCardFromHand(currentGameId.value, globalStore.selectedCard.id);
   }
 };
 
 // 出售按钮点击事件处理
 const handleSellAction = () => {
-  if (gameStore.selectedCard && gameStore.selectedCardIndex !== null) {
-    gameStore.sellMinion('minion', gameStore.selectedCardIndex);
+  if (globalStore.selectedCard && globalStore.selectedCardIndex !== null) {
+    playerController.sellCard(currentGameId.value, globalStore.selectedCard.id);
   }
 };
 
@@ -339,74 +338,75 @@ const tavernCards = computed(() => {
   // 初始状态：7个空槽
   return Array(7).fill(null);
 });
-
+const player = computed(() => {
+  if (!currentGameId.value) {
+    return undefined;
+  }
+  const currentGame = currentGameController.getCurrentGameById(currentGameId.value);
+  const player = currentGame.player;
+  if (!player) {
+    throw new Error('当前游戏中没有玩家');
+  }
+  return player;
+});
+const travern = computed(() => {
+  if (!player.value) {
+    return undefined;
+  }
+  const tavern: Tavern | undefined = player.value.tavern;
+  if (!tavern) {
+    throw new Error('当前游戏中没有酒馆');
+  }
+  return tavern;
+});
 const battlefieldCards = computed(() => {
   // 如果游戏store中有玩家且有战场随从，使用其数据，否则初始化7个空槽
-  if (gameStore.player && gameStore.player.minions) {
-    const minions = gameStore.player.minions;
-    // 确保总共有7个槽位，不足则用null填充
-    const filledSlots = [...minions];
-    while (filledSlots.length < 7) {
-      filledSlots.push(null);
-    }
-    return filledSlots as (Minion | null)[];
+  if (player.value && player.value.minionsOnBattlefield) {
+    const minions = player.value.minionsOnBattlefield;
+    return minions;
   }
   // 初始状态：7个空槽
-  return Array(7).fill(null) as (Minion | null)[];
+  return Array(7).fill(undefined) as (Minion | undefined)[];
 });
 
 const handCards = computed(() => {
   // 如果游戏store中有玩家且有手牌，使用其数据，否则初始化10个空槽
-  if (gameStore.player && gameStore.player.cards) {
-    const cards = gameStore.player.cards;
-    // 确保总共有10个槽位，不足则用null填充
-    const filledSlots: (any | null)[] = [...cards];
-    while (filledSlots.length < 10) {
-      filledSlots.push(null);
-    }
-    return filledSlots;
+  if (player.value && player.value.handCards) {
+    const cards = player.value.handCards;
+    return cards;
   }
   // 初始状态：10个空槽
-  return Array(10).fill(null) as (any | null)[];
+  return Array(10).fill(undefined) as (Card | undefined)[];
 });
 
 // 计算属性：是否可以升级酒馆
 const canUpgrade = computed(() => {
-  if (!gameStore.player) return false;
-  const upgradeCosts = [0, 5, 7, 8, 10, 12, 12];
-  const cost = upgradeCosts[gameStore.player.tavernLevel] || 0;
-  return gameStore.player.gold >= cost && gameStore.player.tavernLevel < 6;
-});
-
-// 计算属性：升级酒馆的费用
-const upgradeCost = computed(() => {
-  if (!gameStore.player) return 0;
-  const upgradeCosts = [0, 5, 7, 8, 10, 12, 12];
-  return upgradeCosts[gameStore.player.tavernLevel] || 0;
+  if (!travern.value) return false;
+  return travern.value.gold >= travern.value.upgradeCost;
 });
 
 // 升级酒馆
 const upgradeTavern = () => {
-  gameStore.upgradeTavern();
+  playerController.upgradeTavern(currentGameId.value);
 };
 
 // 刷新酒馆
 const refreshTavern = () => {
-  gameStore.refreshTavern();
+  playerController.refreshTavern(currentGameId.value);
 };
 
 // 冻结/解冻酒馆
 const toggleFreeze = () => {
-  if (gameStore.tavern?.isFrozen) {
-    gameStore.unfreezeTavern();
+  if (travern.value?.isFrozen) {
+    playerController.freezeTavern(currentGameId.value, false);
   } else {
-    gameStore.freezeTavern();
+    playerController.freezeTavern(currentGameId.value, true);
   }
 };
 
 // 结束回合
 const endTurn = () => {
-  gameStore.endTurn();
+  playerController.endTurn(currentGameId.value);
 };
 
 // 调试抽屉控制
@@ -429,39 +429,32 @@ const hideBattleScene = () => {
 
 // 处理卡片交换事件 - 战场区域内位置交换
 const handleCardSwap = (cardId: string, targetIndex: number) => {
-  console.log(`[父组件] 卡片交换事件: 卡片 ${cardId} 交换到目标索引: ${targetIndex}`);
-
-  // 找到源卡片在battlefieldCards中的索引
-  const sourceIndex = battlefieldCards.value.findIndex(
-    (card: Card | null) => card && card.id === cardId
+  const playerData = player.value;
+  if (!playerData) {
+    throw new Error('当前游戏中没有玩家');
+  }
+  const minionsInBattle = playerData.minionsOnBattlefield;
+  if (targetIndex < 0 || targetIndex >= minionsInBattle.length) {
+    throw new Error('目标位置无效');
+  }
+  const sourceIndex = minionsInBattle.findIndex(
+    (minion: Card | undefined) => minion && minion.id === cardId
   );
-
   if (sourceIndex === -1) {
-    console.error(`[父组件] 未找到卡片: ${cardId} 在战场区域`);
-    return;
+    throw new Error(`当前游戏中没有随从: ${cardId}`);
   }
-
-  console.log(`[父组件] 源卡片索引: ${sourceIndex}, 目标索引: ${targetIndex}`);
-
-  // 确保目标索引有效
-  if (targetIndex < 0 || targetIndex >= battlefieldCards.value.length) {
-    console.error(`[父组件] 无效的目标索引: ${targetIndex}`);
-    return;
-  }
-
-  // 调用游戏store的方法来交换卡片
-  const success = gameStore.reorderMinions(sourceIndex, targetIndex);
-
-  if (success) {
-    console.log(`[父组件] 卡片交换成功: ${cardId} 从索引 ${sourceIndex} 移动到 ${targetIndex}`);
-  } else {
-    console.error(`[父组件] 卡片交换失败: ${cardId} 从索引 ${sourceIndex} 移动到 ${targetIndex}`);
-  }
+  const temp = minionsInBattle[targetIndex];
+  const source = minionsInBattle[sourceIndex];
+  minionsInBattle[sourceIndex] = temp;
+  minionsInBattle[targetIndex] = source;
+  // 保存玩家数据
+  playerController.savePlayerData(currentGameId.value, playerData);
 };
 
 import { CurrentGameController } from '@/server/controller/CurrentGameController';
 import { GameController } from '@/server/controller/GameController';
 import { HeroController } from '@/server/controller/HeroController';
+import { PlayerController } from '@/server/controller/PlayerController';
 import { TavernController } from '@/server/controller/TavernController';
 
 const gameController = new GameController();
@@ -535,12 +528,12 @@ const handleDragEnd = (cardId: string, targetArea: string | null) => {
 // 处理卡片移动
 const handleCardMove = (
   cardId: string,
-  fromArea: CardArea,
-  toArea: CardArea,
+  fromLocation: 'tavern' | 'battlefield' | 'hand',
+  toLocation: 'tavern' | 'battlefield' | 'hand',
   targetSlotIndex?: number
 ) => {
   console.log(
-    `[父组件] 卡片移动事件: 卡片 ${cardId} 从 ${fromArea} 移动到 ${toArea}${targetSlotIndex !== undefined ? `, 目标空格子索引: ${targetSlotIndex}` : ''}`
+    `[父组件] 卡片移动事件: 卡片 ${cardId} 从 ${fromLocation} 移动到 ${toLocation}${targetSlotIndex !== undefined ? `, 目标空格子索引: ${targetSlotIndex}` : ''}`
   );
 
   // 从所有卡片中查找卡片数据
@@ -551,14 +544,14 @@ const handleCardMove = (
 
   if (card) {
     // 调用游戏store的方法来处理卡片移动
-    console.log(`[父组件] 卡片位置更新: 卡片 ${cardId} 位置从 ${fromArea} 变为 ${toArea}`);
+    console.log(`[父组件] 卡片位置更新: 卡片 ${cardId} 位置从 ${fromLocation} 变为 ${toLocation}`);
 
     // 根据不同的移动类型调用不同的游戏store方法
-    if (fromArea === '酒馆' && toArea === '手牌') {
+    if (fromLocation === 'tavern' && toLocation === 'hand') {
       // 从酒馆购买卡片到手牌
-      const success = gameStore.moveCard(cardId, fromArea, toArea);
+      const success = gameStore.moveCard(cardId, fromLocation, toLocation);
       console.log(`[父组件] 从酒馆购买卡片: ${card.nameCN}, 结果: ${success}`);
-    } else if (fromArea === '手牌' && toArea === '战场') {
+    } else if (fromLocation === 'hand' && toLocation === 'battlefield') {
       // 从手牌放置卡片到战场
       console.log(`[父组件] 从手牌放置卡片到战场: ${card.nameCN}, 目标位置: ${targetSlotIndex}`);
       // 找到卡片在handCards中的索引
@@ -567,7 +560,7 @@ const handleCardMove = (
         const success = gameStore.placeMinionFromHand(handCardIndex, targetSlotIndex);
         console.log(`[父组件] 放置结果: ${success}`);
       }
-    } else if (fromArea === '战场' && toArea === '酒馆') {
+    } else if (fromLocation === 'battlefield' && toLocation === 'tavern') {
       // 从战场出售卡片到酒馆
       console.log(`[父组件] 从战场出售卡片: ${card.nameCN}`);
       // 找到卡片在battlefieldCards中的索引

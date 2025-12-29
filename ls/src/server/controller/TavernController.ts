@@ -56,9 +56,11 @@ export class TavernController {
       throw new Error('未找到酒馆');
     }
     // 归还酒馆中的随从到公共池
-    tavern.cards.forEach(minion => {
-      new CurrentGameController().returnMinionToPool(currentGame.id, minion.strId);
-    });
+    tavern.cards
+      .filter(minion => minion !== undefined)
+      .forEach(minion => {
+        new CurrentGameController().returnMinionToPool(currentGame.id, minion.strId);
+      });
     // 等级当前酒馆等级生成对应的随从个+1个法术牌
     const minionsToShowCount = this.getMinionsToShowCount(tavern);
     for (let i = 0; i < minionsToShowCount; i++) {
