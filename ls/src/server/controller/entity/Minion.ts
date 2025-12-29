@@ -1,4 +1,4 @@
-import { Card } from '@/server/controller/entity/Card';
+import { Card, card_utils } from '@/server/controller/entity/Card';
 import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
 export const minion_utils = {
   getMinionTypes(minionTypes: string[]): MinionType[] {
@@ -16,6 +16,12 @@ export const minion_utils = {
       result = ['all'];
     }
     return result;
+  },
+  initMinionData(minion: Minion, data: any) {
+    console.log('initMinionData', data);
+    card_utils.initCardData(minion, data);
+    minion.minionTypes = minion_utils.getMinionTypes(data.minionTypes);
+    console.log('initMinionData over', data);
   },
 };
 

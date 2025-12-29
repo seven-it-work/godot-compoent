@@ -1,5 +1,5 @@
 import { IdGenerator } from '@/utils/IdGenerator';
-import type { CurrentGame } from './CurrentGame';
+import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
 
 export const card_utils = {
   getTier(tier: number): 1 | 2 | 3 | 4 | 5 | 6 | 7 {
@@ -7,6 +7,13 @@ export const card_utils = {
       throw new Error('tier must be between 1 and 7');
     }
     return tier as 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  },
+  initCardData(card: Card, data: any) {
+    card.id = data.id;
+    card.strId = data.strId;
+    card.name = data.nameCN;
+    card.text = data.text;
+    card.tier = card_utils.getTier(data.tier);
   },
 };
 

@@ -1,4 +1,3 @@
-import { card_utils } from '@/server/controller/entity/Card';
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 
 export class Alleycat extends Minion {
@@ -34,12 +33,6 @@ export class Alleycat extends Minion {
         art: 'https:\/\/battlegrounds.oss.gamerhub.cn\/all_images\/32.2.4.221850\/TB_BaconUps_093_cardArtFromHsJson256x.png',
       },
     };
-    this.strId = data.strId;
-    this.name = data.nameCN;
-    this.text = data.text;
-    this.tier = card_utils.getTier(data.tier);
-    this.health = data.health;
-    this.attack = data.attack;
-    this.minionTypes = minion_utils.getMinionTypes(data.minionTypes);
+    minion_utils.initMinionData(this, data);
   }
 }
