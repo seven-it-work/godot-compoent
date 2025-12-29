@@ -274,9 +274,9 @@ import { useGameStore } from '@/stores/game';
 import { computed, onMounted, ref, watch } from 'vue';
 import heroesData from '../../data/heroes.json';
 import minionsData from '../../data/minions.json';
+import BattleScene from './components/BattleScene.vue';
 import CardSlot from './components/CardSlot.vue';
 import DebugDrawer from './components/DebugDrawer.vue';
-import BattleScene from './components/BattleScene.vue';
 
 // 使用游戏store
 const gameStore = useGameStore();
@@ -580,12 +580,11 @@ const handleCardSwap = (cardId: string, targetIndex: number) => {
 
 import { GameController } from '@/server/controller/GameController';
 // 页面加载时自动随机初始化英雄
-onMounted(() => {
+onMounted(async () => {
   const gameController = new GameController();
-  gameController.initGame().then(currentGame => {
-    localStorage.setItem('currentGameId', currentGame.id);
-    console.log('游戏已初始化，游戏ID:', currentGame.id, '已存入缓存');
-  });
+  const currentGame = await gameController.initGame();
+  localStorage.setItem('currentGameId', currentGame.id);
+  console.log('游戏已初始化，游戏ID:', currentGame.id, '已存入缓存');
   // 加载英雄数据
   loadHeroes();
   // 随机选择第一个可用英雄

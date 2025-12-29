@@ -1,12 +1,44 @@
-import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
-import type { Tavern } from '@/server/controller/entity/Tavern';
-import type { Minion } from '@/server/controller/entity/Minion';
-import db_card from '@/server/db/db_card';
-import { sample } from 'lodash';
 import { CurrentGameController } from '@/server/controller/CurrentGameController';
-import db_current_game from '../db/db_current_game';
+import { EffectTriggerController } from '@/server/controller/EffectTrigger';
+import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
+import type { Minion } from '@/server/controller/entity/Minion';
+import { ResultFactory, type Result } from '@/server/controller/entity/Result';
+import type { Tavern } from '@/server/controller/entity/Tavern';
+import db_card from '@/server/db/db_card';
+import db_current_game from '@/server/db/db_current_game';
+import { sample } from 'lodash';
 
 export class TavernController {
+  /**
+   * 消耗金币
+   */
+  消耗金币(currentGameId: string, 消耗金币数量: number): Result {
+    if (消耗金币数量 == 0) {
+      return ResultFactory.success('消耗成功');
+    }
+    if (消耗金币数量 < 0) {
+      return ResultFactory.fail('消耗金币数量必须大于0');
+    }
+    const currentGame = db_current_game.getCurrentGameById(currentGameId);
+    if (!currentGame) {
+      throw new Error('未找到当前游戏');
+    }
+    const palyer = currentGame.player;
+    if (!palyer) {
+      throw new Error('未找到玩家');
+    }
+    const tavern = palyer.tavern;
+    if (!tavern) {
+      throw new Error('未找到酒馆');
+    }
+    if (tavern.gold < 消耗金币数量) {
+      return ResultFactory.fail('金币不足');
+    }
+    tavern.gold -= 消耗金币数量;
+    new EffectTriggerController().triggerConsumeGoldEvent(currentGameId, 消耗金币数量);
+    return ResultFactory.success('消耗成功');
+  }
+
   /**
    * 刷新酒馆
    */

@@ -1,12 +1,12 @@
-import db_current_game from '../db/db_current_game';
-import type { Card } from './entity/Card';
-import { Minion } from './entity/Minion';
-import type { Player } from './entity/Player';
+import type { Card } from '@/server/controller/entity/Card';
+import { Minion } from '@/server/controller/entity/Minion';
+import type { Player } from '@/server/controller/entity/Player';
+import db_current_game from '@/server/db/db_current_game';
 
 /**
  * 战吼
- * 使用卡片后
- * 使用其他卡片监听
+ * 使用卡片后 (使用其他卡片监听)
+ * 消费金币事件
  * 当随从被攻击时触发
  * 亡语
  * 回合结束时
@@ -66,5 +66,22 @@ export class EffectTriggerController {
         this.triggerBattlecry(currentGameId, card);
       }
     }
+  }
+  /**
+   * triggerConsumeGoldEvent
+   * 消费金币事件
+   */
+  triggerConsumeGoldEvent(currentGameId: string, gold: number) {
+    // 1、从db中获取当前游戏实例
+    const currentGame = db_current_game.getCurrentGameById(currentGameId);
+    if (!currentGame) {
+      throw new Error(`当前游戏 ${currentGameId} 未找到`);
+    }
+    const player: Player | undefined = currentGame.player;
+    if (!player) {
+      throw new Error(`当前游戏 ${currentGameId} 未找到玩家`);
+    }
+    // todo 触发消费金币事件
+    console.log(`玩家 ${player.name} 消费了 ${gold} 金币，触发事件`);
   }
 }
