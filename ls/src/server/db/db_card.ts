@@ -29,7 +29,7 @@ function createCard(card: Card): Card {
  */
 function getCardByStrId(strId: string): Card {
   const card = db.get(strId);
-  debugger;
+
   if (!card) {
     throw new Error(`Card with strId ${strId} not found`);
   }
@@ -74,7 +74,7 @@ async function dbInit() {
  * 加载所有卡片类
  */
 async function loadAllCards() {
-  debugger;
+
   // 存储所有加载 Promise
   const loadPromises = [];
 
@@ -111,7 +111,7 @@ async function loadCardFile(filePath: string) {
  * @param filePath 文件路径（用于调试）
  */
 async function processModuleExports(module: any, filePath: string) {
-  debugger;
+
   // 处理默认导出
   if (module.default && typeof module.default === 'function' && module.default.prototype) {
     await processCardClass(module.default, 'default', filePath);
@@ -141,7 +141,7 @@ async function processModuleExports(module: any, filePath: string) {
  */
 async function processCardClass(CardClass: new () => Card, exportName: string, filePath: string) {
   try {
-    debugger;
+  
     // 创建类的实例
     const instance = new CardClass();
     // 如果有 strId 属性，则添加到映射中

@@ -1,6 +1,15 @@
 import { IdGenerator } from '@/utils/IdGenerator';
 import type { CurrentGame } from './CurrentGame';
 
+export const card_utils = {
+  getTier(tier: number): 1 | 2 | 3 | 4 | 5 | 6 | 7 {
+    if (tier < 1 || tier > 7) {
+      throw new Error('tier must be between 1 and 7');
+    }
+    return tier as 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  },
+};
+
 export class Card {
   id: string = IdGenerator.generateRandomId(); // 对象唯一标识
   strId: string = ''; // 卡片标识

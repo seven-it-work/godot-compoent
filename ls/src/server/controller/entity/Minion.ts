@@ -1,5 +1,24 @@
 import { Card } from '@/server/controller/entity/Card';
 import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
+export const minion_utils = {
+  getMinionTypes(minionTypes: string[]): MinionType[] {
+    if (minionTypes.length === 0) {
+      return [];
+    }
+    let result: MinionType[] = [];
+    minionTypes.forEach(type => {
+      if (!MINION_TYPES.includes(type as MinionType)) {
+        throw new Error(`minionTypes must be one of ${MINION_TYPES.join(', ')}`);
+      }
+      result.push(type as MinionType);
+    });
+    if (result.length >= MINION_TYPES.length - 2) {
+      result = ['all'];
+    }
+    return result;
+  },
+};
+
 export class Minion extends Card {
   type: 'minion' = 'minion';
   // 购买价格（随从默认3）
@@ -9,6 +28,10 @@ export class Minion extends Card {
 
   // 随从类型
   minionTypes: MinionType[] = [];
+  // 随从基础生命值
+  health: number = 0;
+  // 随从基础攻击值
+  attack: number = 0;
   //是否存在战吼
   hasBattlecry: boolean = false;
 
@@ -66,22 +89,30 @@ export class Minion extends Card {
 }
 
 /**
+ * 所有随从类型的运行时数组
+ * 用于获取所有 MinionType 的 key
+ */
+export const MINION_TYPES = [
+  'beast', // 野兽
+  'mech', // 机械
+  'murloc', // 鱼人
+  'demon', // 恶魔
+  'dragon', // 龙
+  'pirate', // 海盗
+  'undead', // 亡灵
+  'naga', // 纳迦
+  'quilboar', // 野猪人
+  'elemental', // 元素
+  'all', // 全部
+  'none', // 中立
+] as const;
+
+/**
  * 随从类型
+ * 从 MINION_TYPES 数组推导出联合类型，确保类型和运行时值的一致性
  * 野兽、机械、鱼人、恶魔、龙、海盗、亡灵、纳迦、野猪人、元素、全部、中立
  */
-export type MinionType =
-  | 'beast' // 野兽
-  | 'mech' // 机械
-  | 'murloc' // 鱼人
-  | 'demon' // 恶魔
-  | 'dragon' // 龙
-  | 'pirate' // 海盗
-  | 'undead' // 亡灵
-  | 'naga' // 纳迦
-  | 'quilboar' // 野猪人
-  | 'elemental' // 元素
-  | 'all' // 全部
-  | 'none'; // 中立
+export type MinionType = (typeof MINION_TYPES)[number];
 /**
  * 随从关键词 - 定义随从的特殊能力
  */
