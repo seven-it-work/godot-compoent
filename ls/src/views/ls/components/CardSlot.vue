@@ -3,7 +3,7 @@
     ref="cardRef"
     class="card-slot"
     :class="[
-      `position-${props.data?.area}`,
+      `position-${props.data?.location}`,
       { empty: props.data === null || props.data === undefined },
       { selected: props.data !== null && isSelected },
     ]"
@@ -11,7 +11,7 @@
     :data-card-id="cardId"
     :data-x="position.x"
     :data-y="position.y"
-    :data-position-type="props.data?.area"
+    :data-position-type="props.data?.location"
     :data-is-empty="props.data === null || props.data === undefined"
     :style="{ transform: `translate(${position.x}px, ${position.y}px)` }"
   >
@@ -19,28 +19,30 @@
       <!-- 左上角圆形数字 -->
       <div class="corner-badge top-left" v-if="data.tier">{{ data.tier }}</div>
       <!-- 右上角圆形数字 -->
-      <div class="corner-badge top-right" v-if="data?.area === '酒馆'">{{ data.cost }}</div>
+      <div class="corner-badge top-right" v-if="data?.location === 'tavern'">
+        {{ data.cardPrice }}
+      </div>
       <!-- 左下角攻击力 -->
-      <div class="corner-badge bottom-left" v-if="data instanceof Minion">
-        {{ data.getAttack() }}
+      <div class="corner-badge bottom-left" v-if="data.type === 'minion'">
+        {{ (data as Minion).getAttack() }}
       </div>
       <!-- 右下角生命值 -->
-      <div class="corner-badge bottom-right" v-if="data instanceof Minion">
-        {{ data.health }}
+      <div class="corner-badge bottom-right" v-if="data.type === 'minion'">
+        {{ (data as Minion).getHealth() }}
       </div>
       <!-- 关键词 -->
-      <div class="keywords" v-if="data instanceof Minion">
+      <div class="keywords" v-if="data.type === 'minion'">
         <span
-          v-for="keyword in [...new Set(data.getKeywords())]"
+          v-for="keyword in [...new Set((data as Minion).getKeywords())]"
           :key="keyword"
           class="keyword-tag"
         >
           {{ MinionKeywordCN[keyword] }}
         </span>
       </div>
-      <div class="card-name">{{ data.nameCN }}</div>
-      <div class="minion-types" v-if="data instanceof Minion">
-        {{ [data.minionTypesCN].join('\n') }}
+      <div class="card-name">{{ data.name }}</div>
+      <div class="minion-types" v-if="data.type === 'minion'">
+        {{ (data as Minion).getMinionCnTypes().join('\n') }}
       </div>
     </div>
   </div>
@@ -49,10 +51,11 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 
+import { Card } from '@/server/controller/entity/Card';
+import type { Minion } from '@/server/controller/entity/Minion';
+import { MinionKeywordCN } from '@/server/controller/entity/Minion';
 import interact from 'interactjs';
 import type { CardArea } from '../../../game/Card';
-import { Card } from '../../../game/Card';
-import { Minion, MinionKeywordCN } from '../../../game/Minion';
 import { Spell } from '../../../game/Spell';
 
 // 接收外部传入的参数
@@ -62,7 +65,7 @@ const props = defineProps<{
   cardId: string;
   data?: Card | null; // 卡片数据，如果为null或undefined则表示空格子
   selectedCardId?: string | null; // 当前选中的卡片ID
-  positionType?: string; // 卡片所在区域类型（酒馆/战场/手牌）
+  positionType?: 'tavern' | 'battlefield' | 'hand'; // 卡片所在区域类型（酒馆/战场/手牌）
 }>();
 
 // 定义事件

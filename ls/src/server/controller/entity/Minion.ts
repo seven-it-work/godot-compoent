@@ -7,6 +7,8 @@ export class Minion extends Card {
   // 出售价格（随从默认1）
   sellPrice: number = 1;
 
+  // 随从类型
+  minionTypes: MinionType[] = [];
   //是否存在战吼
   hasBattlecry: boolean = false;
 
@@ -17,4 +19,95 @@ export class Minion extends Card {
     }
     console.log('执行战吼', this.strId);
   }
+
+  getAttack(): number {
+    return 0;
+  }
+  getHealth(): number {
+    return 0;
+  }
+  getKeywords(): MinionKeyword[] {
+    return [];
+  }
+
+  getMinionCnTypes(): string[] {
+    if (this.minionTypes.length === 0) {
+      return [];
+    }
+    return this.minionTypes.map(type => {
+      switch (type) {
+        case 'beast':
+          return '野兽';
+        case 'mech':
+          return '机械';
+        case 'murloc':
+          return '鱼人';
+        case 'demon':
+          return '恶魔';
+        case 'dragon':
+          return '龙';
+        case 'pirate':
+          return '海盗';
+        case 'undead':
+          return '亡灵';
+        case 'naga':
+          return '纳迦';
+        case 'quilboar':
+          return '野猪人';
+        case 'elemental':
+          return '元素';
+        case 'all':
+          return '全部';
+        case 'none':
+          return '中立';
+      }
+    });
+  }
 }
+
+/**
+ * 随从类型
+ * 野兽、机械、鱼人、恶魔、龙、海盗、亡灵、纳迦、野猪人、元素、全部、中立
+ */
+export type MinionType =
+  | 'beast' // 野兽
+  | 'mech' // 机械
+  | 'murloc' // 鱼人
+  | 'demon' // 恶魔
+  | 'dragon' // 龙
+  | 'pirate' // 海盗
+  | 'undead' // 亡灵
+  | 'naga' // 纳迦
+  | 'quilboar' // 野猪人
+  | 'elemental' // 元素
+  | 'all' // 全部
+  | 'none'; // 中立
+/**
+ * 随从关键词 - 定义随从的特殊能力
+ */
+export type MinionKeyword =
+  | 'taunt' // 嘲讽 - 必须先被攻击
+  | 'divine_shield' // 圣盾 - 免疫第一次伤害
+  | 'windfury' // 风怒 - 每回合可以攻击两次
+  | 'super_windfury' // 超级风怒 - 每回合可以攻击多次
+  | 'stealth' // 潜行 - 不会被攻击，除非主动攻击
+  | 'venomous' // 烈毒 - 攻击时消灭目标，只能使用一次
+  | 'poisonous' // 剧毒 - 攻击时消灭目标
+  | 'reborn'; // 复生 - 死亡后以1点生命值复活
+
+export const MinionKeywordCN: Record<MinionKeyword, string> = {
+  taunt: '嘲讽',
+  divine_shield: '圣盾',
+  windfury: '风怒',
+  super_windfury: '超级风怒',
+  stealth: '潜行',
+  venomous: '烈毒',
+  poisonous: '剧毒',
+  reborn: '复生',
+};
+
+/**
+ * 基础关键词
+ * 嘲讽、圣盾、风怒、潜行、烈毒、复生
+ */
+export type 基础关键词 = ['taunt', 'divine_shield', 'windfury', 'stealth', 'venomous', 'reborn'];

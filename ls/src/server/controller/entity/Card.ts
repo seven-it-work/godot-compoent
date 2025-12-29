@@ -5,7 +5,7 @@ export class Card {
   id: string = IdGenerator.generateRandomId(); // 对象唯一标识
   strId: string = ''; // 卡片标识
   name: string = '';
-  type?: 'minion' | 'hero';
+  type?: 'minion' | 'hero' | 'spell';
   // 是否出现在酒馆中
   inTavern: boolean = false;
   // 购买价格（随从默认3）
