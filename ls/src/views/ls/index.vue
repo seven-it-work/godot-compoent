@@ -3,7 +3,6 @@
     <!-- 调试抽屉组件 -->
     <DebugDrawer v-model:debug-drawer-visible="debugDrawerVisible" @close="closeDebugDrawer" />
 
-    <!-- 战斗场景：条件渲染 -->
     <BattleScene
       v-if="isBattleSceneVisible"
       @exit-battle="hideBattleScene"
@@ -272,17 +271,16 @@
 </template>
 
 <script setup lang="ts">
-import { Card } from '@/server/controller/entity/Card';
-import { computed, onMounted, ref, watch } from 'vue';
-import BattleScene from './components/BattleScene.vue';
-import CardSlot from './components/CardSlot.vue';
-import DebugDrawer from './components/DebugDrawer.vue';
 import { CurrentGameController } from '@/server/controller/CurrentGameController';
 import { GameController } from '@/server/controller/GameController';
 import { HeroController } from '@/server/controller/HeroController';
 import { PlayerController } from '@/server/controller/PlayerController';
 import { TavernController } from '@/server/controller/TavernController';
+import { Card } from '@/server/controller/entity/Card';
 import { CurrentGame } from '@/server/controller/entity/CurrentGame';
+import { computed, onMounted, ref, watch } from 'vue';
+import CardSlot from './components/CardSlot.vue';
+import DebugDrawer from './components/DebugDrawer.vue';
 
 const gameController = new GameController();
 const heroController = new HeroController();
@@ -343,33 +341,6 @@ const handCards = computed(() => {
 
 // 计算属性：是否可以升级酒馆
 const canUpgrade = computed(() => {
-  if (!currentGameRef.value.player?.tavern) return false;
-  return currentGameRef.value.player?.tavern.gold >= currentGameRef.value.player?.tavern.upgradeCost;
-});
-
-// 升级酒馆
-const upgradeTavern = () => {
-  playerController.upgradeTavern(currentGameRef.value.id);
-};
-
-// 刷新酒馆
-const refreshTavern = () => {
-  playerController.refreshTavern(currentGameRef.value.id);
-};
-
-// 冻结/解冻酒馆
-const toggleFreeze = () => {
-  if (travern.value?.isFrozen) {
-    playerController.freezeTavern(currentGameRef.value.id, false);
-  } else {
-    playerController.freezeTavern(currentGameRef.value.id, true);
-  }
-  // 初始状态：10个空槽
-  return Array(10).fill(undefined) as (Card | undefined)[];
-});
-
-// 计算属性：是否可以升级酒馆
-const canUpgrade = computed(() => {
   if (!travern.value) return false;
   return travern.value.gold >= travern.value.upgradeCost;
 });
@@ -382,6 +353,7 @@ const upgradeTavern = () => {
 // 刷新酒馆
 const refreshTavern = () => {
   playerController.refreshTavern(currentGameRef.value.id);
+  currentGameRef.value = currentGameController.getCurrentGameById(currentGameRef.value.id);
 };
 
 // 冻结/解冻酒馆

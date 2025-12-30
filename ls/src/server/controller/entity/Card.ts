@@ -1,5 +1,5 @@
-import { IdGenerator } from '@/utils/IdGenerator';
 import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
+import { IdGenerator } from '@/utils/IdGenerator';
 
 export const card_utils = {
   getTier(tier: number): 1 | 2 | 3 | 4 | 5 | 6 | 7 {
