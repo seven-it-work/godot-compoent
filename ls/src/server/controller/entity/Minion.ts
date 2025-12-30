@@ -18,10 +18,8 @@ export const minion_utils = {
     return result;
   },
   initMinionData(minion: Minion, data: any) {
-    console.log('initMinionData', data);
     card_utils.initCardData(minion, data);
     minion.minionTypes = minion_utils.getMinionTypes(data.minionTypes);
-    console.log('initMinionData over', data);
   },
 };
 

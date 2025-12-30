@@ -141,12 +141,10 @@ async function processModuleExports(module: any, filePath: string) {
 async function processCardClass(CardClass: new () => Card, exportName: string, filePath: string) {
   try {
     // 创建类的实例
-    console.log(`Loading card class: ${exportName} from ${filePath}`);
     const instance = new CardClass();
     // 如果有 strId 属性，则添加到映射中
     if (instance.strId) {
       db.set(instance.strId, instance);
-      console.log(`Loaded card: ${exportName} (${instance.strId}) from ${filePath}`);
     }
   } catch (error) {
     console.error(`Failed to process card class ${exportName} from ${filePath}:`, error);

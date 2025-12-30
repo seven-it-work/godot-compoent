@@ -318,6 +318,7 @@ const tavernController = new TavernController();
 const currentGameController = new CurrentGameController();
 // 计算属性：从游戏store获取卡片数据
 const tavernCards = computed(() => {
+  console.log('tavernCards 计算-----------------');
   if (!currentGameId.value) {
     // 初始状态：7个空槽
     return Array(7).fill(null);
