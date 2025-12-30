@@ -273,13 +273,25 @@
 
 <script setup lang="ts">
 import { Card } from '@/server/controller/entity/Card';
-import { Minion } from '@/server/controller/entity/Minion';
-import { Tavern } from '@/server/controller/entity/Tavern';
 import { computed, onMounted, ref, watch } from 'vue';
 import BattleScene from './components/BattleScene.vue';
 import CardSlot from './components/CardSlot.vue';
 import DebugDrawer from './components/DebugDrawer.vue';
+import { CurrentGameController } from '@/server/controller/CurrentGameController';
+import { GameController } from '@/server/controller/GameController';
+import { HeroController } from '@/server/controller/HeroController';
+import { PlayerController } from '@/server/controller/PlayerController';
+import { TavernController } from '@/server/controller/TavernController';
+import { CurrentGame } from '@/server/controller/entity/CurrentGame';
 
+const gameController = new GameController();
+const heroController = new HeroController();
+const tavernController = new TavernController();
+const currentGameController = new CurrentGameController();
+
+const currentGameRef = ref<CurrentGame>(new CurrentGame());
+// 当前拖拽的卡片ID
+const currentDraggingCard = ref<string | null>(null);
 // 拖拽状态 - 控制手牌区域高亮
 const isDragActive = ref(false);
 
@@ -293,88 +305,64 @@ const playerController = new PlayerController();
 // 购买按钮点击事件处理
 const handleBuyAction = () => {
   if (globalStore.selectedCard && globalStore.selectedCardIndex !== null) {
-    playerController.buyCard(currentGameId.value, globalStore.selectedCard.id);
+    playerController.buyCard(currentGameRef.value.id, globalStore.selectedCard.id);
   }
 };
 
 // 放置按钮点击事件处理
 const handlePlaceAction = () => {
   if (globalStore.selectedCard && globalStore.selectedCardIndex !== null) {
-    playerController.useCardFromHand(currentGameId.value, globalStore.selectedCard.id);
+    playerController.useCardFromHand(currentGameRef.value.id, globalStore.selectedCard.id);
   }
 };
 
 // 出售按钮点击事件处理
 const handleSellAction = () => {
   if (globalStore.selectedCard && globalStore.selectedCardIndex !== null) {
-    playerController.sellCard(currentGameId.value, globalStore.selectedCard.id);
+    playerController.sellCard(currentGameRef.value.id, globalStore.selectedCard.id);
   }
 };
 
-// 当前拖拽的卡片ID
-const currentDraggingCard = ref<string | null>(null);
-
-const tavernController = new TavernController();
-const currentGameController = new CurrentGameController();
 // 计算属性：从游戏store获取卡片数据
 const tavernCards = computed(() => {
-  console.log('tavernCards 计算-----------------');
-  if (!currentGameId.value) {
-    // 初始状态：7个空槽
-    return Array(7).fill(null);
-  }
-  const currentGame = currentGameController.getCurrentGameById(currentGameId.value);
-  const player = currentGame.player;
-  if (!player) {
-    throw new Error('当前游戏中没有玩家');
-  }
-  const tavern: Tavern | undefined = player.tavern;
-  if (!tavern) {
-    throw new Error('当前游戏中没有酒馆');
-  }
-  // 如果游戏store中有酒馆，使用其可用随从，否则初始化7个空槽
-  if (tavern.cards) {
-    return tavern.cards;
-  }
-  // 初始状态：7个空槽
-  return Array(7).fill(null);
+  return currentGameRef.value.player?.tavern?.cards || Array(7).fill(null);
 });
 const player = computed(() => {
-  if (!currentGameId.value) {
-    return undefined;
-  }
-  const currentGame = currentGameController.getCurrentGameById(currentGameId.value);
-  const player = currentGame.player;
-  if (!player) {
-    throw new Error('当前游戏中没有玩家');
-  }
-  return player;
+  return currentGameRef.value.player;
 });
 const travern = computed(() => {
-  if (!player.value) {
-    return undefined;
-  }
-  const tavern: Tavern | undefined = player.value.tavern;
-  if (!tavern) {
-    throw new Error('当前游戏中没有酒馆');
-  }
-  return tavern;
+  return currentGameRef.value.player?.tavern;
 });
 const battlefieldCards = computed(() => {
-  // 如果游戏store中有玩家且有战场随从，使用其数据，否则初始化7个空槽
-  if (player.value && player.value.minionsOnBattlefield) {
-    const minions = player.value.minionsOnBattlefield;
-    return minions;
-  }
-  // 初始状态：7个空槽
-  return Array(7).fill(undefined) as (Minion | undefined)[];
+  return currentGameRef.value.player?.minionsOnBattlefield || Array(7).fill(null);
 });
 
 const handCards = computed(() => {
-  // 如果游戏store中有玩家且有手牌，使用其数据，否则初始化10个空槽
-  if (player.value && player.value.handCards) {
-    const cards = player.value.handCards;
-    return cards;
+  return currentGameRef.value.player?.handCards || Array(10).fill(null);
+});
+
+// 计算属性：是否可以升级酒馆
+const canUpgrade = computed(() => {
+  if (!currentGameRef.value.player?.tavern) return false;
+  return currentGameRef.value.player?.tavern.gold >= currentGameRef.value.player?.tavern.upgradeCost;
+});
+
+// 升级酒馆
+const upgradeTavern = () => {
+  playerController.upgradeTavern(currentGameRef.value.id);
+};
+
+// 刷新酒馆
+const refreshTavern = () => {
+  playerController.refreshTavern(currentGameRef.value.id);
+};
+
+// 冻结/解冻酒馆
+const toggleFreeze = () => {
+  if (travern.value?.isFrozen) {
+    playerController.freezeTavern(currentGameRef.value.id, false);
+  } else {
+    playerController.freezeTavern(currentGameRef.value.id, true);
   }
   // 初始状态：10个空槽
   return Array(10).fill(undefined) as (Card | undefined)[];
@@ -388,26 +376,26 @@ const canUpgrade = computed(() => {
 
 // 升级酒馆
 const upgradeTavern = () => {
-  playerController.upgradeTavern(currentGameId.value);
+  playerController.upgradeTavern(currentGameRef.value.id);
 };
 
 // 刷新酒馆
 const refreshTavern = () => {
-  playerController.refreshTavern(currentGameId.value);
+  playerController.refreshTavern(currentGameRef.value.id);
 };
 
 // 冻结/解冻酒馆
 const toggleFreeze = () => {
   if (travern.value?.isFrozen) {
-    playerController.freezeTavern(currentGameId.value, false);
+    playerController.freezeTavern(currentGameRef.value.id, false);
   } else {
-    playerController.freezeTavern(currentGameId.value, true);
+    playerController.freezeTavern(currentGameRef.value.id, true);
   }
 };
 
 // 结束回合
 const endTurn = () => {
-  playerController.endTurn(currentGameId.value);
+  playerController.endTurn(currentGameRef.value.id);
 };
 
 // 调试抽屉控制
@@ -449,23 +437,13 @@ const handleCardSwap = (cardId: string, targetIndex: number) => {
   minionsInBattle[sourceIndex] = temp;
   minionsInBattle[targetIndex] = source;
   // 保存玩家数据
-  playerController.savePlayerData(currentGameId.value, playerData);
+  playerController.savePlayerData(currentGameRef.value.id, playerData);
 };
-
-import { CurrentGameController } from '@/server/controller/CurrentGameController';
-import { GameController } from '@/server/controller/GameController';
-import { HeroController } from '@/server/controller/HeroController';
-import { PlayerController } from '@/server/controller/PlayerController';
-import { TavernController } from '@/server/controller/TavernController';
-
-const gameController = new GameController();
-const heroController = new HeroController();
-const currentGameId = ref<string>('');
 // 页面加载时自动随机初始化英雄
 onMounted(async () => {
   const currentGame = await gameController.initGame();
-  currentGameId.value = currentGame.id;
-  localStorage.setItem('currentGameId', currentGame.id);
+  currentGameRef.value = currentGame;
+  localStorage.setItem('currentGameId', currentGameRef.value.id);
   console.log('游戏已初始化，游戏ID:', currentGame.id, '已存入缓存');
   const heroes = heroController.generateHeroes(3);
   // todo 这里应该是交互 玩家选择英雄，但是英雄没有开发 就先取第一个了

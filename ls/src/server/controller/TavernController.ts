@@ -61,13 +61,17 @@ export class TavernController {
       .forEach(minion => {
         new CurrentGameController().returnMinionToPool(currentGame.id, minion.strId);
       });
+    
+    // 清空现有卡片
+    tavern.cards = Array(7).fill(undefined);
+    
     // 等级当前酒馆等级生成对应的随从个+1个法术牌
     const minionsToShowCount = this.getMinionsToShowCount(tavern);
     for (let i = 0; i < minionsToShowCount; i++) {
       // 从随从池中随机选择一个随从
       const minion = this.getRandomMinionFromPool(currentGame);
       // 添加到酒馆卡片
-      tavern.cards.push(minion);
+      tavern.cards[i] = minion;
     }
     // todo 刷新酒馆的法术牌
   }
