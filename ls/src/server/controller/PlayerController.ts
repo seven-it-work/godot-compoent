@@ -221,6 +221,63 @@ export class PlayerController {
     return ResultFactory.success('出售卡片成功');
   }
   /**
+   * 添加随从到战场
+   */
+  添加随从到战场(player: Player | undefined, minion: Minion, targetSlotIndex?: number): Result {
+    if (!player) {
+      throw new Error('未找到玩家');
+    }
+    minion.location = 'battlefield';
+    // 计算当前实际随从数量
+    const actualMinionCount = player.minionsOnBattlefield.filter(
+      minion => minion !== undefined && minion !== null
+    ).length;
+    // 检查战场是否已满（最多7个随从）
+    if (actualMinionCount >= 7) {
+      return ResultFactory.fail('战场上的随从已满（最多7个）');
+    }
+    // 查找插入位置
+    let insertPosition = targetSlotIndex;
+    // 如果没有提供位置，找到第一个空位置
+    if (insertPosition === undefined || insertPosition === null) {
+      insertPosition = player.minionsOnBattlefield.findIndex(
+        minion => minion === undefined || minion === null
+      );
+      // 如果没有空位置，返回失败
+      if (insertPosition === -1) {
+        return ResultFactory.fail('战场上的随从已满（最多7个）');
+      }
+    } else {
+      // 验证位置是否有效
+      if (insertPosition < 0 || insertPosition >= 7) {
+        return ResultFactory.fail('战场上的随从已满（最多7个）');
+      }
+      // 检查当前位置是否已有卡片，则将后面的随从往后移动
+      if (
+        player.minionsOnBattlefield[insertPosition] !== undefined &&
+        player.minionsOnBattlefield[insertPosition] !== null
+      ) {
+        for (let i = insertPosition; i < player.minionsOnBattlefield.length - 1; i++) {
+          if (
+            player.minionsOnBattlefield[i + 1] == undefined ||
+            player.minionsOnBattlefield[i + 1] == null
+          ) {
+            // 下一个为空，则移动完成，应该我们只会插入一个
+            player.minionsOnBattlefield[i] = player.minionsOnBattlefield[i + 1];
+            break;
+          }
+          // 不为空继续往后移动
+          player.minionsOnBattlefield[i] = player.minionsOnBattlefield[i + 1];
+        }
+        player.minionsOnBattlefield[insertPosition] = minion;
+      }
+    }
+    // 插入卡片
+    player.minionsOnBattlefield[insertPosition] = minion;
+    return ResultFactory.success('添加随从到战场成功');
+  }
+
+  /**
    * 使用卡片
    */
   useCardFromHand(
@@ -248,7 +305,6 @@ export class PlayerController {
     if (cardIndex === -1) {
       return ResultFactory.fail('未找到要使用的卡片');
     }
-    // 从手牌中移除卡片
     const usedCard: Card | undefined = player.handCards[cardIndex];
     if (!usedCard) {
       throw new Error('未找到要使用的卡片');
@@ -256,41 +312,12 @@ export class PlayerController {
     // 如果是随从，添加到 minionsOnBattlefield
     if (usedCard.type === 'minion') {
       const minion = usedCard as Minion;
-      minion.location = 'battlefield';
-      // 计算当前实际随从数量
-      const actualMinionCount = player.minionsOnBattlefield.filter(
-        minion => minion !== undefined && minion !== null
-      ).length;
-      // 检查战场是否已满（最多7个随从）
-      if (actualMinionCount >= 7) {
-        return ResultFactory.fail('战场上的随从已满（最多7个）');
+      const result = this.添加随从到战场(player, minion, targetSlotIndex);
+      if (!result.isSuccess()) {
+        return result;
       }
-      // 查找插入位置
-      let insertPosition = targetSlotIndex;
-      // 如果没有提供位置，找到第一个空位置
-      if (insertPosition === undefined || insertPosition === null) {
-        insertPosition = player.minionsOnBattlefield.findIndex(
-          minion => minion === undefined || minion === null
-        );
-        // 如果没有空位置，返回失败
-        if (insertPosition === -1) {
-          return ResultFactory.fail('战场上的随从已满（最多7个）');
-        }
-      } else {
-        // 验证位置是否有效
-        if (insertPosition < 0 || insertPosition >= 7) {
-          return ResultFactory.fail('无效的战场位置');
-        }
-        // 检查当前位置是否已有卡片
-        if (
-          player.minionsOnBattlefield[insertPosition] !== undefined &&
-          player.minionsOnBattlefield[insertPosition] !== null
-        ) {
-          return ResultFactory.fail('指定位置已有随从');
-        }
-      }
-      // 插入卡片
-      player.minionsOnBattlefield[insertPosition] = minion;
+    } else {
+      console.log('其他卡片类型，待开发');
     }
     // 从手牌中移除卡片
     player.handCards.splice(cardIndex, 1)[0];
