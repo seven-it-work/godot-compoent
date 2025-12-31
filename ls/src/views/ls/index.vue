@@ -501,7 +501,12 @@ const handleCardMove = (
 
     // 根据不同的移动类型调用不同的游戏store方法
     if (fromLocation === 'tavern' && toLocation === 'hand') {
-      playerController.buyCard(currentGameRef.value.id, cardId);
+      const buyCardResult = playerController.buyCard(currentGameRef.value.id, cardId);
+      if (buyCardResult.isSuccess()) {
+        currentGameRef.value = currentGameController.getCurrentGameById(currentGameRef.value.id);
+      } else {
+        console.log(`[错误] 购买卡片失败: ${buyCardResult}`);
+      }
     } else if (fromLocation === 'hand' && toLocation === 'battlefield') {
       // 从手牌放置卡片到战场
       console.log(`[父组件] 从手牌放置卡片到战场: ${card.nameCN}, 目标位置: ${targetSlotIndex}`);

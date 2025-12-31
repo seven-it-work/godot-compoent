@@ -156,13 +156,27 @@ export class PlayerController {
     if (!player) {
       throw new Error('未找到玩家');
     }
-    // 如果当前手牌数已达上限
-    if (player.handCards.length >= MAX_HAND_CARDS) {
+
+    card.location = 'hand';
+
+    // 总是找到第一个空位置（undefined或null）
+    const insertPosition = player.handCards.findIndex(card => card === undefined || card === null);
+
+    // 计算当前实际手牌数量
+    const actualHandCount = player.handCards.filter(
+      card => card !== undefined && card !== null
+    ).length;
+
+    // 如果没有空位置且已达手牌上限，返回失败
+    if (insertPosition === -1 && actualHandCount >= MAX_HAND_CARDS) {
       return ResultFactory.fail(`手牌数已达上限（${MAX_HAND_CARDS}）`);
     }
-    card.location = 'hand';
-    // 添加卡片到手牌
-    player.handCards.push(card);
+
+    // 确定最终插入位置
+    const finalPosition = insertPosition === -1 ? player.handCards.length : insertPosition;
+
+    // 插入卡片
+    player.handCards[finalPosition] = card;
     return ResultFactory.success('添加卡片到手牌成功');
   }
   /**
