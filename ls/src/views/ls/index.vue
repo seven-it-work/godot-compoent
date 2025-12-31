@@ -519,49 +519,28 @@ const handleCardMove = (
         console.log(`[错误] 使用卡片失败: ${useCardResult}`);
       }
     } else if (fromLocation === 'battlefield' && toLocation === 'tavern') {
-      // 从战场出售卡片到酒馆
-      console.log(`[父组件] 从战场出售卡片: ${card.nameCN}`);
-      // 找到卡片在battlefieldCards中的索引
-      const battlefieldCardIndex = battlefieldCards.value.findIndex(c => c && c.id === cardId);
-      if (battlefieldCardIndex !== -1) {
-        const success = gameStore.sellMinion('minion', battlefieldCardIndex);
-        console.log(`[父组件] 出售结果: ${success}`);
+      // 清理选中
+      globalStore.setSelectedCard(null);
+      const sellCardResult = playerController.sellCard(currentGameRef.value.id, cardId);
+      if (sellCardResult.isSuccess()) {
+        currentGameRef.value = currentGameController.getCurrentGameById(currentGameRef.value.id);
+      } else {
+        console.log(`[错误] 出售卡片失败: ${sellCardResult}`);
       }
     }
-
-    console.log(
-      `[父组件] 当前卡片分布: 酒馆 ${tavernCards.value.filter(c => c).length}/${tavernCards.value.length}张, 战场 ${battlefieldCards.value.filter(c => c).length}/${battlefieldCards.value.length}张, 手牌 ${handCards.value.filter(c => c).length}/${handCards.value.length}张`
-    );
   }
 };
 
 // 处理卡片移除
 const handleCardRemove = (cardId: string) => {
-  console.log(`[父组件] 卡片移除事件: 卡片 ${cardId} 被移除`);
-
-  // 查找卡片所在区域和索引
-  // 1. 检查战场区域
-  const battlefieldIndex = battlefieldCards.value.findIndex(c => c && c.id === cardId);
-  if (battlefieldIndex !== -1) {
-    const success = gameStore.sellMinion('minion', battlefieldIndex);
-    console.log(`[父组件] 从战场出售卡片，结果: ${success}`);
-    return;
+  // 清理选中
+  globalStore.setSelectedCard(null);
+  const sellCardResult = playerController.sellCard(currentGameRef.value.id, cardId);
+  if (sellCardResult.isSuccess()) {
+    currentGameRef.value = currentGameController.getCurrentGameById(currentGameRef.value.id);
+  } else {
+    console.log(`[错误] 出售卡片失败: ${sellCardResult}`);
   }
-
-  // 2. 检查手牌区域
-  const handIndex = handCards.value.findIndex(c => c && c.id === cardId);
-  if (handIndex !== -1) {
-    const success = gameStore.sellMinion('hand', handIndex);
-    console.log(`[父组件] 从手牌出售卡片，结果: ${success}`);
-    return;
-  }
-
-  // 3. 检查酒馆区域（暂时不处理酒馆卡片移除）
-  console.log(`[父组件] 卡片 ${cardId} 不在可移除区域`);
-
-  console.log(
-    `[父组件] 当前卡片分布: 酒馆 ${tavernCards.value.filter(c => c).length}/${tavernCards.value.length}张, 战场 ${battlefieldCards.value.filter(c => c).length}/${battlefieldCards.value.length}张, 手牌 ${handCards.value.filter(c => c).length}/${handCards.value.length}张`
-  );
 };
 
 // 处理法术释放事件
