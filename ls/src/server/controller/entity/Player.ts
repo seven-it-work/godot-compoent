@@ -78,114 +78,58 @@ export class Player {
       );
       minionsOnBattlefield[targetSlotIndex] = minion;
     } else {
-      if (targetSlotIndex >= 7) {
-        // 说明添加随从是最后一格，前面还有空位，需要往前顶
-        this.moveLastMinionForwardInPlace(minionsOnBattlefield);
-        // 最后一个位置插入
-        minionsOnBattlefield[6] = minion;
-      } else {
-      }
+      this.insertAt(minionsOnBattlefield, targetSlotIndex, minion);
     }
+  }
 
-    // 查找插入位置
-    let insertPosition = targetSlotIndex;
-    // 如果没有提供位置，找到第一个空位置
-    if (insertPosition === undefined || insertPosition === null) {
-      insertPosition = player.minionsOnBattlefield.findIndex(
-        minion => minion === undefined || minion === null
-      );
-      // 如果没有空位置，返回失败
-      if (insertPosition === -1) {
-        return ResultFactory.fail('战场上的随从已满（最多7个）');
-      }
-    } else {
-      // 验证位置是否有效
-      if (insertPosition < 0 || insertPosition >= 7) {
-        return ResultFactory.fail('战场上的随从已满（最多7个）');
-      }
-      // 检查当前位置是否已有卡片，则将后面的随从往后移动
-      if (
-        player.minionsOnBattlefield[insertPosition] !== undefined &&
-        player.minionsOnBattlefield[insertPosition] !== null
-      ) {
-        for (let i = insertPosition; i < player.minionsOnBattlefield.length - 1; i++) {
-          if (
-            player.minionsOnBattlefield[i + 1] == undefined ||
-            player.minionsOnBattlefield[i + 1] == null
-          ) {
-            // 下一个为空，则移动完成，应该我们只会插入一个
-            player.minionsOnBattlefield[i] = player.minionsOnBattlefield[i + 1];
-            break;
-          }
-          // 不为空继续往后移动
-          player.minionsOnBattlefield[i] = player.minionsOnBattlefield[i + 1];
+  /**
+   * 向数组指定索引插入元素，同时移动后续元素
+   * @param arr 数组
+   * @param index 索引
+   * @param obj 元素
+   */
+  private insertAt(arr: any[], index: number, obj: any) {
+    const len = arr.length;
+    // 处理索引超出范围的情况
+    if (index < 0 || index > len) {
+      throw new Error('索引超出范围');
+    }
+    // 场景 3: 插入索引等于数组长度
+    if (index === len) {
+      // 往前找第一个 null
+      for (let i = len - 1; i >= 0; i--) {
+        if (arr[i] === null || arr[i] === undefined) {
+          arr[i] = obj;
+          return arr;
         }
-        player.minionsOnBattlefield[insertPosition] = minion;
       }
-    }
-    // 插入卡片
-    player.minionsOnBattlefield[insertPosition] = minion;
-    return ResultFactory.success('添加随从到战场成功');
-  }
-
-  /**
-   * 移动第一个非空元素到最前
-   * @param arr 数组
-   * @returns
-   */
-  private moveFirstNonEmptyRightToFirstEmpty(arr: any[]) {
-    const len = arr.length;
-
-    // 从左往右找第一个非空元素的索引
-    let firstNonEmptyIndex = -1;
-    for (let i = 0; i < len; i++) {
-      if (arr[i] != null) {
-        firstNonEmptyIndex = i;
-        break;
-      }
+      // 如果没有 null，说明数组已满
+      throw new Error('数组已满，无法插入');
     }
 
-    if (firstNonEmptyIndex === -1) return; // 全是空
-
-    // 从这个索引开始，向右找第一个空位置
-    for (let i = firstNonEmptyIndex + 1; i < len; i++) {
-      if (arr[i] == null) {
-        // 移动元素到空位置
-        arr[i] = arr[firstNonEmptyIndex];
-        arr[firstNonEmptyIndex] = null;
-        break; // 找到空位，移动完成
-      }
-    }
-  }
-  /**
-   * 移动最后一个非空元素到最前
-   * @param arr 数组
-   */
-  private moveLastMinionForwardInPlace(arr: any[]) {
-    const len = arr.length;
-
-    // 从右往左找最后一个非空元素的索引
-    let lastNonEmptyIndex = -1;
-    for (let i = len - 1; i >= 0; i--) {
-      if (arr[i] !== null && arr[i] !== undefined) {
-        lastNonEmptyIndex = i;
-        break;
-      }
+    // 场景 1: 插入位置为 null
+    if (arr[index] === null || arr[index] === undefined) {
+      arr[index] = obj;
+      return arr;
     }
 
-    if (lastNonEmptyIndex === -1) return; // 全是空
-
-    // 从这个索引开始，向左移动直到遇到空位置
-    for (let i = lastNonEmptyIndex; i > 0; i--) {
-      if (arr[i - 1] === null || arr[i - 1] === undefined) {
-        arr[i - 1] = arr[i];
-        arr[i] = undefined;
-        break; // 找到空位，移动完成
-      } else {
-        // 前面是非空，继续移动
-        arr[i - 1] = arr[i];
-        arr[i] = undefined;
+    // 场景 2: 插入位置不为 null，后面有 null
+    for (let i = index + 1; i < len; i++) {
+      if (arr[i] === null || arr[i] === undefined) {
+        arr[i] = arr[index];
+        arr[index] = obj;
+        return arr;
       }
     }
+    // 场景 4: 插入位置不为 null，后面没有 null
+    // 往前找第一个 null
+    for (let i = index - 1; i >= 0; i--) {
+      if (arr[i] === null || arr[i] === undefined) {
+        arr[i] = obj;
+        return arr;
+      }
+    }
+    // 如果没有找到 null，说明数组已满
+    throw new Error('数组已满，无法插入');
   }
 }

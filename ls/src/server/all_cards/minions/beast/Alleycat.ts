@@ -1,6 +1,5 @@
 import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
-import { PlayerController } from '@/server/controller/PlayerController';
 import db_card from '@/server/db/db_card';
 
 export class Alleycat extends Minion {
@@ -41,12 +40,19 @@ export class Alleycat extends Minion {
 
   hasBattlecry: boolean = true;
   battlecry(currentGame: CurrentGame) {
+    // 1、根据currentGameId获取当前游戏实例
+    if (!currentGame) {
+      throw new Error('未找到当前游戏');
+    }
+    const player = currentGame.player;
+    if (!player) {
+      throw new Error('未找到玩家');
+    }
     const BG_CFM_315t = db_card.getCardByStrId('BG_CFM_315t');
     if (!BG_CFM_315t) {
       throw new Error('未找到BG_CFM_315t');
     }
-    const playerController = new PlayerController();
-    const minionIndex = playerController.getMinionIndexOnBattlefield(currentGame.player, this);
-    playerController.添加随从到战场(currentGame.player, BG_CFM_315t as Minion, minionIndex + 1);
+    const minionIndex = player.getMinionIndexOnBattlefield(this);
+    player.添加随从到战场(BG_CFM_315t as Minion, minionIndex + 1);
   }
 }
