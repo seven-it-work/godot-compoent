@@ -68,10 +68,13 @@ export class PlayerController {
     if (tavern.gold < tavern.refreshCost) {
       return ResultFactory.fail('金币不足');
     }
-    tavern.gold -= tavern.refreshCost;
+    const result = new TavernController().消耗金币(currentGameId, tavern.refreshCost);
+    if (!result.isSuccess()) {
+      console.log('[失败] 刷新酒馆失败', result);
+      return result;
+    }
     // 刷新酒馆随从池
-    new TavernController().refreshTavern(currentGameId);
-    return ResultFactory.success('酒馆刷新成功');
+    return new TavernController().refreshTavern(currentGameId);
   }
   /**
    * 冻结/解冻酒馆
@@ -124,15 +127,11 @@ export class PlayerController {
     if (!card) {
       throw new Error('未找到卡片');
     }
-
-    // 购买卡片金币判断
-    if (tavern.gold < card.cardPrice) {
-      return ResultFactory.fail('金币不足');
+    const result = new TavernController().消耗金币(currentGameId, card.cardPrice);
+    if (!result.isSuccess()) {
+      console.log('[失败] 购买卡片失败', result);
+      return result;
     }
-
-    // 扣除金币
-    tavern.gold -= card.cardPrice;
-
     // 从酒馆中移除卡片
     tavern.cards.splice(cardIndex, 1);
 
@@ -161,6 +160,7 @@ export class PlayerController {
     if (player.handCards.length >= MAX_HAND_CARDS) {
       return ResultFactory.fail(`手牌数已达上限（${MAX_HAND_CARDS}）`);
     }
+    card.location = 'hand';
     // 添加卡片到手牌
     player.handCards.push(card);
     return ResultFactory.success('添加卡片到手牌成功');
@@ -237,6 +237,7 @@ export class PlayerController {
     // 如果是随从，添加到 minionsOnBattlefield
     if (usedCard.type === 'minion') {
       const minion = usedCard as Minion;
+      minion.location = 'battlefield';
       player.minionsOnBattlefield.push(minion);
     }
 

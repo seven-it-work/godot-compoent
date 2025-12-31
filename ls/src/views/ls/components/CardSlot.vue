@@ -56,9 +56,6 @@ import { Minion, MinionKeywordCN } from '@/server/controller/entity/Minion';
 import { Spell } from '@/server/controller/entity/Spell';
 import interact from 'interactjs';
 
-// 接收外部传入的参数
-type CardPosition = CardArea;
-
 const props = defineProps<{
   cardId: string;
   data?: Card | null; // 卡片数据，如果为null或undefined则表示空格子

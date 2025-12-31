@@ -1,0 +1,45 @@
+import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+/**
+ * 甲虫类 - 继承自Minion，实现甲虫随从
+ */
+export class Beetle extends Minion {
+  inTavern: boolean = true;
+  constructor() {
+    super();
+    const data = {
+      id: 110402,
+      strId: 'BG28_603t',
+      cardType: 'minion',
+      name: 'Beetle',
+      nameCN: '甲虫',
+      text: '',
+      mechanics: [],
+      referencedTags: [],
+      img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG28_603t_battlegroundsImage.png',
+      art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG28_603t_cardArtFromHsJson256x.png',
+      tier: 1,
+      health: 2,
+      attack: 2,
+      minionTypes: ['beast'],
+      minionTypesCN: ['野兽'],
+      upgradeCard: {
+        id: 110894,
+        strId: 'BG28_603t_G',
+        cardType: 'minion',
+        name: 'Beetle',
+        nameCN: '甲虫',
+        text: '',
+        mechanics: [],
+        referencedTags: [],
+        img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG28_603t_G_imageFromBlizzardSb.png',
+        art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG28_603t_G_cardArtFromHsJson256x.png',
+        tier: 1,
+        health: 4,
+        attack: 4,
+        minionTypes: ['beast'],
+        minionTypesCN: ['野兽'],
+      },
+    };
+    minion_utils.initMinionData(this, data);
+  }
+}

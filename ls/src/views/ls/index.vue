@@ -64,19 +64,19 @@
           ></CardSlot>
           <div class="info-panel tavern-info">
             <div class="stats-row">
-              <div>酒馆等级：{{ travern?.level || 1 }}级</div>
+              <div>酒馆等级：{{ travern?.level || -1 }}级</div>
               <button @click="upgradeTavern" :disabled="!canUpgrade">
-                升级({{ travern?.upgradeCost || 1 }})
+                升级({{ travern?.upgradeCost || -1 }})
               </button>
             </div>
 
             <div class="buttons-row">
-              <div>第{{ travern?.currentTurn || 1 }}回合</div>
+              <div>第{{ travern?.currentTurn || -1 }}回合</div>
               <button
                 @click="refreshTavern"
                 :disabled="!(travern && travern.gold >= travern.refreshCost)"
               >
-                刷新({{ travern?.refreshCost || 1 }})
+                刷新({{ travern?.refreshCost || -1 }})
               </button>
               <button @click="toggleFreeze">
                 <!-- todo 有待开发 -->
@@ -275,7 +275,6 @@ import { CurrentGameController } from '@/server/controller/CurrentGameController
 import { GameController } from '@/server/controller/GameController';
 import { HeroController } from '@/server/controller/HeroController';
 import { PlayerController } from '@/server/controller/PlayerController';
-import { TavernController } from '@/server/controller/TavernController';
 import { Card } from '@/server/controller/entity/Card';
 import { CurrentGame } from '@/server/controller/entity/CurrentGame';
 import { computed, onMounted, ref, watch } from 'vue';
@@ -284,7 +283,6 @@ import DebugDrawer from './components/DebugDrawer.vue';
 
 const gameController = new GameController();
 const heroController = new HeroController();
-const tavernController = new TavernController();
 const currentGameController = new CurrentGameController();
 
 const currentGameRef = ref<CurrentGame>(new CurrentGame());
@@ -352,7 +350,11 @@ const upgradeTavern = () => {
 
 // 刷新酒馆
 const refreshTavern = () => {
-  playerController.refreshTavern(currentGameRef.value.id);
+  const result = playerController.refreshTavern(currentGameRef.value.id);
+  if (!result.isSuccess()) {
+    console.log('[失败] 刷新酒馆失败', result);
+    return;
+  }
   currentGameRef.value = currentGameController.getCurrentGameById(currentGameRef.value.id);
 };
 
@@ -447,18 +449,18 @@ const handleDragStart = (cardId: string) => {
   // 从所有分离的数组中查找卡片
   let card: Card | null = null;
   const allCards = [...tavernCards.value, ...battlefieldCards.value, ...handCards.value];
-  const foundCard = allCards.find(c => c && c.id === cardId);
+  const foundCard = allCards.filter(c => !!c).find(c => c && c.id === cardId);
   card = foundCard || null;
 
   currentDraggingCard.value = cardId;
 
   // 只有拖拽酒馆卡片时才激活手牌区域的高亮样式
-  if (card?.area === '酒馆') {
+  if (card?.location === 'tavern') {
     isDragActive.value = true;
     isTavernDragActive.value = false;
   }
   // 只有拖拽战场卡片时才激活酒馆区域的高亮样式
-  else if (card?.area === '战场') {
+  else if (card?.location === 'battlefield') {
     isDragActive.value = false;
     isTavernDragActive.value = true;
   } else {
@@ -499,9 +501,7 @@ const handleCardMove = (
 
     // 根据不同的移动类型调用不同的游戏store方法
     if (fromLocation === 'tavern' && toLocation === 'hand') {
-      // 从酒馆购买卡片到手牌
-      const success = gameStore.moveCard(cardId, fromLocation, toLocation);
-      console.log(`[父组件] 从酒馆购买卡片: ${card.nameCN}, 结果: ${success}`);
+      playerController.buyCard(currentGameRef.value.id, cardId);
     } else if (fromLocation === 'hand' && toLocation === 'battlefield') {
       // 从手牌放置卡片到战场
       console.log(`[父组件] 从手牌放置卡片到战场: ${card.nameCN}, 目标位置: ${targetSlotIndex}`);

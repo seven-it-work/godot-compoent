@@ -28,7 +28,7 @@ export class Tavern {
   // 下回合额外获取金币数
   extraGold: number = 0;
   // 刷新费用
-  refreshCost: number = 0;
+  refreshCost: number = 1;
   // 升级酒馆费用
   upgradeCost: number = 0;
   // 元素加成

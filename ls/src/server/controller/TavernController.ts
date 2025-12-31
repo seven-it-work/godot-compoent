@@ -14,7 +14,7 @@ export class TavernController {
    */
   消耗金币(currentGameId: string, 消耗金币数量: number): Result {
     if (消耗金币数量 == 0) {
-      return ResultFactory.success('消耗成功');
+      return ResultFactory.success('消耗金币为0，无需消耗');
     }
     if (消耗金币数量 < 0) {
       return ResultFactory.fail('消耗金币数量必须大于0');
@@ -42,7 +42,7 @@ export class TavernController {
   /**
    * 刷新酒馆
    */
-  refreshTavern(currentGameId: string) {
+  refreshTavern(currentGameId: string): Result {
     // 1、根据currentGameId获取当前游戏实例
     const currentGame = db_current_game.getCurrentGameById(currentGameId);
     if (!currentGame) {
@@ -61,19 +61,21 @@ export class TavernController {
       .forEach(minion => {
         new CurrentGameController().returnMinionToPool(currentGame.id, minion.strId);
       });
-    
+
     // 清空现有卡片
     tavern.cards = Array(7).fill(undefined);
-    
+
     // 等级当前酒馆等级生成对应的随从个+1个法术牌
     const minionsToShowCount = this.getMinionsToShowCount(tavern);
     for (let i = 0; i < minionsToShowCount; i++) {
       // 从随从池中随机选择一个随从
       const minion = this.getRandomMinionFromPool(currentGame);
+      minion.location = 'tavern';
       // 添加到酒馆卡片
       tavern.cards[i] = minion;
     }
     // todo 刷新酒馆的法术牌
+    return ResultFactory.success('酒馆刷新成功');
   }
 
   /**
