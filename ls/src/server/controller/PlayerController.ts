@@ -223,7 +223,12 @@ export class PlayerController {
   /**
    * 使用卡片
    */
-  useCardFromHand(currentGameId: string, cardId: string, _params: any = {}): Result {
+  useCardFromHand(
+    currentGameId: string,
+    cardId: string,
+    targetSlotIndex?: number,
+    _params: any = {}
+  ): Result {
     // 1、根据currentGameId获取当前游戏实例
     const currentGame: CurrentGame | undefined = db_current_game.getCurrentGameById(currentGameId);
     if (!currentGame) {
@@ -244,7 +249,7 @@ export class PlayerController {
       return ResultFactory.fail('未找到要使用的卡片');
     }
     // 从手牌中移除卡片
-    const usedCard: Card | undefined = player.handCards.splice(cardIndex, 1)[0];
+    const usedCard: Card | undefined = player.handCards[cardIndex];
     if (!usedCard) {
       throw new Error('未找到要使用的卡片');
     }
@@ -252,9 +257,43 @@ export class PlayerController {
     if (usedCard.type === 'minion') {
       const minion = usedCard as Minion;
       minion.location = 'battlefield';
-      player.minionsOnBattlefield.push(minion);
+      // 计算当前实际随从数量
+      const actualMinionCount = player.minionsOnBattlefield.filter(
+        minion => minion !== undefined && minion !== null
+      ).length;
+      // 检查战场是否已满（最多7个随从）
+      if (actualMinionCount >= 7) {
+        return ResultFactory.fail('战场上的随从已满（最多7个）');
+      }
+      // 查找插入位置
+      let insertPosition = targetSlotIndex;
+      // 如果没有提供位置，找到第一个空位置
+      if (insertPosition === undefined || insertPosition === null) {
+        insertPosition = player.minionsOnBattlefield.findIndex(
+          minion => minion === undefined || minion === null
+        );
+        // 如果没有空位置，返回失败
+        if (insertPosition === -1) {
+          return ResultFactory.fail('战场上的随从已满（最多7个）');
+        }
+      } else {
+        // 验证位置是否有效
+        if (insertPosition < 0 || insertPosition >= 7) {
+          return ResultFactory.fail('无效的战场位置');
+        }
+        // 检查当前位置是否已有卡片
+        if (
+          player.minionsOnBattlefield[insertPosition] !== undefined &&
+          player.minionsOnBattlefield[insertPosition] !== null
+        ) {
+          return ResultFactory.fail('指定位置已有随从');
+        }
+      }
+      // 插入卡片
+      player.minionsOnBattlefield[insertPosition] = minion;
     }
-
+    // 从手牌中移除卡片
+    player.handCards.splice(cardIndex, 1)[0];
     // 触发使用卡片后事件
     new EffectTriggerController().triggerUseCardAfter(currentGameId, usedCard);
     // todo 其他待开发卡片类型

@@ -508,13 +508,15 @@ const handleCardMove = (
         console.log(`[错误] 购买卡片失败: ${buyCardResult}`);
       }
     } else if (fromLocation === 'hand' && toLocation === 'battlefield') {
-      // 从手牌放置卡片到战场
-      console.log(`[父组件] 从手牌放置卡片到战场: ${card.nameCN}, 目标位置: ${targetSlotIndex}`);
-      // 找到卡片在handCards中的索引
-      const handCardIndex = handCards.value.findIndex(c => c && c.id === cardId);
-      if (handCardIndex !== -1 && targetSlotIndex !== undefined) {
-        const success = gameStore.placeMinionFromHand(handCardIndex, targetSlotIndex);
-        console.log(`[父组件] 放置结果: ${success}`);
+      const useCardResult = playerController.useCardFromHand(
+        currentGameRef.value.id,
+        cardId,
+        targetSlotIndex
+      );
+      if (useCardResult.isSuccess()) {
+        currentGameRef.value = currentGameController.getCurrentGameById(currentGameRef.value.id);
+      } else {
+        console.log(`[错误] 使用卡片失败: ${useCardResult}`);
       }
     } else if (fromLocation === 'battlefield' && toLocation === 'tavern') {
       // 从战场出售卡片到酒馆
