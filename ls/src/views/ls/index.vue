@@ -301,21 +301,39 @@ const playerController = new PlayerController();
 // 购买按钮点击事件处理
 const handleBuyAction = () => {
   if (globalStore.selectedCard && globalStore.selectedCardIndex !== null) {
-    playerController.buyCard(currentGameRef.value.id, globalStore.selectedCard.id);
+    const result = playerController.buyCard(currentGameRef.value.id, globalStore.selectedCard.id);
+    if (!result.isSuccess()) {
+      console.log('[失败] 购买卡片失败', result);
+      return;
+    }
+    currentGameRef.value = currentGameController.getCurrentGameById(currentGameRef.value.id);
   }
 };
 
 // 放置按钮点击事件处理
 const handlePlaceAction = () => {
   if (globalStore.selectedCard && globalStore.selectedCardIndex !== null) {
-    playerController.useCardFromHand(currentGameRef.value.id, globalStore.selectedCard.id);
+    const result = playerController.useCardFromHand(
+      currentGameRef.value.id,
+      globalStore.selectedCard.id
+    );
+    if (!result.isSuccess()) {
+      console.log('[失败] 放置卡片失败', result);
+      return;
+    }
+    currentGameRef.value = currentGameController.getCurrentGameById(currentGameRef.value.id);
   }
 };
 
 // 出售按钮点击事件处理
 const handleSellAction = () => {
   if (globalStore.selectedCard && globalStore.selectedCardIndex !== null) {
-    playerController.sellCard(currentGameRef.value.id, globalStore.selectedCard.id);
+    const result = playerController.sellCard(currentGameRef.value.id, globalStore.selectedCard.id);
+    if (!result.isSuccess()) {
+      console.log('[失败] 出售卡片失败', result);
+      return;
+    }
+    currentGameRef.value = currentGameController.getCurrentGameById(currentGameRef.value.id);
   }
 };
 
@@ -360,16 +378,27 @@ const refreshTavern = () => {
 
 // 冻结/解冻酒馆
 const toggleFreeze = () => {
+  let result;
   if (travern.value?.isFrozen) {
-    playerController.freezeTavern(currentGameRef.value.id, false);
+    result = playerController.freezeTavern(currentGameRef.value.id, false);
+    currentGameRef.value = currentGameController.getCurrentGameById(currentGameRef.value.id);
   } else {
-    playerController.freezeTavern(currentGameRef.value.id, true);
+    result = playerController.freezeTavern(currentGameRef.value.id, true);
+  }
+  if (!result.isSuccess()) {
+    console.log('[失败] 冻结/解冻酒馆失败', result);
+    return;
   }
 };
 
 // 结束回合
 const endTurn = () => {
-  playerController.endTurn(currentGameRef.value.id);
+  const result = playerController.endTurn(currentGameRef.value.id);
+  if (!result.isSuccess()) {
+    console.log('[失败] 结束回合失败', result);
+    return;
+  }
+  currentGameRef.value = currentGameController.getCurrentGameById(currentGameRef.value.id);
 };
 
 // 调试抽屉控制
@@ -411,7 +440,7 @@ const handleCardSwap = (cardId: string, targetIndex: number) => {
   minionsInBattle[sourceIndex] = temp;
   minionsInBattle[targetIndex] = source;
   // 保存玩家数据
-  playerController.savePlayerData(currentGameRef.value.id, playerData);
+  playerController.savePlayerData(currentGameRef.value.id, currentGameRef.value.player);
 };
 // 页面加载时自动随机初始化英雄
 onMounted(async () => {

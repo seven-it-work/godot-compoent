@@ -1,5 +1,6 @@
 import { Card, card_utils } from '@/server/controller/entity/Card';
 import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
+import type { Buff } from './Buff';
 export const minion_utils = {
   getMinionTypes(minionTypes: string[]): MinionType[] {
     if (minionTypes.length === 0) {
@@ -38,6 +39,10 @@ export class Minion extends Card {
   attack: number = 0;
   //是否存在战吼
   hasBattlecry: boolean = false;
+  // 属性加成
+  buffs: Buff[] = [];
+  // 临时属性加成
+  tempBuffs: Buff[] = [];
 
   // 执行战吼
   battlecry(_currentGame: CurrentGame) {
