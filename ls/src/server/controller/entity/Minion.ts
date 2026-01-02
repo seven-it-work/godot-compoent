@@ -19,6 +19,7 @@ export const minion_utils = {
     return result;
   },
   getKeywords(keywords: string[]): MinionKeyword[] {
+    console.log('keywords', keywords);
     const key = Object.keys(MinionKeywordCN) as MinionKeyword[];
     return keywords
       .map(keyword => {
@@ -32,9 +33,21 @@ export const minion_utils = {
   initMinionData(minion: Minion, data: any) {
     card_utils.initCardData(minion, data);
     minion.minionTypes = minion_utils.getMinionTypes(data.minionTypes);
-    if (data.mechanics && data.mechanics.includes('mechanics')) {
-      minion.keywords = minion_utils.getKeywords(data.mechanics);
-      minion.hasBattlecry = true;
+    if (data['mechanics']) {
+      const dataMechanics = data['mechanics'];
+      minion.keywords = minion_utils.getKeywords(dataMechanics);
+      if (dataMechanics.includes('BATTLECRY')) {
+        minion.effectKeywords.push('BATTLECRY');
+      }
+      if (dataMechanics.includes('DEATHRATTLE')) {
+        minion.effectKeywords.push('DEATHRATTLE');
+      }
+      if (dataMechanics.includes('CHOOSE_ONE')) {
+        minion.effectKeywords.push('CHOOSE_ONE');
+      }
+      if (dataMechanics.includes('MAGNETIC')) {
+        minion.effectKeywords.push('MAGNETIC');
+      }
     }
     minion.health = data.health;
     minion.attack = data.attack;
@@ -60,8 +73,8 @@ export class Minion extends Card {
   attack: number = 0;
   // 战斗生命值(战斗开始时需要初始化)
   fightHealth: number = 0;
-  //是否存在战吼
-  hasBattlecry: boolean = false;
+  // 效果关键词（战吼、亡语）
+  effectKeywords: EffectKeyword[] = [];
   // 属性加成
   buffs: Buff[] = [];
   // 临时属性加成
@@ -69,10 +82,17 @@ export class Minion extends Card {
 
   // 执行战吼
   battlecry(_currentGame: CurrentGame) {
-    if (!this.hasBattlecry) {
+    if (!this.effectKeywords.includes('BATTLECRY')) {
       return;
     }
     console.log('执行战吼', this.strId);
+  }
+  // 执行亡语
+  deathrattle(_currentGame: CurrentGame) {
+    if (!this.effectKeywords.includes('DEATHRATTLE')) {
+      return;
+    }
+    console.log('执行亡语', this.strId);
   }
   // 战斗开始时
   战斗开始时(_currentGame: CurrentGame) {
@@ -122,6 +142,7 @@ export class Minion extends Card {
   }
 
   getKeywords(): MinionKeyword[] {
+    console.log('keywords', this.keywords, 'tempKeywords', this.tempKeywords);
     return [...this.keywords, ...this.tempKeywords];
   }
 
@@ -185,6 +206,13 @@ export const MINION_TYPES = [
  * 野兽、机械、鱼人、恶魔、龙、海盗、亡灵、纳迦、野猪人、元素、全部、中立
  */
 export type MinionType = (typeof MINION_TYPES)[number];
+/**
+ * 效果关键词（战吼、亡语）
+ * 战吼：BATTLECRY
+ * 亡语：DEATHRATTLE
+ */
+export type EffectKeyword = 'BATTLECRY' | 'DEATHRATTLE' | 'CHOOSE_ONE' | 'MAGNETIC';
+
 /**
  * 随从关键词 - 定义随从的特殊能力
  */
