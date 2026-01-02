@@ -1,3 +1,5 @@
+import { CurrentGameController } from '@/server/controller/CurrentGameController';
+import { Buff } from '@/server/controller/entity/Buff';
 import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import db_card from '@/server/db/db_card';
@@ -11,6 +13,20 @@ export class BuzzingVermin extends Minion {
     super();
     minion_utils.initMinionData(this, BASE_DATA);
   }
+
+  getTextFormatArr(currentGameId: string): string[] {
+    const currentGame = new CurrentGameController().getCurrentGameById(currentGameId);
+    if (!currentGame) {
+      throw new Error('未找到当前游戏');
+    }
+    const player = currentGame.player;
+    if (!player) {
+      throw new Error('未找到玩家');
+    }
+    // 由子类去实现
+    return [(2 + player.beetleBonus.atk).toString(), (2 + player.beetleBonus.hp).toString()];
+  }
+
   // 执行亡语
   deathrattle(currentGame: CurrentGame) {
     super.deathrattle(currentGame);
@@ -19,15 +35,17 @@ export class BuzzingVermin extends Minion {
       throw new Error('未找到当前游戏');
     }
     // 2、获取当前玩家
-    const currentPlayer = currentGame.player;
-    if (!currentPlayer) {
+    const player = currentGame.player;
+    if (!player) {
       throw new Error('未找到当前玩家');
     }
-    const index = currentPlayer.getMinionIndexOnBattlefield(this);
+    const index = player.getMinionIndexOnBattlefield(this);
     if (index === -1) {
       throw new Error('未找到当前随从');
     }
-    currentPlayer.添加随从到战场(db_card.getCardByStrId('BG28_603t') as Minion, index);
+    const beetle = db_card.getCardByStrId('BG28_603t') as Minion;
+    beetle.addBuff(new Buff(this.name, 2 + player.beetleBonus.atk, 2 + player.beetleBonus.hp));
+    player.添加随从到战场(beetle, index);
   }
 }
 

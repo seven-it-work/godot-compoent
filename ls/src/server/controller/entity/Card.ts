@@ -45,4 +45,17 @@ export class Card {
     // 触发使用其他卡片后事件
     // console.log(`使用了${_userCard.strId}，触发监听使用其他卡片事件`);
   }
+
+  getTextFormatArr(_currentGameId: string): string[] {
+    // 由子类去实现
+    return [];
+  }
+
+  textFormat(currentGameId: string): string {
+    const values = this.getTextFormatArr(currentGameId);
+    return this.text.replace(/{(\d+)}/g, (match, indexStr) => {
+      const index = parseInt(indexStr, 10);
+      return values[index] !== undefined ? values[index].toString() : match; // 保留原占位符
+    });
+  }
 }

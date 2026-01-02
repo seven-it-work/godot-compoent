@@ -479,7 +479,7 @@ const removeSpellArrow = () => {
 const highlightSpellTargets = () => {
   // 移除所有已有的高亮
   removeAllHighlights();
-
+  // todo 选择目标要更具法术来判断
   // 获取所有可能的目标卡片槽（战场和酒馆）
   const allTargetSlots: NodeListOf<HTMLElement> = document.querySelectorAll(
     '.battlefield-section .card-slot, .tavern-section .card-slot'
@@ -579,13 +579,6 @@ onMounted(() => {
           y: rect.top + rect.height / 2,
         };
 
-        console.log(
-          `[拖拽开始] 卡片: ${props.cardId}, 初始位置类型: ${props.data?.location}, 初始坐标: (${initialPosition.value.x}, ${initialPosition.value.y})`
-        );
-        console.log(
-          `[拖拽开始] 卡片 ${props.cardId} 原始中心点视口坐标: (${initialCardCenter.value.x}, ${initialCardCenter.value.y})`
-        );
-
         // 拖拽开始时同时选中当前卡片
         emit('card-select', props.data, props.positionType);
 
@@ -604,8 +597,6 @@ onMounted(() => {
           const isSpell = props.data instanceof Spell;
 
           if (isSpell) {
-            console.log(`[法术拖拽] 法术卡片 ${props.cardId} 开始拖拽，初始化拖拽状态`);
-
             // 初始化法术拖拽状态
             spellDragState.value.isDragStarted = true;
             spellDragState.value.isDraggedOutOfHand = false;
@@ -848,7 +839,6 @@ onMounted(() => {
               console.log(
                 `[法术释放] 目标有效性检查: targetSlot=${!!targetSlot}, isTargetValid=${isTargetValid}, data-is-empty=${targetSlot?.getAttribute('data-is-empty')}, in-battlefield=${!!targetSlot?.closest('.battlefield-section')}`
               );
-
               if (spell.requiresTarget) {
                 // 需要目标的法术
                 if (isTargetValid && targetSlot) {

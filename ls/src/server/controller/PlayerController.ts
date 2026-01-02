@@ -7,6 +7,7 @@ import db_current_game from '@/server/db/db_current_game';
 import { EffectTriggerController } from './EffectTrigger';
 import type { Minion } from './entity/Minion';
 import type { Player } from './entity/Player';
+import type { Spell } from './entity/Spell';
 
 const MAX_HAND_CARDS = 10;
 /**
@@ -223,6 +224,10 @@ export class PlayerController {
 
   /**
    * 使用卡片
+   * @param currentGameId 当前游戏ID
+   * @param cardId 要使用的卡片ID
+   * @param targetSlotIndex 目标插槽索引（如果是随从）
+   * @param _params 其他参数（例如目标卡牌ID）
    */
   useCardFromHand(
     currentGameId: string,
@@ -242,6 +247,10 @@ export class PlayerController {
     if (!player) {
       throw new Error('未找到玩家');
     }
+    const tavern = player.tavern;
+    if (!tavern) {
+      throw new Error('未找到酒馆');
+    }
     // 查找要使用的卡片
     const cardIndex = player.handCards
       .filter(minion => minion !== undefined)
@@ -257,6 +266,26 @@ export class PlayerController {
     if (usedCard.type === 'minion') {
       const minion = usedCard as Minion;
       player.添加随从到战场(minion, targetSlotIndex);
+    } else if (usedCard.type === 'spell') {
+      const spell = usedCard as Spell;
+      if (spell.requiresTarget) {
+        if (_params.targetCardId === undefined) {
+          return ResultFactory.fail('法术需要目标，但未提供目标');
+        }
+        // 酒馆里面找到targetCard
+        const targetCard = [
+          ...tavern.cards,
+          ...player.getMinionsOnBattlefield(),
+          ...player.handCards,
+        ]
+          .filter(temp => temp !== undefined)
+          .find(temp => temp.id === _params.targetCardId);
+        if (!targetCard) {
+          return ResultFactory.fail('未找到目标卡牌');
+        }
+        currentGame.otherParams.targetCard = targetCard;
+        targetCard.useCardAfter(currentGame);
+      }
     } else {
       console.log('其他卡片类型，待开发');
     }
@@ -271,6 +300,7 @@ export class PlayerController {
    * 结束回合
    */
   endTurn(currentGameId: string): Result {
+    console.info('结束回合', currentGameId);
     // todo 待实现
     return ResultFactory.success('回合结束');
   }

@@ -99,6 +99,23 @@ export class Minion extends Card {
     this.fightHealth = this.getHealth();
   }
 
+  /**
+   * 添加属性加成
+   * @param buff 属性加成
+   * @param isTemp 是否临时属性加成
+   */
+  addBuff(buff: Buff, isTemp: boolean = false) {
+    if (isTemp) {
+      this.tempBuffs.push(buff);
+    } else {
+      this.buffs.push(buff);
+    }
+  }
+
+  /**
+   * 获取随从攻击值
+   * @returns 随从攻击值
+   */
   getAttack(): number {
     let result = this.attack;
     this.buffs.forEach(buff => {

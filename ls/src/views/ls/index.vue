@@ -188,7 +188,10 @@
 
               <!-- 右区 -->
               <div class="top-right" v-if="globalStore.selectedCard">
-                <div class="card-description" v-html="globalStore.selectedCard?.text || ''"></div>
+                <div
+                  class="card-description"
+                  v-html="globalStore.selectedCard?.textFormat(currentGameRef.id) || ''"
+                ></div>
                 <div class="card-actions">
                   <button
                     v-if="globalStore.selectedCard?.location === 'tavern'"
@@ -280,6 +283,7 @@ import { CurrentGame } from '@/server/controller/entity/CurrentGame';
 import { computed, onMounted, ref, watch } from 'vue';
 import CardSlot from './components/CardSlot.vue';
 import DebugDrawer from './components/DebugDrawer.vue';
+import { Spell } from '@/server/controller/entity/Spell';
 
 const gameController = new GameController();
 const heroController = new HeroController();
@@ -578,65 +582,49 @@ const handleSpellCast = (spellCardId: string, targetCardId?: string) => {
 
   // 1. 找到法术卡牌
   const allCards = [...tavernCards.value, ...battlefieldCards.value, ...handCards.value];
-  const spellCard = allCards.find(c => c && c.id === spellCardId);
+  const spellCard = allCards.find(c => c && c.id === spellCardId) as Spell;
 
   if (!spellCard) {
     console.error(`[法术释放] 未找到法术卡牌 ${spellCardId}`);
     return;
   }
-
-  // 2. 找到目标卡牌
-  let targetCard = null;
-  let targetSource = '';
-  let targetIndex = -1;
-
-  if (targetCardId) {
-    targetCard = allCards.find(c => c && c.id === targetCardId);
-
-    if (!targetCard) {
+  if (spellCard.requiresTarget) {
+    if (!targetCardId) {
+      console.error(`[法术释放] 法术 ${spellCard.name} 需要目标，但未提供目标`);
+      return;
+    }
+    // 2. 找到目标卡牌
+    let targetCardIndex = allCards.findIndex(c => c && c.id === targetCardId);
+    if (targetCardIndex === -1) {
       console.error(`[法术释放] 未找到目标卡牌 ${targetCardId}`);
       return;
     }
-
-    // 确定目标来源和索引
-    // 检查目标是否在战场
-    const battlefieldIndex = battlefieldCards.value.findIndex(c => c && c.id === targetCardId);
-    if (battlefieldIndex !== -1) {
-      targetSource = 'battlefield';
-      targetIndex = battlefieldIndex;
+    const useCardResult = playerController.useCardFromHand(
+      currentGameRef.value.id,
+      spellCardId,
+      targetCardIndex,
+      { targetCardId }
+    );
+    if (useCardResult.isSuccess()) {
+      currentGameRef.value = currentGameController.getCurrentGameById(currentGameRef.value.id);
+    } else {
+      console.log(`[错误] 使用法术失败: ${useCardResult}`);
     }
-    // 检查目标是否在酒馆
-    else {
-      const tavernIndex = tavernCards.value.findIndex(c => c && c.id === targetCardId);
-      if (tavernIndex !== -1) {
-        targetSource = 'tavern';
-        targetIndex = tavernIndex;
-      }
-    }
-  }
-
-  // 3. 执行法术效果
-  console.log(`[法术释放] 执行法术 ${spellCard.nameCN} 效果，目标: ${targetCard?.nameCN || '无'}`);
-
-  // 4. 调用游戏store的castSpell方法执行法术效果
-  if (targetCard) {
-    // 创建符合gameStore.castSpell要求的target对象
-    const target = {
-      type: 'minion',
-      source: targetSource,
-      index: targetIndex,
-      target: targetCard,
-    };
-
-    // 先选择法术
-    const handIndex = handCards.value.findIndex(c => c && c.id === spellCardId);
-    if (handIndex !== -1) {
-      // 选择法术
-      gameStore.selectSpell(spellCard as any, handIndex);
-      // 释放法术
-      gameStore.castSpell(target);
+  } else {
+    //todo 使用法术
+    const useCardResult = playerController.useCardFromHand(
+      currentGameRef.value.id,
+      spellCardId,
+      undefined,
+      {}
+    );
+    if (useCardResult.isSuccess()) {
+      currentGameRef.value = currentGameController.getCurrentGameById(currentGameRef.value.id);
+    } else {
+      console.log(`[错误] 使用法术失败: ${useCardResult}`);
     }
   }
+  // 清除高亮
 };
 
 // 监听卡片位置变化

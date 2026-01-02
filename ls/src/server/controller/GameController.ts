@@ -5,6 +5,7 @@ import { Player } from '@/server/controller/entity/Player';
 import { Tavern, 酒馆升级需要的金币 } from '@/server/controller/entity/Tavern';
 import db_card from '@/server/db/db_card';
 import { TavernController } from '@/server/controller/TavernController';
+import { PlayerController } from './PlayerController';
 
 export class GameController {
   /**
@@ -98,5 +99,8 @@ export class GameController {
     player.tavern = tavern;
     // 刷新酒馆
     new TavernController().refreshTavern(currentGameId);
+
+    // 调试debug
+    new PlayerController().addCardToHand(currentGameId, db_card.getCardByStrId('BG20_GEM'));
   }
 }

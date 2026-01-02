@@ -20,6 +20,9 @@ export class Player {
   // 是否战斗中
   isInBattle: boolean = false;
 
+  // 甲虫加成
+  beetleBonus: { atk: number; hp: number } = { atk: 0, hp: 0 };
+
   /**
    * 获取当前战场上的随从数组
    */
