@@ -21,6 +21,11 @@ export const minion_utils = {
   initMinionData(minion: Minion, data: any) {
     card_utils.initCardData(minion, data);
     minion.minionTypes = minion_utils.getMinionTypes(data.minionTypes);
+    if (data.mechanics && data.mechanics.includes('mechanics')) {
+      minion.hasBattlecry = true;
+    }
+    minion.health = data.health;
+    minion.attack = data.attack;
   },
 };
 
@@ -37,6 +42,8 @@ export class Minion extends Card {
   health: number = 0;
   // 随从基础攻击值
   attack: number = 0;
+  // 战斗生命值(战斗开始时需要初始化)
+  fightHealth: number = 0;
   //是否存在战吼
   hasBattlecry: boolean = false;
   // 属性加成
@@ -51,12 +58,42 @@ export class Minion extends Card {
     }
     console.log('执行战吼', this.strId);
   }
+  // 战斗开始时
+  战斗开始时(_currentGame: CurrentGame) {
+    this.fightHealth = this.getHealth();
+  }
 
   getAttack(): number {
-    return 0;
+    let result = this.attack;
+    this.buffs.forEach(buff => {
+      if (buff.attackBonus) {
+        result += buff.attackBonus;
+      }
+    });
+    this.tempBuffs.forEach(buff => {
+      if (buff.attackBonus) {
+        result += buff.attackBonus;
+      }
+    });
+    return result;
   }
+
   getHealth(): number {
-    return 0;
+    if (this.location === 'fighting') {
+      return this.fightHealth;
+    }
+    let result = this.health;
+    this.buffs.forEach(buff => {
+      if (buff.healthBonus) {
+        result += buff.healthBonus;
+      }
+    });
+    this.tempBuffs.forEach(buff => {
+      if (buff.healthBonus) {
+        result += buff.healthBonus;
+      }
+    });
+    return result;
   }
   getKeywords(): MinionKeyword[] {
     return [];

@@ -29,8 +29,8 @@ export class Card {
   cardPrice: number = 0;
   // 出售价格（随从默认1）
   sellPrice: number = 0;
-  // 卡片所在位置（空，酒馆、战场、手牌）
-  location?: 'tavern' | 'battlefield' | 'hand';
+  // 卡片所在位置（空，酒馆、战场、手牌、战斗中）
+  location?: 'tavern' | 'battlefield' | 'hand' | 'fighting';
   // 等级
   tier?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
 

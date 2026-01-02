@@ -65,7 +65,11 @@ export class Player {
    * 添加随从到战场
    */
   添加随从到战场(minion: Minion, targetSlotIndex?: number) {
-    minion.location = 'battlefield';
+    if (this.isInBattle) {
+      minion.location = 'fighting';
+    } else {
+      minion.location = 'battlefield';
+    }
     if (this.isMinionsOnBattlefieldFull()) {
       console.log('战场满了');
       return;
