@@ -49,17 +49,19 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, computed, watch } from 'vue';
 
 import { Card } from '@/server/controller/entity/Card';
 import { Minion, MinionKeywordCN } from '@/server/controller/entity/Minion';
 import { Spell } from '@/server/controller/entity/Spell';
+import { useGlobalStore } from '@/stores/GlobalStore';
 import interact from 'interactjs';
+
+const globalStore = useGlobalStore();
 
 const props = defineProps<{
   cardId: string;
   data?: Card | null; // 卡片数据，如果为null或undefined则表示空格子
-  selectedCardId?: string | null; // 当前选中的卡片ID
   positionType?: 'tavern' | 'battlefield' | 'hand'; // 卡片所在区域类型（酒馆/战场/手牌）
 }>();
 
@@ -87,9 +89,6 @@ const emit = defineEmits<{
   (e: 'spell-cast', spellCardId: string, targetCardId?: string): void;
 }>();
 
-// 卡片选中状态
-const isSelected = ref(false);
-
 // 点击卡片事件处理函数
 const handleCardClick = () => {
   // 空卡片点击无效
@@ -97,14 +96,12 @@ const handleCardClick = () => {
   emit('card-select', props.data, props.positionType);
 };
 
-// 监听选中卡片ID变化，更新当前卡片的选中状态
-watch(
-  () => props.selectedCardId,
-  newSelectedId => {
-    isSelected.value = newSelectedId === props.data?.id;
-  },
-  { immediate: true }
-);
+// 卡片选中状态 - 使用计算属性替代watch
+const isSelected = computed(() => {
+  // 空卡片或未选中卡片时返回false
+  if (!props.data || !globalStore.selectedCard) return false;
+  return globalStore.selectedCard?.id === props.data?.id;
+});
 
 // 卡片位置状态
 const position = ref({

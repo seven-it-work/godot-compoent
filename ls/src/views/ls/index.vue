@@ -26,7 +26,6 @@
             :card-id="card ? card.id : 'empty-tavern-1-' + index"
             :position-type="'tavern'"
             :data="card"
-            :selected-card-id="globalStore.selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
@@ -38,6 +37,7 @@
                   : globalStore.clearSelectedCard()
             "
             @spell-cast="handleSpellCast"
+            ref="cardSlots"
           ></CardSlot>
         </div>
 
@@ -49,7 +49,6 @@
             :card-id="card ? card.id : 'empty-tavern-2-' + index"
             :position-type="'tavern'"
             :data="card"
-            :selected-card-id="globalStore.selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
@@ -61,6 +60,7 @@
                   : globalStore.clearSelectedCard()
             "
             @spell-cast="handleSpellCast"
+            ref="cardSlots"
           ></CardSlot>
           <div class="info-panel tavern-info">
             <div class="stats-row">
@@ -110,7 +110,6 @@
             :card-id="card ? card.id : 'empty-battlefield-1-' + index"
             :position-type="'battlefield'"
             :data="card"
-            :selected-card-id="globalStore.selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
@@ -123,6 +122,7 @@
                   : globalStore.clearSelectedCard()
             "
             @spell-cast="handleSpellCast"
+            ref="cardSlots"
           ></CardSlot>
         </div>
 
@@ -134,7 +134,6 @@
             :card-id="card ? card.id : 'empty-battlefield-2-' + index"
             :position-type="'battlefield'"
             :data="card"
-            :selected-card-id="globalStore.selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
@@ -147,6 +146,7 @@
                   : globalStore.clearSelectedCard()
             "
             @spell-cast="handleSpellCast"
+            ref="cardSlots"
           ></CardSlot>
           <div class="info-panel player-info">
             <div class="layout-grid">
@@ -231,7 +231,6 @@
             :card-id="card ? card.id : 'empty-hand-1-' + index"
             :position-type="'hand'"
             :data="card"
-            :selected-card-id="globalStore.selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
@@ -243,6 +242,7 @@
                   : globalStore.clearSelectedCard()
             "
             @spell-cast="handleSpellCast"
+            ref="cardSlots"
           ></CardSlot>
         </div>
 
@@ -254,7 +254,6 @@
             :card-id="card ? card.id : 'empty-hand-2-' + index"
             :position-type="'hand'"
             :data="card"
-            :selected-card-id="globalStore.selectedCard?.id"
             @drag-start="handleDragStart"
             @drag-end="handleDragEnd"
             @card-move="handleCardMove"
@@ -266,6 +265,7 @@
                   : globalStore.clearSelectedCard()
             "
             @spell-cast="handleSpellCast"
+            ref="cardSlots"
           ></CardSlot>
         </div>
       </div>
@@ -625,6 +625,17 @@ const handleSpellCast = (spellCardId: string, targetCardId?: string) => {
     }
   }
   // 清除高亮
+  const clearHighlights = () => {
+    // 调用所有CardSlot组件的restoreCardStyles方法
+    cardSlots.value.forEach((cardSlot: any) => {
+      if (cardSlot && cardSlot.restoreCardStyles) {
+        const cardElement = cardSlot.$refs.cardRef;
+        if (cardElement) {
+          cardSlot.restoreCardStyles(cardElement);
+        }
+      }
+    });
+  };
 };
 
 // 监听卡片位置变化
