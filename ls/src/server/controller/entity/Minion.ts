@@ -18,10 +18,22 @@ export const minion_utils = {
     }
     return result;
   },
+  getKeywords(keywords: string[]): MinionKeyword[] {
+    const key = Object.keys(MinionKeywordCN) as MinionKeyword[];
+    return keywords
+      .map(keyword => {
+        if (key.includes(keyword as MinionKeyword)) {
+          return keyword as MinionKeyword;
+        }
+        return undefined;
+      })
+      .filter(keyword => keyword !== undefined) as MinionKeyword[];
+  },
   initMinionData(minion: Minion, data: any) {
     card_utils.initCardData(minion, data);
     minion.minionTypes = minion_utils.getMinionTypes(data.minionTypes);
     if (data.mechanics && data.mechanics.includes('mechanics')) {
+      minion.keywords = minion_utils.getKeywords(data.mechanics);
       minion.hasBattlecry = true;
     }
     minion.health = data.health;
@@ -36,6 +48,10 @@ export class Minion extends Card {
   // 出售价格（随从默认1）
   sellPrice: number = 1;
 
+  // 关键词
+  keywords: MinionKeyword[] = [];
+  // 临时关键词
+  tempKeywords: MinionKeyword[] = [];
   // 随从类型
   minionTypes: MinionType[] = [];
   // 随从基础生命值
@@ -95,8 +111,18 @@ export class Minion extends Card {
     });
     return result;
   }
+
+  hasKeyword(keyword: MinionKeyword): boolean {
+    return this.keywords.includes(keyword) || this.tempKeywords.includes(keyword);
+  }
+
+  removeKeyword(keyword: MinionKeyword) {
+    this.keywords = this.keywords.filter(k => k !== keyword);
+    this.tempKeywords = this.tempKeywords.filter(k => k !== keyword);
+  }
+
   getKeywords(): MinionKeyword[] {
-    return [];
+    return [...this.keywords, ...this.tempKeywords];
   }
 
   getMinionCnTypes(): string[] {
@@ -163,24 +189,24 @@ export type MinionType = (typeof MINION_TYPES)[number];
  * 随从关键词 - 定义随从的特殊能力
  */
 export type MinionKeyword =
-  | 'taunt' // 嘲讽 - 必须先被攻击
-  | 'divine_shield' // 圣盾 - 免疫第一次伤害
-  | 'windfury' // 风怒 - 每回合可以攻击两次
+  | 'TAUNT' // 嘲讽 - 必须先被攻击
+  | 'DIVINE_SHIELD' // 圣盾 - 免疫第一次伤害
+  | 'WINDFURY' // 风怒 - 每回合可以攻击两次
   | 'super_windfury' // 超级风怒 - 每回合可以攻击多次
-  | 'stealth' // 潜行 - 不会被攻击，除非主动攻击
-  | 'venomous' // 烈毒 - 攻击时消灭目标，只能使用一次
-  | 'poisonous' // 剧毒 - 攻击时消灭目标
-  | 'reborn'; // 复生 - 死亡后以1点生命值复活
+  | 'STEALTH' // 潜行 - 不会被攻击，除非主动攻击
+  | 'VENOMOUS' // 烈毒 - 攻击时消灭目标，只能使用一次
+  | 'POISONOUS' // 剧毒 - 攻击时消灭目标
+  | 'REBORN'; // 复生 - 死亡后以1点生命值复活
 
 export const MinionKeywordCN: Record<MinionKeyword, string> = {
-  taunt: '嘲讽',
-  divine_shield: '圣盾',
-  windfury: '风怒',
+  TAUNT: '嘲讽',
+  DIVINE_SHIELD: '圣盾',
+  WINDFURY: '风怒',
   super_windfury: '超级风怒',
-  stealth: '潜行',
-  venomous: '烈毒',
-  poisonous: '剧毒',
-  reborn: '复生',
+  STEALTH: '潜行',
+  VENOMOUS: '烈毒',
+  POISONOUS: '剧毒',
+  REBORN: '复生',
 };
 
 /**
