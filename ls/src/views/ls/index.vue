@@ -284,6 +284,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import CardSlot from './components/CardSlot.vue';
 import DebugDrawer from './components/DebugDrawer.vue';
 import { Spell } from '@/server/controller/entity/Spell';
+import { Player } from '@/server/controller/entity/Player';
 
 const gameController = new GameController();
 const heroController = new HeroController();
@@ -444,7 +445,10 @@ const handleCardSwap = (cardId: string, targetIndex: number) => {
   minionsInBattle[sourceIndex] = temp;
   minionsInBattle[targetIndex] = source;
   // 保存玩家数据
-  playerController.savePlayerData(currentGameRef.value.id, currentGameRef.value.player);
+  if (!playerData) {
+    throw new Error('当前游戏中没有玩家');
+  }
+  playerController.savePlayerData(currentGameRef.value.id, currentGameRef.value.player as Player);
 };
 // 页面加载时自动随机初始化英雄
 onMounted(async () => {
@@ -624,18 +628,6 @@ const handleSpellCast = (spellCardId: string, targetCardId?: string) => {
       console.log(`[错误] 使用法术失败: ${useCardResult}`);
     }
   }
-  // 清除高亮
-  const clearHighlights = () => {
-    // 调用所有CardSlot组件的restoreCardStyles方法
-    cardSlots.value.forEach((cardSlot: any) => {
-      if (cardSlot && cardSlot.restoreCardStyles) {
-        const cardElement = cardSlot.$refs.cardRef;
-        if (cardElement) {
-          cardSlot.restoreCardStyles(cardElement);
-        }
-      }
-    });
-  };
 };
 
 // 监听卡片位置变化
