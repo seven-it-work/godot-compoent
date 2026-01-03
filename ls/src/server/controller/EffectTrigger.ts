@@ -27,8 +27,12 @@ export class EffectTriggerController {
       throw new Error(`卡片 ${card.strId} 不是随从`);
     }
     const minion = card as Minion;
+    const player = currentGame.player;
+    if (!player) {
+      throw new Error(`当前游戏 ${currentGameId} 未找到玩家`);
+    }
     // 2、触发战吼
-    minion.battlecry(currentGame);
+    minion.battlecry(player);
   }
   /**
    * triggerUseCardAfter
@@ -47,30 +51,27 @@ export class EffectTriggerController {
       throw new Error(`当前游戏 ${currentGameId} 未找到玩家`);
     }
     // 触发使用卡片后事件
-    card.useCardAfter(currentGame);
+    card.useCardAfter(player);
     // 触发使用其他卡片事件
     player.handCards
       .filter(minion => minion !== undefined)
       .forEach(handCard => {
-        handCard.useOtherCardAfter(currentGame, card);
+        handCard.useOtherCardAfter(player, card);
       });
     player.minionsInBattle
       .filter(minion => minion !== undefined)
       .forEach(minion => {
-        minion.useOtherCardAfter(currentGame, card);
+        minion.useOtherCardAfter(player, card);
       });
     player.minionsOnBattlefield
       .filter(minion => minion !== undefined)
       .forEach(minion => {
-        minion.useOtherCardAfter(currentGame, card);
+        minion.useOtherCardAfter(player, card);
       });
     // 随从的特性了
     if (card instanceof Minion) {
-      // 如果有战吼，触发战吼
-      if (card.hasBattlecry) {
-        // 触发战吼
-        this.triggerBattlecry(currentGameId, card);
-      }
+      // 触发战吼
+      this.triggerBattlecry(currentGameId, card);
     }
   }
   /**

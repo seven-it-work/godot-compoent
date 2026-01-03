@@ -1,0 +1,63 @@
+import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+import type { Player } from '@/server/controller/entity/Player';
+
+/**
+ * 南海卖艺者类 - 继承自Minion，实现南海卖艺者的特殊效果
+ */
+export class SouthseaBusker extends Minion {
+  inTavern: boolean = true;
+
+  constructor() {
+    super();
+    minion_utils.initMinionData(this, BASE_DATA);
+  }
+
+  /**
+   * 重写战吼方法
+   * @param player - 玩家实例
+   * 效果：战吼：下回合获得1枚铸币
+   */
+  battlecry(player: Player): void {
+    super.battlecry(player);
+
+    // 下回合获得1枚铸币
+    const extraGold = 1;
+
+    console.log(`南海卖艺者：下回合获得${extraGold}枚铸币`);
+  }
+}
+
+const BASE_DATA = {
+  id: 98501,
+  strId: 'BG26_135',
+  cardType: 'minion',
+  name: 'Southsea Busker',
+  nameCN: '南海卖艺者',
+  text: '<b>战吼：</b>下回合获得1枚铸币。',
+  mechanics: ['BATTLECRY'],
+  referencedTags: [],
+  img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG26_135_battlegroundsImage.png',
+  art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG26_135_cardArtFromHsJson256x.png',
+  tier: 1,
+  health: 1,
+  attack: 3,
+  minionTypes: ['pirate'],
+  minionTypesCN: ['海盗'],
+  upgradeCard: {
+    id: 98502,
+    strId: 'BG26_135_G',
+    cardType: 'minion',
+    name: 'Southsea Busker',
+    nameCN: '南海卖艺者',
+    text: '<b>战吼：</b>下回合获得2枚铸币。',
+    mechanics: ['BATTLECRY'],
+    referencedTags: [],
+    img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG26_135_G_battlegroundsImageGold.png',
+    art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG26_135_G_cardArtFromHsJson256x.png',
+    tier: 1,
+    health: 2,
+    attack: 6,
+    minionTypes: ['pirate'],
+    minionTypesCN: ['海盗'],
+  },
+};

@@ -1,15 +1,18 @@
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+
 /**
  * 甲虫类 - 继承自Minion，实现甲虫随从
  */
 export class Beetle extends Minion {
+  inTavern: boolean = false;
+
   constructor() {
     super();
-    minion_utils.initMinionData(this, data);
+    minion_utils.initMinionData(this, BASE_DATA);
   }
 }
 
-const data = {
+const BASE_DATA = {
   id: 110402,
   strId: 'BG28_603t',
   cardType: 'minion',

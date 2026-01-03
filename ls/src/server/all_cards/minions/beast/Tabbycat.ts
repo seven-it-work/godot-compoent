@@ -1,12 +1,11 @@
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+
 /**
  * 雌斑虎类 - 继承自Minion，实现雌斑虎的基本功能
  */
 export class Tabbycat extends Minion {
-  /**
-   * 雌斑虎构造函数
-   * 设置isTavernMinion为false，因为它是token随从，不会出现在酒馆中
-   */
+  inTavern: boolean = false;
+
   constructor() {
     super();
     minion_utils.initMinionData(this, BASE_DATA);
@@ -22,8 +21,8 @@ const BASE_DATA = {
   text: '',
   mechanics: [],
   referencedTags: [],
-  img: '',
-  art: '',
+  img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG_CFM_315t_battlegroundsImage.png',
+  art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG_CFM_315t_cardArtFromHsJson256x.png',
   tier: 1,
   health: 1,
   attack: 1,
@@ -38,8 +37,8 @@ const BASE_DATA = {
     text: '',
     mechanics: [],
     referencedTags: [],
-    img: '',
-    art: '',
+    img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/TB_BaconUps_093t_imageFromBlizzardSb.png',
+    art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/TB_BaconUps_093t_cardArtFromHsJson256x.png',
     tier: 1,
     health: 2,
     attack: 2,
