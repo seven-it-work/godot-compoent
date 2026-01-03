@@ -13,12 +13,28 @@ export class BattleController {
     // 确定先手方
     const firstAttacker = this.determineFirstAttacker(player, enemy);
 
-    // 记录先手方日志
+    // 记录先手方日志和双方初始状态
     const firstAttackerName = firstAttacker === player ? '玩家' : '敌方';
-    player.addBattleLog(`战斗开始：玩家 vs 敌方`);
-    player.addBattleLog(`先手方：${firstAttackerName}`);
-    enemy.addBattleLog(`战斗开始：玩家 vs 敌方`);
-    enemy.addBattleLog(`先手方：${firstAttackerName}`);
+
+    // 获取双方随从信息
+    const getMinionInfo = (minion: Minion) =>
+      `${minion.name}(${minion.getAttack()}/${minion.getHealth()})`;
+    const playerMinionsInfo = player.minionsOnBattlefield
+      .filter(m => m !== undefined && m !== null)
+      .map(m => getMinionInfo(m as Minion))
+      .join(', ');
+    const enemyMinionsInfo = enemy.minionsOnBattlefield
+      .filter(m => m !== undefined && m !== null)
+      .map(m => getMinionInfo(m as Minion))
+      .join(', ');
+
+    // 记录先手方和双方初始随从列表
+    player.addBattleLog(`【战斗开始】先手方：${firstAttackerName}`);
+    player.addBattleLog(`【初始状态】玩家随从：${playerMinionsInfo || '无'}`);
+    player.addBattleLog(`【初始状态】敌方随从：${enemyMinionsInfo || '无'}`);
+    enemy.addBattleLog(`【战斗开始】先手方：${firstAttackerName}`);
+    enemy.addBattleLog(`【初始状态】玩家随从：${playerMinionsInfo || '无'}`);
+    enemy.addBattleLog(`【初始状态】敌方随从：${enemyMinionsInfo || '无'}`);
 
     // 当前攻击方
     let currentAttacker = firstAttacker;
@@ -74,7 +90,7 @@ export class BattleController {
     enemy.addBattleLog(`========================================`);
 
     // 返回战斗结果
-    return ResultFactory.success(result);
+    return ResultFactory.success('', result);
   }
 
   /**
@@ -210,8 +226,8 @@ export class BattleController {
    * 获取攻击目标
    */
   private getAttackTarget(
-    attacker: Minion,
-    attackerPlayer: Player,
+    _attacker: Minion,
+    _attackerPlayer: Player,
     defenderPlayer: Player
   ): Minion | null {
     // 获取敌方随从列表
@@ -233,7 +249,7 @@ export class BattleController {
     // 2. 如果有嘲讽随从，随机选择一个
     if (tauntMinions.length > 0) {
       const randomIndex = Math.floor(Math.random() * tauntMinions.length);
-      return tauntMinions[randomIndex];
+      return tauntMinions[randomIndex] || null;
     }
 
     // 3. 如果没有嘲讽随从，收集所有可攻击的敌方随从（非潜行、活着）
@@ -250,7 +266,7 @@ export class BattleController {
 
     // 4. 随机选择一个目标
     const randomIndex = Math.floor(Math.random() * validTargets.length);
-    return validTargets[randomIndex];
+    return validTargets[randomIndex] || null;
   }
 
   /**
@@ -263,15 +279,18 @@ export class BattleController {
     defenderPlayer: Player,
     player: Player
   ): void {
-    // 记录攻击日志
-    const attackerName = attackerPlayer === player ? '玩家' : '敌方';
-    const defenderName = defenderPlayer === player ? '玩家' : '敌方';
-    attackerPlayer.addBattleLog(
-      `${attackerName}的${attacker.name}攻击了${defenderName}的${target.name}`
-    );
-    defenderPlayer.addBattleLog(
-      `${attackerName}的${attacker.name}攻击了${defenderName}的${target.name}`
-    );
+    // 获取攻击者和防守方的名称
+    const attackerSide = attackerPlayer === player ? '玩家' : '敌方';
+    const defenderSide = defenderPlayer === player ? '玩家' : '敌方';
+
+    // 构造详细的随从信息
+    const attackerInfo = `${attacker.name}(${attacker.attack}/${attacker.health})`;
+    const targetInfo = `${target.name}(${target.attack}/${target.health})`;
+
+    // 记录攻击日志 - 格式：【玩家】【随从】【动作】【目标】
+    const attackLog = `【${attackerSide}】【${attackerInfo}】【攻击】【${defenderSide}的${targetInfo}】`;
+    attackerPlayer.addBattleLog(attackLog);
+    defenderPlayer.addBattleLog(attackLog);
 
     // 获取攻击力
     const attackerDamage = attacker.getAttack();
@@ -299,12 +318,16 @@ export class BattleController {
     minionPlayer: Player,
     enemyPlayer: Player
   ): void {
+    // 构造详细的随从信息
+    const minionInfo = `${minion.name}(${minion.attack}/${minion.health})`;
+
     // 检查圣盾效果
     if (minion.hasKeyword('DIVINE_SHIELD')) {
       // 圣盾吸收所有伤害
       minion.removeKeyword('DIVINE_SHIELD');
-      minionPlayer.addBattleLog(`${minion.name}的圣盾被打破了！`);
-      enemyPlayer.addBattleLog(`${minion.name}的圣盾被打破了！`);
+      const divineShieldLog = `【效果】【${minionInfo}】【圣盾被打破】【吸收了${damage}点伤害】`;
+      minionPlayer.addBattleLog(divineShieldLog);
+      enemyPlayer.addBattleLog(divineShieldLog);
       return;
     }
 
@@ -312,9 +335,16 @@ export class BattleController {
     const originalHealth = minion.health;
     minion.health = Math.max(0, originalHealth - damage);
 
+    // 构造伤害结果信息
+    const damageResult =
+      minion.health <= 0
+        ? `生命值从${originalHealth}降至${minion.health}（死亡）`
+        : `生命值从${originalHealth}降至${minion.health}`;
+
     // 记录伤害日志
-    minionPlayer.addBattleLog(`${minion.name}受到了${damage}点伤害，剩余生命值: ${minion.health}`);
-    enemyPlayer.addBattleLog(`${minion.name}受到了${damage}点伤害，剩余生命值: ${minion.health}`);
+    const damageLog = `【效果】【${minionInfo}】【受到伤害】【${damage}点伤害，${damageResult}】`;
+    minionPlayer.addBattleLog(damageLog);
+    enemyPlayer.addBattleLog(damageLog);
 
     // 处理死亡
     if (minion.health <= 0) {
@@ -326,9 +356,8 @@ export class BattleController {
    * 处理死亡
    */
   private handleDeath(minion: Minion, minionPlayer: Player, enemyPlayer: Player): void {
-    // 记录死亡日志
-    minionPlayer.addBattleLog(`${minion.name}被杀死了！`);
-    enemyPlayer.addBattleLog(`${minion.name}被杀死了！`);
+    // 构造详细的随从信息
+    const minionInfo = `${minion.name}(${minion.attack}/${minion.health})`;
 
     // 处理复生效果
     if (minion.hasKeyword('REBORN')) {
@@ -336,10 +365,19 @@ export class BattleController {
       minion.removeKeyword('REBORN');
       // 恢复1点生命值
       minion.health = 1;
-      minionPlayer.addBattleLog(`${minion.name}成功复生了！`);
-      enemyPlayer.addBattleLog(`${minion.name}成功复生了！`);
+
+      // 构造复生后的随从信息
+      const rebornMinionInfo = `${minion.name}(${minion.attack}/${minion.health})`;
+      const rebornLog = `【效果】【${minionInfo}】【复生】【恢复至1点生命值，变为${rebornMinionInfo}】`;
+      minionPlayer.addBattleLog(rebornLog);
+      enemyPlayer.addBattleLog(rebornLog);
       return;
     }
+
+    // 记录死亡日志
+    const deathLog = `【效果】【${minionInfo}】【死亡】【被移除出战场】`;
+    minionPlayer.addBattleLog(deathLog);
+    enemyPlayer.addBattleLog(deathLog);
 
     // 处理亡语
     this.handleDeathrattle(minion, minionPlayer, enemyPlayer);
@@ -357,9 +395,13 @@ export class BattleController {
   private handleDeathrattle(minion: Minion, minionPlayer: Player, enemyPlayer: Player): void {
     // 检查是否有亡语效果
     if (minion.effectKeywords.includes('DEATHRATTLE')) {
+      // 构造详细的随从信息
+      const minionInfo = `${minion.name}(${minion.attack}/${minion.health})`;
+
       // 记录亡语日志
-      minionPlayer.addBattleLog(`${minion.name}触发了亡语效果！`);
-      enemyPlayer.addBattleLog(`${minion.name}触发了亡语效果！`);
+      const deathrattleLog = `【效果】【${minionInfo}】【亡语触发】【执行亡语效果】`;
+      minionPlayer.addBattleLog(deathrattleLog);
+      enemyPlayer.addBattleLog(deathrattleLog);
 
       // 调用亡语方法
       minion.deathrattle(minionPlayer);
