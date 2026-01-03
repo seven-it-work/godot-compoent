@@ -1,3 +1,4 @@
+import { CurrentGameController } from '@/server/controller/CurrentGameController';
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
 
@@ -19,11 +20,18 @@ export class DuneDweller extends Minion {
    */
   battlecry(player: Player): void {
     super.battlecry(player);
+    player.elementBonus.atk += 1;
+    player.elementBonus.hp += 1;
+  }
 
-    // 战吼：使酒馆中的元素在本局对战中获得+1/+1
-    console.log('沙丘土著：使酒馆中的元素在本局对战中获得+1/+1');
-
-    console.log('成功为酒馆元素添加+1/+1加成');
+  getTextFormatArr(_currentGameId: string) {
+    const currentGame = new CurrentGameController().getCurrentGameById(_currentGameId);
+    const player = currentGame.player;
+    if (!player) {
+      throw new Error('玩家不存在');
+    }
+    const elementBonus = player.elementBonus;
+    return [(1 + elementBonus.atk).toString(), (1 + elementBonus.hp).toString()];
   }
 }
 

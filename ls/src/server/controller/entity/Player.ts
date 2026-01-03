@@ -3,7 +3,12 @@ import { Hero } from '@/server/controller/entity/Hero';
 import type { Tavern } from '@/server/controller/entity/Tavern';
 import { IdGenerator } from '@/utils/IdGenerator';
 import type { Minion } from './Minion';
+import type { Buff } from './Buff';
 
+/**
+ * 手牌上限
+ */
+const MAX_HAND_CARDS = 10;
 export class Player {
   id: string = IdGenerator.generateRandomId();
   name: string = '';
@@ -15,6 +20,8 @@ export class Player {
   minionsInBattle: (Card | undefined)[] = Array(7).fill(undefined);
   // 手牌
   handCards: (Card | undefined)[] = Array(10).fill(undefined);
+  // 待加入手牌队列
+  handCardsQueue: Card[] = [];
   // 酒馆
   tavern?: Tavern;
   // 是否战斗中
@@ -22,7 +29,10 @@ export class Player {
 
   // 甲虫加成
   beetleBonus: { atk: number; hp: number } = { atk: 0, hp: 0 };
-
+  // 酒馆元素加成
+  elementBonus: { atk: number; hp: number } = { atk: 0, hp: 0 };
+  // 元素加成加成
+  elementBonusBonus: { atk: number; hp: number } = { atk: 0, hp: 0 };
   /**
    * 其他参数
    */
@@ -70,6 +80,34 @@ export class Player {
   }
 
   /**
+   * 添加卡牌到手牌
+   */
+  添加卡牌到手牌(card: Card, 是否加入待加入队列: boolean = false) {
+    card.location = 'hand';
+
+    // 总是找到第一个空位置（undefined或null）
+    const insertPosition = this.handCards.findIndex(card => card === undefined || card === null);
+
+    // 计算当前实际手牌数量
+    const actualHandCount = this.handCards.filter(
+      card => card !== undefined && card !== null
+    ).length;
+
+    // 如果没有空位置且已达手牌上限，返回失败
+    if (insertPosition === -1 && actualHandCount >= MAX_HAND_CARDS) {
+      if (是否加入待加入队列) {
+        this.handCardsQueue.push(card);
+      }
+      return;
+    }
+
+    // 确定最终插入位置
+    const finalPosition = insertPosition === -1 ? this.handCards.length : insertPosition;
+    // 插入卡片
+    this.handCards[finalPosition] = card;
+  }
+
+  /**
    * 添加随从到战场
    */
   添加随从到战场(minion: Minion, targetSlotIndex?: number) {
@@ -92,6 +130,22 @@ export class Player {
     } else {
       this.insertAt(minionsOnBattlefield, targetSlotIndex, minion);
     }
+  }
+
+  /**
+   * 随从永久加成
+   */
+  addMinionPermanentBuff(buff: Buff, minion: Minion) {
+    minion.addBuff(buff);
+    // 从战场中找到随从
+    const findMinion = this.minionsOnBattlefield
+      .filter(temp => temp !== undefined && temp !== null)
+      .find(temp => temp.id === minion.id) as Minion;
+    if (findMinion === undefined || findMinion === null) {
+      console.log('未找到随从');
+      return;
+    }
+    findMinion.addBuff(buff);
   }
 
   /**

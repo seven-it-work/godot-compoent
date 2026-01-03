@@ -31,7 +31,7 @@ export class RazorfenGeomancer extends Minion {
     for (let i = 0; i < gemCount; i++) {
       const bloodGem = db_card.getCardByStrId(bloodGemStrId);
       if (bloodGem) {
-        console.log(`剃刀沼泽地卜师：获取${gemCount}张鲜血宝石`);
+        player.添加卡牌到手牌(bloodGem);
       }
     }
   }

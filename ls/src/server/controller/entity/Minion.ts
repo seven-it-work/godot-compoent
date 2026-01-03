@@ -98,6 +98,12 @@ export class Minion extends Card {
   战斗开始时(_player: Player) {
     this.fightHealth = this.getHealth();
   }
+  /**
+   * 被攻击前触发
+   */
+  onAttacked(_player: Player) {
+    // 子类可以重写此方法
+  }
 
   /**
    * 添加属性加成
@@ -151,6 +157,20 @@ export class Minion extends Card {
 
   hasKeyword(keyword: MinionKeyword): boolean {
     return this.keywords.includes(keyword) || this.tempKeywords.includes(keyword);
+  }
+
+  /**
+   * 检查随从是否具有指定的随从类型
+   * @param types - 要检查的随从类型，可以是单个字符串或字符串数组
+   * @returns 如果随从具有任何指定类型，则返回true，否则返回false
+   */
+  hasMinionType(types: string | string[]): boolean {
+    // 将输入转换为数组
+    const typesArray = Array.isArray(types) ? types : [types];
+    // 将输入类型转换为小写，以便与minionTypes中的类型匹配
+    const lowerTypes = typesArray.map(type => type.toLowerCase());
+    // 检查随从类型是否包含任何指定类型
+    return this.minionTypes.some(type => lowerTypes.includes(type));
   }
 
   removeKeyword(keyword: MinionKeyword) {

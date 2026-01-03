@@ -2,6 +2,7 @@ import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
 import type { Card } from '@/server/controller/entity/Card';
 import { Buff } from '@/server/controller/entity/Buff';
+import { CurrentGameController } from '@/server/controller/CurrentGameController';
 
 /**
  * 熔融岩石类 - 继承自Minion，实现熔融岩石的特殊效果
@@ -20,18 +21,30 @@ export class MoltenRock extends Minion {
    * @param card - 使用的卡牌实例
    * 效果：在你使用一张元素牌后，获得+1生命值
    */
-  useOtherCardAfter(_player: Player, card: Card): void {
+  useOtherCardAfter(player: Player, card: Card): void {
+    if (this.location !== 'battlefield') {
+      return;
+    }
+
     // 检查使用的卡牌是否为元素牌
-    if (card instanceof Minion && card.minionTypes && card.minionTypes.includes('elemental')) {
+    if (card instanceof Minion && card.hasMinionType('elemental')) {
       // 获得生命值加成
-      const healthBonus = 1;
+      const healthBonus = 1 + player.elementBonus.hp;
 
       // 为熔融岩石添加生命值加成
       const buff = new Buff(this.name, 0, healthBonus);
       this.addBuff(buff);
-
-      console.log(`熔融岩石：获得了+${healthBonus}生命值`);
     }
+  }
+
+  getTextFormatArr(_currentGameId: string) {
+    const currentGame = new CurrentGameController().getCurrentGameById(_currentGameId);
+    const player = currentGame.player;
+    if (!player) {
+      throw new Error('玩家不存在');
+    }
+    const elementBonus = player.elementBonus;
+    return [(1 + elementBonus.atk).toString(), (1 + elementBonus.hp).toString()];
   }
 }
 
@@ -41,7 +54,8 @@ const BASE_DATA = {
   cardType: 'minion',
   name: 'Molten Rock',
   nameCN: '熔融岩石',
-  text: '在你使用一张元素牌后，获得+{1}生命值。0在你使用一张元素牌后，获得+{0}/+{1}。',
+  text: '在你使用一张元素牌后，获得+{1}生命值。',
+  updateText: '在你使用一张元素牌后，获得+{0}/+{1}。',
   mechanics: ['TRIGGER_VISUAL'],
   referencedTags: [],
   img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BGS_127_battlegroundsImage.png',

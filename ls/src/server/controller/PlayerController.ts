@@ -9,7 +9,6 @@ import type { Minion } from './entity/Minion';
 import type { Player } from './entity/Player';
 import type { Spell } from './entity/Spell';
 
-const MAX_HAND_CARDS = 10;
 /**
  * 玩家的操作：
  * 升级酒馆
@@ -157,27 +156,8 @@ export class PlayerController {
     if (!player) {
       throw new Error('未找到玩家');
     }
-
-    card.location = 'hand';
-
-    // 总是找到第一个空位置（undefined或null）
-    const insertPosition = player.handCards.findIndex(card => card === undefined || card === null);
-
-    // 计算当前实际手牌数量
-    const actualHandCount = player.handCards.filter(
-      card => card !== undefined && card !== null
-    ).length;
-
-    // 如果没有空位置且已达手牌上限，返回失败
-    if (insertPosition === -1 && actualHandCount >= MAX_HAND_CARDS) {
-      return ResultFactory.fail(`手牌数已达上限（${MAX_HAND_CARDS}）`);
-    }
-
-    // 确定最终插入位置
-    const finalPosition = insertPosition === -1 ? player.handCards.length : insertPosition;
-
-    // 插入卡片
-    player.handCards[finalPosition] = card;
+    // 添加到玩家手牌
+    player.添加卡牌到手牌(card);
     return ResultFactory.success('添加卡片到手牌成功');
   }
   /**

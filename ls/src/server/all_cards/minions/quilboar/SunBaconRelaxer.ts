@@ -29,7 +29,7 @@ export class SunBaconRelaxer extends Minion {
     for (let i = 0; i < gemCount; i++) {
       const bloodGem = db_card.getCardByStrId(bloodGemStrId);
       if (bloodGem) {
-        console.log(`晾膘的游客：获取${gemCount}张鲜血宝石`);
+        _player.添加卡牌到手牌(bloodGem);
       }
     }
   }

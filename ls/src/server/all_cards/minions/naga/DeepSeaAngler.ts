@@ -33,7 +33,8 @@ export class DeepSeaAngler extends Minion {
       if (shapingSpell) {
         // 标记已授予
         this.hasGrantedShapingSpell = true;
-        console.log('深海钓客：已生成塑造法术');
+        // 加入待加入队列
+        _player.添加卡牌到手牌(shapingSpell);
       } else {
         console.error(`深海钓客：无法找到塑造法术，strId: ${shapingSpellStrId}`);
       }

@@ -26,8 +26,6 @@ export class MisfitDragonling extends Minion {
     // 使用Buff类构造函数创建buff
     const buff = new Buff(this.name, attackBonus, healthBonus);
     this.addBuff(buff);
-
-    console.log(`错巢龙崽：获得了+${attackBonus}/+${attackBonus}的属性加成`);
   }
 }
 

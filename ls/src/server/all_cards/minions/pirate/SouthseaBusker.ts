@@ -22,6 +22,11 @@ export class SouthseaBusker extends Minion {
 
     // 下回合获得1枚铸币
     const extraGold = 1;
+    const tavern = player.tavern;
+    if (!tavern) {
+      throw new Error('未找到酒馆');
+    }
+    tavern.extraGold += extraGold;
 
     console.log(`南海卖艺者：下回合获得${extraGold}枚铸币`);
   }

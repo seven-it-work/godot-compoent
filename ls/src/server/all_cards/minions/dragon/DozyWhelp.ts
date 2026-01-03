@@ -1,5 +1,6 @@
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import { Buff } from '@/server/controller/entity/Buff';
+import type { Player } from '@/server/controller/entity/Player';
 
 /**
  * 瞌睡雏龙类 - 继承自Minion，实现瞌睡雏龙的特殊效果
@@ -17,9 +18,10 @@ export class DozyWhelp extends Minion {
    * 效果：每当本随从受到攻击时，永久获得+1攻击力
    */
   // 注意：服务器端的攻击处理机制可能不同，需要根据实际情况调整
-  onAttacked() {
+  onAttacked(player: Player) {
+    super.onAttacked(player);
     // 永久获得+1攻击力
-    this.addBuff(new Buff(this.name, 1, 0));
+    player.addMinionPermanentBuff(new Buff(this.name, 1, 0), this);
   }
 }
 

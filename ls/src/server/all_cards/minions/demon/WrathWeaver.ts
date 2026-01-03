@@ -21,23 +21,14 @@ export class WrathWeaver extends Minion {
    * 效果：在你使用一张恶魔牌后，对你的英雄造成1点伤害并获得+2/+1
    */
   useOtherCardAfter(_player: Player, card: Card): void {
-    console.log('WrathWeaver.useOtherCardAfter被调用');
-    console.log('使用的卡牌:', card.name);
-
+    if (this.location !== 'battlefield') {
+      return;
+    }
     // 愤怒编织者自己的判断条件：检查是否为恶魔牌
-    if (card instanceof Minion && card.minionTypes && card.minionTypes.includes('demon')) {
+    if (card instanceof Minion && card.hasMinionType(['demon'])) {
       console.log('检测到恶魔牌，触发愤怒编织者效果');
-
-      try {
-        // 获得+2/+1 - 使用新的加成系统
-        console.log('愤怒编织者获得+2/+1，当前属性:', this.attack, '/', this.health);
-        this.addBuff(new Buff(this.name, 2, 1));
-        console.log('属性提升后:', this.attack, '/', this.health);
-      } catch (error) {
-        console.error('触发愤怒编织者效果时出错:', error);
-      }
-    } else {
-      console.log('不是恶魔牌，不触发效果');
+      // 获得+2/+1 - 使用新的加成系统
+      this.addBuff(new Buff(this.name, 2, 1));
     }
   }
 }

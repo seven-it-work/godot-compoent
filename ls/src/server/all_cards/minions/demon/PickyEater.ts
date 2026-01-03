@@ -1,7 +1,7 @@
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import { Buff } from '@/server/controller/entity/Buff';
 import type { Player } from '@/server/controller/entity/Player';
-
+import loadsh from 'lodash';
 /**
  * 挑食魔犬类 - 继承自Minion，实现挑食魔犬的特殊效果
  */
@@ -22,10 +22,26 @@ export class PickyEater extends Minion {
     super.battlecry(player);
     // 战吼：随机吞食酒馆中的一个随从，获得其属性值
     console.log('挑食魔犬：随机吞食酒馆中的一个随从，获得其属性值');
-
+    const tavern = player.tavern;
+    if (!tavern) {
+      throw new Error('玩家没有酒馆');
+    }
+    // 如果没有随从 直接返回
+    const minionList = tavern.cards
+      .filter(temp => temp !== undefined)
+      .filter(temp => temp.type === 'minion');
+    if (minionList.length === 0) {
+      console.log('酒馆中没有随从可吞食');
+      return;
+    }
+    // 随机选择一个随从
+    const randomMinion = loadsh.sample(minionList) as Minion;
+    if (!randomMinion) {
+      throw new Error('随机选择的随从不存在');
+    }
     // 简化实现：直接获得固定属性值
-    const attackBonus = 1;
-    const healthBonus = 1;
+    const attackBonus = randomMinion.getAttack();
+    const healthBonus = randomMinion.getHealth();
 
     // 为挑食魔犬添加属性加成
     this.addBuff(new Buff(this.name, attackBonus, healthBonus));
