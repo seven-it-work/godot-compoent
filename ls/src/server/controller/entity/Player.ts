@@ -15,9 +15,9 @@ export class Player {
   // 英雄
   hero?: Hero;
   // 战场上的随从
-  minionsOnBattlefield: (Card | undefined)[] = Array(7).fill(undefined);
+  minionsOnBattlefield: (Minion | undefined)[] = Array(7).fill(undefined);
   // 战斗中的随从
-  minionsInBattle: (Card | undefined)[] = Array(7).fill(undefined);
+  minionsInBattle: (Minion | undefined)[] = Array(7).fill(undefined);
   // 手牌
   handCards: (Card | undefined)[] = Array(10).fill(undefined);
   // 待加入手牌队列
@@ -37,11 +37,23 @@ export class Player {
    * 其他参数
    */
   otherParams: Record<string, any> = {};
+  /**
+   * 战斗日志数组
+   */
+  battleLogs: string[] = [];
+
+  /**
+   * 添加战斗日志
+   * @param log - 战斗日志内容
+   */
+  addBattleLog(log: string): void {
+    this.battleLogs.push(log);
+  }
 
   /**
    * 获取当前战场上的随从数组
    */
-  getMinionsOnBattlefield(): (Card | undefined)[] {
+  getMinionsOnBattlefield(): (Minion | undefined)[] {
     if (this.isInBattle) {
       return this.minionsInBattle;
     } else {
