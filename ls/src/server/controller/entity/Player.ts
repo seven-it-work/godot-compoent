@@ -142,6 +142,17 @@ export class Player {
     } else {
       this.insertAt(minionsOnBattlefield, targetSlotIndex, minion);
     }
+    
+    // 如果是在战斗中，添加战斗日志
+    if (this.isInBattle) {
+      // 构造详细的随从信息
+      const minionInfo = `${minion.nameCN || minion.name}(${minion.attack}/${minion.health})`;
+      
+      // 添加战斗日志，记录随从被添加到战场
+      // 使用"亡语召唤"作为默认的召唤类型，因为大部分情况下在战斗中添加随从都是通过亡语
+      const summonLog = `【效果】【未知来源】【亡语召唤】【${minionInfo}】`;
+      this.addBattleLog(summonLog);
+    }
   }
 
   /**

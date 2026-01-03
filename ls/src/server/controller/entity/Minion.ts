@@ -87,8 +87,11 @@ export class Minion extends Card {
     }
     console.log('执行战吼', this.strId);
   }
-  // 执行亡语
-  deathrattle(_player: Player) {
+  /**
+   * 执行亡语效果
+   * @param player 死亡随从所属的玩家（可以是当前玩家或敌方玩家）
+   */
+  deathrattle(player: Player) {
     if (!this.effectKeywords.includes('DEATHRATTLE')) {
       return;
     }

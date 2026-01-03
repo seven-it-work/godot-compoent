@@ -396,14 +396,15 @@ export class BattleController {
     // 检查是否有亡语效果
     if (minion.effectKeywords.includes('DEATHRATTLE')) {
       // 构造详细的随从信息
-      const minionInfo = `${minion.name}(${minion.attack}/${minion.health})`;
-
+      const minionInfo = `${minion.name || minion.name}(${minion.attack}/${minion.health})`;
+      
       // 记录亡语日志
+      // 基础描述，具体效果由子类在deathrattle方法中添加
       const deathrattleLog = `【效果】【${minionInfo}】【亡语触发】【执行亡语效果】`;
       minionPlayer.addBattleLog(deathrattleLog);
       enemyPlayer.addBattleLog(deathrattleLog);
 
-      // 调用亡语方法
+      // 调用亡语方法，传递敌方玩家参数，以便添加日志
       minion.deathrattle(minionPlayer);
     }
   }

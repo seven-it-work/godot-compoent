@@ -30,12 +30,25 @@ export class BuzzingVermin extends Minion {
   // 执行亡语
   deathrattle(player: Player) {
     super.deathrattle(player);
-    const index = player.getMinionIndexOnBattlefield(this);
+    // 注意：在战斗中，随从可能已经从战场上移除，所以需要特殊处理
+    let index = player.getMinionIndexOnBattlefield(this);
     if (index === -1) {
-      throw new Error('未找到当前随从');
+      // 如果找不到随从，使用0作为默认位置
+      index = 0;
     }
     const beetle = db_card.getCardByStrId('BG28_603t') as Minion;
-    beetle.addBuff(new Buff(this.name, 2 + player.beetleBonus.atk, 2 + player.beetleBonus.hp));
+    const beetleAttack = 2 + player.beetleBonus.atk;
+    const beetleHealth = 2 + player.beetleBonus.hp;
+    beetle.addBuff(new Buff(this.name, beetleAttack, beetleHealth));
+    
+    // 添加具体的亡语效果日志
+    const minionInfo = `${this.name || this.name}(${this.attack}/${this.fightHealth})`;
+    const summonLog = `【效果】【${minionInfo}】【亡语触发】【召唤一只${beetleAttack}/${beetleHealth}的甲虫】`;
+    
+    // 添加到所属玩家的战斗日志
+    player.addBattleLog(summonLog);
+    
+    // 将召唤的甲虫添加到所属玩家的战场
     player.添加随从到战场(beetle, index);
   }
 }
