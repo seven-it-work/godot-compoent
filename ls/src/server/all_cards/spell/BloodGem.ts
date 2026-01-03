@@ -1,7 +1,7 @@
 import { Buff } from '@/server/controller/entity/Buff';
 import { card_utils } from '@/server/controller/entity/Card';
-import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
 import type { Minion } from '@/server/controller/entity/Minion';
+import type { Player } from '@/server/controller/entity/Player';
 import { Spell } from '@/server/controller/entity/Spell';
 
 export class BloodGem extends Spell {
@@ -13,12 +13,8 @@ export class BloodGem extends Spell {
     card_utils.initCardData(this, BASE_DATA);
   }
 
-  useCardAfter(currentGame: CurrentGame) {
-    const player = currentGame.player;
-    if (!player) {
-      throw new Error('未找到玩家');
-    }
-    const targetCard = currentGame.otherParams.targetCard;
+  useCardAfter(player: Player) {
+    const targetCard = player.otherParams.targetCard;
     if (!targetCard) {
       throw new Error('未找到目标卡牌');
     }

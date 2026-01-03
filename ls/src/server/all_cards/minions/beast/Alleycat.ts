@@ -1,5 +1,5 @@
-import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+import { Player } from '@/server/controller/entity/Player';
 import db_card from '@/server/db/db_card';
 
 export class Alleycat extends Minion {
@@ -10,16 +10,8 @@ export class Alleycat extends Minion {
   }
 
   hasBattlecry: boolean = true;
-  battlecry(currentGame: CurrentGame) {
-    super.battlecry(currentGame);
-    // 1、根据currentGameId获取当前游戏实例
-    if (!currentGame) {
-      throw new Error('未找到当前游戏');
-    }
-    const player = currentGame.player;
-    if (!player) {
-      throw new Error('未找到玩家');
-    }
+  battlecry(player: Player) {
+    super.battlecry(player);
     const BG_CFM_315t = db_card.getCardByStrId('BG_CFM_315t');
     if (!BG_CFM_315t) {
       throw new Error('未找到BG_CFM_315t');

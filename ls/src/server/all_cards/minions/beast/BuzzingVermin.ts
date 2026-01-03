@@ -1,7 +1,7 @@
 import { CurrentGameController } from '@/server/controller/CurrentGameController';
 import { Buff } from '@/server/controller/entity/Buff';
-import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+import type { Player } from '@/server/controller/entity/Player';
 import db_card from '@/server/db/db_card';
 
 /**
@@ -28,17 +28,8 @@ export class BuzzingVermin extends Minion {
   }
 
   // 执行亡语
-  deathrattle(currentGame: CurrentGame) {
-    super.deathrattle(currentGame);
-    // 1、根据currentGameId获取当前游戏实例
-    if (!currentGame) {
-      throw new Error('未找到当前游戏');
-    }
-    // 2、获取当前玩家
-    const player = currentGame.player;
-    if (!player) {
-      throw new Error('未找到当前玩家');
-    }
+  deathrattle(player: Player) {
+    super.deathrattle(player);
     const index = player.getMinionIndexOnBattlefield(this);
     if (index === -1) {
       throw new Error('未找到当前随从');

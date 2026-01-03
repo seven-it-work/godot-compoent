@@ -1,5 +1,5 @@
-import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
 import { IdGenerator } from '@/utils/IdGenerator';
+import type { Player } from './Player';
 
 export const card_utils = {
   getTier(tier: number): 1 | 2 | 3 | 4 | 5 | 6 | 7 {
@@ -34,14 +34,14 @@ export class Card {
   // 等级
   tier?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
-  useCardAfter(_currentGame: CurrentGame) {
+  useCardAfter(_player: Player) {
     // 触发使用卡片后事件
     // console.log('触发使用卡片后事件', this.strId);
   }
   /**
    * 监听使用其他卡片事件
    */
-  useOtherCardAfter(_currentGame: CurrentGame, _userCard: Card) {
+  useOtherCardAfter(_player: Player, _userCard: Card) {
     // 触发使用其他卡片后事件
     // console.log(`使用了${_userCard.strId}，触发监听使用其他卡片事件`);
   }

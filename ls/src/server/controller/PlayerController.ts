@@ -283,8 +283,8 @@ export class PlayerController {
         if (!targetCard) {
           return ResultFactory.fail('未找到目标卡牌');
         }
-        currentGame.otherParams.targetCard = targetCard;
-        targetCard.useCardAfter(currentGame);
+        player.otherParams.targetCard = targetCard;
+        targetCard.useCardAfter(player);
       }
     } else {
       console.log('其他卡片类型，待开发');

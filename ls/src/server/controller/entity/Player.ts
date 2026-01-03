@@ -24,6 +24,11 @@ export class Player {
   beetleBonus: { atk: number; hp: number } = { atk: 0, hp: 0 };
 
   /**
+   * 其他参数
+   */
+  otherParams: Record<string, any> = {};
+
+  /**
    * 获取当前战场上的随从数组
    */
   getMinionsOnBattlefield(): (Card | undefined)[] {

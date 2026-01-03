@@ -1,6 +1,6 @@
 import { Card, card_utils } from '@/server/controller/entity/Card';
-import type { CurrentGame } from '@/server/controller/entity/CurrentGame';
 import type { Buff } from './Buff';
+import type { Player } from './Player';
 export const minion_utils = {
   getMinionTypes(minionTypes: string[]): MinionType[] {
     if (minionTypes.length === 0) {
@@ -81,21 +81,21 @@ export class Minion extends Card {
   tempBuffs: Buff[] = [];
 
   // 执行战吼
-  battlecry(_currentGame: CurrentGame) {
+  battlecry(_player: Player) {
     if (!this.effectKeywords.includes('BATTLECRY')) {
       return;
     }
     console.log('执行战吼', this.strId);
   }
   // 执行亡语
-  deathrattle(_currentGame: CurrentGame) {
+  deathrattle(_player: Player) {
     if (!this.effectKeywords.includes('DEATHRATTLE')) {
       return;
     }
     console.log('执行亡语', this.strId);
   }
   // 战斗开始时
-  战斗开始时(_currentGame: CurrentGame) {
+  战斗开始时(_player: Player) {
     this.fightHealth = this.getHealth();
   }
 

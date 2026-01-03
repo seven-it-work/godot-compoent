@@ -28,8 +28,4 @@ export class CurrentGame {
    * 卡片strId value 剩余数量
    */
   minionPool: Map<string, number> = new Map();
-  /**
-   * 其他参数
-   */
-  otherParams: Record<string, any> = {};
 }
