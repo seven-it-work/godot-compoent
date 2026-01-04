@@ -196,7 +196,9 @@ export class Player {
         .filter(temp => temp !== undefined)
         .map(temp => temp.getBattleLogStr())
         .join(',');
-      this.addBattleLog(`【召唤随从】${minion.getBattleLogStr()}，当前随从:[${logStr}]`);
+      this.addBattleLog(
+        `【${this.name}】召唤随从${minion.getBattleLogStr()}，当前随从:[${logStr}]`
+      );
     }
   }
 

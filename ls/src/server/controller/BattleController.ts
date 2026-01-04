@@ -313,7 +313,7 @@ export class BattleController {
   ): void {
     // 检查是否有亡语效果
     if (被攻击的随从.hasEffectKeyword('DEATHRATTLE')) {
-      const deathrattleLog = `${被攻击的随从的玩家.name}的【${被攻击的随从.getBattleLogStr()}】亡语触发：${被攻击的随从.textFormat(被攻击的随从的玩家)}`;
+      const deathrattleLog = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr()}】亡语触发：${被攻击的随从.textFormat(被攻击的随从的玩家)}`;
       攻击随从的玩家.addBattleLog(deathrattleLog);
       被攻击的随从的玩家.addBattleLog(deathrattleLog);
 
