@@ -1,4 +1,3 @@
-import { CurrentGameController } from '@/server/controller/CurrentGameController';
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
 

@@ -2,7 +2,6 @@ import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
 import type { Card } from '@/server/controller/entity/Card';
 import { Buff } from '@/server/controller/entity/Buff';
-import { CurrentGameController } from '@/server/controller/CurrentGameController';
 
 /**
  * 熔融岩石类 - 继承自Minion，实现熔融岩石的特殊效果
