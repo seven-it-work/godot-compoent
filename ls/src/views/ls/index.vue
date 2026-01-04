@@ -190,7 +190,7 @@
               <div class="top-right" v-if="globalStore.selectedCard">
                 <div
                   class="card-description"
-                  v-html="globalStore.selectedCard?.textFormat(currentGameRef.id) || ''"
+                  v-html="globalStore.selectedCard?.textFormat(player as Player) || ''"
                 ></div>
                 <div class="card-actions">
                   <button
@@ -280,11 +280,11 @@ import { HeroController } from '@/server/controller/HeroController';
 import { PlayerController } from '@/server/controller/PlayerController';
 import { Card } from '@/server/controller/entity/Card';
 import { CurrentGame } from '@/server/controller/entity/CurrentGame';
+import { Player } from '@/server/controller/entity/Player';
+import { Spell } from '@/server/controller/entity/Spell';
 import { computed, onMounted, ref, watch } from 'vue';
 import CardSlot from './components/CardSlot.vue';
 import DebugDrawer from './components/DebugDrawer.vue';
-import { Spell } from '@/server/controller/entity/Spell';
-import { Player } from '@/server/controller/entity/Player';
 
 const gameController = new GameController();
 const heroController = new HeroController();

@@ -1,5 +1,7 @@
-import type { Player } from './entity/Player';
+import lodash from 'lodash';
+import db_card from '../db/db_card';
 import { Minion } from './entity/Minion';
+import type { Player } from './entity/Player';
 import { Result, ResultFactory } from './entity/Result';
 
 export class BattleController {
@@ -9,32 +11,12 @@ export class BattleController {
   performBattle(player: Player, enemy: Player): Result {
     // 初始化战斗
     this.initializeBattle(player, enemy);
-
     // 确定先手方
     const firstAttacker = this.determineFirstAttacker(player, enemy);
-
-    // 记录先手方日志和双方初始状态
-    const firstAttackerName = firstAttacker === player ? '玩家' : '敌方';
-
-    // 获取双方随从信息
-    const getMinionInfo = (minion: Minion) =>
-      `${minion.name}(${minion.getAttack()}/${minion.getHealth()})`;
-    const playerMinionsInfo = player.minionsOnBattlefield
-      .filter(m => m !== undefined && m !== null)
-      .map(m => getMinionInfo(m as Minion))
-      .join(', ');
-    const enemyMinionsInfo = enemy.minionsOnBattlefield
-      .filter(m => m !== undefined && m !== null)
-      .map(m => getMinionInfo(m as Minion))
-      .join(', ');
-
     // 记录先手方和双方初始随从列表
-    player.addBattleLog(`【战斗开始】先手方：${firstAttackerName}`);
-    player.addBattleLog(`【初始状态】玩家随从：${playerMinionsInfo || '无'}`);
-    player.addBattleLog(`【初始状态】敌方随从：${enemyMinionsInfo || '无'}`);
-    enemy.addBattleLog(`【战斗开始】先手方：${firstAttackerName}`);
-    enemy.addBattleLog(`【初始状态】玩家随从：${playerMinionsInfo || '无'}`);
-    enemy.addBattleLog(`【初始状态】敌方随从：${enemyMinionsInfo || '无'}`);
+    player.addBattleLog(`【战斗开始】先手方：${firstAttacker.name}`);
+    player.战斗开始时();
+    enemy.战斗开始时();
 
     // 当前攻击方
     let currentAttacker = firstAttacker;
@@ -43,24 +25,28 @@ export class BattleController {
     // 战斗循环
     let round = 1;
     while (!this.checkBattleEnd(player, enemy)) {
-      player.addBattleLog(`\n--- 回合 ${round} 开始 ---`);
-      enemy.addBattleLog(`\n--- 回合 ${round} 开始 ---`);
-
+      player.addBattleLog(`--- 战斗回合 ${round} 开始 ---`);
+      enemy.addBattleLog(`--- 战斗回合 ${round} 开始 ---`);
+      // 检查战斗是否结束
+      if (this.checkBattleEnd(player, enemy)) {
+        break;
+      }
       // 获取可攻击的随从
-      const attackerMinion = this.getAttackMinion(currentAttacker);
-      if (!attackerMinion) {
+      const 攻击的随从 = this.getAttackMinion(currentAttacker);
+      if (!攻击的随从) {
         // 切换攻击方
         [currentAttacker, currentDefender] = [currentDefender, currentAttacker];
         round++;
         continue;
       }
-
+      // 如果有风怒就重复下面的方法
       // 获取攻击目标
-      const target = this.getAttackTarget(attackerMinion, currentAttacker, currentDefender);
-      if (target) {
+      const 被攻击的随从 = this.getAttackTarget(currentDefender);
+      if (被攻击的随从) {
         // 执行攻击
-        this.executeAttack(attackerMinion, target, currentAttacker, currentDefender, player);
+        this.executeAttack(攻击的随从, 被攻击的随从, currentAttacker, currentDefender);
       }
+      // 攻击结束
 
       // 切换攻击方
       [currentAttacker, currentDefender] = [currentDefender, currentAttacker];
@@ -97,33 +83,8 @@ export class BattleController {
    * 初始化战斗
    */
   private initializeBattle(player: Player, enemy: Player): void {
-    // 清空之前的战斗日志
-    player.battleLogs = [];
-    enemy.battleLogs = [];
-
-    // 复制战场随从到战斗随从数组
-    player.minionsInBattle = [...player.minionsOnBattlefield];
-    enemy.minionsInBattle = [...enemy.minionsOnBattlefield];
-
-    // 初始化战斗状态
-    player.isInBattle = true;
-    enemy.isInBattle = true;
-
-    // 重置随从的攻击状态
-    this.resetMinionAttackStatus(player);
-    this.resetMinionAttackStatus(enemy);
-  }
-
-  /**
-   * 重置随从的攻击状态
-   */
-  private resetMinionAttackStatus(player: Player): void {
-    player.minionsInBattle.forEach(minion => {
-      if (minion && minion instanceof Minion) {
-        // @ts-ignore - 添加hasAttacked属性用于跟踪攻击状态
-        minion.hasAttacked = false;
-      }
-    });
+    player.战斗开始前初始化();
+    enemy.战斗开始前初始化();
   }
 
   /**
@@ -183,62 +144,53 @@ export class BattleController {
    * 获取可攻击的随从
    */
   private getAttackMinion(player: Player): Minion | null {
-    // 获取有效的随从
-    const validMinions = player.minionsInBattle.filter(
-      m => m !== undefined && m !== null
-    ) as Minion[];
-    if (validMinions.length === 0) {
-      return null;
-    }
-
-    // 查找可攻击的随从
-    for (const minion of validMinions) {
-      // 检查攻击力是否>0
+    let currentIndex = player.currentFightingMinionIndex;
+    let 是否重置过了 = false;
+    while (true) {
+      const minion = player.minionsInBattle[currentIndex];
+      if (minion === undefined || minion === null) {
+        currentIndex += 1;
+        continue;
+      }
       if (minion.getAttack() <= 0) {
+        currentIndex += 1;
         continue;
       }
-
-      // @ts-ignore - 检查是否已攻击过
       if (minion.hasAttacked) {
+        currentIndex += 1;
         continue;
       }
-
+      if (currentIndex >= player.minionsInBattle.length) {
+        if (!是否重置过了) {
+          // 没有任何随从可以选择了
+          return null;
+        }
+        // 重置索引，从第一个随从开始
+        currentIndex = 0;
+        player.minionsInBattle.forEach(minion => {
+          if (minion !== undefined && minion !== null) {
+            minion.hasAttacked = false;
+          }
+        });
+        是否重置过了 = true;
+      }
       return minion;
     }
-
-    // 所有随从都已攻击过，重置攻击状态
-    validMinions.forEach(minion => {
-      // @ts-ignore
-      minion.hasAttacked = false;
-    });
-
-    // 再次查找可攻击的随从
-    for (const minion of validMinions) {
-      if (minion.getAttack() > 0) {
-        return minion;
-      }
-    }
-
-    return null;
   }
 
   /**
    * 获取攻击目标
    */
-  private getAttackTarget(
-    _attacker: Minion,
-    _attackerPlayer: Player,
-    defenderPlayer: Player
-  ): Minion | null {
+  private getAttackTarget(defenderPlayer: Player): Minion | null {
     // 获取敌方随从列表
-    const enemyMinions = defenderPlayer.minionsInBattle.filter(
-      m => m !== undefined && m !== null
-    ) as Minion[];
+    const enemyMinions = defenderPlayer.minionsInBattle
+      .filter(m => m !== undefined && m !== null)
+      .filter(m => m.getHealth() > 0);
     if (enemyMinions.length === 0) {
       return null;
     }
 
-    // 1. 收集所有有嘲讽且可攻击的随从（非潜行、活着）
+    // 1. 收集所有有嘲讽且可攻击的随从（非潜行）
     const tauntMinions: Minion[] = [];
     for (const minion of enemyMinions) {
       if (minion.hasKeyword('TAUNT') && !minion.hasKeyword('STEALTH')) {
@@ -248,11 +200,10 @@ export class BattleController {
 
     // 2. 如果有嘲讽随从，随机选择一个
     if (tauntMinions.length > 0) {
-      const randomIndex = Math.floor(Math.random() * tauntMinions.length);
-      return tauntMinions[randomIndex] || null;
+      return lodash.sample(tauntMinions) || null;
     }
 
-    // 3. 如果没有嘲讽随从，收集所有可攻击的敌方随从（非潜行、活着）
+    // 3. 如果没有嘲讽随从，收集所有可攻击的敌方随从（非潜行）
     const validTargets: Minion[] = [];
     for (const minion of enemyMinions) {
       if (!minion.hasKeyword('STEALTH')) {
@@ -263,149 +214,131 @@ export class BattleController {
     if (validTargets.length === 0) {
       return null;
     }
-
     // 4. 随机选择一个目标
-    const randomIndex = Math.floor(Math.random() * validTargets.length);
-    return validTargets[randomIndex] || null;
+    return lodash.sample(validTargets) || null;
   }
 
   /**
    * 执行攻击
    */
   private executeAttack(
-    attacker: Minion,
-    target: Minion,
-    attackerPlayer: Player,
-    defenderPlayer: Player,
-    player: Player
+    攻击的随从: Minion,
+    被攻击的随从: Minion,
+    攻击者的玩家: Player,
+    被攻击的随从的玩家: Player
   ): void {
-    // 获取攻击者和防守方的名称
-    const attackerSide = attackerPlayer === player ? '玩家' : '敌方';
-    const defenderSide = defenderPlayer === player ? '玩家' : '敌方';
-
-    // 构造详细的随从信息
-    const attackerInfo = `${attacker.name}(${attacker.attack}/${attacker.health})`;
-    const targetInfo = `${target.name}(${target.attack}/${target.health})`;
-
-    // 记录攻击日志 - 格式：【玩家】【随从】【动作】【目标】
-    const attackLog = `【${attackerSide}】【${attackerInfo}】【攻击】【${defenderSide}的${targetInfo}】`;
-    attackerPlayer.addBattleLog(attackLog);
-    defenderPlayer.addBattleLog(attackLog);
+    const attackLog = `【${攻击者的玩家.name}】的【${攻击的随从.getBattleLogStr()}】对【${被攻击的随从的玩家.name}的${被攻击的随从.getBattleLogStr()}】进行攻击`;
+    攻击者的玩家.addBattleLog(attackLog);
+    被攻击的随从的玩家.addBattleLog(attackLog);
 
     // 获取攻击力
-    const attackerDamage = attacker.getAttack();
-    const targetDamage = target.getAttack();
+    const attackerDamage = 攻击的随从.getAttack();
+    const targetDamage = 被攻击的随从.getAttack();
 
     // 处理被攻击者伤害
-    this.handleDamage(target, attackerDamage, defenderPlayer, attackerPlayer);
+    this.handleDamage(攻击的随从, 被攻击的随从, 攻击者的玩家, 被攻击的随从的玩家, attackerDamage);
 
     // 处理攻击者反伤（如果目标还活着）
-    if (target.health > 0) {
-      this.handleDamage(attacker, targetDamage, attackerPlayer, defenderPlayer);
+    if (被攻击的随从.health > 0) {
+      this.handleDamage(攻击的随从, 被攻击的随从, 攻击者的玩家, 被攻击的随从的玩家, targetDamage);
     }
-
     // 标记攻击者为已攻击
-    // @ts-ignore
-    attacker.hasAttacked = true;
+    攻击的随从.hasAttacked = true;
   }
 
   /**
    * 处理伤害
    */
   private handleDamage(
-    minion: Minion,
-    damage: number,
-    minionPlayer: Player,
-    enemyPlayer: Player
+    攻击的随从: Minion,
+    被攻击的随从: Minion,
+    攻击者的玩家: Player,
+    被攻击的随从的玩家: Player,
+    伤害: number
   ): void {
-    // 构造详细的随从信息
-    const minionInfo = `${minion.name}(${minion.attack}/${minion.health})`;
-
     // 检查圣盾效果
-    if (minion.hasKeyword('DIVINE_SHIELD')) {
+    if (被攻击的随从.hasKeyword('DIVINE_SHIELD')) {
       // 圣盾吸收所有伤害
-      minion.removeKeyword('DIVINE_SHIELD');
-      const divineShieldLog = `【效果】【${minionInfo}】【圣盾被打破】【吸收了${damage}点伤害】`;
-      minionPlayer.addBattleLog(divineShieldLog);
-      enemyPlayer.addBattleLog(divineShieldLog);
+      被攻击的随从.removeKeyword('DIVINE_SHIELD');
+      const divineShieldLog = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr()}】【圣盾被打破】【吸收了${伤害}点伤害】`;
+      被攻击的随从的玩家.addBattleLog(divineShieldLog);
+      攻击者的玩家.addBattleLog(divineShieldLog);
       return;
     }
-
     // 计算伤害
-    const originalHealth = minion.health;
-    minion.health = Math.max(0, originalHealth - damage);
-
-    // 构造伤害结果信息
-    const damageResult =
-      minion.health <= 0
-        ? `生命值从${originalHealth}降至${minion.health}（死亡）`
-        : `生命值从${originalHealth}降至${minion.health}`;
-
+    const originalHealth = 被攻击的随从.getHealth();
+    if (originalHealth <= 0) {
+      // 生命值小于0 无法再减去伤害了
+      return;
+    }
+    被攻击的随从.fightHealth -= 伤害;
     // 记录伤害日志
-    const damageLog = `【效果】【${minionInfo}】【受到伤害】【${damage}点伤害，${damageResult}】`;
-    minionPlayer.addBattleLog(damageLog);
-    enemyPlayer.addBattleLog(damageLog);
+    const damageLog = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr()}】受到${伤害}点伤害，生命值从${originalHealth}降至${被攻击的随从.getHealth()}`;
+    被攻击的随从的玩家.addBattleLog(damageLog);
+    攻击者的玩家.addBattleLog(damageLog);
 
     // 处理死亡
-    if (minion.health <= 0) {
-      this.handleDeath(minion, minionPlayer, enemyPlayer);
+    if (被攻击的随从.health <= 0) {
+      this.handleDeath(攻击的随从, 被攻击的随从, 攻击者的玩家, 被攻击的随从的玩家);
     }
   }
 
   /**
    * 处理死亡
    */
-  private handleDeath(minion: Minion, minionPlayer: Player, enemyPlayer: Player): void {
-    // 构造详细的随从信息
-    const minionInfo = `${minion.name}(${minion.attack}/${minion.health})`;
-
-    // 处理复生效果
-    if (minion.hasKeyword('REBORN')) {
-      // 移除复生关键词
-      minion.removeKeyword('REBORN');
-      // 恢复1点生命值
-      minion.health = 1;
-
-      // 构造复生后的随从信息
-      const rebornMinionInfo = `${minion.name}(${minion.attack}/${minion.health})`;
-      const rebornLog = `【效果】【${minionInfo}】【复生】【恢复至1点生命值，变为${rebornMinionInfo}】`;
-      minionPlayer.addBattleLog(rebornLog);
-      enemyPlayer.addBattleLog(rebornLog);
-      return;
+  private handleDeath(
+    攻击的随从: Minion,
+    被攻击的随从: Minion,
+    攻击随从的玩家: Player,
+    被攻击的随从的玩家: Player
+  ): void {
+    // 先删除被攻击的随从
+    const minionIndex = 被攻击的随从的玩家.getMinionIndexOnBattlefield(被攻击的随从);
+    if (minionIndex === -1) {
+      throw new Error(`无法找到随从 ${被攻击的随从.strId} 在 ${被攻击的随从的玩家.name} 的战场上`);
+    } else {
+      const logStr = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr()}】死亡`;
+      被攻击的随从的玩家.addBattleLog(logStr);
+      攻击随从的玩家.addBattleLog(logStr);
+      被攻击的随从的玩家.minionsInBattle[minionIndex] = undefined;
     }
-
-    // 记录死亡日志
-    const deathLog = `【效果】【${minionInfo}】【死亡】【被移除出战场】`;
-    minionPlayer.addBattleLog(deathLog);
-    enemyPlayer.addBattleLog(deathLog);
-
-    // 处理亡语
-    this.handleDeathrattle(minion, minionPlayer, enemyPlayer);
-
-    // 移除死亡随从
-    const index = minionPlayer.minionsInBattle.findIndex(m => m === minion);
-    if (index !== -1) {
-      minionPlayer.minionsInBattle[index] = undefined;
+    // 触发亡语
+    this.handleDeathrattle(攻击的随从, 被攻击的随从, 攻击随从的玩家, 被攻击的随从的玩家);
+    // 处理复生效果
+    if (被攻击的随从.hasKeyword('REBORN')) {
+      const rebornCard = db_card.getCardByStrId(被攻击的随从.strId) as Minion;
+      if (!rebornCard) {
+        throw new Error(`无法找到随从 ${被攻击的随从.strId} 的卡牌信息`);
+      }
+      // 移除复生关键词
+      rebornCard.removeKeyword('REBORN');
+      // 恢复1点生命值
+      rebornCard.health = 1;
+      const logStr = `【${被攻击的随从的玩家.name}】的【${rebornCard.getBattleLogStr()}】复生`;
+      被攻击的随从的玩家.addBattleLog(logStr);
+      攻击随从的玩家.addBattleLog(logStr);
+      被攻击的随从的玩家.添加随从到战场(rebornCard, minionIndex + 1);
+      return;
     }
   }
 
   /**
    * 处理亡语
    */
-  private handleDeathrattle(minion: Minion, minionPlayer: Player, enemyPlayer: Player): void {
+  private handleDeathrattle(
+    攻击的随从: Minion,
+    被攻击的随从: Minion,
+    攻击随从的玩家: Player,
+    被攻击的随从的玩家: Player
+  ): void {
     // 检查是否有亡语效果
-    if (minion.effectKeywords.includes('DEATHRATTLE')) {
-      // 构造详细的随从信息
-      const minionInfo = `${minion.name || minion.name}(${minion.attack}/${minion.health})`;
-      
-      // 记录亡语日志
-      // 基础描述，具体效果由子类在deathrattle方法中添加
-      const deathrattleLog = `【效果】【${minionInfo}】【亡语触发】【执行亡语效果】`;
-      minionPlayer.addBattleLog(deathrattleLog);
-      enemyPlayer.addBattleLog(deathrattleLog);
+    if (被攻击的随从.hasEffectKeyword('DEATHRATTLE')) {
+      const deathrattleLog = `${被攻击的随从的玩家.name}的【${被攻击的随从.getBattleLogStr()}】亡语触发：${被攻击的随从.getTextFormatArr(被攻击的随从的玩家)}`;
+      攻击随从的玩家.addBattleLog(deathrattleLog);
+      被攻击的随从的玩家.addBattleLog(deathrattleLog);
 
       // 调用亡语方法，传递敌方玩家参数，以便添加日志
-      minion.deathrattle(minionPlayer);
+      被攻击的随从.deathrattle(攻击的随从, 被攻击的随从的玩家);
     }
   }
 

@@ -37,12 +37,7 @@ export class MoltenRock extends Minion {
     }
   }
 
-  getTextFormatArr(_currentGameId: string) {
-    const currentGame = new CurrentGameController().getCurrentGameById(_currentGameId);
-    const player = currentGame.player;
-    if (!player) {
-      throw new Error('玩家不存在');
-    }
+  getTextFormatArr(player: Player) {
     const elementBonus = player.elementBonus;
     return [(1 + elementBonus.atk).toString(), (1 + elementBonus.hp).toString()];
   }

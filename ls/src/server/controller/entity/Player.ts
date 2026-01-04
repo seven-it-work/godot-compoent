@@ -2,8 +2,9 @@ import type { Card } from '@/server/controller/entity/Card';
 import { Hero } from '@/server/controller/entity/Hero';
 import type { Tavern } from '@/server/controller/entity/Tavern';
 import { IdGenerator } from '@/utils/IdGenerator';
-import type { Minion } from './Minion';
+import { cloneDeep } from 'lodash';
 import type { Buff } from './Buff';
+import type { Minion } from './Minion';
 
 /**
  * 手牌上限
@@ -18,6 +19,8 @@ export class Player {
   minionsOnBattlefield: (Minion | undefined)[] = Array(7).fill(undefined);
   // 战斗中的随从
   minionsInBattle: (Minion | undefined)[] = Array(7).fill(undefined);
+  // 当前战斗的随从索引
+  currentFightingMinionIndex: number = 0;
   // 手牌
   handCards: (Card | undefined)[] = Array(10).fill(undefined);
   // 待加入手牌队列
@@ -48,6 +51,47 @@ export class Player {
    */
   addBattleLog(log: string): void {
     this.battleLogs.push(log);
+  }
+
+  /**
+   * 战斗开始前初始化战斗中的随从
+   */
+  战斗开始前初始化() {
+    for (let index = 0; index < this.minionsOnBattlefield.length; index++) {
+      const tempMinion = this.minionsOnBattlefield[index];
+      if (tempMinion) {
+        const temp = cloneDeep(tempMinion);
+        temp.location = 'fighting';
+        temp.hasAttacked = false;
+        this.minionsInBattle[index] = temp;
+      } else {
+        this.minionsInBattle[index] = undefined;
+      }
+    }
+    this.battleLogs = [];
+    this.isInBattle = true;
+    const allMinions = this.minionsInBattle
+      .map(temp => {
+        if (temp) {
+          return temp.getBattleLogStr();
+        }
+        return '';
+      })
+      .join(',');
+
+    this.addBattleLog(`【${this.name}战斗初始化完成】，随从有[${allMinions}]`);
+  }
+
+  /**
+   * 战斗开始时
+   */
+  战斗开始时() {
+    for (let index = 0; index < this.minionsInBattle.length; index++) {
+      const tempMinion = this.minionsInBattle[index];
+      if (tempMinion) {
+        tempMinion.战斗开始时(this);
+      }
+    }
   }
 
   /**
@@ -130,6 +174,9 @@ export class Player {
     }
     if (this.isMinionsOnBattlefieldFull()) {
       console.log('战场满了');
+      if (this.isInBattle) {
+        this.addBattleLog(`【战场满了无法召唤随从】${minion.getBattleLogStr()}`);
+      }
       return;
     }
     const minionsOnBattlefield = this.getMinionsOnBattlefield();
@@ -142,16 +189,12 @@ export class Player {
     } else {
       this.insertAt(minionsOnBattlefield, targetSlotIndex, minion);
     }
-    
-    // 如果是在战斗中，添加战斗日志
     if (this.isInBattle) {
-      // 构造详细的随从信息
-      const minionInfo = `${minion.nameCN || minion.name}(${minion.attack}/${minion.health})`;
-      
-      // 添加战斗日志，记录随从被添加到战场
-      // 使用"亡语召唤"作为默认的召唤类型，因为大部分情况下在战斗中添加随从都是通过亡语
-      const summonLog = `【效果】【未知来源】【亡语召唤】【${minionInfo}】`;
-      this.addBattleLog(summonLog);
+      const logStr = this.minionsInBattle
+        .filter(temp => temp !== undefined)
+        .map(temp => temp.getBattleLogStr())
+        .join(',');
+      this.addBattleLog(`【召唤随从】${minion.getBattleLogStr()}，当前随从:[${logStr}]`);
     }
   }
 

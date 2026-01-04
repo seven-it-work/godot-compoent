@@ -79,6 +79,8 @@ export class Minion extends Card {
   buffs: Buff[] = [];
   // 临时属性加成
   tempBuffs: Buff[] = [];
+  // 是否已攻击
+  hasAttacked: boolean = false;
 
   // 执行战吼
   battlecry(_player: Player) {
@@ -91,7 +93,7 @@ export class Minion extends Card {
    * 执行亡语效果
    * @param player 死亡随从所属的玩家（可以是当前玩家或敌方玩家）
    */
-  deathrattle(player: Player) {
+  deathrattle(_攻击的随从: Minion, _player: Player) {
     if (!this.effectKeywords.includes('DEATHRATTLE')) {
       return;
     }
@@ -176,6 +178,15 @@ export class Minion extends Card {
     return this.minionTypes.some(type => lowerTypes.includes(type));
   }
 
+  /**
+   * 检查随从是否具有指定的效果关键词（战吼、亡语等）
+   * @param keyword - 要检查的效果关键词
+   * @returns 如果随从具有指定的效果关键词，则返回true，否则返回false
+   */
+  hasEffectKeyword(keyword: EffectKeyword): boolean {
+    return this.effectKeywords.includes(keyword);
+  }
+
   removeKeyword(keyword: MinionKeyword) {
     this.keywords = this.keywords.filter(k => k !== keyword);
     this.tempKeywords = this.tempKeywords.filter(k => k !== keyword);
@@ -184,6 +195,10 @@ export class Minion extends Card {
   getKeywords(): MinionKeyword[] {
     console.log('keywords', this.keywords, 'tempKeywords', this.tempKeywords);
     return [...this.keywords, ...this.tempKeywords];
+  }
+
+  getBattleLogStr(): string {
+    return `${this.name}(${this.getAttack()}/${this.getHealth()})`;
   }
 
   getMinionCnTypes(): string[] {

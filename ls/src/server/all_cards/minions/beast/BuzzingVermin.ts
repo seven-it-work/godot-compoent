@@ -1,4 +1,3 @@
-import { CurrentGameController } from '@/server/controller/CurrentGameController';
 import { Buff } from '@/server/controller/entity/Buff';
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
@@ -14,42 +13,34 @@ export class BuzzingVermin extends Minion {
     minion_utils.initMinionData(this, BASE_DATA);
   }
 
-  getTextFormatArr(currentGameId: string): string[] {
-    const currentGame = new CurrentGameController().getCurrentGameById(currentGameId);
-    if (!currentGame) {
-      throw new Error('未找到当前游戏');
-    }
-    const player = currentGame.player;
-    if (!player) {
-      throw new Error('未找到玩家');
-    }
+  getTextFormatArr(player: Player): string[] {
     // 由子类去实现
     return [(2 + player.beetleBonus.atk).toString(), (2 + player.beetleBonus.hp).toString()];
   }
 
   // 执行亡语
-  deathrattle(player: Player) {
-    super.deathrattle(player);
+  deathrattle(_攻击的随从: Minion, _player: Player) {
+    super.deathrattle(_攻击的随从, _player);
     // 注意：在战斗中，随从可能已经从战场上移除，所以需要特殊处理
-    let index = player.getMinionIndexOnBattlefield(this);
+    let index = _player.getMinionIndexOnBattlefield(this);
     if (index === -1) {
       // 如果找不到随从，使用0作为默认位置
       index = 0;
     }
     const beetle = db_card.getCardByStrId('BG28_603t') as Minion;
-    const beetleAttack = 2 + player.beetleBonus.atk;
-    const beetleHealth = 2 + player.beetleBonus.hp;
+    const beetleAttack = 2 + _player.beetleBonus.atk;
+    const beetleHealth = 2 + _player.beetleBonus.hp;
     beetle.addBuff(new Buff(this.name, beetleAttack, beetleHealth));
-    
+
     // 添加具体的亡语效果日志
     const minionInfo = `${this.name || this.name}(${this.attack}/${this.fightHealth})`;
     const summonLog = `【效果】【${minionInfo}】【亡语触发】【召唤一只${beetleAttack}/${beetleHealth}的甲虫】`;
-    
+
     // 添加到所属玩家的战斗日志
-    player.addBattleLog(summonLog);
-    
+    _player.addBattleLog(summonLog);
+
     // 将召唤的甲虫添加到所属玩家的战场
-    player.添加随从到战场(beetle, index);
+    _player.添加随从到战场(beetle, index);
   }
 }
 
