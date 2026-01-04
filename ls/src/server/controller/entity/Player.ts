@@ -212,7 +212,6 @@ export class Player {
       .filter(temp => temp !== undefined && temp !== null)
       .find(temp => temp.id === minion.id) as Minion;
     if (findMinion === undefined || findMinion === null) {
-      console.log('未找到随从');
       return;
     }
     findMinion.addBuff(buff);

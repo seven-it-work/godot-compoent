@@ -267,6 +267,9 @@ export class BattleController {
     攻击者的玩家.addBattleLog(attackLog);
     被攻击的随从的玩家.addBattleLog(attackLog);
 
+    // 攻击前动作
+    被攻击的随从.onAttacked(被攻击的随从的玩家);
+
     // 获取攻击力
     const attackerDamage = 攻击的随从.getAttack();
     const targetDamage = 被攻击的随从.getAttack();

@@ -1,5 +1,5 @@
-import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import { Buff } from '@/server/controller/entity/Buff';
+import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
 
 /**
@@ -17,9 +17,11 @@ export class DozyWhelp extends Minion {
    * 重写受到攻击时触发的方法
    * 效果：每当本随从受到攻击时，永久获得+1攻击力
    */
-  // 注意：服务器端的攻击处理机制可能不同，需要根据实际情况调整
   onAttacked(player: Player) {
     super.onAttacked(player);
+    player.addBattleLog(
+      `【${player.name}】的【${this.getBattleLogStr()}】受到了攻击，永久获得+1攻击力`
+    );
     // 永久获得+1攻击力
     player.addMinionPermanentBuff(new Buff(this.name, 1, 0), this);
   }

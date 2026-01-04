@@ -263,6 +263,8 @@ export type MinionType = (typeof MINION_TYPES)[number];
  * 效果关键词（战吼、亡语）
  * 战吼：BATTLECRY
  * 亡语：DEATHRATTLE
+ * 抉择：CHOOSE_ONE
+ * 磁力：MAGNETIC
  */
 export type EffectKeyword = 'BATTLECRY' | 'DEATHRATTLE' | 'CHOOSE_ONE' | 'MAGNETIC';
 
