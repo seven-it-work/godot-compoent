@@ -30,7 +30,21 @@ export class BattleController {
       enemy.addBattleLog(`--- 战斗回合 ${round} 开始 ---`);
       // 检查战斗是否结束
       if (this.checkBattleEnd(player, enemy)) {
-        break;
+        // 计算战斗结果
+        const winner = this.calculateBattleResult(player, enemy);
+        if (winner) {
+          player.addBattleLog(`【战斗结束】${winner.name}胜利`);
+          enemy.addBattleLog(`【战斗结束】${winner.name}胜利`);
+          return ResultFactory.success(`战斗完成`, {
+            winner: winner,
+          });
+        } else {
+          player.addBattleLog(`【战斗结束】平局`);
+          enemy.addBattleLog(`【战斗结束】平局`);
+          return ResultFactory.success('战斗完成', {
+            winner: undefined,
+          });
+        }
       }
       // 获取可攻击的随从
       const 攻击的随从 = this.getAttackMinion(currentAttacker);
@@ -59,6 +73,44 @@ export class BattleController {
     }
     // 返回战斗结果
     return ResultFactory.success('');
+  }
+
+  /**
+   * 计算战斗结果
+   * 如果双方都有随从，则一定是平局（因为检查战斗已经处理过了）
+   * 如果一方没有随从，则另一方胜利
+   * @param player 玩家
+   * @param enemy 敌人
+   * @returns 战斗结果 平局返回undefined 否则返回胜利者
+   */
+  private calculateBattleResult(player: Player, enemy: Player): Player | undefined {
+    if (!this.checkBattleEnd(player, enemy)) {
+      throw new Error('战斗未结束，不能计算战斗结果');
+    }
+    // 计算剩余随从数量
+    const playerMinionsLeft = player.minionsInBattle.filter(
+      m => m !== undefined && m !== null
+    ).length;
+    const enemyMinionsLeft = enemy.minionsInBattle.filter(
+      m => m !== undefined && m !== null
+    ).length;
+    // 都没有随从 平局
+    if (playerMinionsLeft === 0 && enemyMinionsLeft === 0) {
+      return undefined;
+    }
+    // 都有随从 平局
+    if (playerMinionsLeft !== 0 && enemyMinionsLeft !== 0) {
+      return undefined;
+    }
+    // 一方没有随从 另一方胜利
+    if (playerMinionsLeft === 0) {
+      return enemy;
+    }
+    if (enemyMinionsLeft === 0) {
+      return player;
+    }
+    console.error('未知战斗结果情况');
+    return undefined;
   }
 
   /**
@@ -320,34 +372,5 @@ export class BattleController {
       // 调用亡语方法，传递敌方玩家参数，以便添加日志
       被攻击的随从.deathrattle(攻击的随从, 被攻击的随从的玩家);
     }
-  }
-
-  /**
-   * 计算战斗结果
-   */
-  private calculateBattleResult(player: Player, enemy: Player): any {
-    // 计算剩余随从数量
-    const playerMinionsLeft = player.minionsInBattle.filter(
-      m => m !== undefined && m !== null
-    ).length;
-    const enemyMinionsLeft = enemy.minionsInBattle.filter(
-      m => m !== undefined && m !== null
-    ).length;
-
-    // 确定胜利者
-    let winner: 'player' | 'enemy' | 'draw';
-    if (playerMinionsLeft > enemyMinionsLeft) {
-      winner = 'player';
-    } else if (enemyMinionsLeft > playerMinionsLeft) {
-      winner = 'enemy';
-    } else {
-      winner = 'draw';
-    }
-
-    return {
-      winner,
-      playerMinionsLeft,
-      enemyMinionsLeft,
-    };
   }
 }

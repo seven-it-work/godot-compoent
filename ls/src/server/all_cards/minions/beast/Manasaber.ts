@@ -18,8 +18,8 @@ export class Manasaber extends Minion {
    * @param player - 玩家实例
    * 效果：亡语：召唤两只0/1并具有嘲讽的豹宝宝
    */
-  deathrattle(player: Player): void {
-    super.deathrattle(player);
+  deathrattle(_攻击的随从: Minion, player: Player): void {
+    super.deathrattle(_攻击的随从, player);
     // 根据是否金色决定召唤数量（普通版本2只，金色版本4只）
     const summonCount = 2;
 

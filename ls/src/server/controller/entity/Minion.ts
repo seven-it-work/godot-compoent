@@ -96,7 +96,6 @@ export class Minion extends Card {
     if (!this.effectKeywords.includes('DEATHRATTLE')) {
       return;
     }
-    console.log('执行亡语', this.strId);
   }
   // 战斗开始时
   战斗开始时(_player: Player) {
