@@ -24,7 +24,8 @@ export class BattleController {
 
     // 战斗循环
     let round = 1;
-    while (!this.checkBattleEnd(player, enemy)) {
+    const maxRound = 10;
+    while (true) {
       player.addBattleLog(`--- 战斗回合 ${round} 开始 ---`);
       enemy.addBattleLog(`--- 战斗回合 ${round} 开始 ---`);
       // 检查战斗是否结束
@@ -39,7 +40,7 @@ export class BattleController {
         round++;
         continue;
       }
-      // 如果有风怒就重复下面的方法
+      // todo如果有风怒就重复下面的方法
       // 获取攻击目标
       const 被攻击的随从 = this.getAttackTarget(currentDefender);
       if (被攻击的随从) {
@@ -51,32 +52,13 @@ export class BattleController {
       // 切换攻击方
       [currentAttacker, currentDefender] = [currentDefender, currentAttacker];
       round++;
+      if (round > maxRound) {
+        console.error('战斗进入无限循环，已中断');
+        break;
+      }
     }
-
-    // 计算战斗结果
-    const result = this.calculateBattleResult(player, enemy);
-
-    // 记录战斗结束日志
-    player.addBattleLog(`\n========================================`);
-    player.addBattleLog(
-      `战斗结束：${result.winner === 'player' ? '玩家胜利' : result.winner === 'enemy' ? '敌方胜利' : '平局'}`
-    );
-    player.addBattleLog(
-      `剩余随从：玩家 ${result.playerMinionsLeft} / 敌方 ${result.enemyMinionsLeft}`
-    );
-    player.addBattleLog(`========================================`);
-
-    enemy.addBattleLog(`\n========================================`);
-    enemy.addBattleLog(
-      `战斗结束：${result.winner === 'player' ? '敌方胜利' : result.winner === 'enemy' ? '玩家胜利' : '平局'}`
-    );
-    enemy.addBattleLog(
-      `剩余随从：玩家 ${result.enemyMinionsLeft} / 敌方 ${result.playerMinionsLeft}`
-    );
-    enemy.addBattleLog(`========================================`);
-
     // 返回战斗结果
-    return ResultFactory.success('', result);
+    return ResultFactory.success('');
   }
 
   /**
@@ -147,6 +129,21 @@ export class BattleController {
     let currentIndex = player.currentFightingMinionIndex;
     let 是否重置过了 = false;
     while (true) {
+      if (currentIndex >= player.minionsInBattle.length) {
+        if (是否重置过了) {
+          // 没有任何随从可以选择了
+          return null;
+        }
+        // 重置索引，从第一个随从开始
+        currentIndex = 0;
+        player.minionsInBattle.forEach(minion => {
+          if (minion !== undefined && minion !== null) {
+            minion.hasAttacked = false;
+          }
+        });
+        是否重置过了 = true;
+        continue;
+      }
       const minion = player.minionsInBattle[currentIndex];
       if (minion === undefined || minion === null) {
         currentIndex += 1;
@@ -160,20 +157,7 @@ export class BattleController {
         currentIndex += 1;
         continue;
       }
-      if (currentIndex >= player.minionsInBattle.length) {
-        if (!是否重置过了) {
-          // 没有任何随从可以选择了
-          return null;
-        }
-        // 重置索引，从第一个随从开始
-        currentIndex = 0;
-        player.minionsInBattle.forEach(minion => {
-          if (minion !== undefined && minion !== null) {
-            minion.hasAttacked = false;
-          }
-        });
-        是否重置过了 = true;
-      }
+
       return minion;
     }
   }
@@ -234,14 +218,10 @@ export class BattleController {
     // 获取攻击力
     const attackerDamage = 攻击的随从.getAttack();
     const targetDamage = 被攻击的随从.getAttack();
-
     // 处理被攻击者伤害
     this.handleDamage(攻击的随从, 被攻击的随从, 攻击者的玩家, 被攻击的随从的玩家, attackerDamage);
-
-    // 处理攻击者反伤（如果目标还活着）
-    if (被攻击的随从.health > 0) {
-      this.handleDamage(攻击的随从, 被攻击的随从, 攻击者的玩家, 被攻击的随从的玩家, targetDamage);
-    }
+    // 处理攻击者反伤
+    this.handleDamage(被攻击的随从, 攻击的随从, 被攻击的随从的玩家, 攻击者的玩家, targetDamage);
     // 标记攻击者为已攻击
     攻击的随从.hasAttacked = true;
   }
@@ -278,7 +258,7 @@ export class BattleController {
     攻击者的玩家.addBattleLog(damageLog);
 
     // 处理死亡
-    if (被攻击的随从.health <= 0) {
+    if (被攻击的随从.getHealth() <= 0) {
       this.handleDeath(攻击的随从, 被攻击的随从, 攻击者的玩家, 被攻击的随从的玩家);
     }
   }
@@ -313,7 +293,7 @@ export class BattleController {
       // 移除复生关键词
       rebornCard.removeKeyword('REBORN');
       // 恢复1点生命值
-      rebornCard.health = 1;
+      rebornCard.fightHealth = 1;
       const logStr = `【${被攻击的随从的玩家.name}】的【${rebornCard.getBattleLogStr()}】复生`;
       被攻击的随从的玩家.addBattleLog(logStr);
       攻击随从的玩家.addBattleLog(logStr);
@@ -333,7 +313,7 @@ export class BattleController {
   ): void {
     // 检查是否有亡语效果
     if (被攻击的随从.hasEffectKeyword('DEATHRATTLE')) {
-      const deathrattleLog = `${被攻击的随从的玩家.name}的【${被攻击的随从.getBattleLogStr()}】亡语触发：${被攻击的随从.getTextFormatArr(被攻击的随从的玩家)}`;
+      const deathrattleLog = `${被攻击的随从的玩家.name}的【${被攻击的随从.getBattleLogStr()}】亡语触发：${被攻击的随从.textFormat(被攻击的随从的玩家)}`;
       攻击随从的玩家.addBattleLog(deathrattleLog);
       被攻击的随从的玩家.addBattleLog(deathrattleLog);
 

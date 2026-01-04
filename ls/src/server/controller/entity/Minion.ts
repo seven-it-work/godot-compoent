@@ -19,7 +19,6 @@ export const minion_utils = {
     return result;
   },
   getKeywords(keywords: string[]): MinionKeyword[] {
-    console.log('keywords', keywords);
     const key = Object.keys(MinionKeywordCN) as MinionKeyword[];
     return keywords
       .map(keyword => {

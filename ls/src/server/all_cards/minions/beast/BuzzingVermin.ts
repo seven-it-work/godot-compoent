@@ -28,17 +28,11 @@ export class BuzzingVermin extends Minion {
       index = 0;
     }
     const beetle = db_card.getCardByStrId('BG28_603t') as Minion;
-    const beetleAttack = 2 + _player.beetleBonus.atk;
-    const beetleHealth = 2 + _player.beetleBonus.hp;
-    beetle.addBuff(new Buff(this.name, beetleAttack, beetleHealth));
-
-    // 添加具体的亡语效果日志
-    const minionInfo = `${this.name || this.name}(${this.attack}/${this.fightHealth})`;
-    const summonLog = `【效果】【${minionInfo}】【亡语触发】【召唤一只${beetleAttack}/${beetleHealth}的甲虫】`;
-
-    // 添加到所属玩家的战斗日志
-    _player.addBattleLog(summonLog);
-
+    const beetleAttack = _player.beetleBonus.atk;
+    const beetleHealth = _player.beetleBonus.hp;
+    if (beetleAttack > 0 || beetleHealth > 0) {
+      beetle.addBuff(new Buff(this.name, beetleAttack, beetleHealth));
+    }
     // 将召唤的甲虫添加到所属玩家的战场
     _player.添加随从到战场(beetle, index);
   }

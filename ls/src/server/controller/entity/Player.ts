@@ -61,8 +61,9 @@ export class Player {
       const tempMinion = this.minionsOnBattlefield[index];
       if (tempMinion) {
         const temp = cloneDeep(tempMinion);
-        temp.location = 'fighting';
+        temp.fightHealth = temp.getHealth();
         temp.hasAttacked = false;
+        temp.location = 'fighting';
         this.minionsInBattle[index] = temp;
       } else {
         this.minionsInBattle[index] = undefined;
@@ -168,6 +169,7 @@ export class Player {
    */
   添加随从到战场(minion: Minion, targetSlotIndex?: number) {
     if (this.isInBattle) {
+      minion.fightHealth = minion.getHealth();
       minion.location = 'fighting';
     } else {
       minion.location = 'battlefield';

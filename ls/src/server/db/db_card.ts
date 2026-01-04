@@ -71,7 +71,7 @@ export default {
 
 // 使用 Vite 的 glob 导入功能，获取所有卡片文件
 // 使用动态导入（异步）方式
-const cardFiles = import.meta.glob('@/server/all_cards/**/*.ts');
+const cardFiles = import.meta.glob('@/server/all_cards/**/**/*.ts');
 
 async function dbInit() {
   await loadAllCards();
