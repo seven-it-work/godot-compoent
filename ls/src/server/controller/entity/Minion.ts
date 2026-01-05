@@ -141,7 +141,7 @@ export class Minion extends Card {
     if (player == undefined) {
       debugger;
     }
-    let result = this.attack;
+    let result = this.isGolden ? this.attack * 2 : this.attack;
     if (this.hasMinionType('beast')) {
       result += player.beastBonus.atk;
     }
@@ -165,7 +165,7 @@ export class Minion extends Card {
     if (this.location === 'fighting' && !是否获取生命值上限) {
       return this.fightHealth;
     }
-    let result = this.health;
+    let result = this.isGolden ? this.health * 2 : this.health;
     if (this.hasMinionType('beast')) {
       result += player.beastBonus.hp;
     }

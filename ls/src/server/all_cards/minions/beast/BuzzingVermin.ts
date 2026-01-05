@@ -26,14 +26,16 @@ export class BuzzingVermin extends Minion {
       // 如果找不到随从，使用0作为默认位置
       index = 0;
     }
-    const beetle = _player.getCardByStrId('BG28_603t') as Minion;
-    const beetleAttack = _player.beetleBonus.atk;
-    const beetleHealth = _player.beetleBonus.hp;
-    if (beetleAttack > 0 || beetleHealth > 0) {
-      beetle.addBuff(new Buff(this.name, beetleAttack, beetleHealth));
-    }
     // 将召唤的甲虫添加到所属玩家的战场
-    _player.添加随从到战场(beetle, index);
+    for (let i = 0; i < (this.isGolden ? 2 : 1); i++) {
+      const beetle = _player.getCardByStrId('BG28_603t') as Minion;
+      const beetleAttack = _player.beetleBonus.atk;
+      const beetleHealth = _player.beetleBonus.hp;
+      if (beetleAttack > 0 || beetleHealth > 0) {
+        beetle.addBuff(new Buff(this.name, beetleAttack, beetleHealth));
+      }
+      _player.添加随从到战场(beetle, index);
+    }
   }
 }
 

@@ -13,6 +13,9 @@ export const card_utils = {
     card.strId = data.strId;
     card.name = data.nameCN;
     card.text = data.text;
+    if (data.upgradeCard && data.upgradeCard.text) {
+      card.glodText = data.upgradeCard.text;
+    }
     if (data.tier !== undefined) {
       card.tier = card_utils.getTier(data.tier);
     }
@@ -24,6 +27,7 @@ export class Card {
   strId: string = ''; // 卡片标识
   name: string = '';
   text: string = ''; // 描述
+  glodText: string = ''; // 金色描述
   type?: 'minion' | 'hero' | 'spell';
   // 是否出现在酒馆中
   inTavern: boolean = false;
@@ -57,7 +61,7 @@ export class Card {
 
   textFormat(player: Player): string {
     const values = this.getTextFormatArr(player);
-    return this.text.replace(/{(\d+)}/g, (match, indexStr) => {
+    return (this.isGolden ? this.glodText : this.text).replace(/{(\d+)}/g, (match, indexStr) => {
       const index = parseInt(indexStr, 10);
       return values[index] !== undefined ? values[index].toString() : match; // 保留原占位符
     });

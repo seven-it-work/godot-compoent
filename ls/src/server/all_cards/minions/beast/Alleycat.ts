@@ -20,8 +20,6 @@ export class Alleycat extends Minion {
   battlecry(player: Player): void {
     super.battlecry(player);
     // 战吼：召唤一头1/1的雌斑虎
-    console.log('雄斑虎：召唤一头1/1的雌斑虎');
-
     // 获取雌斑虎的strId
     const tabbycatStrId = 'BG_CFM_315t';
 
@@ -32,6 +30,7 @@ export class Alleycat extends Minion {
       console.error(`无法找到雌斑虎，strId: ${tabbycatStrId}`);
       return;
     }
+    tabbycat.isGolden = this.isGolden;
 
     // 获取当前随从在战场上的位置
     const index = player.getMinionIndexOnBattlefield(this);

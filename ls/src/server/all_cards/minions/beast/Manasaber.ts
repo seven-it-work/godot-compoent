@@ -25,14 +25,15 @@ export class Manasaber extends Minion {
     // 获取豹宝宝的strId
     const cublingStrId = 'BG26_800t';
 
+    // 获取当前随从在战场上的位置
+    const index = player.getMinionIndexOnBattlefield(this);
+
     // 使用 Player 的统一召唤接口
     for (let i = 0; i < summonCount; i++) {
       // 从db_card获取豹宝宝实例
       const cubling = player.getCardByStrId(cublingStrId) as Minion;
-
       if (cubling) {
-        // 获取当前随从在战场上的位置
-        const index = player.getMinionIndexOnBattlefield(this);
+        cubling.isGolden = this.isGolden;
         // 调用玩家的召唤随从方法
         player.添加随从到战场(cubling, index);
       } else {
