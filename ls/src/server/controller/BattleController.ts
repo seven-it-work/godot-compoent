@@ -16,7 +16,23 @@ export class BattleController {
     // 记录先手方和双方初始随从列表
     player.addBattleLog(`【战斗开始】先手方：${firstAttacker.name}`);
     player.战斗开始时();
+    // 如果有立即攻击的随从，先处理它们
+    player
+      .getMinionsOnBattlefield()
+      .filter(minion => minion !== undefined)
+      .filter(minion => minion.isImmediateAttack)
+      .forEach(minion => {
+        this.进行攻击(minion, player, enemy);
+      });
     enemy.战斗开始时();
+    // 如果有立即攻击的随从，先处理它们
+    enemy
+      .getMinionsOnBattlefield()
+      .filter(minion => minion !== undefined)
+      .filter(minion => minion.isImmediateAttack)
+      .forEach(minion => {
+        this.进行攻击(minion, player, enemy);
+      });
 
     // 当前攻击方
     let currentAttacker = firstAttacker;

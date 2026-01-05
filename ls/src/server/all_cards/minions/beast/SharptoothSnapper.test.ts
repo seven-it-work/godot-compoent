@@ -54,4 +54,37 @@ describe('SharptoothSnapper 测试', () => {
     );
     expect(hasPiranhaAttack).toBe(true);
   });
+
+  /**
+   * 双方都是利牙鲷鱼的战斗场景
+   * todo 这里测试出来有死循环的可能 需要看看
+   */
+  it('双方都是利牙鲷鱼的战斗场景', () => {
+    // 为我方添加3只利牙鲷鱼到战场
+    for (let i = 0; i < 7; i++) {
+      const snapper = new SharptoothSnapper();
+      player.添加随从到战场(snapper);
+    }
+
+    // 为敌方添加3只利牙鲷鱼到战场
+    for (let i = 0; i < 7; i++) {
+      const enemySnapper = new SharptoothSnapper();
+      enemy.添加随从到战场(enemySnapper);
+    }
+
+    // 进行战斗
+    const result = battleController.performBattle(player, enemy);
+
+    // 验证战斗正常结束
+    expect(result.isSuccess()).toBe(true);
+
+    // 输出战斗的日志
+    console.log('--------双方都是利牙鲷鱼的战斗场景----------', player.battleLogs);
+
+    // 验证战斗日志中包含食人鱼攻击的信息
+    const hasPiranhaAttack = player.battleLogs.some(
+      log => log.includes('食人鱼') && log.includes('进行攻击')
+    );
+    expect(hasPiranhaAttack).toBe(true);
+  });
 });
