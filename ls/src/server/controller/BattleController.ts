@@ -263,7 +263,7 @@ export class BattleController {
     攻击者的玩家: Player,
     被攻击的随从的玩家: Player
   ): void {
-    const attackLog = `【${攻击者的玩家.name}】的【${攻击的随从.getBattleLogStr()}】对【${被攻击的随从的玩家.name}的${被攻击的随从.getBattleLogStr()}】进行攻击`;
+    const attackLog = `【${攻击者的玩家.name}】的【${攻击的随从.getBattleLogStr(攻击者的玩家)}】对【${被攻击的随从的玩家.name}的${被攻击的随从.getBattleLogStr(被攻击的随从的玩家)}】进行攻击`;
     攻击者的玩家.addBattleLog(attackLog);
     被攻击的随从的玩家.addBattleLog(attackLog);
 
@@ -295,7 +295,7 @@ export class BattleController {
     if (被攻击的随从.hasKeyword('DIVINE_SHIELD')) {
       // 圣盾吸收所有伤害
       被攻击的随从.removeKeyword('DIVINE_SHIELD');
-      const divineShieldLog = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr()}】【圣盾被打破】【吸收了${伤害}点伤害】`;
+      const divineShieldLog = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr(被攻击的随从的玩家)}】【圣盾被打破】【吸收了${伤害}点伤害】`;
       被攻击的随从的玩家.addBattleLog(divineShieldLog);
       攻击者的玩家.addBattleLog(divineShieldLog);
       return;
@@ -308,7 +308,7 @@ export class BattleController {
     }
     被攻击的随从.fightHealth -= 伤害;
     // 记录伤害日志
-    const damageLog = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr()}】受到${伤害}点伤害，生命值从${originalHealth}降至${被攻击的随从.getHealth(被攻击的随从的玩家)}`;
+    const damageLog = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr(被攻击的随从的玩家)}】受到${伤害}点伤害，生命值从${originalHealth}降至${被攻击的随从.getHealth(被攻击的随从的玩家)}`;
     被攻击的随从的玩家.addBattleLog(damageLog);
     攻击者的玩家.addBattleLog(damageLog);
 
@@ -332,7 +332,7 @@ export class BattleController {
     if (minionIndex === -1) {
       throw new Error(`无法找到随从 ${被攻击的随从.strId} 在 ${被攻击的随从的玩家.name} 的战场上`);
     } else {
-      const logStr = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr()}】死亡`;
+      const logStr = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr(被攻击的随从的玩家)}】死亡`;
       被攻击的随从的玩家.addBattleLog(logStr);
       攻击随从的玩家.addBattleLog(logStr);
       被攻击的随从的玩家.minionsInBattle[minionIndex] = undefined;
@@ -351,7 +351,7 @@ export class BattleController {
       rebornCard.removeKeyword('REBORN');
       // 恢复1点生命值
       rebornCard.fightHealth = 1;
-      const logStr = `【${被攻击的随从的玩家.name}】的【${rebornCard.getBattleLogStr()}】复生`;
+      const logStr = `【${被攻击的随从的玩家.name}】的【${rebornCard.getBattleLogStr(被攻击的随从的玩家)}】复生`;
       被攻击的随从的玩家.addBattleLog(logStr);
       攻击随从的玩家.addBattleLog(logStr);
       被攻击的随从的玩家.添加随从到战场(rebornCard, minionIndex + 1);
@@ -370,7 +370,7 @@ export class BattleController {
   ): void {
     // 检查是否有亡语效果
     if (被攻击的随从.hasEffectKeyword('DEATHRATTLE')) {
-      const deathrattleLog = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr()}】亡语触发：${被攻击的随从.textFormat(被攻击的随从的玩家)}`;
+      const deathrattleLog = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr(被攻击的随从的玩家)}】亡语触发：${被攻击的随从.textFormat(被攻击的随从的玩家)}`;
       攻击随从的玩家.addBattleLog(deathrattleLog);
       被攻击的随从的玩家.addBattleLog(deathrattleLog);
 

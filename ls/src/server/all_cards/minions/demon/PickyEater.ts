@@ -1,5 +1,5 @@
-import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import { Buff } from '@/server/controller/entity/Buff';
+import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
 import loadsh from 'lodash';
 /**
@@ -40,8 +40,8 @@ export class PickyEater extends Minion {
       throw new Error('随机选择的随从不存在');
     }
     // 简化实现：直接获得固定属性值
-    const attackBonus = randomMinion.getAttack();
-    const healthBonus = randomMinion.getHealth();
+    const attackBonus = randomMinion.getAttack(player);
+    const healthBonus = randomMinion.getHealth(player);
 
     // 为挑食魔犬添加属性加成
     this.addBuff(new Buff(this.name, attackBonus, healthBonus));

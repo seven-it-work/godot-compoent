@@ -20,7 +20,7 @@ export class DozyWhelp extends Minion {
   onAttacked(player: Player) {
     super.onAttacked(player);
     player.addBattleLog(
-      `【${player.name}】的【${this.getBattleLogStr()}】受到了攻击，永久获得+1攻击力`
+      `【${player.name}】的【${this.getBattleLogStr(player)}】受到了攻击，永久获得+1攻击力`
     );
     // 永久获得+1攻击力
     player.addMinionPermanentBuff(new Buff(this.name, 1, 0), this);

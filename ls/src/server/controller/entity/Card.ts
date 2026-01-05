@@ -13,7 +13,9 @@ export const card_utils = {
     card.strId = data.strId;
     card.name = data.nameCN;
     card.text = data.text;
-    card.tier = card_utils.getTier(data.tier);
+    if (data.tier !== undefined) {
+      card.tier = card_utils.getTier(data.tier);
+    }
   },
 };
 

@@ -23,7 +23,7 @@ describe('Cubling 测试', () => {
     player.添加随从到战场(cloneDeep(cubling));
     enemy.添加随从到战场(cloneDeep(cubling));
     const result = battleController.performBattle(player, enemy);
-    console.log(player.battleLogs);
+    console.log('--测试 Cubling VS Cubling 平局场景--', player.battleLogs);
     expect(result.isSuccess()).toBe(true);
     expect(result.data?.winner).toBe(undefined);
   });

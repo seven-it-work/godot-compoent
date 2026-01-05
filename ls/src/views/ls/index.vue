@@ -157,7 +157,7 @@
                 </div>
                 <div class="card-stats" v-if="globalStore.selectedCard?.type === 'minion'">
                   <span class="attack"
-                    >攻{{ (globalStore.selectedCard as any).getAttack() || 0 }}</span
+                    >攻{{ (globalStore.selectedCard as any).getAttack(player) || 0 }}</span
                   >
                   <span class="health">血{{ (globalStore.selectedCard as any).health || 0 }}</span>
                 </div>

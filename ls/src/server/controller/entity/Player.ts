@@ -67,7 +67,7 @@ export class Player {
       if (tempMinion) {
         const temp = cloneDeep(tempMinion);
         // 注意：这里暂时传递null作为player参数，因为该方法用于初始化战斗中的随从
-        temp.fightHealth = temp.getHealth(null as any);
+        temp.fightHealth = temp.getHealth(this);
         temp.hasAttacked = false;
         temp.location = 'fighting';
         this.minionsInBattle[index] = temp;
@@ -80,7 +80,7 @@ export class Player {
     const allMinions = this.minionsInBattle
       .map(temp => {
         if (temp) {
-          return temp.getBattleLogStr();
+          return temp.getBattleLogStr(this);
         }
         return '';
       })
@@ -213,7 +213,7 @@ export class Player {
     if (this.isMinionsOnBattlefieldFull()) {
       console.log('战场满了');
       if (this.isInBattle) {
-        this.addBattleLog(`【战场满了无法召唤随从】${minion.getBattleLogStr()}`);
+        this.addBattleLog(`【战场满了无法召唤随从】${minion.getBattleLogStr(this)}`);
       }
       return;
     }
@@ -230,10 +230,10 @@ export class Player {
     if (this.isInBattle) {
       const logStr = this.minionsInBattle
         .filter(temp => temp !== undefined)
-        .map(temp => temp.getBattleLogStr())
+        .map(temp => temp.getBattleLogStr(this))
         .join(',');
       this.addBattleLog(
-        `【${this.name}】召唤随从${minion.getBattleLogStr()}，当前随从:[${logStr}]`
+        `【${this.name}】召唤随从${minion.getBattleLogStr(this)}，当前随从:[${logStr}]`
       );
     }
   }

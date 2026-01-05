@@ -20,19 +20,19 @@ describe('DozyWhelp 测试', () => {
 
   it('测试 DozyWhelp 受到攻击时获得+1攻击力', () => {
     // 初始攻击力
-    expect(dozyWhelp.getAttack()).toBe(0);
+    expect(dozyWhelp.getAttack(player)).toBe(0);
 
     // 触发受到攻击的效果
     dozyWhelp.onAttacked(player);
 
     // 验证攻击力增加
-    expect(dozyWhelp.getAttack()).toBe(1);
+    expect(dozyWhelp.getAttack(player)).toBe(1);
 
     // 再次触发受到攻击的效果
     dozyWhelp.onAttacked(player);
 
     // 验证攻击力再次增加
-    expect(dozyWhelp.getAttack()).toBe(2);
+    expect(dozyWhelp.getAttack(player)).toBe(2);
   });
 
   it('测试 DozyWhelp VS DozyWhelp 战斗场景', () => {
@@ -61,6 +61,6 @@ describe('DozyWhelp 测试', () => {
     // 验证战斗正常结束
     expect(result.isSuccess()).toBe(true);
     expect(result.data?.winner).toBe(player);
-    expect(dozyWhelp.getAttack()).toBe(1);
+    expect(dozyWhelp.getAttack(player)).toBe(1);
   });
 });

@@ -24,11 +24,13 @@
       </div>
       <!-- 左下角攻击力 -->
       <div class="corner-badge bottom-left" v-if="data.type === 'minion'">
-        {{ (data as Minion).getAttack() }}
+        <!-- @vue-ignore -->
+        {{ (data as Minion).getAttack(player) }}
       </div>
       <!-- 右下角生命值 -->
       <div class="corner-badge bottom-right" v-if="data.type === 'minion'">
-        {{ (data as Minion).getHealth() }}
+        <!-- @vue-ignore -->
+        {{ (data as Minion).getHealth(player) }}
       </div>
       <!-- 关键词 -->
       <div class="keywords" v-if="data.type === 'minion'">
@@ -49,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, computed, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 import { Card } from '@/server/controller/entity/Card';
 import { Minion, MinionKeywordCN } from '@/server/controller/entity/Minion';

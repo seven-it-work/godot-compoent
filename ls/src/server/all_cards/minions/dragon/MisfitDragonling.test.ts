@@ -27,15 +27,15 @@ describe('MisfitDragonling 测试', () => {
 
   it('测试 MisfitDragonling 战斗开始时效果', () => {
     // 初始攻击力和生命值
-    expect(misfitDragonling.getAttack()).toBe(2);
-    expect(misfitDragonling.getHealth()).toBe(1);
+    expect(misfitDragonling.getAttack(player)).toBe(2);
+    expect(misfitDragonling.getHealth(player)).toBe(1);
 
     // 触发战斗开始时的效果
     misfitDragonling.战斗开始时(player);
 
     // 验证攻击力和生命值增加
-    expect(misfitDragonling.getAttack()).toBe(4);
-    expect(misfitDragonling.getHealth()).toBe(3);
+    expect(misfitDragonling.getAttack(player)).toBe(4);
+    expect(misfitDragonling.getHealth(player)).toBe(3);
   });
 
   it('测试 MisfitDragonling VS MisfitDragonling 战斗场景', () => {

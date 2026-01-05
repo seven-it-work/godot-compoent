@@ -138,6 +138,9 @@ export class Minion extends Card {
    * @returns 随从攻击值
    */
   getAttack(player: Player): number {
+    if (player == undefined) {
+      debugger;
+    }
     let result = this.attack;
     if (this.hasMinionType('beast')) {
       result += player.beastBonus.atk;
@@ -156,11 +159,14 @@ export class Minion extends Card {
   }
 
   getHealth(player: Player, 是否获取生命值上限: boolean = false): number {
+    if (player == undefined) {
+      debugger;
+    }
     if (this.location === 'fighting' && !是否获取生命值上限) {
       return this.fightHealth;
     }
     let result = this.health;
-    if (player && this.hasMinionType('beast')) {
+    if (this.hasMinionType('beast')) {
       result += player.beastBonus.hp;
     }
     this.buffs.forEach(buff => {
@@ -213,9 +219,9 @@ export class Minion extends Card {
     return [...this.keywords, ...this.tempKeywords];
   }
 
-  getBattleLogStr(): string {
+  getBattleLogStr(player: Player): string {
     // 注意：这里暂时传递null作为player参数，因为getBattleLogStr方法主要用于日志记录，不影响核心逻辑
-    return `${this.name}(${this.getAttack(null as any)}/${this.getHealth(null as any)})`;
+    return `${this.name}(${this.getAttack(player)}/${this.getHealth(player)})`;
   }
 
   getMinionCnTypes(): string[] {
