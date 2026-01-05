@@ -39,7 +39,7 @@ describe('HungrySnapjaw 测试', () => {
     // 验证战斗正常结束
     expect(result.isSuccess()).toBe(true);
     // 判断输赢 (undefined平局、否则是胜利者Player对象)
-    expect(result.data).toBe(undefined);
+    expect(result.data.winner).toBe(undefined);
     // 输出战斗的日志 (命名规则必须参考如下)
     console.log('--------哼鸣蜂鸟战场测试用例----------', player.battleLogs);
   });
