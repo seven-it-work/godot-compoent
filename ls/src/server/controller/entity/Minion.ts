@@ -80,6 +80,8 @@ export class Minion extends Card {
   tempBuffs: Buff[] = [];
   // 是否已攻击
   hasAttacked: boolean = false;
+  // 是否立刻攻击
+  isImmediateAttack: boolean = false;
 
   // 执行战吼
   battlecry(_player: Player) {
@@ -97,9 +99,18 @@ export class Minion extends Card {
       return;
     }
   }
+  /**
+   * 友方死亡随从监听
+   * @param _player player
+   */
+  友方死亡随从监听(_player: Player, _死亡的随从: Minion) {}
   // 战斗开始时
   战斗开始时(_player: Player) {
     this.fightHealth = this.getHealth();
+  }
+  // 回合开始时
+  回合开始时(_player: Player) {
+    this.hasAttacked = false;
   }
   /**
    * 被攻击前触发

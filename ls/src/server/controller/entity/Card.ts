@@ -33,6 +33,8 @@ export class Card {
   location?: 'tavern' | 'battlefield' | 'hand' | 'fighting';
   // 等级
   tier?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  // 是否金色
+  isGolden: boolean = false;
 
   useCardAfter(_player: Player) {
     // 触发使用卡片后事件

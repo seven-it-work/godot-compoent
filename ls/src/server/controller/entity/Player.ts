@@ -19,6 +19,8 @@ export class Player {
   minionsOnBattlefield: (Minion | undefined)[] = Array(7).fill(undefined);
   // 战斗中的随从
   minionsInBattle: (Minion | undefined)[] = Array(7).fill(undefined);
+  // 战斗中待召唤的随从队列（如果有空位则召唤，对于这个效果 就是存储在这个队列中）
+  minionsToSummonInBattle: Minion[] = [];
   // 当前战斗的随从索引
   currentFightingMinionIndex: number = 0;
   // 手牌
@@ -36,6 +38,8 @@ export class Player {
   elementBonus: { atk: number; hp: number } = { atk: 0, hp: 0 };
   // 元素加成加成
   elementBonusBonus: { atk: number; hp: number } = { atk: 0, hp: 0 };
+  // 野兽加成
+  beastBonus: { atk: number; hp: number } = { atk: 0, hp: 0 };
   /**
    * 其他参数
    */
@@ -91,6 +95,24 @@ export class Player {
       const tempMinion = this.minionsInBattle[index];
       if (tempMinion) {
         tempMinion.战斗开始时(this);
+      }
+    }
+  }
+  /**
+   * 友方死亡随从监听
+   */
+  友方死亡随从监听(_player: Player, _死亡的随从: Minion) {
+    this.getMinionsOnBattlefield().forEach(minion => {
+      if (minion) {
+        minion.友方死亡随从监听(this, _死亡的随从);
+      }
+    });
+    // 死亡监听完成后，去查看是否有空位，可以 将 minionsToSummonInBattle 中的随从召唤
+    if (this.getMinionsOnBattlefieldCount() < 7 && this.minionsToSummonInBattle.length > 0) {
+      // 有空位
+      const minion = this.minionsToSummonInBattle.shift();
+      if (minion) {
+        this.添加随从到战场(minion);
       }
     }
   }

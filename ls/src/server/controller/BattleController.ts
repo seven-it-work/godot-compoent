@@ -337,6 +337,8 @@ export class BattleController {
       攻击随从的玩家.addBattleLog(logStr);
       被攻击的随从的玩家.minionsInBattle[minionIndex] = undefined;
     }
+    // 调用友方死亡随从监听
+    被攻击的随从的玩家.友方死亡随从监听(被攻击的随从的玩家, 被攻击的随从);
     // 触发亡语
     this.handleDeathrattle(攻击的随从, 被攻击的随从, 攻击随从的玩家, 被攻击的随从的玩家);
     // 处理复生效果
