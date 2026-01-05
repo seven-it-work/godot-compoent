@@ -1,6 +1,5 @@
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
-import db_card from '@/server/db/db_card';
 
 /**
  * 深海钓客类 - 继承自Minion，实现深海钓客的特殊效果
@@ -28,7 +27,7 @@ export class DeepSeaAngler extends Minion {
       const shapingSpellStrId = 'BG23_004t';
 
       // 从db_card获取塑造法术实例
-      const shapingSpell = db_card.getCardByStrId(shapingSpellStrId);
+      const shapingSpell = _player.getCardByStrId(shapingSpellStrId);
 
       if (shapingSpell) {
         // 标记已授予

@@ -1,6 +1,7 @@
 import type { Card } from '@/server/controller/entity/Card';
 import { Hero } from '@/server/controller/entity/Hero';
 import type { Tavern } from '@/server/controller/entity/Tavern';
+import db_card from '@/server/db/db_card';
 import { IdGenerator } from '@/utils/IdGenerator';
 import { cloneDeep } from 'lodash';
 import type { Buff } from './Buff';
@@ -114,6 +115,18 @@ export class Player {
       if (minion) {
         this.添加随从到战场(minion);
       }
+    }
+  }
+
+  /**
+   * 通过strId获取卡牌
+   */
+  getCardByStrId(strId: string): Card {
+    const card = db_card.getCardByStrId(strId);
+    if (card) {
+      return card;
+    } else {
+      throw new Error(`未找到strId为${strId}的卡牌`);
     }
   }
 

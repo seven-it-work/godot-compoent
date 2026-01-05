@@ -1,6 +1,5 @@
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
-import db_card from '@/server/db/db_card';
 
 /**
  * 魔刃豹类 - 继承自Minion，实现魔刃豹的特殊效果
@@ -29,7 +28,7 @@ export class Manasaber extends Minion {
     // 使用 Player 的统一召唤接口
     for (let i = 0; i < summonCount; i++) {
       // 从db_card获取豹宝宝实例
-      const cubling = db_card.getCardByStrId(cublingStrId) as Minion;
+      const cubling = player.getCardByStrId(cublingStrId) as Minion;
 
       if (cubling) {
         // 获取当前随从在战场上的位置

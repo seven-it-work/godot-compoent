@@ -1,6 +1,5 @@
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
-import db_card from '@/server/db/db_card';
 
 /**
  * 拔线机类 - 继承自Minion，实现拔线机的特殊效果
@@ -25,7 +24,7 @@ export class CordPuller extends Minion {
     const microbotStrId = 'BG_BOT_312t';
 
     // 从db_card获取微型机器人实例
-    const microbot = db_card.getCardByStrId(microbotStrId) as Minion;
+    const microbot = player.getCardByStrId(microbotStrId) as Minion;
 
     if (microbot) {
       // 获取当前随从在战场上的位置

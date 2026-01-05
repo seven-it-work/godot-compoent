@@ -1,6 +1,5 @@
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
-import db_card from '@/server/db/db_card';
 
 /**
  * SharptoothSnapper类 - 继承自Minion，实现SharptoothSnapper随从
@@ -14,7 +13,7 @@ export class SharptoothSnapper extends Minion {
   }
 
   战斗开始时(player: Player) {
-    player.minionsToSummonInBattle.push(db_card.getCardByStrId('BG32_201t') as Minion);
+    player.minionsToSummonInBattle.push(player.getCardByStrId('BG32_201t') as Minion);
     super.战斗开始时(player);
   }
 }

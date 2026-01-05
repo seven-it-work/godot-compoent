@@ -1,6 +1,5 @@
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
-import db_card from '@/server/db/db_card';
 
 /**
  * 晾膘的游客类 - 继承自Minion，实现晾膘的游客的特殊效果
@@ -27,7 +26,7 @@ export class SunBaconRelaxer extends Minion {
 
     // 创建并添加鲜血宝石到手牌
     for (let i = 0; i < gemCount; i++) {
-      const bloodGem = db_card.getCardByStrId(bloodGemStrId);
+      const bloodGem = _player.getCardByStrId(bloodGemStrId);
       if (bloodGem) {
         _player.添加卡牌到手牌(bloodGem);
       }

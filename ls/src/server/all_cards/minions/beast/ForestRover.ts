@@ -1,7 +1,6 @@
 import { Buff } from '@/server/controller/entity/Buff';
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
-import db_card from '@/server/db/db_card';
 
 /**
  * ForestRover类 - 继承自Minion，实现ForestRover随从
@@ -46,7 +45,7 @@ export class ForestRover extends Minion {
     // 召唤甲虫
     for (let i = 0; i < summonCount; i++) {
       // 创建新的甲虫实例
-      const newBeetle = db_card.getCardByStrId('BG28_603t') as Minion;
+      const newBeetle = player.getCardByStrId('BG28_603t') as Minion;
       // 计算甲虫的属性加成
       const beetleAttack = player.beetleBonus.atk;
       const beetleHealth = player.beetleBonus.hp;

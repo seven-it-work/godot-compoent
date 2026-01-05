@@ -1,7 +1,6 @@
 import { Buff } from '@/server/controller/entity/Buff';
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
-import db_card from '@/server/db/db_card';
 
 /**
  * 嗡鸣害虫类 - 继承自Minion，实现嗡鸣害虫的特殊效果
@@ -27,7 +26,7 @@ export class BuzzingVermin extends Minion {
       // 如果找不到随从，使用0作为默认位置
       index = 0;
     }
-    const beetle = db_card.getCardByStrId('BG28_603t') as Minion;
+    const beetle = _player.getCardByStrId('BG28_603t') as Minion;
     const beetleAttack = _player.beetleBonus.atk;
     const beetleHealth = _player.beetleBonus.hp;
     if (beetleAttack > 0 || beetleHealth > 0) {

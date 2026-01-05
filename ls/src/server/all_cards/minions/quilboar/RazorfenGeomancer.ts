@@ -1,6 +1,5 @@
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
-import db_card from '@/server/db/db_card';
 
 /**
  * 剃刀沼泽地卜师类 - 继承自Minion，实现剃刀沼泽地卜师的特殊效果
@@ -29,7 +28,7 @@ export class RazorfenGeomancer extends Minion {
 
     // 创建并添加鲜血宝石到手牌
     for (let i = 0; i < gemCount; i++) {
-      const bloodGem = db_card.getCardByStrId(bloodGemStrId);
+      const bloodGem = player.getCardByStrId(bloodGemStrId);
       if (bloodGem) {
         player.添加卡牌到手牌(bloodGem);
       }

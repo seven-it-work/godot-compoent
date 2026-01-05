@@ -1,6 +1,5 @@
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
-import db_card from '@/server/db/db_card';
 
 /**
  * 雄斑虎类 - 继承自Minion，实现雄斑虎的特殊效果
@@ -27,7 +26,7 @@ export class Alleycat extends Minion {
     const tabbycatStrId = 'BG_CFM_315t';
 
     // 从db_card获取雌斑虎实例
-    const tabbycat = db_card.getCardByStrId(tabbycatStrId) as Minion;
+    const tabbycat = player.getCardByStrId(tabbycatStrId) as Minion;
 
     if (!tabbycat) {
       console.error(`无法找到雌斑虎，strId: ${tabbycatStrId}`);

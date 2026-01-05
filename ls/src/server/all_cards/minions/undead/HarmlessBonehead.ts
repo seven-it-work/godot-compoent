@@ -1,6 +1,5 @@
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
-import db_card from '@/server/db/db_card';
 
 /**
  * 无害的骨颅类 - 继承自Minion，实现无害的骨颅的特殊效果
@@ -30,7 +29,7 @@ export class HarmlessBonehead extends Minion {
     // 使用 Player 的统一召唤接口
     for (let i = 0; i < summonCount; i++) {
       // 从db_card获取骷髅实例
-      const skeleton = db_card.getCardByStrId(skeletonStrId) as Minion;
+      const skeleton = player.getCardByStrId(skeletonStrId) as Minion;
 
       if (skeleton) {
         // 获取当前随从在战场上的位置
