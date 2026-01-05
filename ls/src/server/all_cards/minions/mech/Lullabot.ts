@@ -1,6 +1,6 @@
+import { Buff } from '@/server/controller/entity/Buff';
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
-import { Buff } from '@/server/controller/entity/Buff';
 
 /**
  * 催眠机器人类 - 继承自Minion，实现催眠机器人的特殊效果
@@ -22,8 +22,6 @@ export class Lullabot extends Minion {
     // 获得+1生命值
     const buff = new Buff(this.name, 0, 1);
     this.addBuff(buff);
-
-    console.log(`催眠机器人：获得了+1生命值`);
   }
 }
 

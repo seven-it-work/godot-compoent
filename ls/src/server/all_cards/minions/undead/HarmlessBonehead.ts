@@ -18,8 +18,8 @@ export class HarmlessBonehead extends Minion {
    * @param player - 玩家实例
    * 效果：亡语：召唤两个1/1的骷髅
    */
-  deathrattle(player: Player): void {
-    super.deathrattle(player);
+  deathrattle(_攻击的随从: Minion, player: Player): void {
+    super.deathrattle(_攻击的随从, player);
 
     // 亡语：召唤两个1/1的骷髅
     const summonCount = 2;
@@ -35,12 +35,8 @@ export class HarmlessBonehead extends Minion {
       if (skeleton) {
         // 获取当前随从在战场上的位置
         const index = player.getMinionIndexOnBattlefield(this);
-
         // 调用玩家的召唤随从方法
         player.添加随从到战场(skeleton, index);
-
-        // 记录日志
-        console.log(`无害的骨颅：召唤了 ${skeleton.name} (${skeleton.attack}/${skeleton.health})`);
       } else {
         console.error(`无害的骨颅：无法找到骷髅，strId: ${skeletonStrId}`);
         break;

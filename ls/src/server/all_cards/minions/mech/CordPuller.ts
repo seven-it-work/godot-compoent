@@ -18,8 +18,8 @@ export class CordPuller extends Minion {
    * @param player - 玩家实例
    * 效果：亡语：召唤一个1/1的微型机器人
    */
-  deathrattle(player: Player): void {
-    super.deathrattle(player);
+  deathrattle(_攻击的随从: Minion, player: Player): void {
+    super.deathrattle(_攻击的随从, player);
 
     // 获取微型机器人的strId
     const microbotStrId = 'BG_BOT_312t';
@@ -30,12 +30,8 @@ export class CordPuller extends Minion {
     if (microbot) {
       // 获取当前随从在战场上的位置
       const index = player.getMinionIndexOnBattlefield(this);
-
       // 调用玩家的召唤随从方法
       player.添加随从到战场(microbot, index);
-
-      // 记录日志
-      console.log(`拔线机：召唤了 ${microbot.name} (${microbot.attack}/${microbot.health})`);
     } else {
       console.error(`拔线机：无法找到微型机器人，strId: ${microbotStrId}`);
     }

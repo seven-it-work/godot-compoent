@@ -23,6 +23,7 @@ export class MisfitDragonling extends Minion {
     if (tavern === undefined) {
       throw new Error('玩家没有 Tavern');
     }
+
     const level = tavern.level;
     // 为错巢龙崽添加属性加成
     const attackBonus = level;
@@ -30,6 +31,9 @@ export class MisfitDragonling extends Minion {
 
     // 使用Buff类构造函数创建buff
     const buff = new Buff(this.name, attackBonus, healthBonus);
+    _player.addBattleLog(
+      `【${_player.name}】的${this.name}获得${attackBonus}点攻击力，${healthBonus}点生命值`
+    );
     this.addBuff(buff);
     super.战斗开始时(_player);
   }

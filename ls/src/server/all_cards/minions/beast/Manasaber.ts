@@ -34,12 +34,8 @@ export class Manasaber extends Minion {
       if (cubling) {
         // 获取当前随从在战场上的位置
         const index = player.getMinionIndexOnBattlefield(this);
-
         // 调用玩家的召唤随从方法
         player.添加随从到战场(cubling, index);
-
-        // 记录日志
-        console.log(`魔刃豹：召唤了 ${cubling.name} (${cubling.attack}/${cubling.health})`);
       } else {
         console.error(`魔刃豹：无法找到豹宝宝，strId: ${cublingStrId}`);
       }

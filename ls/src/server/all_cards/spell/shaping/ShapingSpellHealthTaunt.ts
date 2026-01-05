@@ -1,6 +1,6 @@
-import { Spell } from '@/server/controller/entity/Spell';
-import type { Minion } from '@/server/controller/entity/Minion';
 import { Buff } from '@/server/controller/entity/Buff';
+import type { Minion } from '@/server/controller/entity/Minion';
+import { Spell } from '@/server/controller/entity/Spell';
 
 /**
  * 塑造法术：强化随从类
@@ -43,9 +43,7 @@ export class ShapingSpellHealthTaunt extends Spell {
       target.addBuff(buff, true);
 
       // 添加嘲讽关键词
-      if (!target.hasKeyword('TAUNT')) {
-        target.tempKeywords.push('TAUNT');
-      }
+      target.tempKeywords.push('TAUNT');
 
       return true;
     } catch (error) {
