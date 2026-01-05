@@ -176,6 +176,11 @@ export class Player {
   移除随从(minion: Minion) {
     const minionIndex = this.getMinionIndexOnBattlefield(minion);
     if (minionIndex === -1) {
+      // 如果找不到随从，可能是因为它还没有被正式添加到战场数组中（比如立即攻击的召唤物）
+      // 这种情况下，我们不需要抛出错误，直接返回即可
+      if (minion.isImmediateAttack) {
+        return;
+      }
       throw new Error(`无法找到随从 ${minion.strId} 在 ${this.name} 的战场上`);
     }
     // 移除前记录一些信息
