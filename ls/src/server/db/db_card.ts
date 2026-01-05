@@ -11,6 +11,13 @@ import { cloneDeep } from 'lodash';
 const db: Map<string, Card> = new Map();
 
 /**
+ * 获取初始化的所有卡牌
+ */
+function getAllCardStrIdList(): string[] {
+  return Array.from(db.keys());
+}
+
+/**
  * 创建卡片
  * @param card 卡片对象
  * @returns 创建的卡片对象
@@ -66,6 +73,7 @@ export default {
   createCard,
   getCardByStrId,
   getMinionsInTavern,
+  getAllCardStrIdList,
 };
 // 下面都是初始化的代码
 

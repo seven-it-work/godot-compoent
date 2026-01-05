@@ -18,6 +18,9 @@ export class HungrySnapjaw extends Minion {
   友方死亡随从监听(_player: Player, _死亡的随从: Minion) {
     if (_死亡的随从.hasMinionType('beast')) {
       _player.addMinionPermanentBuff(new Buff(this.name, 0, this.isGolden ? 2 : 1), this);
+      _player.addBattleLog(
+        `【${this.name}】在一只友方野兽死亡后，永久获得${this.isGolden ? 2 : 1}生命值。【${this.getBattleLogStr(_player)}】`
+      );
     }
   }
 }

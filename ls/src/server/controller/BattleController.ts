@@ -328,15 +328,10 @@ export class BattleController {
     被攻击的随从的玩家: Player
   ): void {
     // 先删除被攻击的随从
-    const minionIndex = 被攻击的随从的玩家.getMinionIndexOnBattlefield(被攻击的随从);
-    if (minionIndex === -1) {
-      throw new Error(`无法找到随从 ${被攻击的随从.strId} 在 ${被攻击的随从的玩家.name} 的战场上`);
-    } else {
-      const logStr = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr(被攻击的随从的玩家)}】死亡`;
-      被攻击的随从的玩家.addBattleLog(logStr);
-      攻击随从的玩家.addBattleLog(logStr);
-      被攻击的随从的玩家.minionsInBattle[minionIndex] = undefined;
-    }
+    被攻击的随从的玩家.移除随从(被攻击的随从);
+    const logStr = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr(被攻击的随从的玩家)}】死亡`;
+    被攻击的随从的玩家.addBattleLog(logStr);
+    攻击随从的玩家.addBattleLog(logStr);
     // 调用友方死亡随从监听
     被攻击的随从的玩家.友方死亡随从监听(被攻击的随从的玩家, 被攻击的随从);
     // 触发亡语
@@ -354,7 +349,10 @@ export class BattleController {
       const logStr = `【${被攻击的随从的玩家.name}】的【${rebornCard.getBattleLogStr(被攻击的随从的玩家)}】复生`;
       被攻击的随从的玩家.addBattleLog(logStr);
       攻击随从的玩家.addBattleLog(logStr);
-      被攻击的随从的玩家.添加随从到战场(rebornCard, minionIndex + 1);
+      被攻击的随从的玩家.添加随从到战场(
+        rebornCard,
+        被攻击的随从的玩家.getMinionIndexOnBattlefield(被攻击的随从) + 1
+      );
       return;
     }
   }

@@ -14,26 +14,16 @@ await db_card.dbInit();
 
 describe('HummingBird 测试', () => {
   let hummingBird: HummingBird;
-
   let player: Player;
-
   let enemy: Player;
-
   let battleController: BattleController;
-
   beforeEach(() => {
     // 初始化真实对象
-
     hummingBird = new HummingBird();
-
     player = new Player();
-
     player.name = 'Test Player';
-
     enemy = new Player();
-
     enemy.name = 'Enemy Player';
-
     battleController = new BattleController();
   });
 

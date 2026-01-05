@@ -163,6 +163,9 @@ export class Player {
    * @returns 索引
    */
   getMinionIndexOnBattlefield(minion: Minion): number {
+    if (minion.removeRattleData && minion.removeRattleData.index !== undefined) {
+      return minion.removeRattleData.index;
+    }
     const minionsOnBattlefield = this.getMinionsOnBattlefield();
     return minionsOnBattlefield.findIndex(card => {
       if (card) {
@@ -170,6 +173,24 @@ export class Player {
       }
       return false;
     });
+  }
+
+  /**
+   * 移除随从
+   * @param minion 要移除的随从
+   * @param attackerPlayer 攻击方玩家（用于添加相同的战斗日志）
+   * @returns 战斗日志字符串
+   */
+  移除随从(minion: Minion) {
+    const minionIndex = this.getMinionIndexOnBattlefield(minion);
+    if (minionIndex === -1) {
+      throw new Error(`无法找到随从 ${minion.strId} 在 ${this.name} 的战场上`);
+    }
+    // 移除前记录一些信息
+    minion.removeRattleData = {
+      index: minionIndex,
+    };
+    this.minionsInBattle[minionIndex] = undefined;
   }
 
   /**

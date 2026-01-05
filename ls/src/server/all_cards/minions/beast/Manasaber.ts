@@ -27,6 +27,9 @@ export class Manasaber extends Minion {
 
     // 获取当前随从在战场上的位置
     const index = player.getMinionIndexOnBattlefield(this);
+    if (index === -1) {
+      throw new Error('无法找到自己在战场上的位置');
+    }
 
     // 使用 Player 的统一召唤接口
     for (let i = 0; i < summonCount; i++) {

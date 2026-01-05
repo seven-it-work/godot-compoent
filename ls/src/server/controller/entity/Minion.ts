@@ -82,6 +82,8 @@ export class Minion extends Card {
   hasAttacked: boolean = false;
   // 是否立刻攻击
   isImmediateAttack: boolean = false;
+  // 移除前需要处理的数据
+  removeRattleData: any = {};
 
   // 执行战吼
   battlecry(_player: Player) {
