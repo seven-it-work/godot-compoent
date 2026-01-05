@@ -13,12 +13,16 @@ export class HummingBird extends Minion {
   }
 
   战斗开始时(player: Player): void {
-    player.beastBonus.atk += 1;
+    // 根据是否为金色版本，给予不同的加成
+    const atkBonus = this.isGolden ? 2 : 1;
+    player.beastBonus.atk += atkBonus;
     super.战斗开始时(player);
   }
 
   回合开始时(player: Player): void {
-    player.beastBonus.atk -= 1;
+    // 根据是否为金色版本，移除不同的加成
+    const atkBonus = this.isGolden ? 2 : 1;
+    player.beastBonus.atk -= atkBonus;
     super.回合开始时(player);
   }
 }

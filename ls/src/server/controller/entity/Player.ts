@@ -4,7 +4,7 @@ import type { Tavern } from '@/server/controller/entity/Tavern';
 import db_card from '@/server/db/db_card';
 import { IdGenerator } from '@/utils/IdGenerator';
 import { cloneDeep } from 'lodash';
-import type { Buff } from './Buff';
+import { Buff } from './Buff';
 import type { Minion } from './Minion';
 
 /**
@@ -66,7 +66,8 @@ export class Player {
       const tempMinion = this.minionsOnBattlefield[index];
       if (tempMinion) {
         const temp = cloneDeep(tempMinion);
-        temp.fightHealth = temp.getHealth();
+        // 注意：这里暂时传递null作为player参数，因为该方法用于初始化战斗中的随从
+        temp.fightHealth = temp.getHealth(null as any);
         temp.hasAttacked = false;
         temp.location = 'fighting';
         this.minionsInBattle[index] = temp;
@@ -204,7 +205,7 @@ export class Player {
    */
   添加随从到战场(minion: Minion, targetSlotIndex?: number) {
     if (this.isInBattle) {
-      minion.fightHealth = minion.getHealth();
+      minion.fightHealth = minion.getHealth(this);
       minion.location = 'fighting';
     } else {
       minion.location = 'battlefield';

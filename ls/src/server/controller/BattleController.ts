@@ -160,8 +160,8 @@ export class BattleController {
     }
 
     // 条件2：如果双方攻击力总和都为0，战斗结束
-    const playerTotalAttack = this.calculateTotalAttack(player.getMinionsOnBattlefield());
-    const enemyTotalAttack = this.calculateTotalAttack(enemy.getMinionsOnBattlefield());
+    const playerTotalAttack = this.calculateTotalAttack(player.getMinionsOnBattlefield(), player);
+    const enemyTotalAttack = this.calculateTotalAttack(enemy.getMinionsOnBattlefield(), enemy);
 
     return playerTotalAttack === 0 && enemyTotalAttack === 0;
   }
@@ -169,9 +169,9 @@ export class BattleController {
   /**
    * 计算随从数组的总攻击力
    */
-  private calculateTotalAttack(minions: (Minion | undefined)[]): number {
+  private calculateTotalAttack(minions: (Minion | undefined)[], player: Player): number {
     const validMinions = minions.filter(m => m !== undefined && m !== null) as Minion[];
-    return validMinions.reduce((sum, minion) => sum + minion.getAttack(), 0);
+    return validMinions.reduce((sum, minion) => sum + minion.getAttack(player), 0);
   }
 
   /**
@@ -201,7 +201,7 @@ export class BattleController {
         currentIndex += 1;
         continue;
       }
-      if (minion.getAttack() <= 0) {
+      if (minion.getAttack(player) <= 0) {
         currentIndex += 1;
         continue;
       }
@@ -221,7 +221,7 @@ export class BattleController {
     // 获取敌方随从列表
     const enemyMinions = defenderPlayer.minionsInBattle
       .filter(m => m !== undefined && m !== null)
-      .filter(m => m.getHealth() > 0);
+      .filter(m => m.getHealth(defenderPlayer) > 0);
     if (enemyMinions.length === 0) {
       return null;
     }
@@ -271,8 +271,8 @@ export class BattleController {
     被攻击的随从.onAttacked(被攻击的随从的玩家);
 
     // 获取攻击力
-    const attackerDamage = 攻击的随从.getAttack();
-    const targetDamage = 被攻击的随从.getAttack();
+    const attackerDamage = 攻击的随从.getAttack(攻击者的玩家);
+    const targetDamage = 被攻击的随从.getAttack(被攻击的随从的玩家);
     // 处理被攻击者伤害
     this.handleDamage(攻击的随从, 被攻击的随从, 攻击者的玩家, 被攻击的随从的玩家, attackerDamage);
     // 处理攻击者反伤
@@ -301,19 +301,19 @@ export class BattleController {
       return;
     }
     // 计算伤害
-    const originalHealth = 被攻击的随从.getHealth();
+    const originalHealth = 被攻击的随从.getHealth(被攻击的随从的玩家);
     if (originalHealth <= 0) {
       // 生命值小于0 无法再减去伤害了
       return;
     }
     被攻击的随从.fightHealth -= 伤害;
     // 记录伤害日志
-    const damageLog = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr()}】受到${伤害}点伤害，生命值从${originalHealth}降至${被攻击的随从.getHealth()}`;
+    const damageLog = `【${被攻击的随从的玩家.name}】的【${被攻击的随从.getBattleLogStr()}】受到${伤害}点伤害，生命值从${originalHealth}降至${被攻击的随从.getHealth(被攻击的随从的玩家)}`;
     被攻击的随从的玩家.addBattleLog(damageLog);
     攻击者的玩家.addBattleLog(damageLog);
 
     // 处理死亡
-    if (被攻击的随从.getHealth() <= 0) {
+    if (被攻击的随从.getHealth(被攻击的随从的玩家) <= 0) {
       this.handleDeath(攻击的随从, 被攻击的随从, 攻击者的玩家, 被攻击的随从的玩家);
     }
   }
