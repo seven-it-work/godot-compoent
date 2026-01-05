@@ -1,0 +1,56 @@
+import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+
+/**
+ * Tad类 - 继承自Minion，实现Tad随从
+ */
+export class Tad extends Minion {
+  inTavern: boolean = true;
+
+  constructor() {
+    super();
+    minion_utils.initMinionData(this, BASE_DATA);
+  }
+}
+
+const BASE_DATA = {
+  "id": 87060,
+  "strId": "BG22_202",
+  "cardType": "minion",
+  "name": "Tad",
+  "nameCN": "塔德",
+  "text": "当你出售本随从时，随机获取一张鱼人牌。",
+  "mechanics": [],
+  "referencedTags": [],
+  "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG22_202_battlegroundsImage.png",
+  "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG22_202_cardArtFromHsJson256x.png",
+  "tier": 2,
+  "health": 2,
+  "attack": 2,
+  "minionTypes": [
+    "murloc"
+  ],
+  "minionTypesCN": [
+    "鱼人"
+  ],
+  "upgradeCard": {
+    "id": 87062,
+    "strId": "BG22_202_G",
+    "cardType": "minion",
+    "name": "Tad",
+    "nameCN": "塔德",
+    "text": "当你出售本随从时，随机获取2张鱼人牌。",
+    "mechanics": [],
+    "referencedTags": [],
+    "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG22_202_G_battlegroundsImageGold.png",
+    "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG22_202_G_cardArtFromHsJson256x.png",
+    "tier": 2,
+    "health": 4,
+    "attack": 4,
+    "minionTypes": [
+      "murloc"
+    ],
+    "minionTypesCN": [
+      "鱼人"
+    ]
+  }
+};

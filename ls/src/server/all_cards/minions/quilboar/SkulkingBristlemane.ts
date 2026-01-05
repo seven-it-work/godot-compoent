@@ -1,0 +1,60 @@
+import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+
+/**
+ * SkulkingBristlemane类 - 继承自Minion，实现SkulkingBristlemane随从
+ */
+export class SkulkingBristlemane extends Minion {
+  inTavern: boolean = true;
+
+  constructor() {
+    super();
+    minion_utils.initMinionData(this, BASE_DATA);
+  }
+}
+
+const BASE_DATA = {
+  "id": 120710,
+  "strId": "BG32_434",
+  "cardType": "minion",
+  "name": "Skulking Bristlemane",
+  "nameCN": "潜藏的刺鬃野猪人",
+  "text": "<b>战斗开始时：</b>对相邻的随从各使用一张<b>鲜血宝石</b>。",
+  "mechanics": [
+    "TRIGGER_VISUAL"
+  ],
+  "referencedTags": [],
+  "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_434_battlegroundsImage.png",
+  "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_434_cardArtFromHsJson256x.png",
+  "tier": 2,
+  "health": 4,
+  "attack": 3,
+  "minionTypes": [
+    "quilboar"
+  ],
+  "minionTypesCN": [
+    "野猪人"
+  ],
+  "upgradeCard": {
+    "id": 120711,
+    "strId": "BG32_434_G",
+    "cardType": "minion",
+    "name": "Skulking Bristlemane",
+    "nameCN": "潜藏的刺鬃野猪人",
+    "text": "<b>战斗开始时：</b>对相邻的随从各使用2张<b>鲜血宝石</b>。",
+    "mechanics": [
+      "TRIGGER_VISUAL"
+    ],
+    "referencedTags": [],
+    "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_434_G_battlegroundsImageGold.png",
+    "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_434_G_cardArtFromHsJson256x.png",
+    "tier": 2,
+    "health": 8,
+    "attack": 6,
+    "minionTypes": [
+      "quilboar"
+    ],
+    "minionTypesCN": [
+      "野猪人"
+    ]
+  }
+};

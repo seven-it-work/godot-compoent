@@ -1,0 +1,60 @@
+import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+
+/**
+ * ShellCollector类 - 继承自Minion，实现ShellCollector随从
+ */
+export class ShellCollector extends Minion {
+  inTavern: boolean = true;
+
+  constructor() {
+    super();
+    minion_utils.initMinionData(this, BASE_DATA);
+  }
+}
+
+const BASE_DATA = {
+  "id": 80740,
+  "strId": "BG23_002",
+  "cardType": "minion",
+  "name": "Shell Collector",
+  "nameCN": "贝类收藏家",
+  "text": "<b>战吼：</b>获取一张铸币牌。",
+  "mechanics": [
+    "BATTLECRY"
+  ],
+  "referencedTags": [],
+  "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG23_002_battlegroundsImage.png",
+  "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG23_002_cardArtFromHsJson256x.png",
+  "tier": 2,
+  "health": 3,
+  "attack": 4,
+  "minionTypes": [
+    "naga"
+  ],
+  "minionTypesCN": [
+    "纳迦"
+  ],
+  "upgradeCard": {
+    "id": 82646,
+    "strId": "BG23_002_G",
+    "cardType": "minion",
+    "name": "Shell Collector",
+    "nameCN": "贝类收藏家",
+    "text": "<b>战吼：</b>获取2张铸币牌。",
+    "mechanics": [
+      "BATTLECRY"
+    ],
+    "referencedTags": [],
+    "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG23_002_G_battlegroundsImageGold.png",
+    "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG23_002_G_cardArtFromHsJson256x.png",
+    "tier": 2,
+    "health": 6,
+    "attack": 8,
+    "minionTypes": [
+      "naga"
+    ],
+    "minionTypesCN": [
+      "纳迦"
+    ]
+  }
+};

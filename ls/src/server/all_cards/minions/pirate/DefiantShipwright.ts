@@ -1,0 +1,60 @@
+import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+
+/**
+ * DefiantShipwright类 - 继承自Minion，实现DefiantShipwright随从
+ */
+export class DefiantShipwright extends Minion {
+  inTavern: boolean = true;
+
+  constructor() {
+    super();
+    minion_utils.initMinionData(this, BASE_DATA);
+  }
+}
+
+const BASE_DATA = {
+  "id": 72061,
+  "strId": "BG21_018",
+  "cardType": "minion",
+  "name": "Defiant Shipwright",
+  "nameCN": "挑衅的船工",
+  "text": "每当本随从获得\n攻击力时，获得+1生命值。",
+  "mechanics": [
+    "TRIGGER_VISUAL"
+  ],
+  "referencedTags": [],
+  "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG21_018_battlegroundsImage.png",
+  "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG21_018_cardArtFromHsJson256x.png",
+  "tier": 2,
+  "health": 5,
+  "attack": 2,
+  "minionTypes": [
+    "pirate"
+  ],
+  "minionTypesCN": [
+    "海盗"
+  ],
+  "upgradeCard": {
+    "id": 74899,
+    "strId": "BG21_018_G",
+    "cardType": "minion",
+    "name": "Defiant Shipwright",
+    "nameCN": "挑衅的船工",
+    "text": "每当本随从获得\n攻击力时，获得+2生命值。",
+    "mechanics": [
+      "TRIGGER_VISUAL"
+    ],
+    "referencedTags": [],
+    "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG21_018_G_battlegroundsImageGold.png",
+    "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG21_018_G_cardArtFromHsJson256x.png",
+    "tier": 2,
+    "health": 10,
+    "attack": 4,
+    "minionTypes": [
+      "pirate"
+    ],
+    "minionTypesCN": [
+      "海盗"
+    ]
+  }
+};

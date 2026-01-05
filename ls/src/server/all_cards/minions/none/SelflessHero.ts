@@ -1,0 +1,64 @@
+import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+
+/**
+ * SelflessHero类 - 继承自Minion，实现SelflessHero随从
+ */
+export class SelflessHero extends Minion {
+  inTavern: boolean = true;
+
+  constructor() {
+    super();
+    minion_utils.initMinionData(this, BASE_DATA);
+  }
+}
+
+const BASE_DATA = {
+  "id": 96769,
+  "strId": "BG_OG_221",
+  "cardType": "minion",
+  "name": "Selfless Hero",
+  "nameCN": "无私的英雄",
+  "text": "<b>亡语：</b>随机使一个友方随从获得<b>圣盾</b>。",
+  "mechanics": [
+    "DEATHRATTLE"
+  ],
+  "referencedTags": [
+    "DIVINE_SHIELD"
+  ],
+  "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG_OG_221_battlegroundsImage.png",
+  "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG_OG_221_cardArtFromHsJson256x.png",
+  "tier": 2,
+  "health": 1,
+  "attack": 2,
+  "minionTypes": [
+    "none"
+  ],
+  "minionTypesCN": [
+    "中立"
+  ],
+  "upgradeCard": {
+    "id": 58143,
+    "strId": "TB_BaconUps_014",
+    "cardType": "minion",
+    "name": "Selfless Hero",
+    "nameCN": "无私的英雄",
+    "text": "<b>亡语：</b>随机使两个友方随从获得<b>圣盾</b>。",
+    "mechanics": [
+      "DEATHRATTLE"
+    ],
+    "referencedTags": [
+      "DIVINE_SHIELD"
+    ],
+    "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/TB_BaconUps_014_battlegroundsImageGold.png",
+    "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/TB_BaconUps_014_cardArtFromHsJson256x.png",
+    "tier": 2,
+    "health": 2,
+    "attack": 4,
+    "minionTypes": [
+      "none"
+    ],
+    "minionTypesCN": [
+      "中立"
+    ]
+  }
+};

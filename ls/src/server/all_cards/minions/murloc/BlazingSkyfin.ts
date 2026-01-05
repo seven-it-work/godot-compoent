@@ -1,0 +1,68 @@
+import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+
+/**
+ * BlazingSkyfin类 - 继承自Minion，实现BlazingSkyfin随从
+ */
+export class BlazingSkyfin extends Minion {
+  inTavern: boolean = true;
+
+  constructor() {
+    super();
+    minion_utils.initMinionData(this, BASE_DATA);
+  }
+}
+
+const BASE_DATA = {
+  "id": 97551,
+  "strId": "BG25_040",
+  "cardType": "minion",
+  "name": "Blazing Skyfin",
+  "nameCN": "烈火飞鱼",
+  "text": "在你触发一个<b>战吼</b>后，获得+1/+1。",
+  "mechanics": [
+    "TRIGGER_VISUAL"
+  ],
+  "referencedTags": [
+    "BATTLECRY"
+  ],
+  "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG25_040_battlegroundsImage.png",
+  "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG25_040_cardArtFromHsJson256x.png",
+  "tier": 2,
+  "health": 4,
+  "attack": 2,
+  "minionTypes": [
+    "murloc",
+    "dragon"
+  ],
+  "minionTypesCN": [
+    "鱼人",
+    "龙"
+  ],
+  "upgradeCard": {
+    "id": 97552,
+    "strId": "BG25_040_G",
+    "cardType": "minion",
+    "name": "Blazing Skyfin",
+    "nameCN": "烈火飞鱼",
+    "text": "在你触发一个<b>战吼</b>后，获得+2/+2。",
+    "mechanics": [
+      "TRIGGER_VISUAL"
+    ],
+    "referencedTags": [
+      "BATTLECRY"
+    ],
+    "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG25_040_G_battlegroundsImageGold.png",
+    "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG25_040_G_cardArtFromHsJson256x.png",
+    "tier": 2,
+    "health": 8,
+    "attack": 4,
+    "minionTypes": [
+      "murloc",
+      "dragon"
+    ],
+    "minionTypesCN": [
+      "鱼人",
+      "龙"
+    ]
+  }
+};

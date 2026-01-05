@@ -1,0 +1,60 @@
+import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+
+/**
+ * NerubianDeathswarmer类 - 继承自Minion，实现NerubianDeathswarmer随从
+ */
+export class NerubianDeathswarmer extends Minion {
+  inTavern: boolean = true;
+
+  constructor() {
+    super();
+    minion_utils.initMinionData(this, BASE_DATA);
+  }
+}
+
+const BASE_DATA = {
+  "id": 95267,
+  "strId": "BG25_011",
+  "cardType": "minion",
+  "name": "Nerubian Deathswarmer",
+  "nameCN": "死亡群居蛛魔",
+  "text": "<b>战吼：</b>在本局对战中，你的亡灵拥有+1攻击力<i>（无论它们在哪）</i>。",
+  "mechanics": [
+    "BATTLECRY"
+  ],
+  "referencedTags": [],
+  "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG25_011_battlegroundsImage.png",
+  "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG25_011_cardArtFromHsJson256x.png",
+  "tier": 2,
+  "health": 4,
+  "attack": 1,
+  "minionTypes": [
+    "undead"
+  ],
+  "minionTypesCN": [
+    "亡灵"
+  ],
+  "upgradeCard": {
+    "id": 95268,
+    "strId": "BG25_011_G",
+    "cardType": "minion",
+    "name": "Nerubian Deathswarmer",
+    "nameCN": "死亡群居蛛魔",
+    "text": "<b>战吼：</b>在本局对战中，你的亡灵拥有+2攻击力<i>（无论它们在哪）</i>。",
+    "mechanics": [
+      "BATTLECRY"
+    ],
+    "referencedTags": [],
+    "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG25_011_G_battlegroundsImageGold.png",
+    "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG25_011_G_cardArtFromHsJson256x.png",
+    "tier": 2,
+    "health": 8,
+    "attack": 2,
+    "minionTypes": [
+      "undead"
+    ],
+    "minionTypesCN": [
+      "亡灵"
+    ]
+  }
+};

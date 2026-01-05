@@ -1,0 +1,56 @@
+import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+
+/**
+ * GrimscaleElegist类 - 继承自Minion，实现GrimscaleElegist随从
+ */
+export class GrimscaleElegist extends Minion {
+  inTavern: boolean = true;
+
+  constructor() {
+    super();
+    minion_utils.initMinionData(this, BASE_DATA);
+  }
+}
+
+const BASE_DATA = {
+  "id": 120679,
+  "strId": "BG32_331",
+  "cardType": "minion",
+  "name": "Grimscale Elegist",
+  "nameCN": "暗鳞哀歌者",
+  "text": "在你的回合结束时，使一个友方随从和你手牌中的一张随从牌获得+1/+1。",
+  "mechanics": [],
+  "referencedTags": [],
+  "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_331_battlegroundsImage.png",
+  "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_331_cardArtFromHsJson256x.png",
+  "tier": 2,
+  "health": 2,
+  "attack": 3,
+  "minionTypes": [
+    "murloc"
+  ],
+  "minionTypesCN": [
+    "鱼人"
+  ],
+  "upgradeCard": {
+    "id": 120680,
+    "strId": "BG32_331_G",
+    "cardType": "minion",
+    "name": "Grimscale Elegist",
+    "nameCN": "暗鳞哀歌者",
+    "text": "在你的回合结束时，使一个友方随从和你手牌中的一张随从牌获得+2/+2。",
+    "mechanics": [],
+    "referencedTags": [],
+    "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_331_G_battlegroundsImageGold.png",
+    "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_331_G_cardArtFromHsJson256x.png",
+    "tier": 2,
+    "health": 4,
+    "attack": 6,
+    "minionTypes": [
+      "murloc"
+    ],
+    "minionTypesCN": [
+      "鱼人"
+    ]
+  }
+};

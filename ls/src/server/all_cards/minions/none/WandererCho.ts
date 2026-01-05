@@ -1,0 +1,61 @@
+import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+
+/**
+ * WandererCho类 - 继承自Minion，实现WandererCho随从
+ */
+export class WandererCho extends Minion {
+  inTavern: boolean = true;
+
+  constructor() {
+    super();
+    minion_utils.initMinionData(this, BASE_DATA);
+  }
+}
+
+const BASE_DATA = {
+  "id": 103619,
+  "strId": "BGDUO_100",
+  "cardType": "minion",
+  "name": "Wanderer Cho",
+  "nameCN": "远行者周卓",
+  "text": "每回合中有1次免费<b>传递</b>。<i>（还剩1次！）</i>",
+  "mechanics": [
+    "TRIGGER_VISUAL"
+  ],
+  "referencedTags": [],
+  "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BGDUO_100_battlegroundsImage.png",
+  "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BGDUO_100_cardArtFromHsJson256x.png",
+  "DuoGameExclusive": true,
+  "tier": 2,
+  "health": 3,
+  "attack": 4,
+  "minionTypes": [
+    "none"
+  ],
+  "minionTypesCN": [
+    "中立"
+  ],
+  "upgradeCard": {
+    "id": 103620,
+    "strId": "BGDUO_100_G",
+    "cardType": "minion",
+    "name": "Wanderer Cho",
+    "nameCN": "远行者周卓",
+    "text": "每回合中有2次免费<b>传递</b>。<i>（还剩2次！）</i>",
+    "mechanics": [
+      "TRIGGER_VISUAL"
+    ],
+    "referencedTags": [],
+    "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BGDUO_100_G_battlegroundsImageGold.png",
+    "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BGDUO_100_G_cardArtFromHsJson256x.png",
+    "tier": 2,
+    "health": 6,
+    "attack": 8,
+    "minionTypes": [
+      "none"
+    ],
+    "minionTypesCN": [
+      "中立"
+    ]
+  }
+};
