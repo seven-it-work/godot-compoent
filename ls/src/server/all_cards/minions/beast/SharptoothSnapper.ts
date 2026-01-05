@@ -15,7 +15,9 @@ export class SharptoothSnapper extends Minion {
   战斗开始时(player: Player) {
     const count = this.isGolden ? 2 : 1;
     for (let index = 0; index < count; index++) {
-      player.minionsToSummonInBattle.push(player.getCardByStrId('BG32_201t') as Minion);
+      const piranha = player.getCardByStrId('BG32_201t') as Minion;
+      piranha.isImmediateAttack = true;
+      player.minionsToSummonInBattle.push(piranha);
       super.战斗开始时(player);
     }
   }

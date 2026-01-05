@@ -55,13 +55,7 @@ export class BattleController {
         continue;
       }
       // todo如果有风怒就重复下面的方法
-      // 获取攻击目标
-      const 被攻击的随从 = this.getAttackTarget(currentDefender);
-      if (被攻击的随从) {
-        // 执行攻击
-        this.executeAttack(攻击的随从, 被攻击的随从, currentAttacker, currentDefender);
-      }
-      // 攻击结束
+      this.进行攻击(攻击的随从, currentAttacker, currentDefender);
 
       // 切换攻击方
       [currentAttacker, currentDefender] = [currentDefender, currentAttacker];
@@ -73,6 +67,14 @@ export class BattleController {
     }
     // 返回战斗结果
     return ResultFactory.success('');
+  }
+
+  private 进行攻击(攻击的随从: Minion, 攻击随从的玩家: Player, 防御随从的玩家: Player) {
+    const 被攻击的随从 = this.getAttackTarget(防御随从的玩家);
+    if (被攻击的随从) {
+      // 执行攻击
+      this.executeAttack(攻击的随从, 被攻击的随从, 攻击随从的玩家, 防御随从的玩家);
+    }
   }
 
   /**
@@ -354,6 +356,31 @@ export class BattleController {
         被攻击的随从的玩家.getMinionIndexOnBattlefield(被攻击的随从) + 1
       );
       return;
+    }
+    // 空位检查
+    this.空位检查(攻击随从的玩家, 被攻击的随从的玩家);
+    this.空位检查(被攻击的随从的玩家, 攻击随从的玩家);
+  }
+
+  private 空位检查(currentAttacker: Player, currentDefender: Player) {
+    // 死亡监听完成后，去查看是否有空位，可以 将 minionsToSummonInBattle 中的随从召唤
+    if (
+      currentAttacker.getMinionsOnBattlefieldCount() < 7 &&
+      currentAttacker.minionsToSummonInBattle.length > 0
+    ) {
+      // 有空位
+      const minion = currentAttacker.minionsToSummonInBattle.shift();
+      if (minion) {
+        minion.fightHealth = minion.getHealth(currentAttacker);
+        minion.location = 'fighting';
+        minion.hasAttacked = false;
+        if (minion.isImmediateAttack) {
+          // 进行攻击
+          this.进行攻击(minion, currentAttacker, currentDefender);
+        } else {
+          currentAttacker.添加随从到战场(minion);
+        }
+      }
     }
   }
 

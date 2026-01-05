@@ -109,14 +109,6 @@ export class Player {
         minion.友方死亡随从监听(this, _死亡的随从);
       }
     });
-    // 死亡监听完成后，去查看是否有空位，可以 将 minionsToSummonInBattle 中的随从召唤
-    if (this.getMinionsOnBattlefieldCount() < 7 && this.minionsToSummonInBattle.length > 0) {
-      // 有空位
-      const minion = this.minionsToSummonInBattle.shift();
-      if (minion) {
-        this.添加随从到战场(minion);
-      }
-    }
   }
 
   /**
