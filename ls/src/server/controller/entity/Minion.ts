@@ -127,6 +127,10 @@ export class Minion extends Card {
    * @param isTemp 是否临时属性加成
    */
   addBuff(buff: Buff, isTemp: boolean = false) {
+    // 需要将属性加成应用到战斗生命值
+    if (buff.healthBonus) {
+      this.fightHealth += buff.healthBonus || 0;
+    }
     if (isTemp) {
       this.tempBuffs.push(buff);
     } else {
@@ -258,6 +262,10 @@ export class Minion extends Card {
           return '中立';
       }
     });
+  }
+
+  copy(): Minion {
+    return super.copy() as Minion;
   }
 }
 

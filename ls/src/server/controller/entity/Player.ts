@@ -42,6 +42,7 @@ export class Player {
   beastBonus: { atk: number; hp: number } = { atk: 0, hp: 0 };
   /**
    * 其他参数
+   * targetCard 目标卡片
    */
   otherParams: Record<string, any> = {};
   /**

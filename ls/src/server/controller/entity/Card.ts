@@ -42,7 +42,17 @@ export class Card {
   tier?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   // 是否金色
   isGolden: boolean = false;
+  // 使用是否有需要目标
+  requiresTarget: boolean = false;
 
+  /**
+   * requiresTarget=true 时的过滤目标信息
+   * @param cardList  所有卡片列表
+   * @returns 过滤后的目标列表
+   */
+  targetFillter(cardList: Card[]): Card[] {
+    return cardList;
+  }
   useCardAfter(_player: Player) {
     // 触发使用卡片后事件
     // console.log('触发使用卡片后事件', this.strId);

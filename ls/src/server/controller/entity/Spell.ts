@@ -1,5 +1,4 @@
 import { Card, card_utils } from '@/server/controller/entity/Card';
-import type { Minion } from './Minion';
 
 // 法术工具类
 export const spell_utils = {
@@ -16,11 +15,4 @@ export const spell_utils = {
 
 export class Spell extends Card {
   type: 'spell' = 'spell';
-
-  // 使用是否有需要目标
-  requiresTarget: boolean = false;
-
-  targetFillter(minionList: Minion[]): Minion[] {
-    return minionList;
-  }
 }

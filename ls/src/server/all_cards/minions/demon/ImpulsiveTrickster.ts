@@ -1,6 +1,7 @@
 import { Buff } from '@/server/controller/entity/Buff';
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import type { Player } from '@/server/controller/entity/Player';
+import _ from 'lodash';
 
 /**
  * ImpulsiveTrickster类 - 继承自Minion，实现ImpulsiveTrickster随从
@@ -16,13 +17,25 @@ export class ImpulsiveTrickster extends Minion {
   deathrattle(_攻击的随从: Minion, _player: Player): void {
     // 使另一个友方随从获得本随从的生命值上限
     const minionsOnBattlefield = _player.getMinionsOnBattlefield();
-    const findMinion = minionsOnBattlefield.find(
-      minion => minion !== undefined && minion !== null && minion.id !== this.id
-    );
-    if (findMinion === undefined || findMinion === null) {
+    const findMinion = minionsOnBattlefield.filter(minion => {
+      if (minion === undefined || minion === null) {
+        return false;
+      }
+      if (minion.id === this.id) {
+        return false;
+      }
+      return true;
+    });
+    if (findMinion.length === 0) {
+      // 没有友方随从
       return;
     }
-    findMinion.addBuff(new Buff(this.name, 0, this.getHealth(_player, true)));
+    // 随机选择一个
+    const randomMinion = _.sample(findMinion);
+    if (randomMinion === undefined || randomMinion === null) {
+      return;
+    }
+    randomMinion.addBuff(new Buff(this.name, 0, this.getHealth(_player, true)));
   }
 }
 
