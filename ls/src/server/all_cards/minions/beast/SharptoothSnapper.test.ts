@@ -5,7 +5,7 @@ import db_card from '@/server/db/db_card';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { SharptoothSnapper } from './SharptoothSnapper';
 
-db_card.dbInit();
+await db_card.dbInit();
 
 describe('SharptoothSnapper 测试', () => {
   // 这个是测试的随从

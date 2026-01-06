@@ -20,6 +20,7 @@
         <!-- 第一行：5个卡片槽 -->
         <div class="card-row">
           <CardSlot
+            :player="player"
             v-for="(card, index) in tavernCards.slice(0, 5)"
             :key="card ? card.id : 'empty-tavern-1-' + index"
             :card-id="card ? card.id : 'empty-tavern-1-' + index"
@@ -43,6 +44,7 @@
         <!-- 第二行：2个卡片槽 -->
         <div class="card-row">
           <CardSlot
+            :player="player"
             v-for="(card, index) in tavernCards.slice(5, 7)"
             :key="card ? card.id : 'empty-tavern-2-' + index"
             :card-id="card ? card.id : 'empty-tavern-2-' + index"
@@ -104,6 +106,7 @@
         <!-- 第三行：5个卡片槽 -->
         <div class="card-row">
           <CardSlot
+            :player="player"
             v-for="(card, index) in battlefieldCards.slice(0, 5)"
             :key="card ? card.id : 'empty-battlefield-1-' + index"
             :card-id="card ? card.id : 'empty-battlefield-1-' + index"
@@ -128,6 +131,7 @@
         <!-- 第四行：2个卡片槽  -->
         <div class="card-row">
           <CardSlot
+            :player="player"
             v-for="(card, index) in battlefieldCards.slice(5, 7)"
             :key="card ? card.id : 'empty-battlefield-2-' + index"
             :card-id="card ? card.id : 'empty-battlefield-2-' + index"
@@ -225,6 +229,7 @@
         <!-- 第五行：5个卡片槽 -->
         <div class="card-row">
           <CardSlot
+            :player="player"
             v-for="(card, index) in handCards.slice(0, 5)"
             :key="card ? card.id : 'empty-hand-1-' + index"
             :card-id="card ? card.id : 'empty-hand-1-' + index"
@@ -248,6 +253,7 @@
         <!-- 第六行：5个卡片槽 -->
         <div class="card-row">
           <CardSlot
+            :player="player"
             v-for="(card, index) in handCards.slice(5, 10)"
             :key="card ? card.id : 'empty-hand-2-' + index"
             :card-id="card ? card.id : 'empty-hand-2-' + index"
@@ -281,6 +287,7 @@ import { Card } from '@/server/controller/entity/Card';
 import { CurrentGame } from '@/server/controller/entity/CurrentGame';
 import { Player } from '@/server/controller/entity/Player';
 import { Spell } from '@/server/controller/entity/Spell';
+import { useGlobalStore } from '@/stores/GlobalStore';
 import { computed, onMounted, ref, watch } from 'vue';
 import CardSlot from './components/CardSlot.vue';
 
@@ -296,8 +303,6 @@ const isDragActive = ref(false);
 
 // 酒馆拖拽状态 - 控制酒馆区域高亮
 const isTavernDragActive = ref(false);
-
-import { useGlobalStore } from '@/stores/GlobalStore';
 const globalStore = useGlobalStore();
 
 const playerController = new PlayerController();

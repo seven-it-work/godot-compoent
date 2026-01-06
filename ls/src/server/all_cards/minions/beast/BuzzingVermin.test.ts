@@ -5,7 +5,7 @@ import db_card from '@/server/db/db_card';
 import { beforeEach, describe, it } from 'vitest';
 import { BuzzingVermin } from './BuzzingVermin';
 
-db_card.dbInit();
+await db_card.dbInit();
 
 describe('BuzzingVermin 测试', () => {
   let buzzingVermin: BuzzingVermin;

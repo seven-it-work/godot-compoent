@@ -14,8 +14,6 @@ export class GameController {
    * 2、初始化游戏数据（包括随从池、英雄等）
    */
   initGame(): CurrentGame {
-    // 加载所有卡片
-    db_card.dbInit();
     // 1、创建 CurrentGame 实例
     const currentGame = new CurrentGame();
     // 2、初始化游戏数据（包括随从池、英雄等）

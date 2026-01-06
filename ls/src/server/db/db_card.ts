@@ -74,30 +74,33 @@ export default {
 // 使用 Vite 的 glob 导入功能，获取所有卡片文件
 // 使用动态导入（异步）方式
 const cardFiles = import.meta.glob('@/server/all_cards/**/**/*.ts');
-
-function dbInit() {
-  loadAllCards();
+async function dbInit() {
+  await loadAllCards();
 }
 /**
  * 加载所有卡片类
  */
-function loadAllCards() {
+async function loadAllCards() {
   // 遍历所有卡片文件路径
+  const loadPromises = [];
   for (const filePath in cardFiles) {
-    loadCardFile(filePath);
+    loadPromises.push(loadCardFile(filePath));
   }
-  console.log(`Total cards loaded: ${db.size}`);
+
+  // 等待所有卡片文件加载完成
+  await Promise.all(loadPromises);
+  console.log(`初始化卡牌完成。数量${db.size}。strId列表${JSON.stringify(getAllCardStrIdList())}`);
 }
 
 /**
  * 加载单个卡片文件
  * @param filePath 文件路径
  */
-function loadCardFile(filePath: string) {
+async function loadCardFile(filePath: string) {
   try {
     // 动态导入模块
     // @ts-ignore
-    const module = cardFiles[filePath]();
+    const module = await cardFiles[filePath]();
 
     // 处理模块的所有导出
     processModuleExports(module, filePath);

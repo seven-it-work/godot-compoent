@@ -23,12 +23,12 @@
         {{ data.cardPrice }}
       </div>
       <!-- 左下角攻击力 -->
-      <div class="corner-badge bottom-left" v-if="data.type === 'minion'">
+      <div class="corner-badge bottom-left" v-if="data.type === 'minion' && player">
         <!-- @vue-ignore -->
         {{ (data as Minion).getAttack(player) }}
       </div>
       <!-- 右下角生命值 -->
-      <div class="corner-badge bottom-right" v-if="data.type === 'minion'">
+      <div class="corner-badge bottom-right" v-if="data.type === 'minion' && player">
         <!-- @vue-ignore -->
         {{ (data as Minion).getHealth(player) }}
       </div>
@@ -55,6 +55,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 import { Card } from '@/server/controller/entity/Card';
 import { Minion, MinionKeywordCN } from '@/server/controller/entity/Minion';
+import { Player } from '@/server/controller/entity/Player';
 import { Spell } from '@/server/controller/entity/Spell';
 import { useGlobalStore } from '@/stores/GlobalStore';
 import interact from 'interactjs';
@@ -62,6 +63,7 @@ import interact from 'interactjs';
 const globalStore = useGlobalStore();
 
 const props = defineProps<{
+  player?: Player | any;
   cardId: string;
   data?: Card | null; // 卡片数据，如果为null或undefined则表示空格子
   positionType?: 'tavern' | 'battlefield' | 'hand'; // 卡片所在区域类型（酒馆/战场/手牌）
@@ -834,7 +836,14 @@ onMounted(() => {
                   if (isSpell) {
                     emit('spell-cast', props.cardId, targetCardId || '');
                   } else {
-                    emit('card-move', props.cardId, 'hand', 'battlefield', undefined, targetCardId || undefined);
+                    emit(
+                      'card-move',
+                      props.cardId,
+                      'hand',
+                      'battlefield',
+                      undefined,
+                      targetCardId || undefined
+                    );
                   }
                   shouldRemoveCard = true; // 卡片使用后从手牌移除
                 } else {
