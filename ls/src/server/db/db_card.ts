@@ -1,7 +1,5 @@
 import { Card } from '@/server/controller/entity/Card';
 import type { Minion } from '@/server/controller/entity/Minion';
-import { IdGenerator } from '@/utils/IdGenerator';
-import { cloneDeep } from 'lodash';
 /**
  * 基础卡片数据库，存入了所有的基础卡片
  * db 获取禁止获取原数据，必须是深拷贝数据
@@ -41,8 +39,7 @@ function getCardByStrId(strId: string): Card {
   if (!card) {
     throw new Error(`Card with strId ${strId} not found`);
   }
-  card.id = IdGenerator.generateRandomId();
-  return cloneDeep(card);
+  return card.copy();
 }
 /**
  * 获取存在酒馆中的随从实例list
@@ -62,10 +59,7 @@ function getMinionsInTavern(filterFunc?: (card: Card) => boolean): Minion[] {
       }
       return true;
     })
-    .map(card => {
-      card.id = IdGenerator.generateRandomId();
-      return cloneDeep(card);
-    }) as Minion[];
+    .map(card => card.copy() as Minion);
 }
 
 export default {

@@ -2,7 +2,6 @@ import { BattleController } from '@/server/controller/BattleController';
 import type { Minion } from '@/server/controller/entity/Minion';
 import { Player } from '@/server/controller/entity/Player';
 import db_card from '@/server/db/db_card';
-import { cloneDeep } from 'lodash';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { SharptoothSnapper } from './SharptoothSnapper';
 
@@ -34,7 +33,7 @@ describe('SharptoothSnapper 测试', () => {
   it('利牙鲷鱼战场测试用例', () => {
     // 添加1只敌方随从，给食人鱼攻击目标
     const enemyMinion = player.getCardByStrId('BG26_800') as Minion;
-    enemy.添加随从到战场(cloneDeep(enemyMinion));
+    enemy.添加随从到战场(enemyMinion.copy() as Minion);
 
     // 添加利牙鲷鱼到我方战场
     player.添加随从到战场(sharptoothSnapper);

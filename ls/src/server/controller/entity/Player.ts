@@ -3,7 +3,6 @@ import { Hero } from '@/server/controller/entity/Hero';
 import type { Tavern } from '@/server/controller/entity/Tavern';
 import db_card from '@/server/db/db_card';
 import { IdGenerator } from '@/utils/IdGenerator';
-import { cloneDeep } from 'lodash';
 import { Buff } from './Buff';
 import type { Minion } from './Minion';
 
@@ -65,7 +64,7 @@ export class Player {
     for (let index = 0; index < this.minionsOnBattlefield.length; index++) {
       const tempMinion = this.minionsOnBattlefield[index];
       if (tempMinion) {
-        const temp = cloneDeep(tempMinion);
+        const temp = tempMinion.copy() as Minion;
         // 注意：这里暂时传递null作为player参数，因为该方法用于初始化战斗中的随从
         temp.fightHealth = temp.getHealth(this);
         temp.hasAttacked = false;

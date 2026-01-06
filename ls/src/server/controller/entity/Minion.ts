@@ -223,7 +223,7 @@ export class Minion extends Card {
 
   getBattleLogStr(player: Player): string {
     // 注意：这里暂时传递null作为player参数，因为getBattleLogStr方法主要用于日志记录，不影响核心逻辑
-    return `${this.name}(${this.getAttack(player)}/${this.getHealth(player)})`;
+    return `[${this.id.slice(0, 6)}]${this.name}(${this.getAttack(player)}/${this.getHealth(player)})`;
   }
 
   getMinionCnTypes(): string[] {

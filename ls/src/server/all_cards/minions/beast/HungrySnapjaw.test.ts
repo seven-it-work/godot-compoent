@@ -2,7 +2,6 @@ import { BattleController } from '@/server/controller/BattleController';
 import type { Minion } from '@/server/controller/entity/Minion';
 import { Player } from '@/server/controller/entity/Player';
 import db_card from '@/server/db/db_card';
-import { cloneDeep } from 'lodash';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { HungrySnapjaw } from './HungrySnapjaw';
 
@@ -35,11 +34,11 @@ describe('HungrySnapjaw 测试', () => {
     const testMinion = player.getCardByStrId('BG26_800') as Minion;
     testMinion.keywords.push('TAUNT');
     // 添加随从到战场
-    player.添加随从到战场(cloneDeep(testMinion));
-    player.添加随从到战场(cloneDeep(testMinion));
+    player.添加随从到战场(testMinion.copy() as Minion);
+    player.添加随从到战场(testMinion.copy() as Minion);
     player.添加随从到战场(hungrySnapjaw);
-    enemy.添加随从到战场(cloneDeep(testMinion));
-    enemy.添加随从到战场(cloneDeep(testMinion));
+    enemy.添加随从到战场(testMinion.copy() as Minion);
+    enemy.添加随从到战场(testMinion.copy() as Minion);
     enemy.添加随从到战场(new HungrySnapjaw());
     // 进行战斗
     const result = battleController.performBattle(player, enemy);

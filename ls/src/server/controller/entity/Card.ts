@@ -1,4 +1,5 @@
 import { IdGenerator } from '@/utils/IdGenerator';
+import { cloneDeep } from 'lodash';
 import type { Player } from './Player';
 
 export const card_utils = {
@@ -65,5 +66,11 @@ export class Card {
       const index = parseInt(indexStr, 10);
       return values[index] !== undefined ? values[index].toString() : match; // 保留原占位符
     });
+  }
+
+  copy(): Card {
+    const newMinion = cloneDeep(this);
+    newMinion.id = IdGenerator.generateRandomId();
+    return newMinion;
   }
 }
