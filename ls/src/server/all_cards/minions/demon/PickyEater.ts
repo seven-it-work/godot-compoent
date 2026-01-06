@@ -20,8 +20,9 @@ export class PickyEater extends Minion {
    */
   battlecry(player: Player): void {
     super.battlecry(player);
-    // 战吼：随机吞食酒馆中的一个随从，获得其属性值
-    console.log('挑食魔犬：随机吞食酒馆中的一个随从，获得其属性值');
+    if (player.isInBattle) {
+      return;
+    }
     const tavern = player.tavern;
     if (!tavern) {
       throw new Error('玩家没有酒馆');

@@ -24,6 +24,7 @@ export class MindMuck extends Minion {
   }
 
   battlecry(player: Player) {
+    super.battlecry(player);
     if (player.isInBattle) {
       return;
     }

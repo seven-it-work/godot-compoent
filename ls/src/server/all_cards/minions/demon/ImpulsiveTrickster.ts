@@ -15,6 +15,7 @@ export class ImpulsiveTrickster extends Minion {
   }
 
   deathrattle(_攻击的随从: Minion, _player: Player): void {
+    super.deathrattle(_攻击的随从, _player);
     // 使另一个友方随从获得本随从的生命值上限
     const minionsOnBattlefield = _player.getMinionsOnBattlefield();
     const findMinion = minionsOnBattlefield.filter(minion => {
