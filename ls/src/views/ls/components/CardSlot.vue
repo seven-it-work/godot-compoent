@@ -755,13 +755,9 @@ onMounted(() => {
         // 获取释放位置
         const releaseX = event.clientX;
         const releaseY = event.clientY;
-
-        console.log(`[拖拽结束] 卡片: ${props.cardId}, 释放屏幕坐标: (${releaseX}, ${releaseY})`);
-
         // 检查卡片释放的区域
         const areaResult = checkReleaseArea(releaseX, releaseY);
         const { isHandArea, isTavernArea, isBattlefieldArea } = areaResult;
-
         // 检查是否释放到战场卡片槽上（包括空格子和已有卡片的槽）
         let battlefieldSlotResult = {
           isEmptySlot: false,
@@ -787,91 +783,52 @@ onMounted(() => {
         let shouldRemoveCard = false;
 
         if (isSpell) {
-          console.log(`[法术释放] 法术卡片 ${props.cardId} 释放，开始处理释放逻辑`);
           const spell = props.data as Spell;
 
           // 检查是否拖出手牌区域
           if (spellDragState.value.isDraggedOutOfHand) {
-            console.log(`[法术释放] 法术 ${props.cardId} 已拖出手牌区域，检查释放位置`);
-
             // 检查是否释放到手牌区域内
             if (isHandArea) {
               // 释放到手牌区域，取消使用
-              console.log(`[法术释放] 法术 ${props.cardId} 释放到手牌区域，取消使用`);
               // 法术取消使用后，回到原来的位置
               position.value = { ...initialPosition.value };
-              console.log(
-                `[法术释放] 法术 ${props.cardId} 回到初始位置: (${initialPosition.value.x}, ${initialPosition.value.y})`
-              );
             } else {
-              // 释放到手牌区域外，检查是否指向有效目标
-              console.log(`[法术释放] 法术 ${props.cardId} 释放到手牌区域外，检查目标有效性`);
-
               // 检查是否释放到有效目标上
               let targetSlot = null;
-
               // 保存当前拖拽元素的显示状态
               const originalDisplay = target.style.display;
-
               // 暂时隐藏拖拽元素，避免elementFromPoint检测到自身
               target.style.display = 'none';
-
               // 使用elementFromPoint获取真实的目标元素
               const releaseElement = document.elementFromPoint(releaseX, releaseY);
               targetSlot = releaseElement?.closest('.card-slot');
-
               // 恢复拖拽元素的显示状态
               target.style.display = originalDisplay;
-
-              console.log(
-                `[法术释放] 释放位置下的元素: ${releaseElement?.tagName}, 类名: ${releaseElement?.className}`
-              );
-              console.log(
-                `[法术释放] 目标槽: ${targetSlot?.tagName}, 类名: ${targetSlot?.className}, 包含spell-target-allowed: ${targetSlot?.classList.contains('spell-target-allowed')}`
-              );
-
               // 手动检查目标槽是否为战场槽且有卡片
               const isTargetValid =
                 targetSlot?.classList.contains('spell-target-allowed') ||
                 (targetSlot?.getAttribute('data-is-empty') === 'false' &&
                   targetSlot?.closest('.battlefield-section'));
-              console.log(
-                `[法术释放] 目标有效性检查: targetSlot=${!!targetSlot}, isTargetValid=${isTargetValid}, data-is-empty=${targetSlot?.getAttribute('data-is-empty')}, in-battlefield=${!!targetSlot?.closest('.battlefield-section')}`
-              );
               if (spell.requiresTarget) {
                 // 需要目标的法术
                 if (isTargetValid && targetSlot) {
                   // 释放到有效目标上，发送法术使用事件
                   const targetCardId = targetSlot.getAttribute('data-card-id');
-                  console.log(
-                    `[法术释放] 法术 ${props.cardId} 释放到有效目标 ${targetCardId} 上，执行法术`
-                  );
                   emit('spell-cast', props.cardId, targetCardId || '');
                   shouldRemoveCard = true; // 法术使用后从手牌移除
                 } else {
-                  // 没有释放到有效目标上，取消使用
-                  console.log(`[法术释放] 法术 ${props.cardId} 没有释放到有效目标上，取消使用`);
                   // 法术取消使用后，回到原来的位置
                   position.value = { ...initialPosition.value };
-                  console.log(
-                    `[法术释放] 法术 ${props.cardId} 回到初始位置: (${initialPosition.value.x}, ${initialPosition.value.y})`
-                  );
                 }
               } else {
                 // 不需要目标的法术，直接释放
-                console.log(`[法术释放] 法术 ${props.cardId} 不需要目标，直接执行`);
                 emit('spell-cast', props.cardId);
                 shouldRemoveCard = true; // 法术使用后从手牌移除
               }
             }
           } else {
-            // 没有拖出手牌区域，取消使用
-            console.log(`[法术释放] 法术 ${props.cardId} 未拖出手牌区域，取消使用`);
             // 法术取消使用后，回到原来的位置
             position.value = { ...initialPosition.value };
-            console.log(
-              `[法术释放] 法术 ${props.cardId} 回到初始位置: (${initialPosition.value.x}, ${initialPosition.value.y})`
-            );
           }
         }
         // 逻辑2：战场卡片拖拽到酒馆区域，卡片消失
