@@ -75,23 +75,17 @@ export default {
 // 使用动态导入（异步）方式
 const cardFiles = import.meta.glob('@/server/all_cards/**/**/*.ts');
 
-async function dbInit() {
-  await loadAllCards();
+function dbInit() {
+  loadAllCards();
 }
 /**
  * 加载所有卡片类
  */
-async function loadAllCards() {
-  // 存储所有加载 Promise
-  const loadPromises = [];
-
+function loadAllCards() {
   // 遍历所有卡片文件路径
   for (const filePath in cardFiles) {
-    loadPromises.push(loadCardFile(filePath));
+    loadCardFile(filePath);
   }
-  // 等待所有卡片加载完成
-  await Promise.all(loadPromises);
-
   console.log(`Total cards loaded: ${db.size}`);
 }
 
@@ -99,14 +93,14 @@ async function loadAllCards() {
  * 加载单个卡片文件
  * @param filePath 文件路径
  */
-async function loadCardFile(filePath: string) {
+function loadCardFile(filePath: string) {
   try {
     // 动态导入模块
     // @ts-ignore
-    const module = await cardFiles[filePath]();
+    const module = cardFiles[filePath]();
 
     // 处理模块的所有导出
-    await processModuleExports(module, filePath);
+    processModuleExports(module, filePath);
   } catch (error) {
     console.error(`Failed to load card file ${filePath}:`, error);
   }
@@ -117,10 +111,10 @@ async function loadCardFile(filePath: string) {
  * @param module 模块对象
  * @param filePath 文件路径（用于调试）
  */
-async function processModuleExports(module: any, filePath: string) {
+function processModuleExports(module: any, filePath: string) {
   // 处理默认导出
   if (module.default && typeof module.default === 'function' && module.default.prototype) {
-    await processCardClass(module.default, 'default', filePath);
+    processCardClass(module.default, 'default', filePath);
   }
 
   // 处理命名导出
@@ -135,7 +129,7 @@ async function processModuleExports(module: any, filePath: string) {
       continue;
     }
     // @ts-ignore
-    await processCardClass(exportValue, exportName, filePath);
+    processCardClass(exportValue, exportName, filePath);
   }
 }
 
@@ -145,7 +139,7 @@ async function processModuleExports(module: any, filePath: string) {
  * @param exportName 导出名称
  * @param filePath 文件路径（用于调试）
  */
-async function processCardClass(CardClass: new () => Card, exportName: string, filePath: string) {
+function processCardClass(CardClass: new () => Card, exportName: string, filePath: string) {
   try {
     // 创建类的实例
     const instance = new CardClass();

@@ -10,7 +10,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { ForestRover } from './ForestRover';
 
-await db_card.dbInit();
+db_card.dbInit();
 
 describe('ForestRover 测试', () => {
   let forestRover: ForestRover;

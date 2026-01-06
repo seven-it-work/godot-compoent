@@ -5,7 +5,7 @@ import db_card from '@/server/db/db_card';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 // 必须添加，否则会报错
-await db_card.dbInit();
+db_card.dbInit();
 
 describe('HungrySnapjaw 测试', () => {
   // 这个是测试的随从

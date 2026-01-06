@@ -1,10 +1,10 @@
 import { CurrentGame, MINION_POOL_LIMITS } from '@/server/controller/entity/CurrentGame';
-import db_current_game from '@/server/db/db_current_game';
 import type { Hero } from '@/server/controller/entity/Hero';
 import { Player } from '@/server/controller/entity/Player';
 import { Tavern, 酒馆升级需要的金币 } from '@/server/controller/entity/Tavern';
-import db_card from '@/server/db/db_card';
 import { TavernController } from '@/server/controller/TavernController';
+import db_card from '@/server/db/db_card';
+import db_current_game from '@/server/db/db_current_game';
 import { PlayerController } from './PlayerController';
 
 export class GameController {
@@ -13,12 +13,12 @@ export class GameController {
    * 1、创建 CurrentGame 实例
    * 2、初始化游戏数据（包括随从池、英雄等）
    */
-  async initGame(): Promise<CurrentGame> {
+  initGame(): CurrentGame {
+    // 加载所有卡片
+    db_card.dbInit();
     // 1、创建 CurrentGame 实例
     const currentGame = new CurrentGame();
     // 2、初始化游戏数据（包括随从池、英雄等）
-    // 加载所有卡片
-    await db_card.dbInit();
     const minionsInTavern = db_card.getMinionsInTavern();
     // 加载到随从池
     minionsInTavern.forEach(minion => {

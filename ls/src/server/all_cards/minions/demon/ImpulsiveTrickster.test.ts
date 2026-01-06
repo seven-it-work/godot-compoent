@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { ImpulsiveTrickster } from './ImpulsiveTrickster';
 
 // 必须添加，否则会报错
-await db_card.dbInit();
+db_card.dbInit();
 
 describe('ImpulsiveTrickster 测试', () => {
   // 这个是测试的随从

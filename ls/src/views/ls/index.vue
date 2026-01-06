@@ -1,9 +1,8 @@
 <template>
   <div class="vertical-hearthstone">
     <!-- 调试抽屉组件 -->
-    <DebugDrawer v-model:debug-drawer-visible="debugDrawerVisible" @close="closeDebugDrawer" />
-
-    <BattleScene
+    <!-- <DebugDrawer v-model:debug-drawer-visible="debugDrawerVisible" @close="closeDebugDrawer" /> -->
+    <!-- <BattleScene
       v-if="isBattleSceneVisible"
       @exit-battle="hideBattleScene"
       :enemy-minions="[]"
@@ -12,8 +11,8 @@
       :enemy-armor="0"
       :player-health="30"
       :player-armor="0"
-    />
-
+    /> -->
+    <div v-if="isBattleSceneVisible">未开发</div>
     <!-- 正常游戏界面：条件渲染 -->
     <div class="game-container" v-else>
       <!-- 酒馆区域 -->
@@ -284,7 +283,6 @@ import { Player } from '@/server/controller/entity/Player';
 import { Spell } from '@/server/controller/entity/Spell';
 import { computed, onMounted, ref, watch } from 'vue';
 import CardSlot from './components/CardSlot.vue';
-import DebugDrawer from './components/DebugDrawer.vue';
 
 const gameController = new GameController();
 const heroController = new HeroController();
@@ -451,8 +449,8 @@ const handleCardSwap = (cardId: string, targetIndex: number) => {
   playerController.savePlayerData(currentGameRef.value.id, currentGameRef.value.player as Player);
 };
 // 页面加载时自动随机初始化英雄
-onMounted(async () => {
-  const currentGame = await gameController.initGame();
+onMounted(() => {
+  const currentGame = gameController.initGame();
   currentGameRef.value = currentGame;
   localStorage.setItem('currentGameId', currentGameRef.value.id);
   console.log('游戏已初始化，游戏ID:', currentGame.id, '已存入缓存');
@@ -520,10 +518,11 @@ const handleCardMove = (
   cardId: string,
   fromLocation: 'tavern' | 'battlefield' | 'hand',
   toLocation: 'tavern' | 'battlefield' | 'hand',
-  targetSlotIndex?: number
+  targetSlotIndex?: number,
+  targetCardId?: string
 ) => {
   console.log(
-    `[父组件] 卡片移动事件: 卡片 ${cardId} 从 ${fromLocation} 移动到 ${toLocation}${targetSlotIndex !== undefined ? `, 目标空格子索引: ${targetSlotIndex}` : ''}`
+    `[父组件] 卡片移动事件: 卡片 ${cardId} 从 ${fromLocation} 移动到 ${toLocation}${targetSlotIndex !== undefined ? `, 目标空格子索引: ${targetSlotIndex}` : ''}${targetCardId ? `, 目标卡片ID: ${targetCardId}` : ''}`
   );
 
   // 从所有卡片中查找卡片数据
@@ -548,7 +547,8 @@ const handleCardMove = (
       const useCardResult = playerController.useCardFromHand(
         currentGameRef.value.id,
         cardId,
-        targetSlotIndex
+        targetSlotIndex,
+        targetCardId ? { targetCardId } : {}
       );
       if (useCardResult.isSuccess()) {
         currentGameRef.value = currentGameController.getCurrentGameById(currentGameRef.value.id);
