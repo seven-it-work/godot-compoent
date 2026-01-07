@@ -49,7 +49,42 @@ export class Player {
    * 战斗日志数组
    */
   battleLogs: string[] = [];
+  /**
+   * 伤害是否回溯
+   */
+  isDamageBack: boolean = false;
 
+  /**
+   * 受到伤害
+   * 先从护甲扣除，护甲不够才进行生命值扣除
+   * @param damage - 受到的伤害值
+   */
+  受到伤害(damage: number): void {
+    if (!this.hero) {
+      throw new Error('玩家没有英雄');
+    }
+    // 伤害监听触发
+    this.getMinionsOnBattlefield().forEach(minion => {
+      if (minion) {
+        minion.玩家伤害监听触发(this, damage);
+      }
+    });
+    if (this.isDamageBack) {
+      return;
+    }
+    // 先从护甲扣除
+    const armorDamage = Math.min(damage, this.hero.armor);
+    this.hero.armor -= armorDamage;
+    damage -= armorDamage;
+    // 护甲不够时，从生命值扣除
+    if (damage > 0) {
+      this.hero.health -= damage;
+      if (this.hero.health <= 0) {
+        // todo 玩家死亡了
+        console.log(`【${this.name}】死亡了`);
+      }
+    }
+  }
   /**
    * 添加战斗日志
    * @param log - 战斗日志内容

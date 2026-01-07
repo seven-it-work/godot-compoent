@@ -63,7 +63,7 @@ export class MindMuck extends Minion {
       return;
     }
     // 计算属性值倍率（金色版本获得双倍属性值）
-    const multiplier = this.isGolden ? 2 : 1;
+    const multiplier = this.getMultiplier();
     // 获取属性值
     const atkBonus = tavernMinion.getAttack(player) * multiplier;
     const hpBonus = tavernMinion.getHealth(player) * multiplier;

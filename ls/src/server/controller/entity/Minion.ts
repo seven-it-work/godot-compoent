@@ -115,6 +115,12 @@ export class Minion extends Card {
     this.hasAttacked = false;
   }
   /**
+   * 玩家受到伤害触发
+   */
+  玩家伤害监听触发(_player: Player, _伤害值: number) {
+    // 子类可以重写此方法
+  }
+  /**
    * 被攻击前触发
    */
   onAttacked(_player: Player) {

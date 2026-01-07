@@ -19,8 +19,11 @@ export class DuneDweller extends Minion {
    */
   battlecry(player: Player): void {
     super.battlecry(player);
-    player.elementBonus.atk += 1 + player.elementBonusBonus.atk;
-    player.elementBonus.hp += 1 + player.elementBonusBonus.hp;
+    const multiplier = this.getMultiplier();
+    for (let i = 0; i < multiplier; i++) {
+      player.elementBonus.atk += 1 + player.elementBonusBonus.atk;
+      player.elementBonus.hp += 1 + player.elementBonusBonus.hp;
+    }
   }
 
   getTextFormatArr(player: Player) {

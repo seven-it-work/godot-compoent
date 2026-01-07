@@ -40,9 +40,10 @@ export class PickyEater extends Minion {
     if (!randomMinion) {
       throw new Error('随机选择的随从不存在');
     }
+
     // 简化实现：直接获得固定属性值
-    const attackBonus = randomMinion.getAttack(player);
-    const healthBonus = randomMinion.getHealth(player);
+    const attackBonus = randomMinion.getAttack(player) * this.getMultiplier();
+    const healthBonus = randomMinion.getHealth(player) * this.getMultiplier();
 
     // 为挑食魔犬添加属性加成
     this.addBuff(new Buff(this.name, attackBonus, healthBonus));

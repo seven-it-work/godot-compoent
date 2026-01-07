@@ -83,4 +83,11 @@ export class Card {
     newMinion.id = IdGenerator.generateRandomId();
     return newMinion;
   }
+
+  /**
+   * 获取倍率
+   */
+  getMultiplier(): number {
+    return this.isGolden ? 2 : 1;
+  }
 }

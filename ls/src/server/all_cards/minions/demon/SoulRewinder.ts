@@ -1,4 +1,6 @@
+import { Buff } from '@/server/controller/entity/Buff';
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+import type { Player } from '@/server/controller/entity/Player';
 
 /**
  * SoulRewinder类 - 继承自Minion，实现SoulRewinder随从
@@ -9,6 +11,15 @@ export class SoulRewinder extends Minion {
   constructor() {
     super();
     minion_utils.initMinionData(this, BASE_DATA);
+  }
+
+  /**
+   * 受到伤害
+   * @param damage - 受到的伤害值
+   */
+  玩家伤害监听触发(_player: Player, _damage: number): void {
+    _player.isDamageBack = true;
+    this.addBuff(new Buff(this.name, 0, this.getMultiplier()));
   }
 }
 

@@ -26,8 +26,8 @@ export class MisfitDragonling extends Minion {
 
     const level = tavern.level;
     // 为错巢龙崽添加属性加成
-    const attackBonus = level;
-    const healthBonus = level;
+    const attackBonus = level * this.getMultiplier();
+    const healthBonus = level * this.getMultiplier();
 
     // 使用Buff类构造函数创建buff
     const buff = new Buff(this.name, attackBonus, healthBonus);

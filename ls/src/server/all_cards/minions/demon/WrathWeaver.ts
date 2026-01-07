@@ -1,7 +1,7 @@
-import { Minion, minion_utils } from '@/server/controller/entity/Minion';
 import { Buff } from '@/server/controller/entity/Buff';
-import type { Player } from '@/server/controller/entity/Player';
 import type { Card } from '@/server/controller/entity/Card';
+import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+import type { Player } from '@/server/controller/entity/Player';
 
 /**
  * 愤怒编织者类 - 继承自Minion，实现愤怒编织者的特殊效果
@@ -26,9 +26,11 @@ export class WrathWeaver extends Minion {
     }
     // 愤怒编织者自己的判断条件：检查是否为恶魔牌
     if (card instanceof Minion && card.hasMinionType(['demon'])) {
-      console.log('检测到恶魔牌，触发愤怒编织者效果');
-      // 获得+2/+1 - 使用新的加成系统
-      this.addBuff(new Buff(this.name, 2, 1));
+      for (let index = 0; index < this.getMultiplier(); index++) {
+        // 对英雄造成1点伤害
+        _player.受到伤害(1);
+        this.addBuff(new Buff(this.name, 2, 1));
+      }
     }
   }
 }

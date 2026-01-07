@@ -36,7 +36,9 @@ export class ImpulsiveTrickster extends Minion {
     if (randomMinion === undefined || randomMinion === null) {
       return;
     }
-    randomMinion.addBuff(new Buff(this.name, 0, this.getHealth(_player, true)));
+    randomMinion.addBuff(
+      new Buff(this.name, 0, this.getHealth(_player, true) * this.getMultiplier())
+    );
   }
 }
 
