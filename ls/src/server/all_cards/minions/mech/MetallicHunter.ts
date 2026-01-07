@@ -1,4 +1,5 @@
 import { Minion, minion_utils } from '@/server/controller/entity/Minion';
+import type { Player } from '@/server/controller/entity/Player';
 
 /**
  * MetallicHunter类 - 继承自Minion，实现MetallicHunter随从
@@ -10,67 +11,65 @@ export class MetallicHunter extends Minion {
     super();
     minion_utils.initMinionData(this, BASE_DATA);
   }
+
+  deathrattle(_攻击的随从: Minion, player: Player): void {
+    super.deathrattle(_攻击的随从, player);
+    // 获取一张 severanceArrow 牌
+    const severanceArrow = player.getCardByStrId('EBG_Spell_014');
+    // 把牌放到手牌中
+    for (let i = 0; i < this.getMultiplier(); i++) {
+      player.添加卡牌到手牌(severanceArrow.copy());
+    }
+  }
 }
 
 const BASE_DATA = {
-  "id": 120021,
-  "strId": "BG32_170",
-  "cardType": "minion",
-  "name": "Metallic Hunter",
-  "nameCN": "钢铁猎人",
-  "text": "<b>亡语：</b>获取一张尖利箭矢。",
-  "mechanics": [
-    "DEATHRATTLE"
-  ],
-  "referencedTags": [],
-  "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_170_battlegroundsImage.png",
-  "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_170_cardArtFromHsJson256x.png",
-  "tokens": [
+  id: 120021,
+  strId: 'BG32_170',
+  cardType: 'minion',
+  name: 'Metallic Hunter',
+  nameCN: '钢铁猎人',
+  text: '<b>亡语：</b>获取一张尖利箭矢。',
+  mechanics: ['DEATHRATTLE'],
+  referencedTags: [],
+  img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_170_battlegroundsImage.png',
+  art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_170_cardArtFromHsJson256x.png',
+  tokens: [
     {
-      "id": 100596,
-      "strId": "EBG_Spell_014",
-      "cardType": "tavern",
-      "name": "Pointy Arrow",
-      "nameCN": "尖利箭矢",
-      "text": "使一个随从获得+{0}攻击力。4使一个随从获得+{0}/+{1}。",
-      "mechanics": [],
-      "referencedTags": [],
-      "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/EBG_Spell_014_battlegroundsImage.png",
-      "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/EBG_Spell_014_cardArtFromHsJson256x.png",
-      "tier": 1,
-      "manaCost": 1
-    }
+      id: 100596,
+      strId: 'EBG_Spell_014',
+      cardType: 'tavern',
+      name: 'Pointy Arrow',
+      nameCN: '尖利箭矢',
+      text: '使一个随从获得+{0}攻击力。4使一个随从获得+{0}/+{1}。',
+      mechanics: [],
+      referencedTags: [],
+      img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/EBG_Spell_014_battlegroundsImage.png',
+      art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/EBG_Spell_014_cardArtFromHsJson256x.png',
+      tier: 1,
+      manaCost: 1,
+    },
   ],
-  "tier": 2,
-  "health": 1,
-  "attack": 2,
-  "minionTypes": [
-    "mech"
-  ],
-  "minionTypesCN": [
-    "机械"
-  ],
-  "upgradeCard": {
-    "id": 120022,
-    "strId": "BG32_170_G",
-    "cardType": "minion",
-    "name": "Metallic Hunter",
-    "nameCN": "钢铁猎人",
-    "text": "<b>亡语：</b>获取2张\n尖利箭矢。",
-    "mechanics": [
-      "DEATHRATTLE"
-    ],
-    "referencedTags": [],
-    "img": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_170_G_battlegroundsImageGold.png",
-    "art": "https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_170_G_cardArtFromHsJson256x.png",
-    "tier": 2,
-    "health": 2,
-    "attack": 4,
-    "minionTypes": [
-      "mech"
-    ],
-    "minionTypesCN": [
-      "机械"
-    ]
-  }
+  tier: 2,
+  health: 1,
+  attack: 2,
+  minionTypes: ['mech'],
+  minionTypesCN: ['机械'],
+  upgradeCard: {
+    id: 120022,
+    strId: 'BG32_170_G',
+    cardType: 'minion',
+    name: 'Metallic Hunter',
+    nameCN: '钢铁猎人',
+    text: '<b>亡语：</b>获取2张\n尖利箭矢。',
+    mechanics: ['DEATHRATTLE'],
+    referencedTags: [],
+    img: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_170_G_battlegroundsImageGold.png',
+    art: 'https://battlegrounds.oss.gamerhub.cn/all_images/32.2.4.221850/BG32_170_G_cardArtFromHsJson256x.png',
+    tier: 2,
+    health: 2,
+    attack: 4,
+    minionTypes: ['mech'],
+    minionTypesCN: ['机械'],
+  },
 };

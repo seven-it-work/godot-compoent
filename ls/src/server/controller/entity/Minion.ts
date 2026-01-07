@@ -85,6 +85,13 @@ export class Minion extends Card {
   // 移除前需要处理的数据
   removeRattleData: any = {};
 
+  /**
+   * 出售随从后
+   * @param _player 出售随从的玩家
+   */
+  出售随从后(_player: Player) {
+    // 子类可以重写此方法
+  }
   // 执行战吼
   battlecry(_player: Player) {
     if (!this.effectKeywords.includes('BATTLECRY')) {

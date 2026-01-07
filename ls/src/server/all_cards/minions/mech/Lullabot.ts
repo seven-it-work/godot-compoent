@@ -20,7 +20,7 @@ export class Lullabot extends Minion {
    */
   回合结束时(_player: Player): void {
     // 获得+1生命值
-    const buff = new Buff(this.name, 0, 1);
+    const buff = new Buff(this.name, 0, 1 * this.getMultiplier());
     this.addBuff(buff);
   }
 }

@@ -25,12 +25,13 @@ export class CordPuller extends Minion {
 
     // 从db_card获取微型机器人实例
     const microbot = player.getCardByStrId(microbotStrId) as Minion;
-
     if (microbot) {
       // 获取当前随从在战场上的位置
       const index = player.getMinionIndexOnBattlefield(this);
       // 调用玩家的召唤随从方法
-      player.添加随从到战场(microbot, index);
+      for (let i = 0; i < this.getMultiplier(); i++) {
+        player.添加随从到战场(microbot.copy(), index);
+      }
     } else {
       console.error(`拔线机：无法找到微型机器人，strId: ${microbotStrId}`);
     }

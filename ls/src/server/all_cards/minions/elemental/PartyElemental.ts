@@ -42,14 +42,16 @@ export class PartyElemental extends Minion {
           // 没有友方随从
           return;
         }
-        // 随机选择一个
-        const randomMinion = _.sample(findMinion);
-        if (randomMinion === undefined || randomMinion === null) {
-          return;
+        for (let index = 0; index < this.getMultiplier(); index++) {
+          // 随机选择一个
+          const randomMinion = _.sample(findMinion);
+          if (randomMinion === undefined || randomMinion === null) {
+            return;
+          }
+          randomMinion.addBuff(
+            new Buff(this.name, 2 + _player.elementBonus.atk, 1 + _player.elementBonus.hp)
+          );
         }
-        randomMinion.addBuff(
-          new Buff(this.name, 2 + _player.elementBonus.atk, 1 + _player.elementBonus.hp)
-        );
       }
     }
   }

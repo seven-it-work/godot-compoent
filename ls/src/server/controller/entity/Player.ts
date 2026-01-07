@@ -40,6 +40,8 @@ export class Player {
   elementBonusBonus: { atk: number; hp: number } = { atk: 0, hp: 0 };
   // 野兽加成
   beastBonus: { atk: number; hp: number } = { atk: 0, hp: 0 };
+  // 星元自动机加成
+  星元自动机加成: { atk: number; hp: number } = { atk: 0, hp: 0 };
   /**
    * 其他参数
    * targetCard 目标卡片
